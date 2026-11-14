@@ -1,0 +1,35 @@
+{
+  "public_sources_only": true,
+  "files": [
+    {
+      "path": "firmware/src/seq/tb3po.c",
+      "bytes": 6070,
+      "git_blob": "fc4cb5363f12d05d1f5e0d4ab7f6e620820897ec",
+      "sha256": "45115ad56ee96ab9ad0f6609c8194cf95ba472348d0b0bf6a7e7d0e42095e920",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8"
+    },
+    {
+      "path": "firmware/src/seq/tb3po.h",
+      "bytes": 923,
+      "git_blob": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+      "sha256": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8"
+    },
+    {
+      "path": "firmware/src/seq/pattern.h",
+      "bytes": 5814,
+      "git_blob": "9810f8977dccb726e09d34666657f1e01bf83b1e",
+      "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8"
+    },
+    {
+      "path": "firmware/src/x0x_cold.h",
+      "bytes": 428,
+      "git_blob": "089256ed4b45ceb220aa713a9dfa023efe9b85ad",
+      "sha256": "e95f4037d8f8e0dca5c32ba9253fb8aba7baf1d098407998f6a9c0d1857ba663",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8"
+    }
+  ],
+  "dependencies_complete": true,
+  "private_native_sdk_dependencies": false
+}

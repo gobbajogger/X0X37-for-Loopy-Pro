@@ -1,0 +1,84 @@
+{
+  "html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659",
+  "renderer_sha256": "e422f74492445d5be186822ddd3041ed6f09613e51a8469afacda21126e0c7e6",
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "reviewed_predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+  "current_references": [
+    {
+      "file": "elite-musical2-03-running-grid.png",
+      "sha256": "7e8bca276b1de1a4260c91c84e73215188d76a0ae062070dde525c836c42c575",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-qualified2-05-juno-envelope.png",
+      "sha256": "b52036a628ec2e21a8d82c09e3b619d2c80bd6eb153fac4c24384589bdde6d95",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-default-A-v1-01-default-A-sound-native.png",
+      "sha256": "e3d4e10fdbe2262fab32323178dd38c6a98c7f563aaf4f5f871dc40870861c31",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-sequence64-v3-08-pending-cue-retained.png",
+      "sha256": "28e20f5097725f5167c2285030b66ea8b1112bae023efa461aa5dee1e5c9e4e2",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-motion-v1-05-after-live-override-turn-source-readout.png",
+      "sha256": "0ab8da55c448cb5c14d3ac989831cb8e863e325fb50e565bfe23d5c63c1f10cf",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-copy-v1-06-five-part-occupied-copy-question.png",
+      "sha256": "765e43474f1a5feb4773e32727998fb6d32795030edfac29f3cf97c505a92a63",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-home-cues-v1-03-cues-and-mute-qualified.png",
+      "sha256": "bda4451bb474c1f5e453e921c7f3c73ebaf2619f8f93c504e26e5fa1a80b6fa9",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-r6-record-modifiers-02-NOTE-REPEAT-recorded-slide.png",
+      "sha256": "5005526e4794da5c45d26ffe6161ac44955681ecc7997e463f56028e684e9d2b",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-song-authoring-02-one-bar-assigned.png",
+      "sha256": "ea8e14bc66ebb6e0c04c89a4694d2fa41f89765fa90cc840599ade2c98d8595f",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-panic-v1-03-FX-SEQ-chord-request-both-held.png",
+      "sha256": "05b632414ca91535fa346f412b1e8c5b8eb4895fd52634f3c27a245e57ca2c93",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-clip-wait-v1-01-no-host-waiting.png",
+      "sha256": "14f59e73ed64203e7ee14c3539249be9ef57c7c12a7d4d360d2bf13327702cbe",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-qualified2-01-break-loops.png",
+      "sha256": "3b3b60b0dea8e3a93db197760848e375172e2f45b924426ef449621c2f59f555",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-focused-04-mix-909.png",
+      "sha256": "38fda7434d6d339fa92beea88a07839fd654f2c1de256b5f9dc19c24a7781e95",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-known-phrase-gen-v1-01-known-phrase-GEN-before.png",
+      "sha256": "bdd0e141133c860751c1f9289773dd59b4fc723dd7a29c25a35892ad1cdb845c",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-known-phrase-gen-v1-04-held-step03-octave-corrected.png",
+      "sha256": "47560df10967ff32bae8e0d4862550d83ce217692a0e68c9337811f00b536f22",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    }
+  ],
+  "evidence": "Proposal model only; exact successor independent review pending"
+}

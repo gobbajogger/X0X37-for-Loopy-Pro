@@ -1,0 +1,2161 @@
+{
+  "identity": {
+    "task": "R3 read-only Home and drum function inventory",
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "current_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "current_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+    "current_ui_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+    "rejected_proposal_commit": "a8986ac2d364bb59a38e068381e18ca068fe7c8d",
+    "rejected_walkthrough_path": "rejected a898 walkthrough",
+    "historical_baseline": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "historical_emulator_source": "79280e763341d03ba43266d3e25dad66f12de860"
+  },
+  "what_current_already_does_well": [
+    "Home keeps four useful performance controls visible and directly editable.",
+    "One key selects a drum track; one pad changes a step. Running with REC off defaults to selecting without an unwanted extra hit.",
+    "All eleven drum tracks and shared accent remain visible against sixteen steps, with selected row, playhead, out-of-length marks and lock notches.",
+    "Sound rows keep a stable K5–K8 mapping and fast K2 / repeated PARA navigation. Sparse rows keep the actual physical knob numbers.",
+    "Track mute is a modifier chord. Home part mute and pattern cue take one press.",
+    "A held step can cross from SEQ to PARA without losing its owner. Edited release preserves the hit; a stopped preview restores base values on release.",
+    "Pattern page, length, rate, part selection and pattern selection use separate controls."
+  ],
+  "geometry": {
+    "screen": [
+      240,
+      240
+    ],
+    "header": [
+      0,
+      20
+    ],
+    "main": [
+      20,
+      158
+    ],
+    "knob_strip": [
+      158,
+      240
+    ],
+    "grid": {
+      "track_label_width": 24,
+      "first_step_x": 27,
+      "step_cell_width": 12,
+      "step_pitch": 13,
+      "beat_gap": 1,
+      "row_height": 11,
+      "rows": 12,
+      "row_labels": "Eleven voices plus shared AC"
+    },
+    "source": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4694-4703",
+        "claim": "Header, main and knob bands fill all 240 rows",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4694"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "5508-5555",
+        "claim": "Native drum grid geometry",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5508"
+      }
+    ]
+  },
+  "physical_controls": {
+    "immutable_default_captions": {
+      "PATCH": "Home / back / modifier",
+      "PARA": "Sound view / next sound row",
+      "SCALE": "List / confirm",
+      "CHORD": "Accent modifier",
+      "NOTE REPEAT": "Mixer / next mix page",
+      "GLOBE": "Global menu",
+      "BT": "Save / copy / forget motion",
+      "SEQ": "Sequence / next sequence page",
+      "SEQ PLAY": "Start / stop",
+      "SEQ REC": "Record",
+      "OCTAVE−/+": "Contextual pattern bank or step page"
+    },
+    "knobs": {
+      "K1": "Dedicated master pot",
+      "K2": "Select row; held-step chance; PATCH-held tempo",
+      "K3": "Select part; list value",
+      "K4": "Cue pattern",
+      "K5–K8": "Four active-row parameter values"
+    },
+    "hardware_keybed": "37 keys. This logical UI uses F3–G5, the 27 keys at physical indices 5–31: sixteen white and eleven black keys. Other full-keybed contexts are outside this helper’s scope.",
+    "pad_grid": "Hardware pads 0–7 = steps 1–8; pads 8–15 = steps 9–16. Add the 16-step page offset. Non-grid mapping swaps rows.",
+    "mapping_limits": "PANEL_DEFAULT mapping. Hardware calibration can reteach logical roles except K1; printed captions remain unchanged. This helper performed no individual-pad or device test.",
+    "source": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "33-53",
+        "claim": "SMK printed-caption macros",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L33"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "75-85",
+        "claim": "Logical white and black indices",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L75"
+      },
+      {
+        "path": "firmware/src/app/panel.c",
+        "lines": "29-43",
+        "claim": "PANEL_DEFAULT",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/panel.c#L29"
+      },
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "52-56",
+        "claim": "37-key hardware and F3 logical offset",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L52"
+      },
+      {
+        "path": "PAD_MAP.md",
+        "lines": "85-95",
+        "claim": "GRID and non-grid pad mapping",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/PAD_MAP.md#L85"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "1991-2000",
+        "claim": "Home, Song and drum views select direct GRID pad mapping",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1991"
+      }
+    ]
+  },
+  "drum_voice_map": {
+    "909": [
+      {
+        "track_index": 0,
+        "actual_abbreviation": "BD",
+        "sound_identity": "kick",
+        "inner_black_key": "F#3",
+        "home_role_of_first5": "Mute 909 part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Attack",
+            "Decay",
+            "P.Dpth"
+          ],
+          [
+            "Pitch"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 1,
+        "actual_abbreviation": "SD",
+        "sound_identity": "snare",
+        "inner_black_key": "G#3",
+        "home_role_of_first5": "Mute 808 part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Tone",
+            "Decay",
+            "Snappy"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 2,
+        "actual_abbreviation": "LT",
+        "sound_identity": "low tom",
+        "inner_black_key": "A#3",
+        "home_role_of_first5": "Mute BREAK part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Attack",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 3,
+        "actual_abbreviation": "MT",
+        "sound_identity": "mid tom",
+        "inner_black_key": "C#4",
+        "home_role_of_first5": "Mute Bass B part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Attack",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 4,
+        "actual_abbreviation": "HT",
+        "sound_identity": "high tom",
+        "inner_black_key": "D#4",
+        "home_role_of_first5": "Mute Bass A part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Attack",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 5,
+        "actual_abbreviation": "RS",
+        "sound_identity": "rimshot",
+        "inner_black_key": "F#4",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 6,
+        "actual_abbreviation": "CP",
+        "sound_identity": "handclap",
+        "inner_black_key": "G#4",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Tail"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 7,
+        "actual_abbreviation": "CH",
+        "sound_identity": "closed hi-hat",
+        "inner_black_key": "A#4",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 8,
+        "actual_abbreviation": "OH",
+        "sound_identity": "open hi-hat",
+        "inner_black_key": "C#5",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 9,
+        "actual_abbreviation": "CR",
+        "sound_identity": "crash cymbal",
+        "inner_black_key": "D#5",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 10,
+        "actual_abbreviation": "RD",
+        "sound_identity": "ride cymbal",
+        "inner_black_key": "F#5",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      }
+    ],
+    "808": [
+      {
+        "track_index": 0,
+        "actual_abbreviation": "BD",
+        "sound_identity": "kick",
+        "inner_black_key": "F#3",
+        "home_role_of_first5": "Mute 909 part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Tone",
+            "Attack",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 1,
+        "actual_abbreviation": "SD",
+        "sound_identity": "snare",
+        "inner_black_key": "G#3",
+        "home_role_of_first5": "Mute 808 part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Tone",
+            "Decay",
+            "Snappy"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 2,
+        "actual_abbreviation": "LT",
+        "sound_identity": "low tom",
+        "inner_black_key": "A#3",
+        "home_role_of_first5": "Mute BREAK part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Sound",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 3,
+        "actual_abbreviation": "MT",
+        "sound_identity": "mid tom",
+        "inner_black_key": "C#4",
+        "home_role_of_first5": "Mute Bass B part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Sound",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 4,
+        "actual_abbreviation": "HT",
+        "sound_identity": "high tom",
+        "inner_black_key": "D#4",
+        "home_role_of_first5": "Mute Bass A part",
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Sound",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 5,
+        "actual_abbreviation": "RS",
+        "sound_identity": "rimshot",
+        "inner_black_key": "F#4",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Sound",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 6,
+        "actual_abbreviation": "CP",
+        "sound_identity": "handclap",
+        "inner_black_key": "G#4",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Attack",
+            "Sound",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 7,
+        "actual_abbreviation": "CB",
+        "sound_identity": "cowbell",
+        "inner_black_key": "A#4",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 8,
+        "actual_abbreviation": "CY",
+        "sound_identity": "cymbal",
+        "inner_black_key": "C#5",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 9,
+        "actual_abbreviation": "OH",
+        "sound_identity": "open hi-hat",
+        "inner_black_key": "D#5",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      },
+      {
+        "track_index": 10,
+        "actual_abbreviation": "CH",
+        "sound_identity": "closed hi-hat",
+        "inner_black_key": "F#5",
+        "home_role_of_first5": null,
+        "sound_rows_K5_to_K8": [
+          [
+            "Tune",
+            "Decay"
+          ]
+        ],
+        "next_row_after_voice": "KIT: K5 ACCENT; K6–K8 unmapped"
+      }
+    ]
+  },
+  "drum_row_sources": [
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "1380-1425",
+      "claim": "Actual parameter filtering and stable ordering",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1380"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "1500-1510",
+      "claim": "KIT row",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1500"
+    },
+    {
+      "path": "firmware/src/dsp/drum909.c",
+      "lines": "75-150",
+      "claim": "909 parameter tables",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L75"
+    },
+    {
+      "path": "firmware/src/dsp/drum808.c",
+      "lines": "1697-1772",
+      "claim": "808 parameter tables and sound-switch options",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1697"
+    },
+    {
+      "path": "firmware/src/dsp/drum808.c",
+      "lines": "1810-1913",
+      "claim": "808 descriptor lookup",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1810"
+    }
+  ],
+  "drum_sound_variants": {
+    "808toms": [
+      "TOM",
+      "CONGA"
+    ],
+    "808rim": [
+      "RIM",
+      "CLAVE"
+    ],
+    "808clap": [
+      "CLAP",
+      "MARAC"
+    ],
+    "identity_icon_requirement": "New identity pictures must respect the actual Sound switch. Current grid names do not change for those switches. Do not describe a new proposal icon as an existing source asset."
+  },
+  "bottom_strips": [
+    {
+      "view": "Home / underlying Global page",
+      "page": "PERFORM",
+      "physical_knobs": {
+        "K5": "TEMPO",
+        "K6": "SWING",
+        "K7": "FILTER (master DJ macro)",
+        "K8": "PUMP"
+      },
+      "scope": "Tempo and master controls. Swing follows the 909 pattern resolved by pref_pattern.",
+      "navigation_to_controls": 0,
+      "visible_geometry": "11 px context caption, four 54 × 55 px cards and a 12 px footer inside the 82 px strip.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1470-1474",
+          "claim": "Four simultaneous HOME values",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1470"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "620-624",
+          "claim": "Swing pattern scope",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L620"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7550-7574",
+          "claim": "Metronome, swing, filter, pump glyphs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7550"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8337-8450",
+          "claim": "Values, mapping, lock/motion and footer renderer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8337"
+        }
+      ]
+    },
+    {
+      "view": "909 / 808 SEQ",
+      "page": "SEQUENCE",
+      "physical_knobs": {
+        "K5": "LENGTH 1–64 steps",
+        "K6": "RATE",
+        "K7": null,
+        "K8": null
+      },
+      "rate_values": [
+        "1/16",
+        "1/16T",
+        "1/32",
+        "1/8T",
+        "1/8",
+        "1/4"
+      ],
+      "scope": "Current kit pattern, not just the selected voice. Drums have no direction or transpose control.",
+      "navigation_to_controls": 0,
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1475-1480",
+          "claim": "Drum sequence refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1475"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "437-439",
+          "claim": "Rate enumeration",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L437"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "635-640",
+          "claim": "Stored fields",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L635"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "765-770",
+          "claim": "Field writes",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L765"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7675-7685",
+          "claim": "Length/rate schematics",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7675"
+        }
+      ]
+    },
+    {
+      "view": "909 / 808 PARA sound",
+      "page": "Selected-track rows, then KIT",
+      "physical_knobs": "K5–K8 map left to right across the active row. Sparse rows retain physical knob positions.",
+      "scope": "Selected voice sound. Four rows share the full main and knob area. The bottom is matrix continuation, not a duplicate knob row that can be removed.",
+      "kit_control": {
+        "K5": "ACCENT display alias; engine parameter index 1",
+        "909_engine_descriptor": "Veloc",
+        "808_engine_descriptor": "Accent",
+        "other_knobs": "Unmapped"
+      },
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1380-1425",
+          "claim": "Stable named ranking and exclusions",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1380"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1500-1510",
+          "claim": "Selected-track pages plus KIT index1",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1500"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "963-964",
+          "claim": "ACCENT display alias",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L963"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5742-5840",
+          "claim": "4-row matrix, active physical captions, bottom navigation hints",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5742"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8339-8348",
+          "claim": "Bottom strip continues matrix",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8339"
+        }
+      ]
+    },
+    {
+      "view": "909 MIX / 808 MIX",
+      "page": "selected voice",
+      "physical_knobs": {
+        "K5": "LEVEL",
+        "K6": "PAN",
+        "K7": "REV",
+        "K8": "DLY"
+      },
+      "scope": "Selected track in the visible kit. Pads still edit the visible kit’s steps.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1556-1564",
+          "claim": "Four mix refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1556"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3771-3784",
+          "claim": "Black selects; white/pad edits visible kit",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3771"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6129-6185",
+          "claim": "Track mixer drawing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6129"
+        }
+      ]
+    },
+    {
+      "view": "MIX PARTS",
+      "page": "PARTS",
+      "physical_knobs": {
+        "K5": "LEVEL",
+        "K6": "PAN",
+        "K7": "REV",
+        "K8": "DLY"
+      },
+      "scope": "Selected part. Black keys 1–5 choose the presentation-order lane; PATCH + black mutes it.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1555-1559",
+          "claim": "Four part mix refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1555"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3756-3770",
+          "claim": "Part selection/mute routing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3756"
+        }
+      ]
+    },
+    {
+      "view": "MIX MASTER / WAVE",
+      "page": "MASTER or WAVE",
+      "physical_knobs": {
+        "K5": "KIT DRIVE",
+        "K6": "COMP",
+        "K7": "PUMP",
+        "K8": "FILTER"
+      },
+      "scope": "Master chain. Additional detailed controls remain in the SCALE list.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1565-1574",
+          "claim": "Shared MASTER/WAVE knobs and more refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1565"
+        }
+      ]
+    }
+  ],
+  "bottom_footers": [
+    {
+      "state": "before any button used",
+      "text": [
+        "HOLD ANY BUTTON: WHAT IT DOES"
+      ],
+      "retention": "Keep first-use help discovery; a generic narrative footer is not an equal replacement.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6737-6741",
+          "claim": "Initial help hint",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6737"
+        }
+      ]
+    },
+    {
+      "state": "HOME normal standalone",
+      "text": [
+        "WHITE: PATTERN",
+        "TWO: CHAIN",
+        "BLACK: MUTE"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6751-6763",
+          "claim": "Normal HOME footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6751"
+        }
+      ]
+    },
+    {
+      "state": "HOME with SMC connected",
+      "text": [
+        "SMC F1-5: PART LEVEL",
+        "F6: REV  F7: DLY  F8: FILT"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6753-6760",
+          "claim": "SMC-specific HOME footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6753"
+        }
+      ]
+    },
+    {
+      "state": "drum SEQ",
+      "text": [
+        "BLACK: TRACK",
+        "WHITE: STEP",
+        "PATCH+BLK: MUTE"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6786-6790",
+          "claim": "Drum grid footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6786"
+        }
+      ]
+    },
+    {
+      "state": "drum PARA sound",
+      "text": [
+        "BLACK: SELECT",
+        "WHITE: SOUND or KEY SOUND OFF",
+        "SEQ: STEPS"
+      ],
+      "qualification": "The normal PART matrix renders row/page picture hints instead of draw_footer. These footer_text strings are not claimed to appear simultaneously with the matrix hints.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6778-6782",
+          "claim": "Sound footer strings",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6778"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8339-8348",
+          "claim": "Matrix replaces generic strip",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8339"
+        }
+      ]
+    },
+    {
+      "state": "drum PARA matrix bottom",
+      "text": [
+        "< > plus up/down row picture",
+        "PARA plus page/next picture",
+        "Visible row-bank range"
+      ],
+      "held_step_text": "STEP n < >: CHANCE PARA plus row picture",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5680-5704",
+          "claim": "Row and next-page glyph hints",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5680"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5804-5840",
+          "claim": "Bottom of full matrix",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5804"
+        }
+      ]
+    },
+    {
+      "state": "drum MIX",
+      "text": [
+        "BLACK: TRACK",
+        "PATCH+BLK: MUTE"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6768-6771",
+          "claim": "Track mix footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6768"
+        }
+      ]
+    },
+    {
+      "state": "MIX PARTS",
+      "text": [
+        "BLACK 1-5: PART",
+        "PATCH+BLK: MUTE"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6765-6767",
+          "claim": "Part mix footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6765"
+        }
+      ]
+    },
+    {
+      "state": "MIX MASTER / WAVE or FX",
+      "text": [
+        "AGAIN: NEXT PAGE",
+        "SCALE: ALL AS A LIST"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6772-6774",
+          "claim": "Mix/FX footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6772"
+        }
+      ]
+    },
+    {
+      "state": "SCALE list",
+      "text": [
+        "K2: MOVE",
+        "K3: CHANGE",
+        "PATCH: BACK"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6747-6750",
+          "claim": "List footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6747"
+        }
+      ]
+    },
+    {
+      "state": "confirmation",
+      "text": [
+        "SCALE: YES",
+        "PATCH: NO"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6744-6746",
+          "claim": "Question footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6744"
+        }
+      ],
+      "limits": "Question lifecycle is reserved elsewhere; this helper inventories retained exit functions only."
+    }
+  ],
+  "gestures": [
+    {
+      "id": "drum-track-select-audition",
+      "control": "One of the eleven inner black keys",
+      "effect": "Always selects the track and rebuilds sound pages. It also auditions when stopped, REC is on, or KEY SOUND is ALWAYS. Running with REC off and default STOPPED only selects.",
+      "write": "Only SEQ + REC + playing writes a local drum onset. PARA selection/audition never writes a hidden step.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3196-3218",
+          "claim": "Selection/audition/write conditions",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3196"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3799-3805",
+          "claim": "SEQ versus PARA dispatch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3799"
+        }
+      ]
+    },
+    {
+      "id": "drum-step-add-remove",
+      "control": "White key or GRID pad 0–15",
+      "effect": "In SEQ, an empty step turns on at press. An existing step turns off only on release within 300 ms if unedited and still owned by the same target. A held or edited release keeps it. Input rejects only steps outside 0–63: a pad beyond the current loop length can still store a hidden hit. The loop length is not extended; the grid draws out-of-length marks.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3251-3298",
+          "claim": "Step lifecycle",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3251"
+        }
+      ],
+      "write": "This routing does not extend pattern length."
+    },
+    {
+      "id": "drum-shared-accent",
+      "control": "CHORD + white step key / pad",
+      "effect": "Flips shared kit accent at that step. Accent is not a separate per-voice row.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3279-3285",
+          "claim": "Accent branch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3279"
+        }
+      ]
+    },
+    {
+      "id": "drum-loud-live-hit",
+      "control": "CHORD + black track key",
+      "effect": "Plays a loud hit. During running SEQ recording, writes the hit, shared accent and velocity.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3205-3218",
+          "claim": "Loud hit and step write",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3205"
+        }
+      ]
+    },
+    {
+      "id": "drum-track-mute",
+      "control": "PATCH held + black track key in drum view or drum MIX",
+      "effect": "Changes that track’s vmute. With QUEUED MUTES enabled while playing, it toggles a pending change; repeating cancels it. Otherwise the change is immediate. PATCH release is consumed.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3756-3763",
+          "claim": "Mix modifier",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3756"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3793-3798",
+          "claim": "Drum modifier",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3793"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3560-3573",
+          "claim": "Queued/immediate mute",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3560"
+        }
+      ]
+    },
+    {
+      "id": "home-part-mute",
+      "control": "First five black keys while on Home",
+      "effect": "Mutes 909, 808, BREAK, Bass B or Bass A in presentation order. It does not select a part. The configured queued-mute policy still applies.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "97-111",
+          "claim": "Stable presentation order",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L97"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3786-3791",
+          "claim": "Home key dispatch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3786"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3523-3542",
+          "claim": "Policy",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3523"
+        }
+      ]
+    },
+    {
+      "id": "home-cue-chain",
+      "control": "White key / pad pattern press; hold two different patterns to chain",
+      "effect": "First press clears a previous chain and cues a pattern. A second overlapping different press selects inclusive chain endpoints. PATCH + white does this from other views.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3735-3754",
+          "claim": "Cue/chain dispatch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3735"
+        }
+      ]
+    },
+    {
+      "id": "home-pattern-bank",
+      "control": "OCTAVE− / + on Home",
+      "effect": "Directly selects pattern bank 1–16 or 17–32. This does not change pitch.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4158-4161",
+          "claim": "Pattern bank branch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+        }
+      ]
+    },
+    {
+      "id": "drum-step-page",
+      "control": "OCTAVE− / + in drum SEQ",
+      "effect": "Moves one 16-step page, bounded to pages 0–3. Page selection is independent of pattern length.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4162-4169",
+          "claim": "Step page branch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4162"
+        }
+      ]
+    },
+    {
+      "id": "part-select",
+      "control": "K3",
+      "effect": "One direction event selects an adjacent part in stable presentation order, bounded without wrapping. A part change cancels the held-step owner first.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "97-111",
+          "claim": "Order/bounds",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L97"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4589-4611",
+          "claim": "Change dispatch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4589"
+        }
+      ]
+    },
+    {
+      "id": "pattern-next",
+      "control": "K4",
+      "effect": "Part views cue only the selected part. Home and other non-part views cue all five. This clears a chain and updates the displayed bank. The bass SOUND page has a separate preset exception.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4613-4627",
+          "claim": "Part/all cue routing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4613"
+        }
+      ]
+    },
+    {
+      "id": "row-page-access",
+      "control": "K2 or < >; repeated PARA",
+      "effect": "K2 selects the previous/next sound row with wrap across existing banks. PARA advances one row. Four parameter knobs remain simultaneous. In a list, K2 chooses the row and K3 / < > changes its value.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4554-4579",
+          "claim": "Row navigation",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4554"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4070-4081",
+          "claim": "PARA repeat",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4070"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5680-5704",
+          "claim": "Visible row/page hints",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5680"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3889-3924",
+          "claim": "List arrows",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3889"
+        }
+      ]
+    },
+    {
+      "id": "held-chance",
+      "control": "Hold a step + K2, or the mapped arrows",
+      "effect": "Applies in SEQ / PARA without an overlay. Chance runs 100, 95 … 5 percent, then conditional cycles 1:2 … 8:8. One direction event changes one position and marks the hold edited so release keeps the step.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3033-3080",
+          "claim": "Chance scope/values",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3033"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4554-4556",
+          "claim": "Priority",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4554"
+        }
+      ]
+    },
+    {
+      "id": "held-plock",
+      "control": "SEQ: hold a step → PARA → current K5–K8; release original step",
+      "effect": "SEQ → PARA preserves the owner. Only engine parameters belonging to that part can lock. Release in PARA finishes that same hold. A stopped preview restores base values on release. Going back to SEQ while held reports RELEASE STEP FIRST.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2754-2787",
+          "claim": "View transition",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2754"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2840-2857",
+          "claim": "Lock owner/scope",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2840"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2929-3009",
+          "claim": "Lock/clear/restore",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2929"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3640-3658",
+          "claim": "Owner release",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3640"
+        }
+      ]
+    },
+    {
+      "id": "forget-automation",
+      "control": "BT held + the target sound knob",
+      "effect": "Forgets the relevant motion. With a step held, clears that step’s lock only. BT is consumed so release does not save.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2806-2838",
+          "claim": "Motion forget",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2806"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2954-2972",
+          "claim": "Step lock clear",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2954"
+        }
+      ]
+    },
+    {
+      "id": "transport",
+      "control": "SEQ PLAY / SEQ REC",
+      "effect": "Transport acts at press, not release. PLAY toggles start/stop. REC toggles recording. PATCH + PLAY redoes; PATCH + REC undoes; BT + REC asks to clear the part.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4009-4043",
+          "claim": "Transport and modifier branches",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4009"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4515-4523",
+          "claim": "Press timing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4515"
+        }
+      ]
+    },
+    {
+      "id": "copy-save-help",
+      "control": "BT tap; BT + white; hold any button",
+      "effect": "BT tap saves. BT + white copies live parts to a destination, with an overwrite question if occupied. BT + OCTAVE selects the destination bank. Help appears after 900 ms, or 400 ms for BT.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1912-1918",
+          "claim": "Help timing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1912"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1956-1968",
+          "claim": "Save help discovery",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1956"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3703-3717",
+          "claim": "Copy dispatch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3703"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4121-4126",
+          "claim": "Copy bank",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4121"
+        }
+      ]
+    }
+  ],
+  "representative_task_counts": [
+    {
+      "id": "HOME-tempo",
+      "start": "Home; no overlay",
+      "sequence": [
+        "Turn K5"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1470-1474",
+          "claim": "Direct performance refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1470"
+        }
+      ],
+      "notes": "Exact value delta depends on acceleration; no page navigation.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-swing",
+      "start": "Home; no overlay",
+      "sequence": [
+        "Turn K6"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1470-1474",
+          "claim": "Direct performance refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1470"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-filter",
+      "start": "Home; no overlay",
+      "sequence": [
+        "Turn K7"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1470-1474",
+          "claim": "Direct performance refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1470"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-pump",
+      "start": "Home; no overlay",
+      "sequence": [
+        "Turn K8"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1470-1474",
+          "claim": "Direct performance refs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1470"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-cueP02",
+      "start": "Home, P01 sounding, bank 1",
+      "sequence": [
+        "Press/release pad 1 or the second white key"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3735-3754",
+          "claim": "Cue and chain routing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3735"
+        }
+      ],
+      "notes": "Adoption timing is sequencer-owned. One press does not prove audible completion.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-chainP02-P04",
+      "start": "Home, bank 1",
+      "sequence": [
+        "Press and hold the second white key / pad 1",
+        "Press the fourth white key / pad 3 while the first is held",
+        "Release both"
+      ],
+      "button_or_key_presses": 2,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3735-3754",
+          "claim": "Cue and chain routing",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3735"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-muteBREAK",
+      "start": "Home",
+      "sequence": [
+        "Press/release third black key A#3"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "97-111",
+          "claim": "Order",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L97"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3786-3791",
+          "claim": "Home key dispatch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3786"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-cancel-pending-muteBREAK",
+      "start": "Home, BREAK mute pending",
+      "sequence": [
+        "Press third black key A#3 again"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3523-3533",
+          "claim": "Toggle pending mute",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3523"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "HOME-bank17-32",
+      "start": "Home, bank 1",
+      "sequence": [
+        "Press/release OCTAVE+"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4158-4161",
+          "claim": "Pattern bank branch",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-first4kicks-fromHOME",
+      "start": "Home; 909 selected; empty working P01; REC off; stopped",
+      "sequence": [
+        "SEQ",
+        "First black key F#3 explicitly selects kick",
+        "Pads 0, 4, 8 and 12 once each",
+        "SEQ PLAY"
+      ],
+      "button_or_key_presses": 7,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3196-3218",
+          "claim": "Kick selection",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3196"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3251-3298",
+          "claim": "Step entry",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3251"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4108-4114",
+          "claim": "SEQ view entry",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4108"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4010-4024",
+          "claim": "Start",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4010"
+        }
+      ],
+      "notes": "Seven presses including explicit kick selection. If kick selection is already trusted, omit that press: six. Do not reset a real project as assumed setup.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-selectsnare-running",
+      "start": "909 SEQ; running; REC off; KEY SOUND STOPPED",
+      "sequence": [
+        "Second black key G#3"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3196-3218",
+          "claim": "Selection without audition policy",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3196"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-auditionsnare-stopped",
+      "start": "909 SEQ; stopped",
+      "sequence": [
+        "Second black key G#3"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3196-3218",
+          "claim": "Select and play policy",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3196"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-addsnarestep5",
+      "start": "909 SEQ; snare selected; step 5 empty",
+      "sequence": [
+        "Press/release pad 4"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3251-3298",
+          "claim": "Immediate empty-step onset",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3251"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-removesnarestep5",
+      "start": "909 SEQ; snare selected; step 5 already on",
+      "sequence": [
+        "Short tap pad 4, under 300 ms"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3251-3298",
+          "claim": "Short-tap removal",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3251"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-recordonethen-disarm",
+      "start": "909 SEQ; running; REC off",
+      "sequence": [
+        "SEQ REC",
+        "Second black key G#3 at the intended step",
+        "SEQ REC"
+      ],
+      "button_or_key_presses": 3,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3196-3218",
+          "claim": "Recording admission",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3196"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4025-4042",
+          "claim": "Record toggle",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4025"
+        }
+      ],
+      "notes": "Source-baseline capture only. This does not select CP2 strategy or CP3 lifecycle.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-length",
+      "start": "909 SEQ",
+      "sequence": [
+        "Turn K5"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1475-1480",
+          "claim": "Sequence control references",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1475"
+        }
+      ],
+      "notes": "No absolute detent count claimed for 16 → 64; the knob accelerates.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-rate1-16to1-8",
+      "start": "909 SEQ; rate 1/16",
+      "sequence": [
+        "Four separated positive K6 value events"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 4,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "437-439",
+          "claim": "Rate order",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L437"
+        }
+      ],
+      "notes": "Four is the source enumeration distance, not four required physical turn sessions. One continuous gesture can supply four value events.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-page49-64",
+      "start": "909 SEQ, page 1",
+      "sequence": [
+        "OCTAVE+",
+        "OCTAVE+",
+        "OCTAVE+"
+      ],
+      "button_or_key_presses": 3,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4162-4169",
+          "claim": "Bounded page selection",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4162"
+        }
+      ],
+      "notes": "Length 64 is a separate precondition. No drum direction control is invented.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-probability100to95",
+      "start": "909 SEQ; selected track; existing step 5",
+      "sequence": [
+        "Hold pad 4",
+        "One negative K2 event",
+        "Release pad 4"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3033-3080",
+          "claim": "Chance",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3033"
+        }
+      ],
+      "notes": "Two press/turn actions plus release. Entering PARA is unnecessary.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-kickTune-lock",
+      "start": "909 SEQ; kick selected; existing step 5; remembered sound row 1",
+      "sequence": [
+        "Hold pad 4",
+        "Press/release PARA while the pad remains held",
+        "Turn K5",
+        "Release pad 4"
+      ],
+      "button_or_key_presses": 2,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2754-2787",
+          "claim": "Preserve held owner",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2754"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2929-3009",
+          "claim": "Turn a step lock",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2929"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3640-3658",
+          "claim": "Resolve original release",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3640"
+        }
+      ],
+      "notes": "Three press/turn actions plus release. If another sound row was remembered, add the shortest K2 row movement explicitly.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-mutedrumtrack",
+      "start": "909 SEQ",
+      "sequence": [
+        "Hold PATCH",
+        "Press chosen black track key",
+        "Release both"
+      ],
+      "button_or_key_presses": 2,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3793-3798",
+          "claim": "Track mute",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3793"
+        }
+      ],
+      "notes": "One modifier chord consists of two physical presses; no menu.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "SEQ-select808",
+      "start": "909 SEQ",
+      "sequence": [
+        "One positive K3 direction event"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "97-111",
+          "claim": "Adjacent part order",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L97"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4589-4611",
+          "claim": "K3",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4589"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "PARA-returnSEQ",
+      "start": "909 PARA; no step held",
+      "sequence": [
+        "SEQ"
+      ],
+      "button_or_key_presses": 1,
+      "encoder_turn_gestures": 0,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4108-4114",
+          "claim": "SEQ",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4108"
+        }
+      ],
+      "notes": "",
+      "classification": "Source-derived access baseline; not timed or executed"
+    },
+    {
+      "id": "PARA-nextrow",
+      "start": "909 PARA",
+      "sequence": [
+        "One K2 direction event, or one PARA tap"
+      ],
+      "button_or_key_presses": 0,
+      "encoder_turn_gestures": 1,
+      "evidence": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4554-4579",
+          "claim": "K2 row access",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4554"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4070-4081",
+          "claim": "Repeated PARA row access",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4070"
+        }
+      ],
+      "notes": "K2 route is zero button presses plus one turn. Alternate PARA route is one press plus zero turns. Neither needs a confirmation.",
+      "classification": "Source-derived access baseline; not timed or executed"
+    }
+  ],
+  "count_convention": {
+    "press": "One button, key or pad down plus release. Modifier chords count physical presses separately; a release is already included unless explicitly held.",
+    "turn": "One intended encoder-turn gesture unless explicitly counted as value events. Exact mechanical detents and elapsed time are unqualified.",
+    "baseline": "Starting state is explicit. Do not insert a menu or confirmation that current code does not require. Revised access counts remain unknown until the revised state/control reducer exists.",
+    "rate_task": "Four separated value events describe enumeration distance, not four required turn sessions."
+  },
+  "a898_displacement_inventory": [
+    {
+      "id": "D-HOME-cards",
+      "actual": "Four 55 px performance cards with metronome, swing, filter and pump pictures plus values; all K5–K8 directly editable.",
+      "a898": "LC-HOME-PAIR keeps four compact text readouts. The values are not absent. It removes the control-card pictures and hierarchy, and does not label the physical K5–K8 mapping.",
+      "loss": "Control recognition and graphic feedback are weakened. No interaction-count improvement was demonstrated.",
+      "required": "Retain the useful cards and direct knobs until equal or better native control mapping is demonstrated.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7550-7574",
+          "claim": "Performance glyphs",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7550"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8354-8450",
+          "claim": "Actual bottom-strip renderer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8354"
+        }
+      ],
+      "proposal_frames": [
+        "LC-HOME-PAIR",
+        "CMP-HOME-POWER"
+      ]
+    },
+    {
+      "id": "D-SEQ-cards",
+      "actual": "K5 LENGTH and K6 RATE are separate visible cards with pictures and readouts; K7–K8 are empty.",
+      "a898": "The drum proposal replaces these with a small sentence: K5 LEN16 / K6 RATE1/16 | OTHER NONE.",
+      "loss": "Value/control hierarchy and parameter pictures are displaced. OTHER NONE adds no function.",
+      "required": "Retain the cards, mapping, units and direct access. Fit page/range information without displacing them.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1475-1480",
+          "claim": "Mapped control references",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1475"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7675-7685",
+          "claim": "Schematics",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7675"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8354-8450",
+          "claim": "Strip",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8354"
+        }
+      ],
+      "proposal_frames": [
+        "PS-FIRST-BEAT",
+        "PS-LAST-PAGE",
+        "PS-DRUM-CHANCE"
+      ]
+    },
+    {
+      "id": "D-SEQ-mute-affordance",
+      "actual": "PATCH+BLK: MUTE remains in the grid footer.",
+      "a898": "All twelve extracted drum fixtures omit the track-mute hint, replacing it with selection, audition, page or chance narrative.",
+      "loss": "The existing two-press mute chord loses immediate discovery. The source function is not removed, but an equal replacement was not demonstrated.",
+      "required": "Restore an on-grid track-mute affordance and preserve the two physical presses.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6786-6790",
+          "claim": "Grid footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6786"
+        }
+      ],
+      "proposal_frames": "All PS drum fixtures"
+    },
+    {
+      "id": "D-HOME-scopedfooter",
+      "actual": "WHITE: PATTERN / TWO: CHAIN / BLACK: MUTE. With SMC connected, Home instead shows F1–5 part levels, F6 reverb, F7 delay and F8 filter.",
+      "a898": "Some Home fixtures retain pattern/chain/mute words. LC-CUE narrows them to pad 2 and BREAK. Commit states replace them with queue/save narrative. No equivalent SMC-connected Home state is shown.",
+      "loss": "General function discovery and the contextual SMC mapping disappear in some states.",
+      "required": "Keep the normal function legend and relevant SMC mapping available. A queue event must not consume their only location.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6751-6763",
+          "claim": "Home footer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6751"
+        }
+      ],
+      "proposal_frames": [
+        "LC-CUE",
+        "LC-CUE-COMMIT",
+        "LC-CUE-COMMIT-ON",
+        "LC-EXT-CUE-COMMIT"
+      ]
+    },
+    {
+      "id": "D-grid-instrumentidentities",
+      "actual": "Eleven abbreviation labels plus AC, in stable kit-specific order. Current source uses BD/SD text; the official atlas has no individual drum identity pictures.",
+      "a898": "The proposal keeps BD, SD, LT and the other abbreviations as the primary grid identities.",
+      "loss": "This does not meet the owner’s glyph-first requirement. Do not imply the source already has kick/snare identity icons.",
+      "required": "New recognizable pictures must map one to one to the correct voices, including kit-specific hat/cymbal order and 808 sound-switch variants. Preserve track gestures and the sixteen-step grid.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5514-5555",
+          "claim": "Current text grid",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5514"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "lines": "525-532",
+          "claim": "Kit voice order",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L525"
+        },
+        {
+          "path": "firmware/src/app/ui_pictograms.h",
+          "lines": "5-44",
+          "claim": "Semantic picture atlas enumeration",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_pictograms.h#L5"
+        }
+      ],
+      "proposal_frames": "All PS drum fixtures"
+    },
+    {
+      "id": "D-firstusehelp",
+      "actual": "Initial HOLD ANY BUTTON: WHAT IT DOES, contextual hold-help, and native matrix row/page picture hints.",
+      "a898": "The native proposal always uses fixture narrative. Browser-readable rationale is not the instrument’s help affordance.",
+      "loss": "The replacement for device help discovery and fast row hints was not demonstrated.",
+      "required": "Preserve the actual help route and matrix row/page hints. Do not count browser explanations as device UI.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1912-1918",
+          "claim": "Help hold delay",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1912"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6737-6741",
+          "claim": "First-use help hint",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6737"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5804-5840",
+          "claim": "Matrix bottom hints",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5804"
+        }
+      ],
+      "proposal_frames": [
+        "PS-FIRST-BEAT",
+        "LC-HOME-PAIR"
+      ]
+    },
+    {
+      "id": "D-drum-soundcoverage",
+      "actual": "Complete fast sound rows for all eleven voices in each kit; active row maps to four knobs. Drive/Dist remain in SCALE; Level/Pan/Rev/Dly remain in MIX.",
+      "a898": "Embedded D.screens contains no 909/808 PARA sound frame. Drum overview fixtures cannot account for complete sound access.",
+      "loss": "Whole-instrument comparison and displaced-function accounting are incomplete for drum sound pages.",
+      "required": "Include equivalent drum PARA and MIX states. Count navigation from the exact remembered active row, not an assumed first row.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1380-1425",
+          "claim": "Sound pages and parameter exclusions",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1380"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1500-1510",
+          "claim": "KIT",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1500"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1556-1564",
+          "claim": "Mix control references",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1556"
+        },
+        "a898 embedded D.screens data extraction"
+      ],
+      "proposal_frames": []
+    }
+  ],
+  "glyph_assets": {
+    "official_atlas": "ui_pictograms.h holds semantic 9 × 9 pictures. It has no individual kick, snare, hat or cymbal identity entries.",
+    "current_instrument_labels": "draw_drum calls engine_voice_name; the current kit arrays contain BD/SD and the other abbreviations.",
+    "existing_parameter_glyphs": "drum_strip_glyph draws decay, noise tail, tune, kick pitch sweep, attack, low-pass, shell tone, snappy, sound switch, accent and level. These are value/DSP schematics, not instrument identity pictures.",
+    "performance_glyphs": "Metronome, swing, filter curve and pump dip already provide useful feedback.",
+    "sources": [
+      {
+        "path": "firmware/src/app/ui_pictograms.h",
+        "lines": "5-44",
+        "claim": "Atlas entries",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_pictograms.h#L5"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "5514-5528",
+        "claim": "Grid text labels",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5514"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7970-7990",
+        "claim": "Drum parameter picture roles",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7970"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "8046-8199",
+        "claim": "Value and live parameter pictures",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8046"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7550-7574",
+        "claim": "Performance glyphs",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7550"
+      }
+    ]
+  },
+  "evidence_limits": [
+    "This helper did not run an emulator, native firmware, build, device, audio, physical LED or participant test.",
+    "No Git, source repository or PR mutation. All new files remain under helpers/drums.",
+    "Current 3c41 source is not a898 proposal execution. Historical 79280 captures are not current execution.",
+    "This helper captured no current firmware pixels. It extracted existing proposed 240 × 240 PNGs and inspected them at native size; it did not recreate or render them.",
+    "This is a function inventory, not independent acceptance. Fresh emulator reviewer admission remains with the parent.",
+    "Settings, the seven reserved CP1 external cases, CP2/CP3 policy and shared #891 remain outside this helper’s ownership.",
+    "New instrument identity pictures still need recognition/legibility review and current actual comparisons. Existing parameter pictures do not satisfy the new identity requirement."
+  ],
+  "baseline_mismatches_to_account_for": [
+    {
+      "id": "OUT-OF-LENGTH-INPUT",
+      "current_source": "draw_drum renders marks for s ≥ length, but drum_step rejects only s ≥ 64. A press beyond loop length stores a hidden hit without extending the loop.",
+      "a898": "PS-J10 rejection criteria claim out-of-length cells are disabled.",
+      "disposition": "Do not describe input disablement as retained current behavior. Any change needs a deliberate design disposition and affected validation, with current behavior represented honestly.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "3251-3298",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "claim": "Input limit is NSTEPS, not current pattern length"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "5528-5538",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "claim": "Grid rendering distinguishes steps outside length"
+        }
+      ]
+    }
+  ]
+}

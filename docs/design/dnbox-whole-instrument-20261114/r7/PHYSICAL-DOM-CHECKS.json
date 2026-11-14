@@ -1,0 +1,67 @@
+{
+  "classification": "Producer actual local Chromium DOM checks; proposal only, not hardware/firmware timing",
+  "html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659",
+  "passed": 11,
+  "total": 11,
+  "checks": [
+    {
+      "name": "37-key DOM pointer uses physical31\u2192held64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Captured physical key release outside clears GRID owner without deleting64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Keyboard press uses same GRID64 role",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Held physical key stays original owner while K2 edits chance",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Key release after focus moves to knob releases original key",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Physical black G#3 selects source snare rather than synth note",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Published GEN physical hold + knob edits only intended cell",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Published GEN keyboard release restores generator controls",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pad keyboard owner also survives focus transfer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Browser cancellation ends physical GRID owner without short-tap deletion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Changed DOM routes have no browser exception",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "limits": [
+    "Keyboard/pointer focus behavior qualified in local Chromium only",
+    "Not iOS/device or independent acceptance"
+  ]
+}

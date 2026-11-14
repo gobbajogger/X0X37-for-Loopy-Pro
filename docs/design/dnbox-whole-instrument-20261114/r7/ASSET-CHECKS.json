@@ -1,0 +1,874 @@
+{
+  "classification": "Producer static native/PDF/input/privacy verification; not independent acceptance or physical/iOS proof",
+  "html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659",
+  "pdf_sha256": "0db8d41329e39da6424fc6971e222fd8a3a901fc62a79370498c25f81fbf52e2",
+  "passed": 172,
+  "total": 172,
+  "checks": [
+    {
+      "name": "Final assembled HTML matches declared model input",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML contains exact source: proposal.js",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML contains exact source: physical-role-router.js",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML contains exact source: generator-math.js",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML contains exact source: generator-proposal.js",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML contains exact source: settings-host.js",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry drum before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry drum after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry juno before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry juno after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry miami-native before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry miami-native after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry sequence64 before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry sequence64 after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry motion before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry motion after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry copy before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry copy after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry cue before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry cue after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry record before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry record after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry song before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry song after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry panic before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry panic after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry clip before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry clip after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry break before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry break after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry mix909 before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry mix909 after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: gen-normal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: gen-normal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry gen-normal before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry gen-normal after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual-before matches pinned source receipt: gen-held",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair embedded exactly in final HTML: gen-held",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry gen-held before",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native240 geometry gen-held after",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-clip-wait-v1-01-no-host-waiting.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-clip-wait-v1-02-clip-scale-page.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-copy-v1-06-five-part-occupied-copy-question.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-default-A-v1-01-default-A-sound-native.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-focused-04-mix-909.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-generator-scale-native-v1-01-generate-default.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-generator-scale-native-v1-02-scale-default.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-home-cues-v1-03-cues-and-mute-qualified.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-known-phrase-gen-v1-01-known-phrase-GEN-before.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-known-phrase-gen-v1-03-held-step03-before-correction.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-known-phrase-gen-v1-04-held-step03-octave-corrected.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-known-phrase-gen-v1-05-GEN-corrected-return.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-motion-v1-05-after-live-override-turn-source-readout.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-musical2-03-running-grid.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-panic-v1-03-FX-SEQ-chord-request-both-held.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-qualified2-01-break-loops.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-qualified2-05-juno-envelope.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-r6-record-modifiers-01-CHORD-recorded-accent.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-r6-record-modifiers-02-NOTE-REPEAT-recorded-slide.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-sequence64-v3-08-pending-cue-retained.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-song-authoring-02-one-bar-assigned.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reference native240: elite-stopped-v2-10-step03-octave-corrected.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Only15 curated PNGs in owner native directory",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Focused checks pass: GEN-AFFECTED-CHECKS.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Focused input identity retained: GEN-AFFECTED-CHECKS.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Focused checks pass: PHYSICAL-DOM-CHECKS.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Focused input identity retained: PHYSICAL-DOM-CHECKS.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Generator C comparison132 exact model input",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final seven guides/Settings host53 checks exact HTML",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: gen-normal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: gen-normal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated frame hash: gen-held",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated label/value text stays in native bounds: gen-held",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF has15pair pages plus2 scope pages",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 1",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 1",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 2",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 2",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 3",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 3",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 4",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 5",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 5",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 6",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 6",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 7",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 8",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 8",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 9",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 9",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 10",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 10",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 11",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 11",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 12",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 12",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 13",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 13",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 14",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 14",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 15",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF exact240 RGB pair 15",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page text fits 16",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF page text fits 17",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Owner PDF contains no private paths/routing/IDs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: workbench.template.html",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: settings-host.js",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: settings-section.html",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: WHOLE-INSTRUMENT-DESIGN.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: DISPLACEMENT-AND-ACCESS.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: WHOLE-FUNCTION-CROSSWALK.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: evidence/whole-journey-audit.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: journey-walkthroughs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner-facing privacy scan: settings-composition.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner link resolves: README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner link resolves: WHOLE-INSTRUMENT-DESIGN.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner link resolves: evidence/whole-journey-audit.json",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "limits": [
+    "No actual iOS device opening",
+    "PNG/PDF parser/embedded pixels checked; display density/lighting/physical recognition not measured",
+    "Prior refused file-URI navigation not retried; this script is static only"
+  ]
+}

@@ -1,0 +1,2558 @@
+{
+  "classification": "Producer local Chromium proposal checks; not independent acceptance, firmware, iOS or device execution",
+  "html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659",
+  "inputs": {
+    "proposal.js": "e422f74492445d5be186822ddd3041ed6f09613e51a8469afacda21126e0c7e6",
+    "physical-role-router.js": "5d605654638e5fd6985e40edd3efcb94f4581f618ce8ab1bee6826e4c3696ce8",
+    "generator-math.js": "bbd76ceab51f96c884937d7ce045f4dd9d332daf61543e413671e588d2a17845",
+    "generator-proposal.js": "d0088bd7ab1bfb0fc9f2e93174aa2dfdd2a5cd9f8b90c768e4bf93a726bf8a8a",
+    "settings-host.js": "fff851eb6a5b2d6ba2e868e4f306d2975996d83db8be63347ee2f683a7125448"
+  },
+  "checks": [
+    {
+      "name": "Published control-gesture guide completes: 64",
+      "pass": true,
+      "detail": {
+        "progress": "6/6: Apply explicit model909 boundary \u00b7 Current gestures retained:3 OCTAVE presses; hold pad15+K2 turn; PARA+K5 turn; original release. Model boundary controls are fixture events, not extra firmware actions.",
+        "view": "SEQ"
+      }
+    },
+    {
+      "name": "Published control-gesture guide completes: motion",
+      "pass": true,
+      "detail": {
+        "progress": "6/6: Clear whole named lane; usedBT does not save \u00b7 Ready source route: REC+turn, later RECoff+turn; BT+assigned turn clears lane. No extra firmware page or mode.",
+        "view": "PART"
+      }
+    },
+    {
+      "name": "Published control-gesture guide completes: copy",
+      "pass": true,
+      "detail": {
+        "progress": "5/5: Start adopts it; browser has no audio \u00b7 BT+destination is2 presses; occupied confirm/cancel adds1, same as current. Empty destination remains immediate.",
+        "view": "HOME"
+      }
+    },
+    {
+      "name": "Published control-gesture guide completes: cue",
+      "pass": true,
+      "detail": {
+        "progress": "5/5: Two requests cancel before adoption \u00b7 Same K4 part route, HOME black mute and909 boundary; no new pad colours or confirmation.",
+        "view": "HOME"
+      }
+    },
+    {
+      "name": "Published control-gesture guide completes: record",
+      "pass": true,
+      "detail": {
+        "progress": "8/8: Release and replay repeated phrase \u00b7 REC, three note presses, two modifier+OCT tie/rest gestures; disarm. Correction remains holdstep3+OCT, release. No new take object or selected capture class.",
+        "view": "SEQ"
+      }
+    },
+    {
+      "name": "Published control-gesture guide completes: panic",
+      "pass": true,
+      "detail": {
+        "progress": "5/5: Release original fresh key \u00b7 FX+SEQ2 presses, both releases; fresh note1 press. No extra navigation.",
+        "view": "PART"
+      }
+    },
+    {
+      "name": "Published control-gesture guide completes: gen",
+      "pass": true,
+      "detail": {
+        "progress": "9/9: STOP leaves current pattern and controls available \u00b7 Existing NEW/MUTATE, transport and history controls stay. Direct cell correction removes two page presses.",
+        "view": "GEN"
+      }
+    },
+    {
+      "name": "All18 physical button positions retained; only unmodeled FADER BANK disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "37 physical keys and16 pads remain available",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Normal stopped LOAD PLAY cancels and starts command",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Normal running LOAD PLAY cancels and stops command",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip LOAD masks SCALE/scalars and PLAY remains host request",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip PATCH cancels LOAD",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings component remains exact original bytes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings pair pixels/cases retained; one host dependency label clarified",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original Settings task stages through host: USB AUDIO",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings browsing context disposed: USB AUDIO",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original Settings task stages through host: SAVE request",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings browsing context disposed: SAVE request",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original Settings task stages through host: Reset / cancel",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings browsing context disposed: Reset / cancel",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original Settings task stages through host: Long peer name",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings browsing context disposed: Long peer name",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original Settings task stages through host: Battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings browsing context disposed: Battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original Settings task stages through host: Held local key",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings browsing context disposed: Held local key",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings sanitized local reference opens: README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings sanitized local reference opens: source-receipt.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings sanitized local reference opens: qa/interaction-results.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings sanitized local reference opens: emulator-evidence.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Tab exit disposes original Settings frame",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Normal Global keeps reserved Settings host route",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings LOAD bridge retains normal question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: gen-normal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated native pair decodes: gen-held",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walkthrough fits viewport 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walkthrough fits viewport 768",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Changed delivery/guide/host routes have no browser exception",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Self-contained walkthrough makes no external network request",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": 53,
+  "total": 53,
+  "trace_count": 44,
+  "traces": [
+    {
+      "guide": "64",
+      "stage": 1,
+      "label": "Reach49\u201364",
+      "view": "SEQ",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "c9c0d40338d19cfed149b1f57ffd6fcf9b6abc33dc26cdbee45d13819583313a",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": true
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "64",
+      "stage": 2,
+      "label": "Hold actual step64, set95%",
+      "view": "SEQ",
+      "part": 0,
+      "pattern": 1,
+      "held": 64,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "170d7e42c546c88e3f96060e0bdea55c2172dc81cd33765ee7f37779238f97b2",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": true
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "64",
+      "stage": 3,
+      "label": "Edit its Tune lock on PARA",
+      "view": "PART",
+      "part": 0,
+      "pattern": 1,
+      "held": 64,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "c0df2bcc14a2ac5f6e4e25dc4dd4d8d7a3a8ca63a4d8a5dbf81d16f9908e8ac4",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": true
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "64",
+      "stage": 4,
+      "label": "Release original owner; return toSEQ",
+      "view": "SEQ",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "c9c0d40338d19cfed149b1f57ffd6fcf9b6abc33dc26cdbee45d13819583313a",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": true
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "64",
+      "stage": 5,
+      "label": "Start and cue P2; range remains visible",
+      "view": "SEQ",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "94a8555e22ad35eb9483f25f3057aa1430607a313a93bc7c1500bb62e3ee2f9f",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": true
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "64",
+      "stage": 6,
+      "label": "Apply explicit model909 boundary",
+      "view": "SEQ",
+      "part": 0,
+      "pattern": 2,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "4090834acc64368647fb157c2a52cbe4424976437ccfeb77b68669219779fe23",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": true
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "motion",
+      "stage": 1,
+      "label": "Arm current broadREC and move Cutoff",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": true,
+      "lcd_sha256": "31cc6297ad465706d8b8dc7c6b4d6d2dca6d7086bd7ee4ab208c7331c345205c",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": true,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "motion",
+      "stage": 2,
+      "label": "Next matching step captures latest base",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": true,
+      "lcd_sha256": "8d4c47cb2625bfbd57964df0871720d55b09d81b1f7cc38339ec5078d3e410bd",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": true,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "motion",
+      "stage": 3,
+      "label": "Move again; short gap interpolates",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": true,
+      "lcd_sha256": "b1e1abfc696898bbc7fb4fdf948c89a6a8888497e235af334dc9d25f1b860063",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": true,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "motion",
+      "stage": 4,
+      "label": "Disarm, override, observe remaining pass",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "f9f40ac3d9884abcf47b846453477a8b7c99a938253c79c837b2ac0f17d15cca",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "motion",
+      "stage": 5,
+      "label": "Resume saved lane after pass",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "6ce7931551a80c2c2c4848f489dd1677a2b3346a4912892efbf5514cbefb5409",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "motion",
+      "stage": 6,
+      "label": "Clear whole named lane; usedBT does not save",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "f77d79c5d7c19d75fe7d8fb7a8f95be01d9a69ef7930daca3d8299e5a555715f",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "copy",
+      "stage": 1,
+      "label": "HoldBT; choose occupied destinationP6",
+      "view": "HOME",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "4e69214696c9eb61899366fde581c23fc29384a9da9fd42f86c59dba00ef26e7",
+      "lights": {
+        "pads": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": true,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "copy",
+      "stage": 2,
+      "label": "Release usedBT; preview remains frozen",
+      "view": "HOME",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "4e69214696c9eb61899366fde581c23fc29384a9da9fd42f86c59dba00ef26e7",
+      "lights": {
+        "pads": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": true,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "copy",
+      "stage": 3,
+      "label": "Confirm the existing question",
+      "view": "HOME",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "d826fd68903ce5ddbd96b43f1f4550d52fdb1cc644dd33a866c33733096284d5",
+      "lights": {
+        "pads": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "copy",
+      "stage": 4,
+      "label": "Cue the destination separately",
+      "view": "HOME",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "17995fa71aa82a98ac31a0069dae483463f6dad0c487931512f010ecbf54a805",
+      "lights": {
+        "pads": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "copy",
+      "stage": 5,
+      "label": "Start adopts it; browser has no audio",
+      "view": "HOME",
+      "part": 0,
+      "pattern": 6,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "e40f26fb8166af858b82646f96c90add8f15808677bfda558c32167838b97a86",
+      "lights": {
+        "pads": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "cue",
+      "stage": 1,
+      "label": "Cue909 P2",
+      "view": "SEQ",
+      "part": 0,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "94701a9f908abca1fa6338208c76ab9685c848f963ccfb3c648606d3807b4b33",
+      "lights": {
+        "pads": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 0,
+        "rgb": [
+          127,
+          74,
+          20
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "cue",
+      "stage": 2,
+      "label": "Select808 and cue itsP3",
+      "view": "SEQ",
+      "part": 1,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "6dc220228a8d73b633943cc760ba458f71ac63336b60a82cbbb4b315fc56a398",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 1,
+        "rgb": [
+          127,
+          36,
+          32
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "cue",
+      "stage": 3,
+      "label": "HOME; request808 mute",
+      "view": "HOME",
+      "part": 1,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "a370b695fb95c178de13935f322ae3b1e0b4e500e74cbd6e59b1963f66b1a660",
+      "lights": {
+        "pads": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 1,
+        "rgb": [
+          127,
+          36,
+          32
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "cue",
+      "stage": 4,
+      "label": "Apply cues and mute at909 wrap",
+      "view": "HOME",
+      "part": 1,
+      "pattern": 2,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "9a431a65dd3600fc5049b3f8f6f086f8e9f13755d816adcd1135100e40ff9238",
+      "lights": {
+        "pads": [
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 1,
+        "rgb": [
+          127,
+          36,
+          32
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "cue",
+      "stage": 5,
+      "label": "Two requests cancel before adoption",
+      "view": "HOME",
+      "part": 1,
+      "pattern": 2,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "9a431a65dd3600fc5049b3f8f6f086f8e9f13755d816adcd1135100e40ff9238",
+      "lights": {
+        "pads": [
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": true,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 1,
+        "rgb": [
+          127,
+          36,
+          32
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 1,
+      "label": "Arm; source write cursor resets",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": true,
+      "lcd_sha256": "4c8927c0da72d85e5236b3385011f81b23981a688a81ba6d5e1d62c1daa3c964",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": true,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 2,
+      "label": "EnterNOTE53,TIE,NOTE55,REST,NOTE57",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": true,
+      "lcd_sha256": "8e988b08775339c3d689eda7c24a75f6c8be2a0c7128ad1f4d202d5491b401fd",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": true,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 3,
+      "label": "Disarm; inspect storedstep3",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": 3,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "aca2116a1ea5ba8016fe319f640d2a5908e54fc840498fd4068d0a526c3906d4",
+      "lights": {
+        "pads": [
+          2,
+          1,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 4,
+      "label": "Correct by exactly12semitones",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": 3,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "c3fa1d861a6db811c755480815d3cbe2f583d7e120def7b073eee837bcba9435",
+      "lights": {
+        "pads": [
+          2,
+          1,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 5,
+      "label": "Release and start replay",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "83f75503c98b9acf715789a48eb665eb66c7623572e518ab5103fe2acc75916a",
+      "lights": {
+        "pads": [
+          2,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 6,
+      "label": "Stop; rearm replaces visited slots",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": true,
+      "lcd_sha256": "309b4a36ae771fca2dd5cb92ec7290010de079cd9f6bfae001692266bb44f5ce",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": true,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 7,
+      "label": "Repeat using middle56, then inspect",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": 3,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "1ae5d411e60f77d7b387ca62d62731efa18f7092ea3d587066e34c4657ef4cb8",
+      "lights": {
+        "pads": [
+          2,
+          1,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "record",
+      "stage": 8,
+      "label": "Release and replay repeated phrase",
+      "view": "SEQ",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "9369c68cfceedab702c9dde90d038974fabfb27d95263a6f62962696a6f7a72f",
+      "lights": {
+        "pads": [
+          2,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": true,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "panic",
+      "stage": 1,
+      "label": "Hold a live key",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "447ff194d10153e1d28732b53d4447a59eefb5cdc7f9caae1f9b34cc4c73a876",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "panic",
+      "stage": 2,
+      "label": "PressFX thenSEQ; note ownership retires",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "281fb936cc142058b5fe3c2ab746251979378d81a2311af66ce812c36dda9e2a",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "panic",
+      "stage": 3,
+      "label": "Release both chord members and old key",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "281fb936cc142058b5fe3c2ab746251979378d81a2311af66ce812c36dda9e2a",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "panic",
+      "stage": 4,
+      "label": "Play a fresh admitted key",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "447ff194d10153e1d28732b53d4447a59eefb5cdc7f9caae1f9b34cc4c73a876",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "panic",
+      "stage": 5,
+      "label": "Release original fresh key",
+      "view": "PART",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "447ff194d10153e1d28732b53d4447a59eefb5cdc7f9caae1f9b34cc4c73a876",
+      "lights": {
+        "pads": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": true,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 1,
+      "label": "NEW uses current generator controls and rewrites all64cells",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "ecde0d02e990cce488d44a7f30baacef74fe0c8b5bbcb88cb62ac376b9c9df9f",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 2,
+      "label": "PLAY keeps GEN visible; no browser audio is claimed",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "0237355de50b5f382e4b518b5c400671b4592441c82ef3a4c6bc208d4f175112",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 3,
+      "label": "Hold physical W3 directly in GEN; it selects only",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": 3,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "bce346562070a34329e845e782ce3f6e335cb43354ddb9dc185da8be7c41cd45",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 4,
+      "label": "OCT+ now changes only that cell by12; it does not generate",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": 3,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "7d78ed7efa0d7c9e736d0ff796cb91be6b2f1a2174fa312aa54820087f488996",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 5,
+      "label": "Original release restores all generator controls",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "5051982fba463244a08e71c3eb931b03d76aa4fdeec1ebc1f0d6d76521197cb9",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 6,
+      "label": "PATCH+REC restores that modeled correction while transport runs",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "0915791fd4536b2b710d4bb14aec0e45080577535be3fbbffc78ef78361472f4",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 7,
+      "label": "PATCH+PLAY redoes that cell, without stopping transport",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "6512e77830474f1f85d5eb80a1f6d52007869bb5e6c9db3f45080c2097de2683",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 8,
+      "label": "MUTATE changes the current line probabilistically; it may be zero-delta",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": true,
+      "rec": false,
+      "lcd_sha256": "c32fb20ff88d20d2bda8b4fde8ae8a56456d9877b8ece1eb5c57d6015c196e39",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          0,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": true,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    },
+    {
+      "guide": "gen",
+      "stage": 9,
+      "label": "STOP leaves current pattern and controls available",
+      "view": "GEN",
+      "part": 3,
+      "pattern": 1,
+      "held": -1,
+      "playing": false,
+      "rec": false,
+      "lcd_sha256": "c256f2b39fe02c8195abcca61083f4f8c23b6795c7cb30d87e38a08ffd3844ea",
+      "lights": {
+        "pads": [
+          0,
+          2,
+          2,
+          2,
+          2,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2,
+          2,
+          0,
+          2,
+          0
+        ],
+        "buttons": {
+          "BT": false,
+          "PATCH": false,
+          "SEQ": false,
+          "PARA": false,
+          "FX": false,
+          "NOTE REPEAT": false,
+          "SCALE": false,
+          "SEQ REC": false,
+          "SEQ PLAY": false,
+          "OCTAVE+": false,
+          "ARP": true
+        },
+        "owner": 3,
+        "rgb": [
+          32,
+          103,
+          127
+        ],
+        "evidence": "Source layer model; not physical test"
+      }
+    }
+  ],
+  "reuse": "Original105 Settings producer and prior54 composition checks remain scoped unchanged proof; only current host/guide routes checked here."
+}

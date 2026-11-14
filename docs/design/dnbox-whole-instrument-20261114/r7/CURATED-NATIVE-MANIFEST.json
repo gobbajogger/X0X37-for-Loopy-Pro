@@ -1,0 +1,2732 @@
+{
+  "classification": "Curated R7 proposal native frames, separate from unchanged actual-before captures",
+  "inputs": {
+    "proposal.js": "e422f74492445d5be186822ddd3041ed6f09613e51a8469afacda21126e0c7e6",
+    "physical-role-router.js": "5d605654638e5fd6985e40edd3efcb94f4581f618ce8ab1bee6826e4c3696ce8",
+    "generator-math.js": "bbd76ceab51f96c884937d7ce045f4dd9d332daf61543e413671e588d2a17845",
+    "generator-proposal.js": "d0088bd7ab1bfb0fc9f2e93174aa2dfdd2a5cd9f8b90c768e4bf93a726bf8a8a"
+  },
+  "pairs": 15,
+  "frames": [
+    {
+      "id": "drum",
+      "file": "native/drum.png",
+      "bytes": 19531,
+      "sha256": "041a637171496069bdc1e3723706b4a0a440930cb65e37470c3584c716ac2434",
+      "recipe": "proposal.reset('drum')",
+      "bounds": [
+        {
+          "text": "909 SEQ",
+          "x": 5,
+          "y": 1,
+          "width": 44.99583435058594,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "UNSAVED",
+          "x": 62.240753173828125,
+          "y": 5,
+          "width": 33.759246826171875,
+          "height": 9
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "P1 SEQUENCE",
+          "x": 8,
+          "y": 158,
+          "width": 57.92559814453125,
+          "height": 11
+        },
+        {
+          "text": "LENGTH",
+          "x": 12.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "16st",
+          "x": 17.47997283935547,
+          "y": 210,
+          "width": 25.040054321289062,
+          "height": 16
+        },
+        {
+          "text": "RATE",
+          "x": 78.76907348632812,
+          "y": 171,
+          "width": 22.46185302734375,
+          "height": 11
+        },
+        {
+          "text": "1/16",
+          "x": 77.823974609375,
+          "y": 210,
+          "width": 24.35205078125,
+          "height": 16
+        },
+        {
+          "text": "BLACK: TRACK  WHITE: STEP  PATCH+BLK: MUTE",
+          "x": 4,
+          "y": 229,
+          "width": 189.56979370117188,
+          "height": 10
+        },
+        {
+          "text": "1\u201316 / 16",
+          "x": 164.5850067138672,
+          "y": 173,
+          "width": 30.829986572265625,
+          "height": 10
+        },
+        {
+          "text": "KICK",
+          "x": 168.75592803955078,
+          "y": 212,
+          "width": 22.488143920898438,
+          "height": 12
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "juno",
+      "file": "native/juno.png",
+      "bytes": 28954,
+      "sha256": "5136ac83030cd9a9eb9d47c26703f85fa4c7b3f1dbb5c3538638d7b734b31854",
+      "recipe": "proposal.reset('juno-envelope')",
+      "bounds": [
+        {
+          "text": "JUNO A",
+          "x": 5,
+          "y": 1,
+          "width": 41.28582763671875,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1 OSCILLATOR",
+          "x": 8,
+          "y": 24,
+          "width": 54.089935302734375,
+          "height": 10
+        },
+        {
+          "text": "WAVE",
+          "x": 20.872589111328125,
+          "y": 36,
+          "width": 24.25482177734375,
+          "height": 11
+        },
+        {
+          "text": "33%",
+          "x": 17.1781005859375,
+          "y": 50,
+          "width": 31.643798828125,
+          "height": 18
+        },
+        {
+          "text": "SUB",
+          "x": 83.20005798339844,
+          "y": 36,
+          "width": 17.599884033203125,
+          "height": 11
+        },
+        {
+          "text": "22%",
+          "x": 75.99809265136719,
+          "y": 50,
+          "width": 32.003814697265625,
+          "height": 18
+        },
+        {
+          "text": "WIDTH",
+          "x": 136.66159057617188,
+          "y": 36,
+          "width": 28.67681884765625,
+          "height": 11
+        },
+        {
+          "text": "50%",
+          "x": 134.89910125732422,
+          "y": 50,
+          "width": 32.20179748535156,
+          "height": 18
+        },
+        {
+          "text": "LEVEL",
+          "x": 196.0575942993164,
+          "y": 36,
+          "width": 27.884811401367188,
+          "height": 11
+        },
+        {
+          "text": "79%",
+          "x": 194.50209045410156,
+          "y": 50,
+          "width": 30.995819091796875,
+          "height": 18
+        },
+        {
+          "text": "2 FILTER",
+          "x": 8,
+          "y": 74,
+          "width": 33.98994445800781,
+          "height": 10
+        },
+        {
+          "text": "CUTOFF",
+          "x": 16.07111358642578,
+          "y": 86,
+          "width": 33.85777282714844,
+          "height": 11
+        },
+        {
+          "text": "55%",
+          "x": 17.1781005859375,
+          "y": 100,
+          "width": 31.643798828125,
+          "height": 18
+        },
+        {
+          "text": "RES",
+          "x": 83.44755554199219,
+          "y": 86,
+          "width": 17.104888916015625,
+          "height": 11
+        },
+        {
+          "text": "14%",
+          "x": 77.26708984375,
+          "y": 100,
+          "width": 29.4658203125,
+          "height": 18
+        },
+        {
+          "text": "ENV",
+          "x": 142.0295639038086,
+          "y": 86,
+          "width": 17.940872192382812,
+          "height": 11
+        },
+        {
+          "text": "35%",
+          "x": 135.1781005859375,
+          "y": 100,
+          "width": 31.643798828125,
+          "height": 18
+        },
+        {
+          "text": "HPF",
+          "x": 201.3870620727539,
+          "y": 86,
+          "width": 17.225875854492188,
+          "height": 11
+        },
+        {
+          "text": "0%",
+          "x": 198.2010726928711,
+          "y": 100,
+          "width": 23.597854614257812,
+          "height": 18
+        },
+        {
+          "text": "3 ENVELOPE",
+          "x": 8,
+          "y": 124,
+          "width": 48.98994445800781,
+          "height": 10
+        },
+        {
+          "text": "K5 6 7 8",
+          "x": 201.7000274658203,
+          "y": 124,
+          "width": 30.299972534179688,
+          "height": 10
+        },
+        {
+          "text": "ATTACK",
+          "x": 16.384620666503906,
+          "y": 136,
+          "width": 33.23075866699219,
+          "height": 11
+        },
+        {
+          "text": "6%",
+          "x": 21.4710693359375,
+          "y": 150,
+          "width": 23.057861328125,
+          "height": 18
+        },
+        {
+          "text": "DECAY",
+          "x": 77.88159942626953,
+          "y": 136,
+          "width": 28.236801147460938,
+          "height": 11
+        },
+        {
+          "text": "31%",
+          "x": 77.79808807373047,
+          "y": 150,
+          "width": 28.403823852539062,
+          "height": 18
+        },
+        {
+          "text": "SUSTAIN",
+          "x": 132.43212890625,
+          "y": 136,
+          "width": 37.1357421875,
+          "height": 11
+        },
+        {
+          "text": "72%",
+          "x": 135.43009185791016,
+          "y": 150,
+          "width": 31.139816284179688,
+          "height": 18
+        },
+        {
+          "text": "RELEASE",
+          "x": 190.2881317138672,
+          "y": 136,
+          "width": 39.423736572265625,
+          "height": 11
+        },
+        {
+          "text": "31%",
+          "x": 195.79808807373047,
+          "y": 150,
+          "width": 28.403823852539062,
+          "height": 18
+        },
+        {
+          "text": "4 LFO/CHORUS",
+          "x": 8,
+          "y": 174,
+          "width": 58.819976806640625,
+          "height": 10
+        },
+        {
+          "text": "LFO RATE",
+          "x": 12.331138610839844,
+          "y": 186,
+          "width": 41.33772277832031,
+          "height": 11
+        },
+        {
+          "text": "12%",
+          "x": 18.56407928466797,
+          "y": 200,
+          "width": 28.871841430664062,
+          "height": 18
+        },
+        {
+          "text": "LFO DEPTH",
+          "x": 68.01466369628906,
+          "y": 186,
+          "width": 47.970672607421875,
+          "height": 11
+        },
+        {
+          "text": "6%",
+          "x": 80.4710693359375,
+          "y": 200,
+          "width": 23.057861328125,
+          "height": 18
+        },
+        {
+          "text": "CHO RATE",
+          "x": 129.69314575195312,
+          "y": 186,
+          "width": 42.61370849609375,
+          "height": 11
+        },
+        {
+          "text": "20%",
+          "x": 134.80909729003906,
+          "y": 200,
+          "width": 32.381805419921875,
+          "height": 18
+        },
+        {
+          "text": "CHORUS",
+          "x": 192.22962188720703,
+          "y": 186,
+          "width": 35.54075622558594,
+          "height": 11
+        },
+        {
+          "text": "35%",
+          "x": 194.1781005859375,
+          "y": 200,
+          "width": 31.643798828125,
+          "height": 18
+        },
+        {
+          "text": "< >",
+          "x": 7,
+          "y": 228,
+          "width": 11.3599853515625,
+          "height": 10
+        },
+        {
+          "text": "PARA",
+          "x": 50,
+          "y": 228,
+          "width": 21.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "SCALE: ALL",
+          "x": 103,
+          "y": 228,
+          "width": 45.669952392578125,
+          "height": 10
+        },
+        {
+          "text": "1-4",
+          "x": 223.26002502441406,
+          "y": 228,
+          "width": 11.739974975585938,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "miami-native",
+      "file": "native/miami-native.png",
+      "bytes": 18864,
+      "sha256": "151e163fb3cd384f57d7d6ac1811565fa642559ab0b06cafdff45cdc6295380e",
+      "recipe": "proposal.reset('miami');proposal.configure({dirty:false});g.drawImage(clipImages.miami,0,20,240,220,0,20,240,220)",
+      "bounds": [
+        {
+          "text": "MIAMI A",
+          "x": 5,
+          "y": 1,
+          "width": 42.6158447265625,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1 CARRIER",
+          "x": 8,
+          "y": 24,
+          "width": 39.55995178222656,
+          "height": 10
+        },
+        {
+          "text": "K5 6 7 8",
+          "x": 201.7000274658203,
+          "y": 24,
+          "width": 30.299972534179688,
+          "height": 10
+        },
+        {
+          "text": "WAVE",
+          "x": 21.975006103515625,
+          "y": 37,
+          "width": 22.04998779296875,
+          "height": 10
+        },
+        {
+          "text": "TRI",
+          "x": 43.92008972167969,
+          "y": 55,
+          "width": 14.079910278320312,
+          "height": 11
+        },
+        {
+          "text": "LEVEL",
+          "x": 79.32501983642578,
+          "y": 37,
+          "width": 25.349960327148438,
+          "height": 10
+        },
+        {
+          "text": "79%",
+          "x": 98.27813720703125,
+          "y": 55,
+          "width": 18.72186279296875,
+          "height": 11
+        },
+        {
+          "text": "SUB",
+          "x": 143.00000762939453,
+          "y": 37,
+          "width": 15.999984741210938,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 161.53509521484375,
+          "y": 55,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "PITCH",
+          "x": 198.37501525878906,
+          "y": 37,
+          "width": 23.249969482421875,
+          "height": 10
+        },
+        {
+          "text": "0st",
+          "x": 221.0740966796875,
+          "y": 55,
+          "width": 13.9259033203125,
+          "height": 11
+        },
+        {
+          "text": "2 XMOD",
+          "x": 8,
+          "y": 74,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "WAVE",
+          "x": 21.975006103515625,
+          "y": 87,
+          "width": 22.04998779296875,
+          "height": 10
+        },
+        {
+          "text": "TRI",
+          "x": 43.92008972167969,
+          "y": 105,
+          "width": 14.079910278320312,
+          "height": 11
+        },
+        {
+          "text": "LEVEL",
+          "x": 79.32501983642578,
+          "y": 87,
+          "width": 25.349960327148438,
+          "height": 10
+        },
+        {
+          "text": "79%",
+          "x": 98.27813720703125,
+          "y": 105,
+          "width": 18.72186279296875,
+          "height": 11
+        },
+        {
+          "text": "TUNE",
+          "x": 140.22000885009766,
+          "y": 87,
+          "width": 21.559982299804688,
+          "height": 10
+        },
+        {
+          "text": "0.00",
+          "x": 157.03611755371094,
+          "y": 105,
+          "width": 18.963882446289062,
+          "height": 11
+        },
+        {
+          "text": "DEPTH",
+          "x": 196.77500915527344,
+          "y": 87,
+          "width": 26.449981689453125,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 220.53509521484375,
+          "y": 105,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "3 FILTER",
+          "x": 8,
+          "y": 124,
+          "width": 33.88995361328125,
+          "height": 10
+        },
+        {
+          "text": "CUTOFF",
+          "x": 17.610015869140625,
+          "y": 137,
+          "width": 30.77996826171875,
+          "height": 10
+        },
+        {
+          "text": "60%",
+          "x": 38.3431396484375,
+          "y": 155,
+          "width": 19.6568603515625,
+          "height": 11
+        },
+        {
+          "text": "CRUSH",
+          "x": 78.55501556396484,
+          "y": 137,
+          "width": 26.889968872070312,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 102.53509521484375,
+          "y": 155,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "WOBBLE",
+          "x": 134.17501831054688,
+          "y": 137,
+          "width": 33.64996337890625,
+          "height": 10
+        },
+        {
+          "text": "50%",
+          "x": 156.35414123535156,
+          "y": 155,
+          "width": 19.645858764648438,
+          "height": 11
+        },
+        {
+          "text": "4 WOBBLE",
+          "x": 8,
+          "y": 174,
+          "width": 41.03996276855469,
+          "height": 10
+        },
+        {
+          "text": "SHAPE",
+          "x": 19.800010681152344,
+          "y": 187,
+          "width": 26.399978637695312,
+          "height": 10
+        },
+        {
+          "text": "TRI",
+          "x": 43.92008972167969,
+          "y": 205,
+          "width": 14.079910278320312,
+          "height": 11
+        },
+        {
+          "text": "RATE",
+          "x": 81.79000854492188,
+          "y": 187,
+          "width": 20.41998291015625,
+          "height": 10
+        },
+        {
+          "text": "1/2",
+          "x": 103.97608947753906,
+          "y": 205,
+          "width": 13.023910522460938,
+          "height": 11
+        },
+        {
+          "text": "< >",
+          "x": 7,
+          "y": 228,
+          "width": 11.3599853515625,
+          "height": 10
+        },
+        {
+          "text": "PARA",
+          "x": 50,
+          "y": 228,
+          "width": 21.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "SCALE: ALL",
+          "x": 103,
+          "y": 228,
+          "width": 45.669952392578125,
+          "height": 10
+        },
+        {
+          "text": "1-4",
+          "x": 223.26002502441406,
+          "y": 228,
+          "width": 11.739974975585938,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Original native body/lower pixels"
+    },
+    {
+      "id": "sequence64",
+      "file": "native/sequence64.png",
+      "bytes": 20981,
+      "sha256": "94a8555e22ad35eb9483f25f3057aa1430607a313a93bc7c1500bb62e3ee2f9f",
+      "recipe": "proposal.prepareJourney('64');proposal.event('OCTAVE+');proposal.event('OCTAVE+');proposal.event('OCTAVE+');proposal.pad(15,true);proposal.event('K2',-1);proposal.release(800);proposal.event('SEQ PLAY');proposal.event('K4');proposal.configure({playheads:[17,1,1,1,1]})",
+      "bounds": [
+        {
+          "text": "909 SEQ",
+          "x": 5,
+          "y": 1,
+          "width": 44.99583435058594,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "UNSAVED",
+          "x": 62.240753173828125,
+          "y": 5,
+          "width": 33.759246826171875,
+          "height": 9
+        },
+        {
+          "text": "\u203a2",
+          "x": 139.89205932617188,
+          "y": 3,
+          "width": 9.107940673828125,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "P1 SEQUENCE",
+          "x": 8,
+          "y": 158,
+          "width": 57.92559814453125,
+          "height": 11
+        },
+        {
+          "text": "LENGTH",
+          "x": 12.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "64st",
+          "x": 15.807968139648438,
+          "y": 210,
+          "width": 28.384063720703125,
+          "height": 16
+        },
+        {
+          "text": "RATE",
+          "x": 78.76907348632812,
+          "y": 171,
+          "width": 22.46185302734375,
+          "height": 11
+        },
+        {
+          "text": "1/16",
+          "x": 77.823974609375,
+          "y": 210,
+          "width": 24.35205078125,
+          "height": 16
+        },
+        {
+          "text": "BLACK: TRACK  WHITE: STEP  PATCH+BLK: MUTE",
+          "x": 4,
+          "y": 229,
+          "width": 189.56979370117188,
+          "height": 10
+        },
+        {
+          "text": "49\u201364 / 64",
+          "x": 159.33002471923828,
+          "y": 173,
+          "width": 41.33995056152344,
+          "height": 10
+        },
+        {
+          "text": "KICK",
+          "x": 168.75592803955078,
+          "y": 212,
+          "width": 22.488143920898438,
+          "height": 12
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "motion",
+      "file": "native/motion.png",
+      "bytes": 20565,
+      "sha256": "59e2e935fefb0c09f7c3848ae317cc12c89859f9205ce6e7906d6aae328cccdb",
+      "recipe": "proposal.reset('chicago');proposal.configure({page:1,playing:true,values:{'3:CHICAGO:2':38},lastMotionKey:'3:CHICAGO:2',motionLanes:{'0:3:3:CHICAGO:2':{pattern:0,part:3,key:'3:CHICAGO:2',values:[40,...Array(63).fill(null)],applied:null,recReq:false,holdReq:false,holdLeft:15,lastRec:null,quiet:0}}})",
+      "bounds": [
+        {
+          "text": "CHICAGO B",
+          "x": 5,
+          "y": 1,
+          "width": 59.009765625,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1 OSCILLATOR",
+          "x": 8,
+          "y": 24,
+          "width": 54.089935302734375,
+          "height": 10
+        },
+        {
+          "text": "WAVE",
+          "x": 21.975006103515625,
+          "y": 37,
+          "width": 22.04998779296875,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 43.53509521484375,
+          "y": 55,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "GLIDE",
+          "x": 80.40501403808594,
+          "y": 37,
+          "width": 23.189971923828125,
+          "height": 10
+        },
+        {
+          "text": "14%",
+          "x": 99.15812683105469,
+          "y": 55,
+          "width": 17.841873168945312,
+          "height": 11
+        },
+        {
+          "text": "2 FILTER 1",
+          "x": 8,
+          "y": 74,
+          "width": 39.11993408203125,
+          "height": 10
+        },
+        {
+          "text": "15",
+          "x": 120,
+          "y": 75,
+          "width": 7.119049072265625,
+          "height": 9
+        },
+        {
+          "text": "K5 6 7",
+          "x": 208.54002380371094,
+          "y": 74,
+          "width": 23.459976196289062,
+          "height": 10
+        },
+        {
+          "text": "CUTOFF",
+          "x": 17.610015869140625,
+          "y": 87,
+          "width": 30.77996826171875,
+          "height": 10
+        },
+        {
+          "text": "30%",
+          "x": 38.35414123535156,
+          "y": 105,
+          "width": 19.645858764648438,
+          "height": 11
+        },
+        {
+          "text": "PEAK",
+          "x": 81.39000701904297,
+          "y": 87,
+          "width": 21.219985961914062,
+          "height": 10
+        },
+        {
+          "text": "75%",
+          "x": 98.19013977050781,
+          "y": 105,
+          "width": 18.809860229492188,
+          "height": 11
+        },
+        {
+          "text": "ENV",
+          "x": 142.84500885009766,
+          "y": 87,
+          "width": 16.309982299804688,
+          "height": 10
+        },
+        {
+          "text": "+56%",
+          "x": 151.5911865234375,
+          "y": 105,
+          "width": 24.4088134765625,
+          "height": 11
+        },
+        {
+          "text": "3 FILTER 2",
+          "x": 8,
+          "y": 124,
+          "width": 40.76994323730469,
+          "height": 10
+        },
+        {
+          "text": "BITE",
+          "x": 23.990013122558594,
+          "y": 137,
+          "width": 18.019973754882812,
+          "height": 10
+        },
+        {
+          "text": "83%",
+          "x": 38.67314147949219,
+          "y": 155,
+          "width": 19.326858520507812,
+          "height": 11
+        },
+        {
+          "text": "GNAW",
+          "x": 80.16500854492188,
+          "y": 137,
+          "width": 23.66998291015625,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 102.53509521484375,
+          "y": 155,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "4 ENVELOPE",
+          "x": 8,
+          "y": 174,
+          "width": 49.42994689941406,
+          "height": 10
+        },
+        {
+          "text": "K5 A 27%",
+          "x": 12.680015563964844,
+          "y": 182,
+          "width": 36.63996887207031,
+          "height": 10
+        },
+        {
+          "text": "K6 D 40%",
+          "x": 71.11502075195312,
+          "y": 182,
+          "width": 37.76995849609375,
+          "height": 10
+        },
+        {
+          "text": "K7 S 57%",
+          "x": 131.05502319335938,
+          "y": 182,
+          "width": 35.88995361328125,
+          "height": 10
+        },
+        {
+          "text": "K8 R 17%",
+          "x": 190.50001525878906,
+          "y": 182,
+          "width": 34.999969482421875,
+          "height": 10
+        },
+        {
+          "text": "< >",
+          "x": 7,
+          "y": 228,
+          "width": 11.3599853515625,
+          "height": 10
+        },
+        {
+          "text": "PARA",
+          "x": 50,
+          "y": 228,
+          "width": 21.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "SCALE: ALL",
+          "x": 103,
+          "y": 228,
+          "width": 45.669952392578125,
+          "height": 10
+        },
+        {
+          "text": "1-4",
+          "x": 223.26002502441406,
+          "y": 228,
+          "width": 11.739974975585938,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "copy",
+      "file": "native/copy.png",
+      "bytes": 23748,
+      "sha256": "e85c692a75fe02bb16b89e6bea7c27dcc89b32789b50aa6b71236e422ae73140",
+      "recipe": "proposal.reset('fresh');proposal.configure({view:'HOME',heldSave:true,dirty:true});proposal.configure({patternData:proposal.state.patternData.map((p,i)=>{if(i===0)p.drums[0].steps[0]=[1];if(i===1)p.drums[0].steps[0]=[2];return p})});proposal.pad(1)",
+      "bounds": [
+        {
+          "text": "HOME",
+          "x": 5,
+          "y": 1,
+          "width": 31.373886108398438,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "UNSAVED",
+          "x": 62.240753173828125,
+          "y": 5,
+          "width": 33.759246826171875,
+          "height": 9
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1",
+          "x": 11.455001831054688,
+          "y": 45,
+          "width": 3.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "909",
+          "x": 9,
+          "y": 57,
+          "width": 15.76287841796875,
+          "height": 11
+        },
+        {
+          "text": "808",
+          "x": 9,
+          "y": 77,
+          "width": 16.0928955078125,
+          "height": 11
+        },
+        {
+          "text": "BREAK",
+          "x": 9,
+          "y": 97,
+          "width": 29.402801513671875,
+          "height": 11
+        },
+        {
+          "text": "CHICAGO",
+          "x": 9,
+          "y": 117,
+          "width": 37.94972229003906,
+          "height": 11
+        },
+        {
+          "text": "MIAMI",
+          "x": 9,
+          "y": 137,
+          "width": 24.848831176757812,
+          "height": 11
+        },
+        {
+          "text": "PERFORM",
+          "x": 8,
+          "y": 158,
+          "width": 41.29371643066406,
+          "height": 11
+        },
+        {
+          "text": "TEMPO",
+          "x": 15.100601196289062,
+          "y": 171,
+          "width": 29.798797607421875,
+          "height": 11
+        },
+        {
+          "text": "125bpm",
+          "x": 5.7839508056640625,
+          "y": 210,
+          "width": 48.432098388671875,
+          "height": 16
+        },
+        {
+          "text": "SWING",
+          "x": 75.59010314941406,
+          "y": 171,
+          "width": 28.819793701171875,
+          "height": 11
+        },
+        {
+          "text": "50%",
+          "x": 75.68797302246094,
+          "y": 210,
+          "width": 28.624053955078125,
+          "height": 16
+        },
+        {
+          "text": "FILTER",
+          "x": 135.19960021972656,
+          "y": 171,
+          "width": 29.600799560546875,
+          "height": 11
+        },
+        {
+          "text": "OFF",
+          "x": 137.82396697998047,
+          "y": 210,
+          "width": 24.352066040039062,
+          "height": 16
+        },
+        {
+          "text": "PUMP",
+          "x": 197.75708770751953,
+          "y": 171,
+          "width": 24.485824584960938,
+          "height": 11
+        },
+        {
+          "text": "+4.0dB",
+          "x": 188.04795837402344,
+          "y": 210,
+          "width": 43.904083251953125,
+          "height": 16
+        },
+        {
+          "text": "WHITE: PATTERN   TWO: CHAIN   BLACK: MUTE",
+          "x": 4,
+          "y": 229,
+          "width": 179.63983154296875,
+          "height": 10
+        },
+        {
+          "text": "PASTE OVER P2?",
+          "x": 67.7438735961914,
+          "y": 25,
+          "width": 104.51225280761719,
+          "height": 16
+        },
+        {
+          "text": "IT HAS NOTES",
+          "x": 82.38213348388672,
+          "y": 43,
+          "width": 75.23573303222656,
+          "height": 14
+        },
+        {
+          "text": "909",
+          "x": 8,
+          "y": 60,
+          "width": 15.76287841796875,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 95.77107238769531,
+          "y": 60,
+          "width": 9.228927612304688,
+          "height": 11
+        },
+        {
+          "text": "P2",
+          "x": 130,
+          "y": 60,
+          "width": 11.153915405273438,
+          "height": 11
+        },
+        {
+          "text": "0",
+          "x": 223.42303466796875,
+          "y": 60,
+          "width": 5.57696533203125,
+          "height": 11
+        },
+        {
+          "text": "808",
+          "x": 8,
+          "y": 73,
+          "width": 16.0928955078125,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 95.77107238769531,
+          "y": 73,
+          "width": 9.228927612304688,
+          "height": 11
+        },
+        {
+          "text": "P2",
+          "x": 130,
+          "y": 73,
+          "width": 11.153915405273438,
+          "height": 11
+        },
+        {
+          "text": "0",
+          "x": 223.42303466796875,
+          "y": 73,
+          "width": 5.57696533203125,
+          "height": 11
+        },
+        {
+          "text": "BREAK",
+          "x": 8,
+          "y": 86,
+          "width": 29.402801513671875,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 95.77107238769531,
+          "y": 86,
+          "width": 9.228927612304688,
+          "height": 11
+        },
+        {
+          "text": "P2",
+          "x": 130,
+          "y": 86,
+          "width": 11.153915405273438,
+          "height": 11
+        },
+        {
+          "text": "0",
+          "x": 223.42303466796875,
+          "y": 86,
+          "width": 5.57696533203125,
+          "height": 11
+        },
+        {
+          "text": "CHICAGO",
+          "x": 8,
+          "y": 99,
+          "width": 37.94972229003906,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 95.77107238769531,
+          "y": 99,
+          "width": 9.228927612304688,
+          "height": 11
+        },
+        {
+          "text": "P2",
+          "x": 130,
+          "y": 99,
+          "width": 11.153915405273438,
+          "height": 11
+        },
+        {
+          "text": "0",
+          "x": 223.42303466796875,
+          "y": 99,
+          "width": 5.57696533203125,
+          "height": 11
+        },
+        {
+          "text": "MIAMI",
+          "x": 8,
+          "y": 112,
+          "width": 24.848831176757812,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 95.77107238769531,
+          "y": 112,
+          "width": 9.228927612304688,
+          "height": 11
+        },
+        {
+          "text": "P2",
+          "x": 130,
+          "y": 112,
+          "width": 11.153915405273438,
+          "height": 11
+        },
+        {
+          "text": "0",
+          "x": 223.42303466796875,
+          "y": 112,
+          "width": 5.57696533203125,
+          "height": 11
+        },
+        {
+          "text": "SCALE YES",
+          "x": 37.634117126464844,
+          "y": 131,
+          "width": 60.73176574707031,
+          "height": 14
+        },
+        {
+          "text": "PATCH NO",
+          "x": 144.84011840820312,
+          "y": 131,
+          "width": 54.31976318359375,
+          "height": 14
+        },
+        {
+          "text": "PLAY: CANCEL + START",
+          "x": 4,
+          "y": 229,
+          "width": 90.61991882324219,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "cue",
+      "file": "native/cue.png",
+      "bytes": 18802,
+      "sha256": "35085120bb534e9ec2a171a47fb0e1db2f5165e6ed7353f36b60f0da1046be33",
+      "recipe": "proposal.reset('fresh');proposal.configure({view:'HOME',part:1,playing:true,dirty:true,queuedMutes:false,partMutes:2,pendingPatterns:[1,2,-1,-1,-1],playheads:[38,6,6,6,6],framePhase:16});proposal.configure({patternData:proposal.state.patternData.map((p,i)=>{if(i===0){p.drums[0].length=64;p.drums[0].steps[0]=[1];}return p})})",
+      "bounds": [
+        {
+          "text": "HOME",
+          "x": 5,
+          "y": 1,
+          "width": 31.373886108398438,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "UNSAVED",
+          "x": 62.240753173828125,
+          "y": 5,
+          "width": 33.759246826171875,
+          "height": 9
+        },
+        {
+          "text": "\u203a2",
+          "x": 139.89205932617188,
+          "y": 3,
+          "width": 9.107940673828125,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1",
+          "x": 11.455001831054688,
+          "y": 45,
+          "width": 3.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "909",
+          "x": 9,
+          "y": 57,
+          "width": 15.76287841796875,
+          "height": 11
+        },
+        {
+          "text": "808",
+          "x": 9,
+          "y": 77,
+          "width": 16.0928955078125,
+          "height": 11
+        },
+        {
+          "text": "BREAK",
+          "x": 9,
+          "y": 97,
+          "width": 29.402801513671875,
+          "height": 11
+        },
+        {
+          "text": "CHICAGO",
+          "x": 9,
+          "y": 117,
+          "width": 37.94972229003906,
+          "height": 11
+        },
+        {
+          "text": "MIAMI",
+          "x": 9,
+          "y": 137,
+          "width": 24.848831176757812,
+          "height": 11
+        },
+        {
+          "text": "PERFORM",
+          "x": 8,
+          "y": 158,
+          "width": 41.29371643066406,
+          "height": 11
+        },
+        {
+          "text": "TEMPO",
+          "x": 15.100601196289062,
+          "y": 171,
+          "width": 29.798797607421875,
+          "height": 11
+        },
+        {
+          "text": "125bpm",
+          "x": 5.7839508056640625,
+          "y": 210,
+          "width": 48.432098388671875,
+          "height": 16
+        },
+        {
+          "text": "SWING",
+          "x": 75.59010314941406,
+          "y": 171,
+          "width": 28.819793701171875,
+          "height": 11
+        },
+        {
+          "text": "50%",
+          "x": 75.68797302246094,
+          "y": 210,
+          "width": 28.624053955078125,
+          "height": 16
+        },
+        {
+          "text": "FILTER",
+          "x": 135.19960021972656,
+          "y": 171,
+          "width": 29.600799560546875,
+          "height": 11
+        },
+        {
+          "text": "OFF",
+          "x": 137.82396697998047,
+          "y": 210,
+          "width": 24.352066040039062,
+          "height": 16
+        },
+        {
+          "text": "PUMP",
+          "x": 197.75708770751953,
+          "y": 171,
+          "width": 24.485824584960938,
+          "height": 11
+        },
+        {
+          "text": "+4.0dB",
+          "x": 188.04795837402344,
+          "y": 210,
+          "width": 43.904083251953125,
+          "height": 16
+        },
+        {
+          "text": "WHITE: PATTERN   TWO: CHAIN   BLACK: MUTE",
+          "x": 4,
+          "y": 229,
+          "width": 179.63983154296875,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "record",
+      "file": "native/record.png",
+      "bytes": 18405,
+      "sha256": "3c717b3273aab1e8c16735157988b9fda19ad89f1ede7f27d7ff7ece2176a21e",
+      "recipe": "proposal.reset('chicago');proposal.event('SEQ');proposal.event('SEQ REC');proposal.buttonDown('NOTE REPEAT');proposal.physicalDown(17);proposal.physicalUp(17,100);proposal.buttonUp('NOTE REPEAT');proposal.event('SEQ REC');proposal.physicalDown(5)",
+      "bounds": [
+        {
+          "text": "CHICAGO B SEQ",
+          "x": 5,
+          "y": 1,
+          "width": 83.43968200683594,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 71,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "STEP 1 F3 SLIDE V100",
+          "x": 4,
+          "y": 140,
+          "width": 125.92587280273438,
+          "height": 15
+        },
+        {
+          "text": "CHICAGO STEP 1",
+          "x": 8,
+          "y": 158,
+          "width": 68.15550231933594,
+          "height": 11
+        },
+        {
+          "text": "NOTE",
+          "x": 17.05791473388672,
+          "y": 171,
+          "width": 25.884170532226562,
+          "height": 12
+        },
+        {
+          "text": "F3",
+          "x": 18.879501342773438,
+          "y": 193,
+          "width": 22.240997314453125,
+          "height": 23
+        },
+        {
+          "text": "GATE",
+          "x": 77.7599105834961,
+          "y": 171,
+          "width": 24.480178833007812,
+          "height": 12
+        },
+        {
+          "text": "NOTE",
+          "x": 65.19449615478516,
+          "y": 193,
+          "width": 49.61100769042969,
+          "height": 23
+        },
+        {
+          "text": "ACCENT",
+          "x": 130.69186401367188,
+          "y": 171,
+          "width": 38.61627197265625,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 132.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "SLIDE",
+          "x": 196.16991424560547,
+          "y": 171,
+          "width": 27.660171508789062,
+          "height": 12
+        },
+        {
+          "text": "ON",
+          "x": 196.98199462890625,
+          "y": 193,
+          "width": 26.0360107421875,
+          "height": 23
+        },
+        {
+          "text": "K2: CHANCE   K3: VELOCITY   RELEASE: BACK",
+          "x": 4,
+          "y": 229,
+          "width": 175.079833984375,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": false,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "song",
+      "file": "native/song.png",
+      "bytes": 15079,
+      "sha256": "a2fca6ac3c382e2b22223a9cf5bd15f0b970bb74d75bb4ec437d0353af955763",
+      "recipe": "proposal.reset('song');proposal.pad(0)",
+      "bounds": [
+        {
+          "text": "SONG",
+          "x": 5,
+          "y": 1,
+          "width": 30.547882080078125,
+          "height": 14
+        },
+        {
+          "text": "2",
+          "x": 117.72003173828125,
+          "y": 3,
+          "width": 5.27996826171875,
+          "height": 11
+        },
+        {
+          "text": "UNSAVED",
+          "x": 62.240753173828125,
+          "y": 5,
+          "width": 33.759246826171875,
+          "height": 9
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "BAR",
+          "x": 4,
+          "y": 20,
+          "width": 17.390884399414062,
+          "height": 11
+        },
+        {
+          "text": "909",
+          "x": 50.118560791015625,
+          "y": 20,
+          "width": 15.76287841796875,
+          "height": 11
+        },
+        {
+          "text": "808",
+          "x": 85.95355224609375,
+          "y": 20,
+          "width": 16.0928955078125,
+          "height": 11
+        },
+        {
+          "text": "BRK",
+          "x": 121.12306213378906,
+          "y": 20,
+          "width": 17.753875732421875,
+          "height": 11
+        },
+        {
+          "text": "CHI",
+          "x": 158.68505096435547,
+          "y": 20,
+          "width": 14.629898071289062,
+          "height": 11
+        },
+        {
+          "text": "MIA",
+          "x": 194.32205200195312,
+          "y": 20,
+          "width": 15.35589599609375,
+          "height": 11
+        },
+        {
+          "text": "1",
+          "x": 4,
+          "y": 31,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 53.429534912109375,
+          "y": 31,
+          "width": 9.14093017578125,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 89.42953491210938,
+          "y": 31,
+          "width": 9.14093017578125,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 125.42953491210938,
+          "y": 31,
+          "width": 9.14093017578125,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 161.42953491210938,
+          "y": 31,
+          "width": 9.14093017578125,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 197.42953491210938,
+          "y": 31,
+          "width": 9.14093017578125,
+          "height": 11
+        },
+        {
+          "text": "2",
+          "x": 4,
+          "y": 42,
+          "width": 5.27996826171875,
+          "height": 11
+        },
+        {
+          "text": "END",
+          "x": 50,
+          "y": 42,
+          "width": 16.399993896484375,
+          "height": 10
+        },
+        {
+          "text": "BAR (1/2)",
+          "x": 8,
+          "y": 158,
+          "width": 38.598724365234375,
+          "height": 11
+        },
+        {
+          "text": "BAR",
+          "x": 21.30455780029297,
+          "y": 171,
+          "width": 17.390884399414062,
+          "height": 11
+        },
+        {
+          "text": "2",
+          "x": 26.095993041992188,
+          "y": 210,
+          "width": 7.808013916015625,
+          "height": 16
+        },
+        {
+          "text": "909",
+          "x": 82.11856079101562,
+          "y": 171,
+          "width": 15.76287841796875,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 83.2879867553711,
+          "y": 210,
+          "width": 13.424026489257812,
+          "height": 16
+        },
+        {
+          "text": "808",
+          "x": 141.95355224609375,
+          "y": 171,
+          "width": 16.0928955078125,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 143.2879867553711,
+          "y": 210,
+          "width": 13.424026489257812,
+          "height": 16
+        },
+        {
+          "text": "BREAK",
+          "x": 195.29859924316406,
+          "y": 171,
+          "width": 29.402801513671875,
+          "height": 11
+        },
+        {
+          "text": "P1",
+          "x": 203.2879867553711,
+          "y": 210,
+          "width": 13.424026489257812,
+          "height": 16
+        },
+        {
+          "text": "WHITE: THE BAR'S PATTERN   BLACK: MUTE",
+          "x": 4,
+          "y": 229,
+          "width": 168.35984802246094,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "panic",
+      "file": "native/panic.png",
+      "bytes": 20214,
+      "sha256": "281fb936cc142058b5fe3c2ab746251979378d81a2311af66ce812c36dda9e2a",
+      "recipe": "proposal.prepareJourney('panic');proposal.noteDown(17);proposal.buttonDown('FX');proposal.buttonDown('SEQ')",
+      "bounds": [
+        {
+          "text": "CHICAGO B",
+          "x": 5,
+          "y": 1,
+          "width": 59.009765625,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1 OSCILLATOR",
+          "x": 8,
+          "y": 24,
+          "width": 54.089935302734375,
+          "height": 10
+        },
+        {
+          "text": "K5 6",
+          "x": 214.9400177001953,
+          "y": 24,
+          "width": 17.059982299804688,
+          "height": 10
+        },
+        {
+          "text": "WAVE",
+          "x": 21.975006103515625,
+          "y": 37,
+          "width": 22.04998779296875,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 43.53509521484375,
+          "y": 55,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "GLIDE",
+          "x": 80.40501403808594,
+          "y": 37,
+          "width": 23.189971923828125,
+          "height": 10
+        },
+        {
+          "text": "14%",
+          "x": 99.15812683105469,
+          "y": 55,
+          "width": 17.841873168945312,
+          "height": 11
+        },
+        {
+          "text": "2 FILTER 1",
+          "x": 8,
+          "y": 74,
+          "width": 39.11993408203125,
+          "height": 10
+        },
+        {
+          "text": "CUTOFF",
+          "x": 17.610015869140625,
+          "y": 87,
+          "width": 30.77996826171875,
+          "height": 10
+        },
+        {
+          "text": "25%",
+          "x": 38.65113830566406,
+          "y": 105,
+          "width": 19.348861694335938,
+          "height": 11
+        },
+        {
+          "text": "PEAK",
+          "x": 81.39000701904297,
+          "y": 87,
+          "width": 21.219985961914062,
+          "height": 10
+        },
+        {
+          "text": "75%",
+          "x": 98.19013977050781,
+          "y": 105,
+          "width": 18.809860229492188,
+          "height": 11
+        },
+        {
+          "text": "ENV",
+          "x": 142.84500885009766,
+          "y": 87,
+          "width": 16.309982299804688,
+          "height": 10
+        },
+        {
+          "text": "+56%",
+          "x": 151.5911865234375,
+          "y": 105,
+          "width": 24.4088134765625,
+          "height": 11
+        },
+        {
+          "text": "3 FILTER 2",
+          "x": 8,
+          "y": 124,
+          "width": 40.76994323730469,
+          "height": 10
+        },
+        {
+          "text": "BITE",
+          "x": 23.990013122558594,
+          "y": 137,
+          "width": 18.019973754882812,
+          "height": 10
+        },
+        {
+          "text": "83%",
+          "x": 38.67314147949219,
+          "y": 155,
+          "width": 19.326858520507812,
+          "height": 11
+        },
+        {
+          "text": "GNAW",
+          "x": 80.16500854492188,
+          "y": 137,
+          "width": 23.66998291015625,
+          "height": 10
+        },
+        {
+          "text": "0%",
+          "x": 102.53509521484375,
+          "y": 155,
+          "width": 14.46490478515625,
+          "height": 11
+        },
+        {
+          "text": "4 ENVELOPE",
+          "x": 8,
+          "y": 174,
+          "width": 49.42994689941406,
+          "height": 10
+        },
+        {
+          "text": "K5 A 27%",
+          "x": 12.680015563964844,
+          "y": 182,
+          "width": 36.63996887207031,
+          "height": 10
+        },
+        {
+          "text": "K6 D 40%",
+          "x": 71.11502075195312,
+          "y": 182,
+          "width": 37.76995849609375,
+          "height": 10
+        },
+        {
+          "text": "K7 S 57%",
+          "x": 131.05502319335938,
+          "y": 182,
+          "width": 35.88995361328125,
+          "height": 10
+        },
+        {
+          "text": "K8 R 17%",
+          "x": 190.50001525878906,
+          "y": 182,
+          "width": 34.999969482421875,
+          "height": 10
+        },
+        {
+          "text": "< >",
+          "x": 7,
+          "y": 228,
+          "width": 11.3599853515625,
+          "height": 10
+        },
+        {
+          "text": "PARA",
+          "x": 50,
+          "y": 228,
+          "width": 21.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "SCALE: ALL",
+          "x": 103,
+          "y": 228,
+          "width": 45.669952392578125,
+          "height": 10
+        },
+        {
+          "text": "1-4",
+          "x": 223.26002502441406,
+          "y": 228,
+          "width": 11.739974975585938,
+          "height": 10
+        },
+        {
+          "text": "NOTES OFF \u00b7 TRANSPORT RUNS",
+          "x": 4,
+          "y": 228,
+          "width": 121.50993347167969,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "clip",
+      "file": "native/clip.png",
+      "bytes": 10523,
+      "sha256": "bf0d65bdfbcdcb69e68238e95b6b11c015fc1a92f3b9bc97220422ffff5a210d",
+      "recipe": "proposal.reset('fresh');proposal.event('KNOB BANK')",
+      "bounds": [
+        {
+          "text": "LP",
+          "x": 5,
+          "y": 1,
+          "width": 14.265945434570312,
+          "height": 14
+        },
+        {
+          "text": "INT",
+          "x": 130.32406616210938,
+          "y": 2,
+          "width": 18.675933837890625,
+          "height": 14
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Original native body/lower pixels"
+    },
+    {
+      "id": "break",
+      "file": "native/break.png",
+      "bytes": 17649,
+      "sha256": "a6b176ce11f62450419a1c96a95180e01f36dadb4c5cbc6b66c1f0beea84863b",
+      "recipe": "proposal.reset('break')",
+      "bounds": [
+        {
+          "text": "BREAK",
+          "x": 5,
+          "y": 1,
+          "width": 37.82786560058594,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "1",
+          "x": 20.455001831054688,
+          "y": 74,
+          "width": 3.089996337890625,
+          "height": 10
+        },
+        {
+          "text": "2",
+          "x": 47.599998474121094,
+          "y": 74,
+          "width": 4.8000030517578125,
+          "height": 10
+        },
+        {
+          "text": "3",
+          "x": 75.64500427246094,
+          "y": 74,
+          "width": 4.709991455078125,
+          "height": 10
+        },
+        {
+          "text": "4",
+          "x": 103.47500610351562,
+          "y": 74,
+          "width": 5.04998779296875,
+          "height": 10
+        },
+        {
+          "text": "5",
+          "x": 131.64500427246094,
+          "y": 74,
+          "width": 4.709991455078125,
+          "height": 10
+        },
+        {
+          "text": "6",
+          "x": 159.63999938964844,
+          "y": 74,
+          "width": 4.720001220703125,
+          "height": 10
+        },
+        {
+          "text": "7",
+          "x": 187.84500122070312,
+          "y": 74,
+          "width": 4.30999755859375,
+          "height": 10
+        },
+        {
+          "text": "8",
+          "x": 215.61000061035156,
+          "y": 74,
+          "width": 4.779998779296875,
+          "height": 10
+        },
+        {
+          "text": "A  NONE",
+          "x": 42.63111877441406,
+          "y": 117,
+          "width": 34.737762451171875,
+          "height": 11
+        },
+        {
+          "text": "B  NONE",
+          "x": 162.59262084960938,
+          "y": 117,
+          "width": 34.81475830078125,
+          "height": 11
+        },
+        {
+          "text": "A KEYS 1\u20138 / 8",
+          "x": 8,
+          "y": 134,
+          "width": 60.16957092285156,
+          "height": 11
+        },
+        {
+          "text": "EDIT A 8",
+          "x": 144,
+          "y": 134,
+          "width": 35.38676452636719,
+          "height": 11
+        },
+        {
+          "text": "C/D COUNT   C#/D# PAGE",
+          "x": 8,
+          "y": 147,
+          "width": 99.71992492675781,
+          "height": 10
+        },
+        {
+          "text": "LOOPS",
+          "x": 8,
+          "y": 158,
+          "width": 28.566802978515625,
+          "height": 11
+        },
+        {
+          "text": "LOOP A",
+          "x": 14.473609924316406,
+          "y": 171,
+          "width": 31.052780151367188,
+          "height": 11
+        },
+        {
+          "text": "NONE",
+          "x": 12.167953491210938,
+          "y": 210,
+          "width": 35.664093017578125,
+          "height": 16
+        },
+        {
+          "text": "LOOP B",
+          "x": 74.43511199951172,
+          "y": 171,
+          "width": 31.129776000976562,
+          "height": 11
+        },
+        {
+          "text": "INVALID",
+          "x": 65.02395629882812,
+          "y": 210,
+          "width": 49.95208740234375,
+          "height": 16
+        },
+        {
+          "text": "B CHANCE",
+          "x": 128.0111541748047,
+          "y": 171,
+          "width": 43.977691650390625,
+          "height": 11
+        },
+        {
+          "text": "0%",
+          "x": 139.51197814941406,
+          "y": 210,
+          "width": 20.976043701171875,
+          "height": 16
+        },
+        {
+          "text": "PITCH",
+          "x": 197.21258544921875,
+          "y": 171,
+          "width": 25.5748291015625,
+          "height": 11
+        },
+        {
+          "text": "0st",
+          "x": 199.74398040771484,
+          "y": 210,
+          "width": 20.512039184570312,
+          "height": 16
+        },
+        {
+          "text": "STEP+1\u20138: PIN  9 REV  10 JNG  11 STUT",
+          "x": 4,
+          "y": 229,
+          "width": 145.119873046875,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "mix909",
+      "file": "native/mix909.png",
+      "bytes": 17401,
+      "sha256": "2d58ee1f026e987cf7f5651d6153ed9385a36d386827b500221af6b18d859e4f",
+      "recipe": "proposal.reset('mix909')",
+      "bounds": [
+        {
+          "text": "909 MIX",
+          "x": 5,
+          "y": 1,
+          "width": 43.07783508300781,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "UNSAVED",
+          "x": 62.240753173828125,
+          "y": 5,
+          "width": 33.759246826171875,
+          "height": 9
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "909 MIX: KICK",
+          "x": 8,
+          "y": 158,
+          "width": 58.9925537109375,
+          "height": 11
+        },
+        {
+          "text": "LEVEL",
+          "x": 16.057594299316406,
+          "y": 171,
+          "width": 27.884811401367188,
+          "height": 11
+        },
+        {
+          "text": "-3.8dB",
+          "x": 9.135963439941406,
+          "y": 210,
+          "width": 41.72807312011719,
+          "height": 16
+        },
+        {
+          "text": "PAN",
+          "x": 81.14506530761719,
+          "y": 171,
+          "width": 17.709869384765625,
+          "height": 11
+        },
+        {
+          "text": "C",
+          "x": 85.73599243164062,
+          "y": 210,
+          "width": 8.52801513671875,
+          "height": 16
+        },
+        {
+          "text": "REV",
+          "x": 141.29356384277344,
+          "y": 171,
+          "width": 17.412872314453125,
+          "height": 11
+        },
+        {
+          "text": "0%",
+          "x": 139.51197814941406,
+          "y": 210,
+          "width": 20.976043701171875,
+          "height": 16
+        },
+        {
+          "text": "DLY",
+          "x": 201.6675567626953,
+          "y": 171,
+          "width": 16.664886474609375,
+          "height": 11
+        },
+        {
+          "text": "0%",
+          "x": 199.51197814941406,
+          "y": 210,
+          "width": 20.976043701171875,
+          "height": 16
+        },
+        {
+          "text": "BLACK: TRACK  PATCH+BLK: MUTE",
+          "x": 4,
+          "y": 229,
+          "width": 134.44984436035156,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": true,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "gen-normal",
+      "file": "native/gen-normal.png",
+      "bytes": 16962,
+      "sha256": "49b0580483912d678134f2c368af5f9be3695d2cfeada44da71c6edf713aa56a",
+      "recipe": "proposal.reset('gen-known')",
+      "bounds": [
+        {
+          "text": "CHICAGO",
+          "x": 5,
+          "y": 1,
+          "width": 48.62181091308594,
+          "height": 14
+        },
+        {
+          "text": "TB-3PO",
+          "x": 66.58003234863281,
+          "y": 4,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 71,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "A MIN",
+          "x": 4,
+          "y": 140,
+          "width": 32.74522399902344,
+          "height": 15
+        },
+        {
+          "text": "SEED 05A1",
+          "x": 54.74522399902344,
+          "y": 140,
+          "width": 61.470428466796875,
+          "height": 15
+        },
+        {
+          "text": "P1 GENERATE",
+          "x": 8,
+          "y": 158,
+          "width": 57.408599853515625,
+          "height": 11
+        },
+        {
+          "text": "DENS",
+          "x": 18.175079345703125,
+          "y": 171,
+          "width": 23.64984130859375,
+          "height": 11
+        },
+        {
+          "text": "70%",
+          "x": 16.822410583496094,
+          "y": 210,
+          "width": 26.355178833007812,
+          "height": 15
+        },
+        {
+          "text": "ACCENT",
+          "x": 72.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "40%",
+          "x": 76.1249008178711,
+          "y": 210,
+          "width": 27.750198364257812,
+          "height": 15
+        },
+        {
+          "text": "SLIDE",
+          "x": 137.3995819091797,
+          "y": 171,
+          "width": 25.200836181640625,
+          "height": 11
+        },
+        {
+          "text": "25%",
+          "x": 136.6349105834961,
+          "y": 210,
+          "width": 26.730178833007812,
+          "height": 15
+        },
+        {
+          "text": "OCTS",
+          "x": 198.5600814819336,
+          "y": 171,
+          "width": 22.879837036132812,
+          "height": 11
+        },
+        {
+          "text": "2",
+          "x": 206.25747680664062,
+          "y": 210,
+          "width": 7.48504638671875,
+          "height": 15
+        },
+        {
+          "text": "OCT+: NEW  OCT\u2212: MUTATE   HOLD: EDIT",
+          "x": 4,
+          "y": 229,
+          "width": 154.90988159179688,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": false,
+      "body_composition": "Source-derived proposal drawing"
+    },
+    {
+      "id": "gen-held",
+      "file": "native/gen-held.png",
+      "bytes": 18485,
+      "sha256": "1c27860670278477be747e1591dc2dc50aeb3de95887ed0619265c02d65575cb",
+      "recipe": "proposal.reset('gen-known');proposal.physicalDown(9);proposal.event('OCTAVE+')",
+      "bounds": [
+        {
+          "text": "CHICAGO",
+          "x": 5,
+          "y": 1,
+          "width": 48.62181091308594,
+          "height": 14
+        },
+        {
+          "text": "TB-3PO",
+          "x": 66.58003234863281,
+          "y": 4,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 79,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "A4",
+          "x": 1,
+          "y": 20,
+          "width": 12.888092041015625,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "STEP 3 G4 V100",
+          "x": 4,
+          "y": 140,
+          "width": 92.22064208984375,
+          "height": 15
+        },
+        {
+          "text": "CHICAGO STEP 3",
+          "x": 8,
+          "y": 158,
+          "width": 69.93748474121094,
+          "height": 11
+        },
+        {
+          "text": "A MIN 05A1",
+          "x": 177.97003173828125,
+          "y": 158,
+          "width": 42.02996826171875,
+          "height": 10
+        },
+        {
+          "text": "NOTE",
+          "x": 17.05791473388672,
+          "y": 171,
+          "width": 25.884170532226562,
+          "height": 12
+        },
+        {
+          "text": "G4",
+          "x": 17.821502685546875,
+          "y": 193,
+          "width": 24.35699462890625,
+          "height": 23
+        },
+        {
+          "text": "GATE",
+          "x": 77.7599105834961,
+          "y": 171,
+          "width": 24.480178833007812,
+          "height": 12
+        },
+        {
+          "text": "NOTE",
+          "x": 65.19449615478516,
+          "y": 193,
+          "width": 49.61100769042969,
+          "height": 23
+        },
+        {
+          "text": "ACCENT",
+          "x": 130.69186401367188,
+          "y": 171,
+          "width": 38.61627197265625,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 132.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "SLIDE",
+          "x": 196.16991424560547,
+          "y": 171,
+          "width": 27.660171508789062,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 192.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "K2: CHANCE   K3: VELOCITY   RELEASE: BACK",
+          "x": 4,
+          "y": 229,
+          "width": 175.079833984375,
+          "height": 10
+        }
+      ],
+      "classification": "R7 proposal browser render; not firmware execution",
+      "unchanged_R6_pixels": false,
+      "body_composition": "Source-derived proposal drawing"
+    }
+  ],
+  "browser_errors": [],
+  "limits": [
+    "No executed R7 firmware",
+    "Motion/copy/clock/native factory phases remain explicitly bounded",
+    "Native reference files are unmodified; not all pairs claim identical hidden state"
+  ]
+}

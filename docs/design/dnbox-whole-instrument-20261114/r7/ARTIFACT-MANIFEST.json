@@ -1,0 +1,745 @@
+{
+  "revision": "R7",
+  "classification": "Frozen design source/proposal/images and scoped producer evidence; not whole acceptance or firmware",
+  "reviewed_predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+  "files": [
+    {
+      "file": "ASSET-CHECKS.json",
+      "bytes": 20224,
+      "sha256": "8b44078a37ea79fa357d6de317e494d364fd9624c0a0b6d76790e8805f1c8c36",
+      "git_blob": "a2069211e2021d96e2fb9c20759aded15f0cbd1a",
+      "mode": "100644"
+    },
+    {
+      "file": "Barlow-OFL.txt",
+      "bytes": 4377,
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f",
+      "git_blob": "2f22ba6ca4dbc12145ae40b14c3368f387cba0e2",
+      "mode": "100644"
+    },
+    {
+      "file": "CURATED-NATIVE-MANIFEST.json",
+      "bytes": 66253,
+      "sha256": "7428fefe73a0181f613d68e95133243fa3209eb8f3db68faad38a7bc48b7e5b7",
+      "git_blob": "4a7af19319f00653eee1387a3d75daec3d099cec",
+      "mode": "100644"
+    },
+    {
+      "file": "DELIVERY-DELTA-CHECKS.json",
+      "bytes": 53923,
+      "sha256": "1e99313c4d769c4b59009eeb0bae514e081f8ebab8c566a9e5d6d32cc681d37c",
+      "git_blob": "9f1b02143d0bc0607a1d1957b26dc6ad345ef73b",
+      "mode": "100644"
+    },
+    {
+      "file": "DISPLACEMENT-AND-ACCESS.json",
+      "bytes": 6533,
+      "sha256": "c5d1f14a4fcf9a74be86c459e47d375b6ea34fed86c70bf6cd3ba6214cf1c2f9",
+      "git_blob": "6917c1118af2a099797d39ad75b61604d348ea48",
+      "mode": "100644"
+    },
+    {
+      "file": "DnBOX-R7-owner-comparisons.pdf",
+      "bytes": 369110,
+      "sha256": "0db8d41329e39da6424fc6971e222fd8a3a901fc62a79370498c25f81fbf52e2",
+      "git_blob": "0caa3703078f672a3de15c36b17b197f9846a799",
+      "mode": "100644"
+    },
+    {
+      "file": "GEN-AFFECTED-CHECKS.json",
+      "bytes": 25410,
+      "sha256": "53771140635cd866d01d6c1ef75c79d4e59398b3e2dea964325d1280e1f6ed6a",
+      "git_blob": "2dd70df103a559ebecd760c56e5b8f5510db410e",
+      "mode": "100644"
+    },
+    {
+      "file": "GENERATOR-MATH-CHECKS.json",
+      "bytes": 11140,
+      "sha256": "aa4573d2301cc70ddfd9e7ca689134fa8fe17ca04cddec740a4ce6651d56d7a2",
+      "git_blob": "3c548ade55406718095e6877a295fd430f6478fc",
+      "mode": "100644"
+    },
+    {
+      "file": "PDF-BUILD-RECEIPT.json",
+      "bytes": 1778,
+      "sha256": "94941b252585e253c06f17a536ad20c991e187c0819bdf1466442db4dc2dd682",
+      "git_blob": "d8903d0727870471b15555968585d48277caf177",
+      "mode": "100644"
+    },
+    {
+      "file": "PHYSICAL-DOM-CHECKS.json",
+      "bytes": 1792,
+      "sha256": "9a9df8017446c859d56df0f2df94903d96e05d70fad28ac10a7a7f3fec5e463d",
+      "git_blob": "4d19c1e603e5dd4d9f7f75e1b776d70e95bc4c9a",
+      "mode": "100644"
+    },
+    {
+      "file": "READINESS-AND-LIMITS.json",
+      "bytes": 4356,
+      "sha256": "6c838e5ded8e6870e146b781844faa4311b36cc945cc7f46f2c6561061a7d711",
+      "git_blob": "b5a5f37d9156e8c6ac269d1e640be6e6da0f3bdc",
+      "mode": "100644"
+    },
+    {
+      "file": "README.md",
+      "bytes": 3602,
+      "sha256": "e1ea7022aa5cef52eef2468e1cca6a0c77365e314d51b2eb7ed29a331812a72d",
+      "git_blob": "dbaec2333e2c5735ceaaf1209e174a12575621c7",
+      "mode": "100644"
+    },
+    {
+      "file": "SOURCE-REUSE-NOTICES.md",
+      "bytes": 1263,
+      "sha256": "10d39d4eae1cd23ad626589f1ec504c5b2d299baac5eaf16952c8a3b019d7951",
+      "git_blob": "b135e38a36128ff2c938a63f112e8d9d1a63cfc4",
+      "mode": "100644"
+    },
+    {
+      "file": "WHOLE-FUNCTION-CROSSWALK.json",
+      "bytes": 392816,
+      "sha256": "b09bb9c62610e46bd925601ecbbebff9dc62ca6324663e39ca741913a5ba5c35",
+      "git_blob": "efc46c04b45762bd54e978909aa9bb59b0a7095e",
+      "mode": "100644"
+    },
+    {
+      "file": "WHOLE-INSTRUMENT-DESIGN.md",
+      "bytes": 9866,
+      "sha256": "239237fda227b7dbda23c8f39da6f50608d99fc699f3bc830ed513d0008418b7",
+      "git_blob": "12c3404758984209a378f1a39d9edaeb0f566dbd",
+      "mode": "100644"
+    },
+    {
+      "file": "assemble.py",
+      "bytes": 3071,
+      "sha256": "4639016bf1c28350e41695051cb4f92b19e33c8d1773ea133a7010f8b77da264",
+      "git_blob": "69e7b741ce725174bdece1f187428a43e6eb8edb",
+      "mode": "100644"
+    },
+    {
+      "file": "build_owner_pdf.py",
+      "bytes": 7634,
+      "sha256": "0d980e8ff619acadedec9c98926d280ae3545deaac070c0259732c2f0ae10cc2",
+      "git_blob": "6e59163a1a7cbd56cb004bc45bf6cccd5e25e884",
+      "mode": "100644"
+    },
+    {
+      "file": "check_assets.py",
+      "bytes": 5217,
+      "sha256": "e8eb8d4befa704879f998a9f948bc611a1a6015c2fb548247a5505df22016cda",
+      "git_blob": "8888bc4e30a061f6654207b17e78b43e5fca329e",
+      "mode": "100644"
+    },
+    {
+      "file": "check_delivery_delta.py",
+      "bytes": 7628,
+      "sha256": "4b80563b242c7c16508ad1c484da9f2e6db2869e4062acc5dfcca4f34d05df8b",
+      "git_blob": "f3c601a22363fde637c172227f8d9be35ae6480d",
+      "mode": "100644"
+    },
+    {
+      "file": "check_gen_delta.py",
+      "bytes": 10907,
+      "sha256": "857e86f24b601ceade5981306c64759fa8963047f1f459ba7c8dfd2a2a0748d4",
+      "git_blob": "2783f74528e7982b21e5f946233a25d1b195e8a8",
+      "mode": "100644"
+    },
+    {
+      "file": "check_generator_math.cjs",
+      "bytes": 4295,
+      "sha256": "68175165c72ae3fd2b55ff5e273f6f814dbd91a274f1acb02cbe103b617add8e",
+      "git_blob": "c044846cbf048bf1dac6d0d6ff1cf8e6ab5df9dc",
+      "mode": "100644"
+    },
+    {
+      "file": "check_physical_dom.py",
+      "bytes": 4276,
+      "sha256": "1eeb69b0cbb6456f86b56c72dcf6cad043e746476f16dba7dcdc5ebfa73fba7b",
+      "git_blob": "583bba3286a546363331470a8e9f718fb1c6bd2d",
+      "mode": "100644"
+    },
+    {
+      "file": "chicago-wave-drawing.json",
+      "bytes": 9618,
+      "sha256": "24a450b6c3c7d193121b2d645eaaf4c53dd48be75167856777073398a8914eee",
+      "git_blob": "aac8fff9f7a788ce5b02b7e4155d11e57e62b4e6",
+      "mode": "100644"
+    },
+    {
+      "file": "comparisons.json",
+      "bytes": 17235,
+      "sha256": "854f114d4db54631746bb2f3b45a1e0a8fb7ef118e83e93cb642524bec372eb6",
+      "git_blob": "d163ffaf32c6133041484e22cc280b776000908f",
+      "mode": "100644"
+    },
+    {
+      "file": "drum-function-map.json",
+      "bytes": 87298,
+      "sha256": "8e55394ef0d1f09ef79cf4e80ec4927c77345101dffd2ed5ebc82be2c9700e47",
+      "git_blob": "69b5fef8a5fc6942e9df9d67d7fe7adf6f931c4b",
+      "mode": "100644"
+    },
+    {
+      "file": "evidence/whole-journey-audit.json",
+      "bytes": 41610,
+      "sha256": "6660a9c6d871ae6d7cdfede247dacd9ac50aa665183b9bf1390f6b9788e26fc4",
+      "git_blob": "026e1d16984f1160f5d6d756a738d884bc37f616",
+      "mode": "100644"
+    },
+    {
+      "file": "fonts/BarlowSemiCondensed-Bold.ttf",
+      "bytes": 111772,
+      "sha256": "5bd6757e459a110da81b44532f0f43058e2dab2401688abca84f2fdbde193cbb",
+      "git_blob": "ee04b09e31e98d2509354d7003797ec6540e796f",
+      "mode": "100644"
+    },
+    {
+      "file": "fonts/BarlowSemiCondensed-Medium.ttf",
+      "bytes": 105560,
+      "sha256": "4998b693a190b76f2b11315844345a8546c1e2e6a320905507a9eed04edf8b48",
+      "git_blob": "415429b64420872f198e76cbb1d309db5bfb1df4",
+      "mode": "100644"
+    },
+    {
+      "file": "fonts/BarlowSemiCondensed-SemiBold.ttf",
+      "bytes": 109772,
+      "sha256": "bd299f4bc5b44d30be8d42e9bad3a5df7d66af1cd55d0ed72a8b8916360a1424",
+      "git_blob": "082c76327d21d663948c8ccd2271fa527bd0c145",
+      "mode": "100644"
+    },
+    {
+      "file": "generator-math.js",
+      "bytes": 2904,
+      "sha256": "bbd76ceab51f96c884937d7ce045f4dd9d332daf61543e413671e588d2a17845",
+      "git_blob": "25a455257dd300ab9126a971c450b09ef8356cf5",
+      "mode": "100644"
+    },
+    {
+      "file": "generator-proposal.js",
+      "bytes": 15950,
+      "sha256": "d0088bd7ab1bfb0fc9f2e93174aa2dfdd2a5cd9f8b90c768e4bf93a726bf8a8a",
+      "git_blob": "98c7a87db2eb14301899058a20edf86a6b1d86eb",
+      "mode": "100644"
+    },
+    {
+      "file": "journey-walkthroughs.json",
+      "bytes": 22793,
+      "sha256": "9f0fdf396d8851815ab47f319697c5b0cfc6da7c52a311da80616985b16b6ca0",
+      "git_blob": "5f1616ca4258be0bb9ac924b4d25175388719904",
+      "mode": "100644"
+    },
+    {
+      "file": "led-feedback-map.json",
+      "bytes": 67632,
+      "sha256": "69a47b0e91ea71f018ba3678c065a91bf15501e3c06f3484f3166f71736356a4",
+      "git_blob": "5dce0ccd3f9745bb4982498956f7a498a213dbe3",
+      "mode": "100644"
+    },
+    {
+      "file": "miami-ui-drawings.json",
+      "bytes": 60665,
+      "sha256": "6b1078574f73adbc2daa0f3333aa1a557d5f77f713e56a4347cfe456f87e0866",
+      "git_blob": "04c22264ddc13baecd27a8a0e47d8edce254f411",
+      "mode": "100644"
+    },
+    {
+      "file": "model-inputs.json",
+      "bytes": 4150,
+      "sha256": "c5dc6b470e99b1311fe9f13dd5e63114c595464014dca1ffd07a1af8560e6d78",
+      "git_blob": "2bf8499c6d965a09061679a51243d17fbd33f9f3",
+      "mode": "100644"
+    },
+    {
+      "file": "native/break.png",
+      "bytes": 17649,
+      "sha256": "a6b176ce11f62450419a1c96a95180e01f36dadb4c5cbc6b66c1f0beea84863b",
+      "git_blob": "9775f22e66b7fd2073a32d11df9b26f28ddd4ec6",
+      "mode": "100644"
+    },
+    {
+      "file": "native/clip.png",
+      "bytes": 10523,
+      "sha256": "bf0d65bdfbcdcb69e68238e95b6b11c015fc1a92f3b9bc97220422ffff5a210d",
+      "git_blob": "425f9c2a16103a54eb64d38b424ca2a8b42b7c1c",
+      "mode": "100644"
+    },
+    {
+      "file": "native/copy.png",
+      "bytes": 23748,
+      "sha256": "e85c692a75fe02bb16b89e6bea7c27dcc89b32789b50aa6b71236e422ae73140",
+      "git_blob": "b16d48fb30810750cecb423b4843ebba06b1b662",
+      "mode": "100644"
+    },
+    {
+      "file": "native/cue.png",
+      "bytes": 18802,
+      "sha256": "35085120bb534e9ec2a171a47fb0e1db2f5165e6ed7353f36b60f0da1046be33",
+      "git_blob": "9d9a6bba0f15ab1e7aec849aae9856631c4b3038",
+      "mode": "100644"
+    },
+    {
+      "file": "native/drum.png",
+      "bytes": 19531,
+      "sha256": "041a637171496069bdc1e3723706b4a0a440930cb65e37470c3584c716ac2434",
+      "git_blob": "248bc8f24cc4e61752b5b4e0a4bc0f46f9af6ff6",
+      "mode": "100644"
+    },
+    {
+      "file": "native/gen-held.png",
+      "bytes": 18485,
+      "sha256": "1c27860670278477be747e1591dc2dc50aeb3de95887ed0619265c02d65575cb",
+      "git_blob": "3a953217d22341d217d1bc3fada5e742e2d5ee71",
+      "mode": "100644"
+    },
+    {
+      "file": "native/gen-normal.png",
+      "bytes": 16962,
+      "sha256": "49b0580483912d678134f2c368af5f9be3695d2cfeada44da71c6edf713aa56a",
+      "git_blob": "080faa82e42d62d5762c8543e37f42010bf30c49",
+      "mode": "100644"
+    },
+    {
+      "file": "native/juno.png",
+      "bytes": 28954,
+      "sha256": "5136ac83030cd9a9eb9d47c26703f85fa4c7b3f1dbb5c3538638d7b734b31854",
+      "git_blob": "fbead7657d1010207752ed23c6d8305d206d3cca",
+      "mode": "100644"
+    },
+    {
+      "file": "native/miami-native.png",
+      "bytes": 18864,
+      "sha256": "151e163fb3cd384f57d7d6ac1811565fa642559ab0b06cafdff45cdc6295380e",
+      "git_blob": "3fc24b054877890972d120fe6c276de3389da749",
+      "mode": "100644"
+    },
+    {
+      "file": "native/mix909.png",
+      "bytes": 17401,
+      "sha256": "2d58ee1f026e987cf7f5651d6153ed9385a36d386827b500221af6b18d859e4f",
+      "git_blob": "d570c59cd30e9906ea0b34410c221742881aa62b",
+      "mode": "100644"
+    },
+    {
+      "file": "native/motion.png",
+      "bytes": 20565,
+      "sha256": "59e2e935fefb0c09f7c3848ae317cc12c89859f9205ce6e7906d6aae328cccdb",
+      "git_blob": "37003ba2727729e35cf21a7360b2b0590d994204",
+      "mode": "100644"
+    },
+    {
+      "file": "native/panic.png",
+      "bytes": 20214,
+      "sha256": "281fb936cc142058b5fe3c2ab746251979378d81a2311af66ce812c36dda9e2a",
+      "git_blob": "bb60226b2c8d795d2e7dfb54789d793d975a3c2a",
+      "mode": "100644"
+    },
+    {
+      "file": "native/record.png",
+      "bytes": 18405,
+      "sha256": "3c717b3273aab1e8c16735157988b9fda19ad89f1ede7f27d7ff7ece2176a21e",
+      "git_blob": "e75829c4d4f1c07ce21b8dce69c10163106431f1",
+      "mode": "100644"
+    },
+    {
+      "file": "native/sequence64.png",
+      "bytes": 20981,
+      "sha256": "94a8555e22ad35eb9483f25f3057aa1430607a313a93bc7c1500bb62e3ee2f9f",
+      "git_blob": "bdae260c13e41aa63876074da288aa5c5a7b7ebc",
+      "mode": "100644"
+    },
+    {
+      "file": "native/song.png",
+      "bytes": 15079,
+      "sha256": "a2fca6ac3c382e2b22223a9cf5bd15f0b970bb74d75bb4ec437d0353af955763",
+      "git_blob": "f180fa62ae23752986141e7a8a085597d083f3f0",
+      "mode": "100644"
+    },
+    {
+      "file": "parameter-control-map.json",
+      "bytes": 146149,
+      "sha256": "d9f79c5e061c80af9841b4f62828677a151c2c8363eb290346e633c856e306da",
+      "git_blob": "4d141d4a9224c9fa8148953c97d1eef032b86022",
+      "mode": "100644"
+    },
+    {
+      "file": "physical-role-router.js",
+      "bytes": 5141,
+      "sha256": "5d605654638e5fd6985e40edd3efcb94f4581f618ce8ab1bee6826e4c3696ce8",
+      "git_blob": "3d0010df20ff70fc997d39808c49d235c6a8ce6b",
+      "mode": "100644"
+    },
+    {
+      "file": "proposal-images.json",
+      "bytes": 382081,
+      "sha256": "6e9423e116974fed5e55ae913c0064550c515133b7609b96c3e15e827a4b478f",
+      "git_blob": "8781faab3e114894bb9c5bcd8948e79aebdd4db7",
+      "mode": "100644"
+    },
+    {
+      "file": "proposal.js",
+      "bytes": 93482,
+      "sha256": "e422f74492445d5be186822ddd3041ed6f09613e51a8469afacda21126e0c7e6",
+      "git_blob": "ddc8f96f3cd0918ebd347b814a5465e0162a3115",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-clip-wait-v1-01-no-host-waiting.png",
+      "bytes": 7163,
+      "sha256": "14f59e73ed64203e7ee14c3539249be9ef57c7c12a7d4d360d2bf13327702cbe",
+      "git_blob": "962cfba04509e3117047f04e5be62f279c0805db",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-clip-wait-v1-02-clip-scale-page.png",
+      "bytes": 9215,
+      "sha256": "2e216fd315997cdfad1487362a9d04ea089230aa252b19ee14da0b570cfd6bdf",
+      "git_blob": "dac94bcaa091b875eaa2239f92d57ff0e76334dd",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-copy-v1-06-five-part-occupied-copy-question.png",
+      "bytes": 11846,
+      "sha256": "765e43474f1a5feb4773e32727998fb6d32795030edfac29f3cf97c505a92a63",
+      "git_blob": "c01db73e20a300434e417044783c457717307ed4",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-default-A-v1-01-default-A-sound-native.png",
+      "bytes": 13981,
+      "sha256": "e3d4e10fdbe2262fab32323178dd38c6a98c7f563aaf4f5f871dc40870861c31",
+      "git_blob": "888cd10e203d4592244a1533de6d4e9fbce38f99",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-focused-04-mix-909.png",
+      "bytes": 9091,
+      "sha256": "38fda7434d6d339fa92beea88a07839fd654f2c1de256b5f9dc19c24a7781e95",
+      "git_blob": "6260ea29908a0bdb2e4f7757eec01f951b9253e8",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-generator-scale-native-v1-01-generate-default.png",
+      "bytes": 9621,
+      "sha256": "35f6b3782b5aa7f66b021b0a2cabde914f66c1a3239696ae54a634f5edd4bd21",
+      "git_blob": "d9bb0565829b12ff409d14e002441caec8076890",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-generator-scale-native-v1-02-scale-default.png",
+      "bytes": 9802,
+      "sha256": "6b3a9c26e3b732d288be025075fc6d77b04985914868e74942fc3536dba2f5de",
+      "git_blob": "c141f31a34fc78ab930394aec3ca20b3c4720540",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-home-cues-v1-03-cues-and-mute-qualified.png",
+      "bytes": 10535,
+      "sha256": "bda4451bb474c1f5e453e921c7f3c73ebaf2619f8f93c504e26e5fa1a80b6fa9",
+      "git_blob": "02c2dcf3e9e0674d173816db2364442a056d1159",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-01-known-phrase-GEN-before.png",
+      "bytes": 9559,
+      "sha256": "bdd0e141133c860751c1f9289773dd59b4fc723dd7a29c25a35892ad1cdb845c",
+      "git_blob": "8eaa70d71d2ff5ca6c63c90e3dbae034296f0ca7",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-03-held-step03-before-correction.png",
+      "bytes": 9765,
+      "sha256": "d36fa3060a0aa2c4a8fc837489757828036114ff29eb5b9bb9bd70cea41313b0",
+      "git_blob": "58964b8d67ae2b4a25487606c5b5f65e4f102bb9",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-04-held-step03-octave-corrected.png",
+      "bytes": 9955,
+      "sha256": "47560df10967ff32bae8e0d4862550d83ce217692a0e68c9337811f00b536f22",
+      "git_blob": "73d5af13280e41bb7e13b229a1959f8ca46c26c9",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-05-GEN-corrected-return.png",
+      "bytes": 9841,
+      "sha256": "d1b85b1ad71a0e90f75e49a3b63d338465b72891a9c0dcd05572b8b22ff5af63",
+      "git_blob": "d75331a86b51e0743e646f5e678185f3fb7c1b96",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-motion-v1-05-after-live-override-turn-source-readout.png",
+      "bytes": 12239,
+      "sha256": "0ab8da55c448cb5c14d3ac989831cb8e863e325fb50e565bfe23d5c63c1f10cf",
+      "git_blob": "cb4cb004a5086717fbba3c5b43ccbbb1a66f01d7",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-musical2-03-running-grid.png",
+      "bytes": 10001,
+      "sha256": "7e8bca276b1de1a4260c91c84e73215188d76a0ae062070dde525c836c42c575",
+      "git_blob": "64e8a5df11d05ccc3b4c45baf44b790ed2390b6f",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-panic-v1-03-FX-SEQ-chord-request-both-held.png",
+      "bytes": 12075,
+      "sha256": "05b632414ca91535fa346f412b1e8c5b8eb4895fd52634f3c27a245e57ca2c93",
+      "git_blob": "49a9f2e92627d9eb6d1cecc429106b7091670787",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-qualified2-01-break-loops.png",
+      "bytes": 10932,
+      "sha256": "3b3b60b0dea8e3a93db197760848e375172e2f45b924426ef449621c2f59f555",
+      "git_blob": "063a6d728438b6720eba74315219e0f7796721ef",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-qualified2-05-juno-envelope.png",
+      "bytes": 15913,
+      "sha256": "b52036a628ec2e21a8d82c09e3b619d2c80bd6eb153fac4c24384589bdde6d95",
+      "git_blob": "69cb35004cefb7f84418b56796da5b578298feef",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-r6-record-modifiers-01-CHORD-recorded-accent.png",
+      "bytes": 8314,
+      "sha256": "4fb1eb9c42fb173c565d8ca59638353ec848f6d19b2aa7c561bebdf70ce96c8c",
+      "git_blob": "5ec53735730c58fec7e65036ba1cf94d0469a87c",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-r6-record-modifiers-02-NOTE-REPEAT-recorded-slide.png",
+      "bytes": 8259,
+      "sha256": "5005526e4794da5c45d26ffe6161ac44955681ecc7997e463f56028e684e9d2b",
+      "git_blob": "6fbd31987894d0040581385554b68c0e742033c3",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-sequence64-v3-08-pending-cue-retained.png",
+      "bytes": 9938,
+      "sha256": "28e20f5097725f5167c2285030b66ea8b1112bae023efa461aa5dee1e5c9e4e2",
+      "git_blob": "e45f2437c10d04e0360cc35b81ba110d437b2cc5",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-song-authoring-02-one-bar-assigned.png",
+      "bytes": 10059,
+      "sha256": "ea8e14bc66ebb6e0c04c89a4694d2fa41f89765fa90cc840599ade2c98d8595f",
+      "git_blob": "215b97b2b52f5182bb227dce9eb451c409a698aa",
+      "mode": "100644"
+    },
+    {
+      "file": "reference/elite-stopped-v2-10-step03-octave-corrected.png",
+      "bytes": 10050,
+      "sha256": "8cc9afabb513d0608103b441658c6e12294633e5090d6d40fc02892ea25949bf",
+      "git_blob": "dbd194f210544b46698977e0fe5650bcf125faf7",
+      "mode": "100644"
+    },
+    {
+      "file": "render_curated.py",
+      "bytes": 3167,
+      "sha256": "1e425c0947f2415dc76f949be177cb2b246f0805eb49feb6dfce5bd3268f457f",
+      "git_blob": "84200b513b8b1d9282cf9ec8c4beec89e619bfde",
+      "mode": "100644"
+    },
+    {
+      "file": "settings-composition.json",
+      "bytes": 308985,
+      "sha256": "752194e49b01806171b9bf69c7372e6e7c247cf7b9b3c1eaf15c6f77d8db8bf7",
+      "git_blob": "6093004400dd7ea6f12e6bd18c37bd8345773f54",
+      "mode": "100644"
+    },
+    {
+      "file": "settings-host.js",
+      "bytes": 5787,
+      "sha256": "fff851eb6a5b2d6ba2e868e4f306d2975996d83db8be63347ee2f683a7125448",
+      "git_blob": "748527ee04f086f34ecacb89e94a95edcc329abb",
+      "mode": "100644"
+    },
+    {
+      "file": "settings-section.html",
+      "bytes": 2068,
+      "sha256": "a4a5253fd9d31266942508ca5e1c5ed101b35e3736d6801cb612886076d2afe0",
+      "git_blob": "3c465e204733814c9151b2c1ec8184ceea757a13",
+      "mode": "100644"
+    },
+    {
+      "file": "source-access-counts.json",
+      "bytes": 7313,
+      "sha256": "4ca56bc6f792081b5f7d9d8ac35e0b9e645dd126afacc837d51049d683ea22f7",
+      "git_blob": "ecfa681f71525f2b80c0478aac515ee415218f1d",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/ACTUAL-REFERENCE-HASHES.json",
+      "bytes": 7415,
+      "sha256": "b23547940a8723e8b9fe0635b85f707eec68c9d2dfb48408bbcf4ecdcc1cc467",
+      "git_blob": "9215cb59527dc37c40a955e3202b13059f6a7c89",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/CURRENT-GEN-PROVENANCE.json",
+      "bytes": 50769,
+      "sha256": "7e0c28f134d32c6bd44f20e7b5955596a2d1da0adb7c24f073257dfa41714fb9",
+      "git_blob": "28105f6b7a058dc2de8fd186dfba015ff8c243cc",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/DEVELOPMENT-ATTEMPTS.json",
+      "bytes": 2211,
+      "sha256": "27d3f4a4ae86dbe5ce2c26ed68b439b2bd6575b9753f045bf074bb762a5f69d0",
+      "git_blob": "08916c69ff472733ecb339ea302af76eafab43e9",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/GEN-ACTION-COUNT.json",
+      "bytes": 928,
+      "sha256": "40e938a385617ee654e5e05bc5030fb9b976b41457e693cb06e10ea21d10c701",
+      "git_blob": "27008585daee623ed5fc5bdfa0df634c69d51529",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/R6-PIXEL-REUSE.json",
+      "bytes": 2561,
+      "sha256": "bcda67d5bb5ab6a2d00205e487824efb50e6dfd840a66da25918e2c656ed2b2f",
+      "git_blob": "1e8c5856bd38503732c6b05eabd4342bc5b4f5b9",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/REUSE-AND-CORRECTIONS.json",
+      "bytes": 1091,
+      "sha256": "affc74636fe78b4255c8f2658c17763640f9733141d589e70512534137a06cc5",
+      "git_blob": "232e1cf0624a270ff0078d5f237897ac72709fc8",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/README.md",
+      "bytes": 1183,
+      "sha256": "51deb0940bef0c76de9b47ca85f0b98f9eaec8847d78bb19d9b9639284a1a5ef",
+      "git_blob": "95cd01c49c96f8603a2fbb112ae6f4112ecb18fb",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/SOURCE-INPUT-MANIFEST.json",
+      "bytes": 1251,
+      "sha256": "3a42f586a4860e3cf2572fbe59d3fc5b0ca2f41901684865a85a597b99fb6a5b",
+      "git_blob": "3ff4c182dc1813f525682f82471ac471aec6cf83",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/reference.c",
+      "bytes": 10314,
+      "sha256": "6f21d3cb35663a4e652a08facfeda3fc77aa283419ad9e07cf4e2ca8f735a516",
+      "git_blob": "492a65a781574bc46b77a45af645f174c345241d",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/source/firmware/src/seq/pattern.h",
+      "bytes": 5814,
+      "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191",
+      "git_blob": "9810f8977dccb726e09d34666657f1e01bf83b1e",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/source/firmware/src/seq/tb3po.c",
+      "bytes": 6070,
+      "sha256": "45115ad56ee96ab9ad0f6609c8194cf95ba472348d0b0bf6a7e7d0e42095e920",
+      "git_blob": "fc4cb5363f12d05d1f5e0d4ab7f6e620820897ec",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/source/firmware/src/seq/tb3po.h",
+      "bytes": 923,
+      "sha256": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073",
+      "git_blob": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference/source/firmware/src/x0x_cold.h",
+      "bytes": 428,
+      "sha256": "e95f4037d8f8e0dca5c32ba9253fb8aba7baf1d098407998f6a9c0d1857ba663",
+      "git_blob": "089256ed4b45ceb220aa713a9dfa023efe9b85ad",
+      "mode": "100644"
+    },
+    {
+      "file": "technical-evidence/generator-reference-fixtures.json",
+      "bytes": 101786,
+      "sha256": "9b3b39098db5208fbab79f7f82e0db30cb223525e432c400644ba58f7db8d976",
+      "git_blob": "ba28aa2dca50369c4bc479c964813f01f7b195d4",
+      "mode": "100644"
+    },
+    {
+      "file": "typed-drum-parameters.json",
+      "bytes": 207679,
+      "sha256": "cb0a818367f6b678cae9d8a1328e9b827e39ec653ffe8554a6facf565672f217",
+      "git_blob": "2aa2b15fd95615f789f5cd0d4f7d04bd1e2d904b",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/GEN-AFFECTED-CHECKS-full.json.gz",
+      "bytes": 75996,
+      "sha256": "c72ffec4e480bdb663cb9485a28f94daecde487f034a45a5c5070684b4d09f7f",
+      "git_blob": "27598b63e0d94bebb5b1ca06ac7bcd2d69351496",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/native/gen-corrected.png",
+      "bytes": 17352,
+      "sha256": "2fc826d2e412a4cfcc3489d5fbc9609effe449140fca760d391351d8317bea0d",
+      "git_blob": "f0612e289c9982984d26a2fa20e0b6baadf361f4",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/native/gen-held-before.png",
+      "bytes": 18407,
+      "sha256": "f97d889f71dd6580eaac9ea8bc87f8646a91af6d294e7c41ecc11cff3ea0b514",
+      "git_blob": "fde415643114bd7213bab8d3d0e0b8bd4982d831",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/native/gen-held.png",
+      "bytes": 18485,
+      "sha256": "1c27860670278477be747e1591dc2dc50aeb3de95887ed0619265c02d65575cb",
+      "git_blob": "3a953217d22341d217d1bc3fada5e742e2d5ee71",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/native/gen-normal.png",
+      "bytes": 16962,
+      "sha256": "49b0580483912d678134f2c368af5f9be3695d2cfeada44da71c6edf713aa56a",
+      "git_blob": "080faa82e42d62d5762c8543e37f42010bf30c49",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/native/record-accent.png",
+      "bytes": 18216,
+      "sha256": "2fb20e94565fa4f32f05a09e883053523ef693b65188f8d2ac884f4322e7b126",
+      "git_blob": "e1dcef69d1ff10a0908d57f5fc3afb8b2ee53940",
+      "mode": "100644"
+    },
+    {
+      "file": "verification/native/record-slide.png",
+      "bytes": 18472,
+      "sha256": "b2530e30d5b05659dc708d129d77b42ce28419535aab3c45673be2ced4897777",
+      "git_blob": "189fb75903657a9e10b85f69b84057ffaf8f1f9b",
+      "mode": "100644"
+    },
+    {
+      "file": "workbench.html",
+      "bytes": 1971264,
+      "sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659",
+      "git_blob": "4c62f7ed11ad353de17e7f94d71df4ac60b92139",
+      "mode": "100644"
+    },
+    {
+      "file": "workbench.template.html",
+      "bytes": 22008,
+      "sha256": "bd4954205bca03e7fe00751935670bbcf0eee9eb830ffaa741a66e32f53a4b2a",
+      "git_blob": "b749034818333a7bcf076ba63908745a6d42d95e",
+      "mode": "100644"
+    }
+  ],
+  "self_excluded": true,
+  "actual_inputs": "Pinned current3c41 native captures; private runnable package/runtime excluded",
+  "limits": "Exact successor independent affected assessment pending; actual iOS/device/firmware NOT_RUN"
+}

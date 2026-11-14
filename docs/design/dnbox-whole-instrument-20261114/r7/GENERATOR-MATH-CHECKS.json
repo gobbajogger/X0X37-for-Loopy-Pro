@@ -1,0 +1,544 @@
+{
+  "classification": "Producer JavaScript model compared to independently generated exact public C-source host math outputs; not firmware/audio/independent acceptance",
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "reference_sha256": "9b3b39098db5208fbab79f7f82e0db30cb223525e432c400644ba58f7db8d976",
+  "model_sha256": "bbd76ceab51f96c884937d7ce045f4dd9d332daf61543e413671e588d2a17845",
+  "node": "v24.19.0",
+  "passed": 132,
+  "total": 132,
+  "checks": [
+    {
+      "name": "scale-0-MIN-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-1 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-1 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-16 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-16 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-64 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-0-MIN-length-64 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-1 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-1 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-16 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-16 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-64 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-1-PHRY-length-64 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-1 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-1 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-16 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-16 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-64 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-2-HARM-length-64 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-1 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-1 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-16 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-16 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-64 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-3-MPEN-length-64 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-1 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-1 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-16 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-16 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-64 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-4-DOR-length-64 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-1 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-1 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-16 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-16 final RNG",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-64 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "scale-5-MAJ-length-64 final RNG",
+      "pass": true
+    },
+    {
+      "name": "zero-density-new-length-1 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "zero-density-new-length-16 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "zero-density-new-length-64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "all-rest-mutate-density-0 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "all-rest-mutate-density-0 final RNG",
+      "pass": true
+    },
+    {
+      "name": "all-rest-mutate-density-100 MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "all-rest-mutate-density-100 final RNG",
+      "pass": true
+    },
+    {
+      "name": "new-resets-hidden64 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "manual-accent-slide-into-rest-cleanup MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "manual-accent-slide-into-rest-cleanup final RNG",
+      "pass": true
+    },
+    {
+      "name": "last-note-removal-forces-anchor MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "last-note-removal-forces-anchor final RNG",
+      "pass": true
+    },
+    {
+      "name": "mutate-zero-rng-and-zero-config-seed MUTATE all64 fields",
+      "pass": true
+    },
+    {
+      "name": "mutate-zero-rng-and-zero-config-seed final RNG",
+      "pass": true
+    },
+    {
+      "name": "authored-P1-B-config-seed05A1-base2 NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "new-from-explicit-entropy NEW all64 fields",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 0",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 1",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 48879",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 1441",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 305419896",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 4294967295",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 2147483648",
+      "pass": true
+    },
+    {
+      "name": "source seed mixing 2342946167",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw0",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw1",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw2",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw3",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw4",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw5",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw6",
+      "pass": true
+    },
+    {
+      "name": "RNG 0 draw7",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw0",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw1",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw2",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw3",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw4",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw5",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw6",
+      "pass": true
+    },
+    {
+      "name": "RNG 1 draw7",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw0",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw1",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw2",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw3",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw4",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw5",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw6",
+      "pass": true
+    },
+    {
+      "name": "RNG 48879 draw7",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw0",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw1",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw2",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw3",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw4",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw5",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw6",
+      "pass": true
+    },
+    {
+      "name": "RNG 1441 draw7",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw0",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw1",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw2",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw3",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw4",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw5",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw6",
+      "pass": true
+    },
+    {
+      "name": "RNG 305419896 draw7",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw0",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw1",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw2",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw3",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw4",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw5",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw6",
+      "pass": true
+    },
+    {
+      "name": "RNG 4294967295 draw7",
+      "pass": true
+    },
+    {
+      "name": "source binary32 percentage 0",
+      "pass": true
+    },
+    {
+      "name": "source binary32 percentage 25",
+      "pass": true
+    },
+    {
+      "name": "source binary32 percentage 35",
+      "pass": true
+    },
+    {
+      "name": "source binary32 percentage 40",
+      "pass": true
+    },
+    {
+      "name": "source binary32 percentage 70",
+      "pass": true
+    },
+    {
+      "name": "source binary32 percentage 100",
+      "pass": true
+    }
+  ],
+  "limits": [
+    "Host C source and JS arithmetic only, not executed native target generator parity",
+    "No UI input/clock scheduling, audio, persistence or native history pool qualification",
+    "Chord/note-sound cleanup model is separately scoped"
+  ]
+}

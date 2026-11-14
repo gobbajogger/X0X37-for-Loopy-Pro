@@ -1,0 +1,84 @@
+{
+  "file": "DnBOX-R7-owner-comparisons.pdf",
+  "bytes": 369110,
+  "sha256": "0db8d41329e39da6424fc6971e222fd8a3a901fc62a79370498c25f81fbf52e2",
+  "pages": 17,
+  "pair_pages": [
+    {
+      "page": 1,
+      "comparison": "drum",
+      "bottom_y": 372.86076377952764
+    },
+    {
+      "page": 2,
+      "comparison": "juno",
+      "bottom_y": 349.71876377952765
+    },
+    {
+      "page": 3,
+      "comparison": "miami-native",
+      "bottom_y": 361.2897637795276
+    },
+    {
+      "page": 4,
+      "comparison": "sequence64",
+      "bottom_y": 372.86076377952764
+    },
+    {
+      "page": 5,
+      "comparison": "motion",
+      "bottom_y": 384.4317637795276
+    },
+    {
+      "page": 6,
+      "comparison": "copy",
+      "bottom_y": 361.2897637795276
+    },
+    {
+      "page": 7,
+      "comparison": "cue",
+      "bottom_y": 361.2897637795276
+    },
+    {
+      "page": 8,
+      "comparison": "record",
+      "bottom_y": 338.1477637795277
+    },
+    {
+      "page": 9,
+      "comparison": "song",
+      "bottom_y": 372.86076377952764
+    },
+    {
+      "page": 10,
+      "comparison": "panic",
+      "bottom_y": 384.43176377952756
+    },
+    {
+      "page": 11,
+      "comparison": "clip",
+      "bottom_y": 372.86076377952764
+    },
+    {
+      "page": 12,
+      "comparison": "break",
+      "bottom_y": 384.4317637795276
+    },
+    {
+      "page": 13,
+      "comparison": "mix909",
+      "bottom_y": 372.86076377952764
+    },
+    {
+      "page": 14,
+      "comparison": "gen-normal",
+      "bottom_y": 338.1477637795277
+    },
+    {
+      "page": 15,
+      "comparison": "gen-held",
+      "bottom_y": 338.1477637795277
+    }
+  ],
+  "classification": "Owner-facing proposal PDF; no private coordination or internal routing details; standard parse/render checks separate"
+}

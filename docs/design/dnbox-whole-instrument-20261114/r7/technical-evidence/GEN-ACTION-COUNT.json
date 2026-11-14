@@ -1,0 +1,13 @@
+{
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "source_ui_sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+  "source_lines": {
+    "page_memory": "ui.c1427-1431: page_of(V_GEN) stored per part",
+    "ARP_dispatch": "ui.c4071-4080: entry calls set_view(V_GEN), next press advances only if already GEN/no overlay",
+    "view_switch": "ui.c2754-2783: build_pages retains stored page unless out of range"
+  },
+  "current": "GEN \u2192 SEQ press \u2192 hold/edit/release \u2192 ARP once returns to remembered GEN page",
+  "proposal": "GEN hold/edit/release, no view switch",
+  "delta": "Two view-button presses removed: SEQ entry plus one ARP return. Hold/edit/release unchanged.",
+  "documentation_correction": "An earlier working doc mistakenly said ARP twice; reconciled to source memory and actual capture plan before freeze. No emulator rerun used to conceal or manufacture a result."
+}
