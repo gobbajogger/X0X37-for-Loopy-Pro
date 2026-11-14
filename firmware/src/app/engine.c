@@ -2416,7 +2416,7 @@ static int run_job(int j, int core)
                     return 0;
                 }
                 wt += plat_ticks24() - w0;
-                p8 = plat_cycles();                    /* exclude C1 body wait from 808 work */
+                p8 = plat_ticks24();                    /* exclude C1 body wait from 808 work */
                 drum808_finish_rest(&d808, (const float (*)[256])raw, left808, right808, t1, t2,
                                     (int)n, aud);
                 bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
@@ -2438,7 +2438,7 @@ static int run_job(int j, int core)
         if (stage_wait(1, core))
             return 0;
         wt += plat_ticks24() - w0;
-        p8 = plat_cycles();                       /* separate actual mix work from stage wait */
+        p8 = plat_ticks24();                       /* separate actual mix work from stage wait */
         mix_808(left808, right808, n, solo_parts);
         PROF_ADD_CORE(core, PR_808, p8);
         eng_sync();
@@ -2467,7 +2467,7 @@ static int run_job(int j, int core)
                                              bb[bv], bb[1-bv], n);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
         PROF_ADD_CORE(core, 2 + bv, pb);
-        pb = plat_cycles();                        /* post-DSP gain/FX is bass work, not idle 808 */
+        pb = plat_ticks24();                        /* post-DSP gain/FX is bass work, not idle 808 */
         bass_render_ok[bv] = (uint8_t)(status == ORIGINAL_RUNTIME_OK);   /* recorder: core 0, after */
         if (status == ORIGINAL_RUNTIME_OK) {
             /* One coherent request decision per sub-block. Once note ownership is
@@ -2523,7 +2523,7 @@ static int run_job(int j, int core)
         if (stage_wait((uint32_t)(2 + bv), core))         /* A mixes after the 808, B after A */
             return 0;
         wt = plat_ticks24() - w0;
-        pb = plat_cycles();
+        pb = plat_ticks24();
         if (status == ORIGINAL_RUNTIME_OK) {
             /* A part that was silent when Solo excluded it must not leak a new
              * note through the 10 ms mix glide-out: start its glides at zero.
