@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base_commit": "0258bfd846fdd00d5df8d4e7309b2c5888e218a3",
+  "base_tree": "8530485c500455d77ca2b5b2a8c303db19d29959",
+  "dependencies": [
+    {
+      "path": "../probe/portable_voice.cpp",
+      "bytes": 16329,
+      "git_blob_sha": "bda46b83329ff3d52828221c4b16c52818298040",
+      "sha256": "987f18732cedf60455dd5f89cbde521a7fd7ecea5493f3e463d013f2b69b1b0c"
+    },
+    {
+      "path": "../probe/portable_interface.hpp",
+      "bytes": 9271,
+      "git_blob_sha": "4380539d47cb9b778fc821f0b077862299711968",
+      "sha256": "85f94a7f2f5c590ddcc83d7021c77be6d72f2647b8761d8f6de7cd32ee0e0963"
+    },
+    {
+      "path": "../probe/wave_frequencies.h",
+      "bytes": 189,
+      "git_blob_sha": "eb70360bb4a3cc9db7e4f4585b0fec7f9f5840fc",
+      "sha256": "80cee39150503efd05b1bf5ea8f0e117dea401f8814ecc8a6664cdb2827cf1be"
+    },
+    {
+      "path": "../notices/SynthOne-MIT.txt",
+      "bytes": 1075,
+      "git_blob_sha": "be8551b835e760f321887b531d2f09d8ffa05c5a",
+      "sha256": "71ac2b8af8849096ba2d0f3510972b8384204f17517e773bfa52fc755fb0fc49"
+    },
+    {
+      "path": "../notices/AudioKit-4.9.2-MIT.txt",
+      "bytes": 1085,
+      "git_blob_sha": "e99249a865bfbacdeeda22e965268a42ff638913",
+      "sha256": "b9aad96b49e7afcadb3f351b733de24577924b3ba48c82a3e07393d8b9f96c5e"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/soundpipe.h",
+      "bytes": 51563,
+      "git_blob_sha": "aa1bc2123ac0d4b53ee11b744323a381252cad91",
+      "sha256": "f3a87027492c30d73c5d87d964010f3042220dbcd436556c0b47c82119781386"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/SoundpipeExtension/soundpipeextension.h",
+      "bytes": 847,
+      "git_blob_sha": "12e12b2af9b0c74704bd99cc3a949531bec57d30",
+      "sha256": "71b6cbe60b8cbc1cba7bf801b10410a33f7f52cf92572e93762b1c9ea9f629a3"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/SoundpipeExtension/modules/oscmorph2d.c",
+      "bytes": 3601,
+      "git_blob_sha": "a3fffa59f4709153f5dfda0bed9923567b60e6bd",
+      "sha256": "455c56d1f12e3b62d89eea1f83ef9bbd14402b37b14db4b54051383a1d64af0c"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/base.c",
+      "bytes": 4448,
+      "git_blob_sha": "4d08f26810160d50b64825a5891126ff0e7539bb",
+      "sha256": "65eea7830ffdc039e8e18a6234c676f0b2e31b9cc02d5ee51020d94070bd7296"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/ftbl.c",
+      "bytes": 9100,
+      "git_blob_sha": "7a29a41e0c461c8d031e6089d80fcc94ebb39227",
+      "sha256": "1f5a6aa4fded5dcceae3859717b0722d8efeb1b9ffa129f6bd7a6425be29e9c0"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/adsr.c",
+      "bytes": 2066,
+      "git_blob_sha": "6fbe46001363bd842921d76ad2094ac694e66687",
+      "sha256": "816310221f5ce2e04751d7f284a61cc9057cbabf44deef7366a085c57ca310dc"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/crossfade.c",
+      "bytes": 488,
+      "git_blob_sha": "8043eef7a3b80ea93ad96d89d329873903e83405",
+      "sha256": "2a472e538671aea47e8db36c671ee6804f176cc6a951c267de27c6344152b906"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/osc.c",
+      "bytes": 1451,
+      "git_blob_sha": "7099625e151d19a9ec911aa4f56dcd240d858687",
+      "sha256": "630f55b96f50e56d1d9735fd67654b980523023dbca634ae5479f5d0d6aa6b9d"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/fosc.c",
+      "bytes": 2018,
+      "git_blob_sha": "e07cd7612849f8bbd8d6875859d2d3e6df6e97f3",
+      "sha256": "bffb48406abd1705f8d9b3ddde5dad449dafabb1fe6ed091b6decac3f76557b6"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/noise.c",
+      "bytes": 524,
+      "git_blob_sha": "6e6c88c692ff8b1bbc05ab292c57f28eea9aca74",
+      "sha256": "cf33ac6e9f99b85f386643b96e8de32db717101a4be3a158e9aa75a422a0dbae"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/moogladder.c",
+      "bytes": 3201,
+      "git_blob_sha": "eee67d70695c74b3bbc478ec0016ffd47816a2c1",
+      "sha256": "d784563da2cd3243ab28f9020aa696db0d2ea208d92924c97ae36a1aba4a01ba"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/butbp.c",
+      "bytes": 1644,
+      "git_blob_sha": "ec8e2d7612977b13539ed83a8da81fb3c70045cd",
+      "sha256": "35228571e2904402ec60b733713090c768ca84f5dab96521b9fd6b7f74dac867"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/buthp.c",
+      "bytes": 1663,
+      "git_blob_sha": "40e53788dcc4df9df3e270a2354f82b7565bace1",
+      "sha256": "00d71f10b1cd4ae80cbdd8c221dd6f92781231bb0ac43426fe3fc512ab31cadf"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/port.c",
+      "bytes": 1163,
+      "git_blob_sha": "0fa9ff4f18aab7932e5c9feb89f5dd6ae96ccccf",
+      "sha256": "2a0451a80fd74ab52805114609bb937df662492858f5768c120da8af7af1a490"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/phasor.c",
+      "bytes": 993,
+      "git_blob_sha": "1f99ce35335c67c0c736b7ff12fd88d920794246",
+      "sha256": "264477d11086f19f4702c598604748ada3b445b58a80ab4e8108cff0d37e3103"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/lib/dr_wav/dr_wav.h",
+      "bytes": 129191,
+      "git_blob_sha": "196da203ec4f48f40d2616eff155d28935ab77f4",
+      "sha256": "0189f571847dd300c4749830f66c21003ab1d5ee17f0c64ab56659c3c5351ed2"
+    },
+    {
+      "path": "../public-source-manifest.json",
+      "bytes": 280554,
+      "git_blob_sha": "53aaac394a270270d86c7b9b2f5b8cf53f0e51ad",
+      "sha256": "86032f0fbae4fade0247766d720eeb03e8527a0ecb5d32b50f6b2c180da253cc"
+    }
+  ]
+}
