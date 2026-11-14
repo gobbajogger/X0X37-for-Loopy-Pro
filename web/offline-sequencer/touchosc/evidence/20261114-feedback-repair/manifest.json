@@ -1,0 +1,51 @@
+{
+  "schema": "touchosc-feedback-delivery/v1",
+  "base": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "branch": "chat/touchosc-feedback-lifetime-20261114",
+  "review_base": "lane/026-combined-20261112",
+  "archive": {
+    "file": "touchosc-feedback-repair-evidence.zip",
+    "size": 222994,
+    "sha256": "4bc0ba9ddc8caf59c4224ed6769adad381ff00241ae2dbcd5f2288d8b9190261"
+  },
+  "source": [
+    {
+      "path": "web/offline-sequencer/touchosc/README.md",
+      "size": 6613,
+      "sha256": "361b4d8d73fc427eed09f118e68a800a1d703e8679e9e576eacc208e4b4c7211",
+      "git_blob": "fdbc574f84cb5db5a69073e5cf9f097ba167df2c"
+    },
+    {
+      "path": "web/offline-sequencer/touchosc/button.lua",
+      "size": 246,
+      "sha256": "347db93b4e59eef2b4a189f2a672a4a1b81f48d13dfb8fc949bcdbad92c36068",
+      "git_blob": "53dec40f3b2187005f787e14d87874cd72f7f64b"
+    },
+    {
+      "path": "web/offline-sequencer/touchosc/controller.lua",
+      "size": 4084,
+      "sha256": "d7ef0b9b7caad60d630241524b9c4f4a72260ad711c168e137c26125976daed7",
+      "git_blob": "4b8ab17354c4fc99a1b5316c4eb39af53a88c5e8"
+    },
+    {
+      "path": "web/offline-sequencer/touchosc/controller.test.lua",
+      "size": 7182,
+      "sha256": "bf74fe545da3c2f522310e5293fdc0d69480f06055a046e01901aed1d7ba0791",
+      "git_blob": "8bf16d6865950da57a105ba7f7103ac4dbf9dc4d"
+    },
+    {
+      "path": "web/offline-sequencer/touchosc/pack.py",
+      "size": 6195,
+      "sha256": "3d32006b2cbf855732eb4a69b3c89b8d2731d1fc82f95677d918dc7086299d59",
+      "git_blob": "00ed76bc98e1712dff14d2ad269f8239e7a1c03c"
+    },
+    {
+      "path": "web/offline-sequencer/touchosc/pack.test.py",
+      "size": 3070,
+      "sha256": "fe5979da2a509bda7dba0ab74e5bee96d3daa4efab0bd7c1ae70280600c44c9a",
+      "git_blob": "2757e2f81f44f697b526fbf1d9c32ad0c065fdf6"
+    }
+  ],
+  "qualification": "partial",
+  "successor": "PENDING: parent has precise handoff; worker creation tool unavailable"
+}

@@ -24,6 +24,13 @@ local function colour(note, on)
   end
 end
 
+local function resetFeedback()
+  -- Incoming notes affect presentation, not `active`. Clear both sources of
+  -- highlights when disarming so old-route feedback cannot survive a reset.
+  for note in pairs(allowed) do colour(note, false) end
+  display("feedback", "No incoming MIDI observed")
+end
+
 local function release(note)
   local held = active[note]
   if not held then return end
@@ -38,14 +45,15 @@ local function disarm()
   for note in pairs(active) do notes[#notes + 1] = note end
   for _,note in ipairs(notes) do release(note) end
   armed = false
+  resetFeedback()
   routeStatus()
 end
 
 function init()
   armed = false
   active = {}
+  resetFeedback()
   routeStatus()
-  display("feedback", "No incoming MIDI observed")
 end
 
 function onReceiveNotify(key, value)
