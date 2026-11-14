@@ -1,0 +1,3 @@
+# Smoothing-cache source oracle
+
+Extend the existing scalar recurrence proof to the real pinned 150-parameter metadata and cached index-list traversal, without changing firmware or the incumbent's caller-owned-state implementation. Catch omitted/duplicate smoothed parameters, updates to unsmoothed values, stale half-time coefficients and broken reset/state progression. Compare the actual AudioKit 4.9.2 sp_port implementation with the documented develop recurrence over a deterministic changing-control workload. Preserve source cadence, expression order and flags. No full-engine/CPU/fidelity claim.

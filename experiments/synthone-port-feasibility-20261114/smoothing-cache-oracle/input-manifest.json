@@ -1,0 +1,53 @@
+{
+  "master": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+  "develop": "627744f2495863483f95f88887c40a13c2ce0ed2",
+  "audiokit": "03fecf80a66be88f6ac0356cd532c72dbe09922d",
+  "parameter_count": 150,
+  "smoothed_count": 46,
+  "master_develop_flags_equal": true,
+  "metadata_name_differences": [
+    {
+      "index": 136,
+      "master": "compressorMasterMakeupGain",
+      "develop": "compressorReverbWetMakeupGain",
+      "smoothed": "false"
+    }
+  ],
+  "sources": [
+    {
+      "root": "master",
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.hpp",
+      "sha256": "95dd9af314495a56e5d2b9619c5737107b2a6d9ac3b9120ff657034f5b0dac32"
+    },
+    {
+      "root": "develop",
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.hpp",
+      "sha256": "b596704deb1aecad591ec6440b96b101bf57fd82d4c9e6661b5120d1977284ff"
+    },
+    {
+      "root": "develop",
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.mm",
+      "sha256": "cc15a809ec56e3da010e54cea1e03b60ae948a0a98523688c4775af5baa34762"
+    },
+    {
+      "root": "develop",
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+parameters.mm",
+      "sha256": "b711359849de78975fd3303b7365de32d9d6bd9d27949dc6af2871d4e5d9539f"
+    },
+    {
+      "root": "develop",
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+process.mm",
+      "sha256": "15ed6962b407ce52de640bef18120647971cfeabd7ad6c1729945bd39f9bbee3"
+    },
+    {
+      "root": "audiokit",
+      "path": "AudioKit/Core/Soundpipe/modules/port.c",
+      "sha256": "2a0451a80fd74ab52805114609bb937df662492858f5768c120da8af7af1a490"
+    },
+    {
+      "root": "audiokit",
+      "path": "AudioKit/Core/Soundpipe/soundpipe.h",
+      "sha256": "f3a87027492c30d73c5d87d964010f3042220dbcd436556c0b47c82119781386"
+    }
+  ]
+}

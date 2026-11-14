@@ -1,0 +1,9 @@
+MUTANT_KILLED omit_selected FAIL selected parameter count: got 45 expected 46
+MUTANT_KILLED duplicate_selected FAIL duplicated parameter
+MUTANT_KILLED stale_coefficient FAIL output sr=44100 frame=0 parameter=0
+MUTANT_KILLED update_unsmoothed FAIL selected parameter count: got 150 expected 46
+MUTANT_KILLED omit_half_time_refresh FAIL output sr=44100 frame=64 parameter=0
+MUTANT_KILLED omit_reset FAIL output sr=44100 frame=257 parameter=0
+MUTANT_KILLED corrupt_unsmoothed FAIL output sr=44100 frame=0 parameter=3
+MUTANT_KILLED omit_parameter_output FAIL output sr=44100 frame=0 parameter=0
+SENSITIVITY_PASS expected_failures=8
