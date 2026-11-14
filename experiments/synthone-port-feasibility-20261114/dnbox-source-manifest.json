@@ -1,0 +1,121 @@
+[
+  {
+    "commit": "83fc6d60289869116f93352cf845a9a7e271cdba",
+    "path": "AGENTS.md",
+    "blob_sha": "c06c39f0e4db63f9d3e26e460cd2d9d1f53b5b31",
+    "sha256": "c2efff9421a934dcfd2a97e30793437c0a3776c610fbc52435c81a12be168423",
+    "size": 5326
+  },
+  {
+    "commit": "83fc6d60289869116f93352cf845a9a7e271cdba",
+    "path": "skills/x0x37-workflow/SKILL.md",
+    "blob_sha": "b305fcc90a8f2f7eeda4fbcee72d5681f6a25262",
+    "sha256": "285e47a79cd59903abf59635af5a025e070bff87823a07b83e80cd79555137b7",
+    "size": 3915
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "AGENTS.md",
+    "blob_sha": "3700e0a11507897c5f5041c76198e09e9ea01694",
+    "sha256": "a0d879a2bad29536d6d02a1b609688a8585675273c0362df56c247e20ebf8d33",
+    "size": 7353
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "skills/x0x37-workflow/SKILL.md",
+    "blob_sha": "b305fcc90a8f2f7eeda4fbcee72d5681f6a25262",
+    "sha256": "285e47a79cd59903abf59635af5a025e070bff87823a07b83e80cd79555137b7",
+    "size": 3915
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "firmware/src/dsp/juno6.c",
+    "blob_sha": "223e6bdc5ac269b3d6cac97ae890204b16da185c",
+    "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+    "size": 5960
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "firmware/src/dsp/juno6.h",
+    "blob_sha": "0a2c151ecb75ad226785b347d9f497a00eb8368f",
+    "sha256": "1ab73dc959d62d6a52d3a3e2ee0404c1597f20ddf947b6585c709b00ba46ced2",
+    "size": 1447
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "firmware/src/app/original_runtime.c",
+    "blob_sha": "45f4bc53008ca2d65a979dc90634e731d9aeeb09",
+    "sha256": "cba080a1f42f3803161a4562b93dc5fb1adc8be7b586ed500e27af97f63c181c",
+    "size": 17427
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "firmware/src/app/original_sound.c",
+    "blob_sha": "a250a77f9d20fb1973b1251dd9f9b5c205776b45",
+    "sha256": "b8ddda881f05521c5ecc945d22868cfcfee163f66fe5a1a9b7d3cc4a146fc54e",
+    "size": 17413
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "firmware/src/app/preset_record.h",
+    "blob_sha": "52cdc7bd0848714d43703657b781d05ff8128190",
+    "sha256": "536d9b389da68cc269a3ad7aed4ec7d21a04499373b0db0748c1674ffae47e09",
+    "size": 12181
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "firmware/src/app/ui_original_controls.h",
+    "blob_sha": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627",
+    "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+    "size": 7799
+  },
+  {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "path": "docs/FEATURE-REGISTRY.md",
+    "blob_sha": "9fff09e3251a0d2d65c2a0ce93857125ca543a9a",
+    "sha256": "30b247d26f711b8296d48c82da565b8ba0e674ad6322d92bfabb6c57ee527395",
+    "size": 49204
+  },
+  {
+    "commit": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+    "path": "experiments/j6-schema-mapping-20261114/README.md",
+    "blob_sha": "5f66ed844721200f1925d7fe4da9add7c7809df4",
+    "sha256": "71f79221d1dea5f15af956628eeba5cb5475d2ccfb6c30b3bdd0524ae38deadf",
+    "size": 1958
+  },
+  {
+    "commit": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+    "path": "experiments/j6-schema-mapping-20261114/fixtures/synthetic.bank.json",
+    "blob_sha": "68d74019de495e2c0aed6df7f05386b331ea03b8",
+    "sha256": "046008edb2e2d2267fd72a18cc1ab761ee41ff00e2ebea29795dea8b394b4168",
+    "size": 628
+  },
+  {
+    "commit": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+    "path": "experiments/j6-schema-mapping-20261114/mapping-manifest.json",
+    "blob_sha": "a7c7b35228f536f94947db14bdd464287dd1f9f2",
+    "sha256": "aa168b03d3d9696a07cc3e4855189d1a955460525c8c9120de845700cc1d199c",
+    "size": 61362
+  },
+  {
+    "commit": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+    "path": "experiments/j6-schema-mapping-20261114/validator/mapping.py",
+    "blob_sha": "8f339002fc197468fda1390c7e84a5691051a878",
+    "sha256": "b3316e6ff8a18141b9d2aff874aacf04bfd9cb0f6411e0a6ce2733e1a4d68912",
+    "size": 2954
+  },
+  {
+    "commit": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+    "path": "experiments/j6-schema-mapping-20261114/validator/schema.py",
+    "blob_sha": "7efc0a82791f922bc0b900c0048abd96511f9297",
+    "sha256": "dc949084c01b1d377c53b7d9d6075a53d4a44ec4cf5763d649068256babda3ad",
+    "size": 2840
+  },
+  {
+    "commit": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+    "path": "experiments/j6-schema-mapping-20261114/validator/test_mapping.py",
+    "blob_sha": "da16dbb0056281b4fbae839cd0cba691de0eff31",
+    "sha256": "11d0d71ac5787e2d353175d13db89d1a3700b4835cb6e65d6d49b3238b7f2901",
+    "size": 5968
+  }
+]

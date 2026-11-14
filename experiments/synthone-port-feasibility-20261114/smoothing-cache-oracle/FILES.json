@@ -1,0 +1,127 @@
+{
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 29,
+      "sha256": "06e5bc8b25f820c486c65d9b459eb684f8ee13c5cd6ef41ed15e8acede70fd9a"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3290,
+      "sha256": "c1e65e2574b162a4c7c82df153be83e5bc42a98cbe24a991217e218035225198"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 604,
+      "sha256": "44f0c82bc45689d0341b4b3d8808c797cee5f42b98e0d5b3bd2699d0317696d2"
+    },
+    {
+      "path": "input-manifest.json",
+      "bytes": 1751,
+      "sha256": "1d4cc3725181206fc4bf3341cfaccd1c20e04e342e74d6fcbaeaa58bc36ad388"
+    },
+    {
+      "path": "parameter_flags.h",
+      "bytes": 456,
+      "sha256": "998e5326c5ead9c6ddcb4b3be2ed6539dbbcfb4f5095d58636dcd50224904dc7"
+    },
+    {
+      "path": "cache_candidate.h",
+      "bytes": 514,
+      "sha256": "666ed97da0e9a873f63150eb6342edb4d3886cdf6d1db427e34d8e57ef9a4a00"
+    },
+    {
+      "path": "test_cache_list.c",
+      "bytes": 2912,
+      "sha256": "f0ac6a83826fd3522ca6b0cc494a8361389f38be1f5219b81834bc2da60f411e"
+    },
+    {
+      "path": "run.sh",
+      "bytes": 973,
+      "sha256": "8004adb3fab9e926000db9ccf44dd357efa466e363f665486635e62346cea732"
+    },
+    {
+      "path": "verify_inputs.py",
+      "bytes": 2442,
+      "sha256": "049065fbce7702fdac8128c7a22fdeeda8b0334f14190c58c9568f269ab2101e"
+    },
+    {
+      "path": "mutation_checks.py",
+      "bytes": 2900,
+      "sha256": "ef2bdee1c8870b41395d496bd9fc1c8d395e07bb6b3e1c4e36d1eeb96efe3b70"
+    },
+    {
+      "path": "red.log",
+      "bytes": 49,
+      "sha256": "cdb6b8527b2232e7c7740fc086d4f6490d6dccceafb6900a22421df0b00b708f"
+    },
+    {
+      "path": "setup-correction.log",
+      "bytes": 443,
+      "sha256": "41a470f7a6fb36c4c2295e6cdc396b53da980027031e0994ed48ad5ec9845467"
+    },
+    {
+      "path": "compile-diagnostic.log",
+      "bytes": 440,
+      "sha256": "eeaaab92907606a80e3ee9aec0cd9b6006138049532d84eeaf5d12df9a75970b"
+    },
+    {
+      "path": "source-contract.log",
+      "bytes": 94,
+      "sha256": "87334a2b37d7d621a7161a7b0376eb91966ff53d6af36f76c4bc5623c59aa0f7"
+    },
+    {
+      "path": "green-Os.log",
+      "bytes": 145,
+      "sha256": "0fc2bf1673df30982acd217f88755e3e7628a512fe52103d33931aaab3f6c895"
+    },
+    {
+      "path": "green-O2.log",
+      "bytes": 145,
+      "sha256": "0fc2bf1673df30982acd217f88755e3e7628a512fe52103d33931aaab3f6c895"
+    },
+    {
+      "path": "green-Os-san.log",
+      "bytes": 145,
+      "sha256": "0fc2bf1673df30982acd217f88755e3e7628a512fe52103d33931aaab3f6c895"
+    },
+    {
+      "path": "green-O2-san.log",
+      "bytes": 145,
+      "sha256": "0fc2bf1673df30982acd217f88755e3e7628a512fe52103d33931aaab3f6c895"
+    },
+    {
+      "path": "mutation.log",
+      "bytes": 628,
+      "sha256": "a7db8f6a88ab679ce3f4c5799f0214fb0c4186e0f0ef10de88efe51078a35ff0"
+    },
+    {
+      "path": "mutation-results.json",
+      "bytes": 1319,
+      "sha256": "1f923a342d8732840255fed5688567dd8b07019a26734aeb1d31aca91215bebd"
+    },
+    {
+      "path": "notices/AudioKit-4.9.2-MIT.txt",
+      "bytes": 1085,
+      "sha256": "b9aad96b49e7afcadb3f351b733de24577924b3ba48c82a3e07393d8b9f96c5e"
+    },
+    {
+      "path": "notices/SynthOne-MIT.txt",
+      "bytes": 1075,
+      "sha256": "71ac2b8af8849096ba2d0f3510972b8384204f17517e773bfa52fc755fb0fc49"
+    },
+    {
+      "path": "test_input_binding.py",
+      "bytes": 645,
+      "sha256": "19f93fbb04cf59525bc3d17faf79ed8790dd53fea1ef0d057dd86b5d9a027c45"
+    },
+    {
+      "path": "input-binding.log",
+      "bytes": 66,
+      "sha256": "7a247caac1b4883ee4c97aaaf8b56d07b336d6cff9b89e0a8f2aa082ada8a43a"
+    }
+  ],
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "only_public_source_metadata_synthetic_tests": true,
+  "firmware_changed": false
+}

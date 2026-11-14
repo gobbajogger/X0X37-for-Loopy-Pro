@@ -1,0 +1,13 @@
+soundpipe_context=244
+53_wavetables=870684
+four_10second_vdelays=7056208
+reverbsc=99200
+50ms_widen_delay=8860
+seven_notestate_DSP_allocations=3304
+other_DSP_globals_and_compressors=5788
+requested_total_bytes=8044288
+allocation_requests=383
+float_bytes=4
+pointer_bytes=8
+   text	   data	    bss	    dec	    hex	filename
+   9783	    656	     32	  10471	   28e7	host/memory_probe

@@ -1,0 +1,9 @@
+probe/host/
+probe/pi32v2/
+*.f32
+*.raw
+*.wav
+*.zip
+Synth one/
+upstream/
+__pycache__/

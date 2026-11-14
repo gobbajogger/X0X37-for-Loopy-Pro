@@ -1,0 +1,109 @@
+{
+  "archive_sha256": "68ad8b5fa0adca8b5da2b03f9303e9321c6a20907f5945e3fe879bc6494009a4",
+  "banks": [
+    {
+      "archive_path": "Synth one/Sound of Izrael.json",
+      "bytes": 290041,
+      "sha256": "334a2d3c2ff509e9288a91a241af090903b157f190e764f45bfc9009e39edc8d",
+      "presets": 101,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Red Sky Lullaby.json",
+      "bytes": 318043,
+      "sha256": "40d966e500990ab5b4b6fd4fdbd2f760e9fcd5d7bc8500d6d9f548ab734f64b3",
+      "presets": 100,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Francis Preve.json",
+      "bytes": 76095,
+      "sha256": "f595406888225e39e4e71865c3a9c01305c618d5a19962a59fcda89a8d66d2f0",
+      "presets": 26,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Starter Bank.json",
+      "bytes": 42090,
+      "sha256": "49f5e4af27d96f6ce306b2fe797aa5d3815aec8c808be74070dd6a09553b4a1a",
+      "presets": 15,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/BankA.json",
+      "bytes": 424102,
+      "sha256": "a409e697c96e4c77bbab950ee9cc229f2e536600835cc3d0696fb8068671648c",
+      "presets": 135,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Sound of Izrael 2.json",
+      "bytes": 161446,
+      "sha256": "9aa46246a724ff8a0f3ba7c7ed5a93b7094bc7fda8dce4a9f8fc9b04c176de8e",
+      "presets": 51,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Spidericemidas.json",
+      "bytes": 194429,
+      "sha256": "92be40ce8a13c962eaa1cd05d97e7e0a6affbc20a69377c2e0623ef167a95f34",
+      "presets": 61,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": true
+    },
+    {
+      "archive_path": "Synth one/Brice Beasley.json",
+      "bytes": 144736,
+      "sha256": "751ca87806d061682e170fb88b1ac4c09f7c2182ad6fb43ad1e8beb280d70d95",
+      "presets": 46,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Synth Tutorials.json",
+      "bytes": 128738,
+      "sha256": "4e4fe1a72773fb83d3fa0f9749e04fc80c4864215452a7ad463d64f50397d618",
+      "presets": 42,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/JEC.json",
+      "bytes": 282405,
+      "sha256": "7c44315bbce8150828f5b5b5ad3f5fdd67fd9dbc6b56d6cb2033d1d1ea968461",
+      "presets": 88,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/DJ Puzzle.json",
+      "bytes": 85827,
+      "sha256": "249b33790aac86b8eda63e54204fc5eca6cfc193d3a20574c7c0b57aa060b48a",
+      "presets": 28,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Wabi Sabi Waves.json",
+      "bytes": 550535,
+      "sha256": "2ffb004d1fcfa03d90f7e8752faab650cf3955ba0598ce0cc2861a8a9f4f84f6",
+      "presets": 170,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    },
+    {
+      "archive_path": "Synth one/Electronisounds.json",
+      "bytes": 133683,
+      "sha256": "c3d5c904b87817dc81fb5f5ec64baaeb1dccd51129fad32982fef417bf0ba037",
+      "presets": 43,
+      "upstream_exact_bytes": false,
+      "upstream_decoded_equal": false
+    }
+  ]
+}

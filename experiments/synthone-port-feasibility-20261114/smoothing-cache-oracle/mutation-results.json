@@ -1,0 +1,53 @@
+{
+  "expected_failures": 8,
+  "results": [
+    {
+      "name": "omit_selected",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL selected parameter count: got 45 expected 46"
+    },
+    {
+      "name": "duplicate_selected",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL duplicated parameter"
+    },
+    {
+      "name": "stale_coefficient",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL output sr=44100 frame=0 parameter=0"
+    },
+    {
+      "name": "update_unsmoothed",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL selected parameter count: got 150 expected 46"
+    },
+    {
+      "name": "omit_half_time_refresh",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL output sr=44100 frame=64 parameter=0"
+    },
+    {
+      "name": "omit_reset",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL output sr=44100 frame=257 parameter=0"
+    },
+    {
+      "name": "corrupt_unsmoothed",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL output sr=44100 frame=0 parameter=3"
+    },
+    {
+      "name": "omit_parameter_output",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "diagnostic": "FAIL output sr=44100 frame=0 parameter=0"
+    }
+  ]
+}
