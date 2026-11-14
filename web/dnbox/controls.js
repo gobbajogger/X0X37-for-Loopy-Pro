@@ -14,27 +14,38 @@ export function noteAt(id) {
 
 // Multiple sources can hold the same note. Paired releases and cancellation matter for live use.
 export function heldRouter(send) {
-  const held = new Map();
+  const held = new Map();                 // unique source token -> {kind, id}
+  const owners = new Map();               // kind:id -> number of independent sources
+  const slot = (kind, id) => kind + ':' + id;
   const valid = (kind, id) => (kind === 'key' && Number.isInteger(id) && id >= 0 && id < KEY_COUNT) ||
     (kind === 'pad' && Number.isInteger(id) && id >= 0 && id < PAD_COUNT) ||
     (kind === 'button' && Number.isInteger(id) && id >= 37 && id <= 54);
   const release = token => {
     const item = held.get(token);
-    if (!item) return false;
+    if (!item) return false; // pointerup + lostcapture must not release twice
     held.delete(token);
-    send({ ...item, down: false });
+    const key = slot(item.kind, item.id);
+    const count = owners.get(key);
+    if (count === 1) {
+      owners.delete(key);
+      send({ ...item, down: false });     // last owner: one hardware release
+    } else owners.set(key, count - 1);
     return true;
   };
   return {
     press(token, kind, id) {
-      if (!valid(kind,id)) throw new RangeError('invalid SMK-37 control');
-      if (held.has(token)) return false;
+      if (!valid(kind, id)) throw new RangeError('invalid SMK-37 control');
+      if (typeof token !== 'string' || !token) throw new TypeError('source token required');
+      if (held.has(token)) return false; // repeated keyboard/pointer down
+      const key = slot(kind, id), count = owners.get(key) || 0;
       held.set(token, { kind, id });
-      send({ kind, id, down: true });
+      owners.set(key, count + 1);
+      if (count === 0) send({ kind, id, down: true }); // first owner only
       return true;
     },
     release,
     releaseAll() { for (const token of [...held.keys()]) release(token); },
+    countFor(kind, id) { return owners.get(slot(kind, id)) || 0; },
     get count() { return held.size; }
   };
 }
@@ -50,27 +61,60 @@ export function mountControls(doc = document) {
   const holds = heldRouter(send);
   let booted = false;
   const buttons = [];
-  const enable = yes => { booted = yes; for (const b of buttons) b.disabled = !yes; if (!yes) holds.releaseAll(); };
+  const resetMomentaries = [];
+  const drop = () => {
+    holds.releaseAll();
+    for (const reset of resetMomentaries) reset();
+  };
+  const enable = yes => {
+    if (!yes) drop();
+    booted = !!yes;
+    for (const b of buttons) b.disabled = !yes;
+  };
   function momentary(button, kind, id) {
-    const token = kind + ':' + id;
-    const press = e => {
+    // Each pointer and each keyboard activation owns its own hold. Releasing a
+    // first finger cannot lift another on this same button; blur only lifts keys.
+    const active = new Set();
+    const pointerToken = pointerId => kind + ':' + id + ':pointer:' + pointerId;
+    const keyToken = key => kind + ':' + id + ':keyboard:' + key;
+    const sync = () => button.setAttribute('aria-pressed', String(active.size !== 0));
+    const press = (token, e) => {
       if (!booted) return;
-      if (e) e.preventDefault();
-      if (holds.press(token,kind,id)) {
-        button.setAttribute('aria-pressed','true');
-        if (e?.pointerId !== undefined) try { button.setPointerCapture(e.pointerId); } catch {}
-      }
+      e?.preventDefault();
+      if (holds.press(token, kind, id)) active.add(token);
+      sync();
     };
-    const release = () => {
-      if (holds.release(token)) button.setAttribute('aria-pressed','false');
+    const release = token => {
+      if (holds.release(token)) active.delete(token);
+      sync();
     };
     button.type = 'button';
     button.disabled = true;
-    button.setAttribute('aria-pressed','false');
-    button.addEventListener('pointerdown', press);
-    for (const event of ['pointerup','pointercancel','lostpointercapture','blur']) button.addEventListener(event, release);
-    button.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') press(e); });
-    button.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); release(); } });
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('pointerdown', e => {
+      const token = pointerToken(e.pointerId);
+      press(token, e);
+      if (active.has(token)) {
+        try { button.setPointerCapture(e.pointerId); } catch { /* unsupported capture */ }
+      }
+    });
+    for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+      button.addEventListener(event, e => release(pointerToken(e.pointerId)));
+    }
+    button.addEventListener('keydown', e => {
+      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) press(keyToken(e.key), e);
+    });
+    button.addEventListener('keyup', e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        release(keyToken(e.key));
+      }
+    });
+    button.addEventListener('blur', () => {
+      release(keyToken(' '));
+      release(keyToken('Enter'));
+    });
+    resetMomentaries.push(() => { active.clear(); sync(); });
     buttons.push(button);
   }
   let white = 0;
@@ -138,16 +182,17 @@ export function mountControls(doc = document) {
   const play = doc.getElementById('dnbox-play');
   if (play) { momentary(play,'button',53);play.textContent='SEQ PLAY (hold)'; }
   const chord = doc.getElementById('dnbox-chord');
+  let exampleSerial = 0;
   if (chord) {
     buttons.push(chord);chord.disabled=true;
     chord.addEventListener('click',()=>{
       if(!booted)return;
-      const tokens=[12,15,19].map(id=>'example:'+id);
+      const tokens=[12,15,19].map(id=>'example:'+ ++exampleSerial + ':' + id);
       for(let i=0;i<tokens.length;i++)holds.press(tokens[i],'key',[12,15,19][i]);
       setTimeout(()=>tokens.forEach(t=>holds.release(t)),420);
     });
   }
-  const drop = () => { holds.releaseAll(); root.querySelectorAll('[aria-pressed]').forEach(b=>b.setAttribute('aria-pressed','false')); };
+
   window.addEventListener('blur',drop);
   doc.addEventListener('visibilitychange',()=>{if(doc.hidden)drop();});
   doc.addEventListener('dnbox:booting',()=>enable(false));
