@@ -7,6 +7,7 @@
 #include "../../host/x0x_host.c"
 #undef main
 #include "../../firmware/src/app/original_sound.h"
+#include "../../firmware/src/app/original_runtime.h"
 
 static unsigned checks;
 #define CHECK(x) do { ++checks; if (!(x)) { fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #x); exit(1); } } while (0)
@@ -156,17 +157,44 @@ static void preset_recall(void)
     for (int i = 0; i < 64; i++) block(256);
     CHECK(engine_bass_preset_index(0) == 8 && seq.ppat[TRK_BASS0] == 2);
     proj.pat[2].rsv[0] = proj.pat[3].rsv[0] = 0;
-    /* Third engine follows the same part, MIDI channel and pattern gate. */
+    /* Archived Drone recall follows the same part, MIDI channel and pattern gate.
+     * Shipping has a terminal unavailable runtime while preserving the base sound. */
+    uint8_t base_cell[32]; memcpy(base_cell,proj.sound.v[T_303][0],sizeof base_cell);
+    bass_sound_tag_t base_tag=proj.sound.bass[0];
+    seq.ch[TRK_BASS0]=6;
+    int channel=seq.ch[TRK_BASS0];
+    int available=original_runtime_kind_available(ORIGINAL_SOUND_DRONE);
+    CHECK(engine_bass_bank_available(0,ORIGINAL_SOUND_DRONE)==available);
     proj.pat[4].rsv[0] = (uint8_t)bass_pattern_preset_encode(ORIGINAL_SOUND_DRONE, 2);
     seq.pcue[TRK_BASS0] = 4; pattern_sound_tick();
     CHECK(engine_bass_requested_bank(0) == ORIGINAL_SOUND_DRONE);
     CHECK(engine_bass_requested_preset(0) == 1);
+    CHECK(engine_bass_preset_gate(0) == 4 && engine_bass_preset_pending(0));
+    CHECK(!memcmp(base_cell,proj.sound.v[T_303][0],sizeof base_cell));
+    CHECK(!memcmp(&base_tag,&proj.sound.bass[0],sizeof base_tag));
+    CHECK(seq.ch[TRK_BASS0] == channel);
     wait_applied(0);
+    CHECK(!engine_bass_preset_pending(0) && seq.ppat[TRK_BASS0] == 4);
+    CHECK(engine_bass_preset_gate(0) == 4 && seq.ch[TRK_BASS0] == channel);
     CHECK(engine_bass_bank(0) == ORIGINAL_SOUND_DRONE);
     CHECK(engine_bass_preset_index(0) == 1);
-    CHECK(engine_bass_sound_bank(&proj.sound, 0) == ORIGINAL_SOUND_DRONE);
+    if (available) {
+        CHECK(engine_bass_status(0) == ORIGINAL_RUNTIME_OK);
+        CHECK(engine_bass_sound_bank(&proj.sound, 0) == ORIGINAL_SOUND_DRONE);
+    } else {
+        CHECK(engine_bass_status(0) == ORIGINAL_RUNTIME_UNAVAILABLE);
+        CHECK(engine_bass_sound_bank(&proj.sound, 0) == ORIGINAL_SOUND_CHICAGO);
+        CHECK(!memcmp(base_cell,proj.sound.v[T_303][0],sizeof base_cell));
+        CHECK(!memcmp(&base_tag,&proj.sound.bass[0],sizeof base_tag));
+        CHECK(!(engine_bass_keys_held() & 1u));
+        pattern_sound_tick(); /* terminal means no retry loop on later UI ticks */
+        CHECK(!engine_bass_preset_pending(0));
+        CHECK(engine_bass_status(0) == ORIGINAL_RUNTIME_UNAVAILABLE);
+    }
     proj.pat[4].rsv[0] = 0;
     select_chicago(0, 0); /* restore for note-lock tests */
+    CHECK(engine_bass_bank(0) == ORIGINAL_SOUND_CHICAGO);
+    CHECK(engine_bass_status(0) == ORIGINAL_RUNTIME_OK && seq.ch[TRK_BASS0] == channel);
     printf("preset recall: gated to the pattern, applied when it plays, cancelled with its cue\\n");
 }
 

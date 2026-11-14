@@ -175,6 +175,10 @@ void engine_note_lock_refresh(void);      /* main loop: lock records exist */
 int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound);
 /* The same request, applied only while pattern pat plays (per-pattern preset recall). */
 int engine_bass_select_preset_at(int voice, int bank, int preset, sound_t *sound, int pat);
+/* Recognized archived disabled recall and OFF/inherit, gated to actual pattern adoption. */
+int engine_bass_recall_unavailable_at(int voice, int bank, int preset, sound_t *sound, int pat);
+int engine_bass_pattern_inherit(int voice, sound_t *sound, int pat);
+uint32_t engine_bass_pattern_epoch(int voice); /* Actual adoption, for OFF/inherit cache invalidation. */
 int engine_bass_preset_gate(int voice);   /* the request's pattern, -1 none */
 #endif
 
@@ -237,6 +241,7 @@ void engine_set_base(int target, int voice, int i);         /* exact patch value
 #ifdef X0X_HOST
 unsigned engine_original_keys(int voice, int latched);
 uint32_t engine_original_value_bits(int voice, unsigned parameter);
+uint32_t engine_mix_level_bits(int part); /* Actual read-only mixer target, host proof only. */
 int engine_bass_accent(int p);
 int engine_bass_slide(int p);
 #endif
