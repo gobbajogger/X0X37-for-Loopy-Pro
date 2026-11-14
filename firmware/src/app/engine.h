@@ -179,10 +179,14 @@ int engine_bass_preset_gate(int voice);   /* the request's pattern, -1 none */
 #endif
 
 extern seq_t seq;                      /* the sequencer (its pattern pointer is the project's) */
-/* render stages (the PERF screen): 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ.
- * Each share is that stage's work on both cores, against one core's sample budget,
- * so the eight shares may sum to more than 100%. The page layout is unchanged.
- * Core 0's join wait is eng_prof_wait (also in last_us / LOAD), not a screen row. */
+/* PERF stages: 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ.
+ * Counter unit: elapsed ticks from shared TIMER4, 24 MHz on both cores.
+ * This is NOT a measured C1 cycle/instruction count or exclusive CPU load.
+ * Each stage is elapsed time inside its timed spans / one core's audio budget;
+ * overlapping C0+C1 spans may sum above 100%. LOAD/PEAK still measure the
+ * audio callback deadline, including core joins. eng_prof_wait separately
+ * counts C0's join elapsed ticks; it has no PERF screen row. */
+#define ENG_PROF_TICKS_HZ 24000000u
 enum { PR_909, PR_808, PR_303A, PR_303B, PR_BRK, PR_FX, PR_MST, PR_SEQ, ENG_PROF_N };
 extern volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
 extern volatile uint32_t eng_prof_wait;
