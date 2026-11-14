@@ -260,6 +260,8 @@ static uint8_t save_wait;
 static void live_boundary(int entry);
 static void keyboard_panic_reset(uint32_t btn);
 static uint8_t project_busy, project_revision;
+/* Per-pattern recall observations belong to the currently adopted engine state. */
+static uint8_t pattern_sound_seen_pat[NBASS] = {0xFF, 0xFF}, pattern_sound_seen_val[NBASS];
 static uint32_t song_structure_revision; /* runtime identity epoch for frozen song-bar controls */
 int ui_project_busy(void) { return project_busy != 0; }
 X0X_COLD static void project_input_sync(void)
@@ -8682,6 +8684,7 @@ X0X_COLD void ui_project_end(int apply)
 #endif
         engine_apply_sound(&proj.sound);
         engine_brk_loops();
+        memset(pattern_sound_seen_pat, 0xFF, sizeof pattern_sound_seen_pat);
         ui_init();
         mark_dirty();                               /* reset/import are saved only by the ordinary save policy */
         project_revision++;
@@ -8749,15 +8752,14 @@ static void device_bt_save(void)
  * plays and the voice is quiet (engine_bass_select_preset). Unset: nothing is requested. */
 static void pattern_sound_tick(void)
 {
-    static uint8_t seen_pat[NBASS] = {0xFF, 0xFF}, seen_val[NBASS];
     for (int b = 0; b < NBASS; b++) {
         int t = TRK_BASS0 + b, cue = seq_cue_of(&seq, t), pat = cue >= 0 ? cue : seq.ppat[t];
         int gate = engine_bass_preset_gate(b);
         unsigned ps = proj.pat[pat].rsv[b];
         if (gate >= 0 && gate != pat && gate != seq.ppat[t] && engine_bass_preset_pending(b))
             engine_bass_cancel_preset(b);                /* its cue was taken back */
-        if (seen_pat[b] == pat && seen_val[b] == ps) continue;
-        seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
+        if (pattern_sound_seen_pat[b] == pat && pattern_sound_seen_val[b] == ps) continue;
+        pattern_sound_seen_pat[b] = (uint8_t)pat; pattern_sound_seen_val[b] = (uint8_t)ps;
         if (!ps) continue;
         unsigned kind, one_based;
         if (!bass_pattern_preset_decode(ps, &kind, &one_based) || !one_based) continue;
