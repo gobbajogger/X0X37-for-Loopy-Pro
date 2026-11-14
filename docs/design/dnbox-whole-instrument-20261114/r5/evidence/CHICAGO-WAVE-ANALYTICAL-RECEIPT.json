@@ -1,0 +1,114 @@
+{
+  "status": "PRIVATE OUTPUT-ONLY AUDIT CANDIDATE; no publication/export authorized by this receipt",
+  "fixture_name": "Chicago visible factory 0 with 20 explicit edits; WAVE q swept 0..127",
+  "fixture_input_sha256": "86fcce82d5afb028fb9a3a51d86030f5dee145699c173edee5dc8d0aee184290",
+  "drawing_instructions": {
+    "path": "output-only/chicago-factory0-20-explicit-edits-wave-q128.drawing.json",
+    "bytes": 9618,
+    "sha256": "24a450b6c3c7d193121b2d645eaaf4c53dd48be75167856777073398a8914eee",
+    "git_blob_sha": "aac8fff9f7a788ce5b02b7e4155d11e57e62b4e6"
+  },
+  "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "source_tree_parent_supplied": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "public_profile_dependencies": [
+    {
+      "path": "source/experiments/original_synth/chicago_program.c",
+      "bytes": 4019,
+      "sha256": "685938fc3362e0e2f6d1194b75814b0eef24c6b284411f6c0a33d144c719e430",
+      "git_blob_sha": "a6fd3ae523069b8357ac6a6fb30d11cf23723740",
+      "classification": "Public exact3c41 source, private local intake copy"
+    },
+    {
+      "path": "source/experiments/original_synth/chicago_program.h",
+      "bytes": 1896,
+      "sha256": "70ee6efa0552db32fc17fba9af8750db6a378de319e47a6c344523fb02f15bd3",
+      "git_blob_sha": "6e5021eb2cb8b6495fbdfc6201f58a575c95c419",
+      "classification": "Public exact3c41 source, private local intake copy"
+    },
+    {
+      "path": "source/firmware/src/app/original_sound.c",
+      "bytes": 17413,
+      "sha256": "b8ddda881f05521c5ecc945d22868cfcfee163f66fe5a1a9b7d3cc4a146fc54e",
+      "git_blob_sha": "a250a77f9d20fb1973b1251dd9f9b5c205776b45",
+      "classification": "Public exact3c41 source, private local intake copy"
+    },
+    {
+      "path": "source/firmware/src/app/original_sound.h",
+      "bytes": 4476,
+      "sha256": "6f3ffc5cbb84480a737490d1943632981512f7f5bf2497d5cad4d0394eab1f8f",
+      "git_blob_sha": "ef386dc8c50ad7bde53006201cf85bcfa50866f8",
+      "classification": "Public exact3c41 source, private local intake copy"
+    },
+    {
+      "path": "source/firmware/src/app/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob_sha": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f",
+      "classification": "Public exact3c41 source, private local intake copy"
+    }
+  ],
+  "restricted_dependency_hashes": [
+    {
+      "name": "chicago_program_private.h",
+      "bytes": 21311,
+      "sha256": "b95ed765e55886ed7d1e52ebb06b43d5026743ec6dd17d9a9cf6cc34e9dcc309",
+      "git_blob_sha": "4f386aa0be5aee61744964bfa0c7214940b0b655",
+      "payload_included": false
+    },
+    {
+      "name": "miami_program_private.h",
+      "bytes": 15451,
+      "sha256": "5b950f6441f38e68c36d303a55361ce1d1e75c23ec05d7a5314fa2c32c3aa460",
+      "git_blob_sha": "0e6589f19b24afee30ea2220f0dca0baee79534d",
+      "payload_included": false
+    }
+  ],
+  "tools": {
+    "projection-exporter": {
+      "bytes": 52680,
+      "sha256": "ec7892d3d868a7a9285c9ed245ea2b3a593b106487db9a975efb80385e974d81"
+    },
+    "export_projection.c": {
+      "bytes": 6355,
+      "sha256": "b2ed056cb6dd16b2f36c215dabbb99625d63142e15c774f95c5bc2f03651ac5d"
+    },
+    "analyze_projection.py": {
+      "bytes": 4471,
+      "sha256": "8432b12bdb8695a8be74c0c74dd86975bb1ee4175cbd73410e40e2acaf317fc9"
+    },
+    "package_private_evidence.py": {
+      "bytes": 10600,
+      "sha256": "2db3a7c52cec961dd8bdbdb7633e5268a0ce72fc23f2fa51a071acd1abcefa4c"
+    }
+  },
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "floating_point": "C99 binary32, no fast-math, contraction off, explicit public program fmaf via host libm. No software-FMA or target/device equivalence qualification.",
+  "coverage": {
+    "wave_persisted_states": 128,
+    "wave_explicit_preview_states": 128,
+    "other_relevant_mask_probe_states": 3456,
+    "other_mask_parameter_count": 9,
+    "wave_anchors": [
+      0,
+      64,
+      127
+    ],
+    "other_mask_native_and_glyph_changes": 0,
+    "distinct_row_vectors": 27,
+    "distinct_native_snapshots_count": 128,
+    "all_persisted_preview_pixel_matches": true,
+    "all_input_cells_unchanged": true,
+    "structural_dependency_audit": "Only WAVE macro influences queried native projection fields for this exact fixed source/descriptor; remaining relevant macros target disjoint fields."
+  },
+  "drawing_meaning": "Single-cycle source oscillator shape cue before filter/modulation/effects; q indexed29-column19-row polyline and zero guide9. Not audio waveform or LCD capture.",
+  "scope_limits": [
+    "Program cells/native floats/restricted headers/metadata intermediates and source copies remain private. Output-only candidate contains final pixel coordinates and metadata only; no public export decision.",
+    "No firmware target, DSP audio, backend, emulator, physical device, package, candidate renderer, independent review or UI-event execution performed.",
+    "Lookup scope is this source/factory descriptor with 20 explicit edits. Other factories or different raw native descriptors need their own evidence.",
+    "Analytical scope masks follow source2913-2926. Equal-lock/cache ownership probes execute source cache/projector APIs, not panel held/release interactions.",
+    "All128-q non-WAVE sweeps use analytically valid projector input. Chicago performance id21 appears in the source mask, but this does not establish a user-reachable persisted patch edit or step-lock route for it.",
+    "ADSR native32..35 fixture projection does not identify unknown live runtime adoption or explain an unmatched historical/native screenshot solely from rounded q readouts."
+  ],
+  "retained_scope_identity": "Explicit equal-value lock retains mask despite same pixels. Held-lock/motion/release masks supplied analytically; source cache identity and validation executed.",
+  "private_full_receipt_sha256": "23203c546e41bb6f65d6704ffd8087e5faf91cf4a1af57560968a1d996cb47ac"
+}

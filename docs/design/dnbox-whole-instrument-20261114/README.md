@@ -1,3 +1,11 @@
+# Current whole-instrument proposal: R5
+
+[Open the R5 PDF](r5/DnBOX-R5-whole-instrument-comparison.pdf), [native comparisons](r5/frame-manifest.json), [interactive inspection](r5/workbench.html) and [full39-journey design](r5/WHOLE-INSTRUMENT-DESIGN.md).
+
+R5 is frozen for the same incumbent reviewer; it is not whole-design or runtime acceptance. Current actual3c41 captures, accepted d158 identical UI/glyph source, and proposal pixels remain distinct. Settings/CP1/CP2/CP3/comparator/DF1 interfaces stay explicit. No firmware implementation, build, device action, release or merge.
+
+Earlier R4/R3/a898 material below is historical; it is not the current proposal.
+
 # DnBOX whole-instrument design studies
 
 The current correction input is [R4](r4/README.md). Start with [the seven-page PDF](r4/DnBOX-R4-workflow-comparison.pdf) and distinct native PNGs: [drums](r4/native/drum.png), [Chicago](r4/native/chicago.png), [Juno](r4/native/juno.png), [909 MIX](r4/native/mix909.png), [Home](r4/native/home.png), [WAIT](r4/native/wait.png), [Song](r4/native/song-neighbors.png) and [808 variants](r4/native/808variant.png).

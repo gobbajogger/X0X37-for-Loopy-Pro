@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "class": "PUBLIC DESIGN HTML/PDF REPRODUCTION; NO FIRMWARE BUILD/PRIVATE INPUT EXECUTION",
+  "runs": [
+    {
+      "command": "python3 assemble.py",
+      "exit_code": 0,
+      "stdout_sha256": "2914185963a80ed818b6c54981ef6ebab8979289290c406236ea95de768f156b",
+      "stderr": ""
+    },
+    {
+      "command": "python3 build_owner_pdf.py",
+      "exit_code": 0,
+      "stdout_sha256": "3f81a8c13a6c0c8b1d1836239624a91cb20a4ac79a96802c10fdda8785b4862a",
+      "stderr": ""
+    }
+  ],
+  "files": [
+    {
+      "path": "workbench.html",
+      "bytes": 1016089,
+      "sha256": "a471685d3247e731b0a759dfab025135478682d3d4883e348c40dca71fb2e476",
+      "identical": true
+    },
+    {
+      "path": "model-inputs.json",
+      "bytes": 2322,
+      "sha256": "d21a97fc809a470ae44f3a6156ab7d0495a69ebf6103becfef59531ef99212b1",
+      "identical": true
+    },
+    {
+      "path": "DnBOX-R5-whole-instrument-comparison.pdf",
+      "bytes": 202721,
+      "sha256": "413669b98ad852e08c0c197f26b034968a911c1fd72a129e3bec6002a9760f4a",
+      "identical": true
+    },
+    {
+      "path": "PDF-RECEIPT.json",
+      "bytes": 1080,
+      "sha256": "b5f80c01f127d3df452b09abff2669dd114e4e19310c6fe05c8837b299f269dd",
+      "identical": true
+    }
+  ]
+}

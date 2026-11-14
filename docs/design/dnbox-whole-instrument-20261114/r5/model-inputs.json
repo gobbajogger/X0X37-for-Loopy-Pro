@@ -1,0 +1,49 @@
+{
+  "html_sha256": "a471685d3247e731b0a759dfab025135478682d3d4883e348c40dca71fb2e476",
+  "renderer_sha256": "4f6cc5afd66084acddebcc8afff6a7476d1bfe258711ca7d7bbb515f2e9c5672",
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "reviewed_predecessor": "791c6399eeb52838f83e561b44394dd9dd1d1fe3",
+  "current_references": [
+    {
+      "file": "elite-musical2-03-running-grid.png",
+      "sha256": "7e8bca276b1de1a4260c91c84e73215188d76a0ae062070dde525c836c42c575",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-drum-part-01-909-part.png",
+      "sha256": "8ec6e4a7eca5337079f7d0bb3c77dba9d6ac96e00ca1fdd0c7bba34d3329586c",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-chicago-wave-01-chicago-wave-base.png",
+      "sha256": "edd9e837a13cef2a29c6a2e48de90bb869de4894036bbd4f21df320e196deeac",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-qualified2-05-juno-envelope.png",
+      "sha256": "b52036a628ec2e21a8d82c09e3b619d2c80bd6eb153fac4c24384589bdde6d95",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-musical2-04-home-running.png",
+      "sha256": "75d962113023624e6bc6d0b005e21859ec2cf14275bc3bca9a991ee4ceef7c64",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-focused-04-mix-909.png",
+      "sha256": "38fda7434d6d339fa92beea88a07839fd654f2c1de256b5f9dc19c24a7781e95",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-qualified2-01-break-loops.png",
+      "sha256": "3b3b60b0dea8e3a93db197760848e375172e2f45b924426ef449621c2f59f555",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-mix-hold-song-04-empty-song-with-used-P1.png",
+      "sha256": "d76d1a32f1d5322c4314379c33ac06ed557598e09537bc465d2bdc016fc5886a",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    }
+  ],
+  "evidence": "Proposal model only; exact successor independent review pending"
+}

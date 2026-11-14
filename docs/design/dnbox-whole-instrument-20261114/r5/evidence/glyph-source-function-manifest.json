@@ -1,0 +1,639 @@
+{
+  "scope": "Read-only public UI/glyph comparison; no private headers, exporter, candidate/runtime edits, emulator or review",
+  "refs": {
+    "historical_current": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "accepted": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "pr931_base": "e581333f1ef2586c6c37f72e80d0b51fe5a00723",
+    "pr931_head": "ea10fb1492527932476b0ecfa668348f5c1a8a03"
+  },
+  "file_identities": [
+    {
+      "ref_label": "3c41",
+      "file": "ui.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/current-source/ui.c",
+      "bytes": 390311,
+      "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+      "git_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e"
+    },
+    {
+      "ref_label": "3c41",
+      "file": "ui_original_controls.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/current-source/ui_original_controls.h",
+      "bytes": 7799,
+      "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+      "git_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627"
+    },
+    {
+      "ref_label": "3c41",
+      "file": "ui_original_wave.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/current-source/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f"
+    },
+    {
+      "ref_label": "3c41",
+      "file": "ui_pictograms.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/current-source/ui_pictograms.h",
+      "bytes": 3908,
+      "sha256": "bbab822f9ed3ec3820dcbbb2833c5dd5fe76c398c01e824ecc93280ca48a491f",
+      "git_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c"
+    },
+    {
+      "ref_label": "d158",
+      "file": "ui.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/accepted-d158/ui.c",
+      "bytes": 390311,
+      "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+      "git_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e"
+    },
+    {
+      "ref_label": "d158",
+      "file": "ui_original_controls.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/accepted-d158/ui_original_controls.h",
+      "bytes": 7799,
+      "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+      "git_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627"
+    },
+    {
+      "ref_label": "d158",
+      "file": "ui_original_wave.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/accepted-d158/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f"
+    },
+    {
+      "ref_label": "d158",
+      "file": "ui_pictograms.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/accepted-d158/ui_pictograms.h",
+      "bytes": 3908,
+      "sha256": "bbab822f9ed3ec3820dcbbb2833c5dd5fe76c398c01e824ecc93280ca48a491f",
+      "git_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c"
+    },
+    {
+      "ref_label": "e581",
+      "file": "ui.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/base-e581/ui.c",
+      "bytes": 390507,
+      "sha256": "8778a5fce5d635927e6116c295fa2c5999d9a0a35664b2422f3602aaa774f2c4",
+      "git_blob": "0694f20d1e7106d2479aa3846873426af7d114c9"
+    },
+    {
+      "ref_label": "e581",
+      "file": "ui_original_controls.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/base-e581/ui_original_controls.h",
+      "bytes": 7799,
+      "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+      "git_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627"
+    },
+    {
+      "ref_label": "e581",
+      "file": "ui_original_wave.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/base-e581/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f"
+    },
+    {
+      "ref_label": "e581",
+      "file": "ui_pictograms.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/base-e581/ui_pictograms.h",
+      "bytes": 3908,
+      "sha256": "bbab822f9ed3ec3820dcbbb2833c5dd5fe76c398c01e824ecc93280ca48a491f",
+      "git_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c"
+    },
+    {
+      "ref_label": "ea10",
+      "file": "ui.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/head-ea10/ui.c",
+      "bytes": 390507,
+      "sha256": "8778a5fce5d635927e6116c295fa2c5999d9a0a35664b2422f3602aaa774f2c4",
+      "git_blob": "0694f20d1e7106d2479aa3846873426af7d114c9"
+    },
+    {
+      "ref_label": "ea10",
+      "file": "ui_original_controls.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/head-ea10/ui_original_controls.h",
+      "bytes": 7799,
+      "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+      "git_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627"
+    },
+    {
+      "ref_label": "ea10",
+      "file": "ui_original_wave.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/head-ea10/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f"
+    },
+    {
+      "ref_label": "ea10",
+      "file": "ui_pictograms.h",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/head-ea10/ui_pictograms.h",
+      "bytes": 3908,
+      "sha256": "bbab822f9ed3ec3820dcbbb2833c5dd5fe76c398c01e824ecc93280ca48a491f",
+      "git_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c"
+    },
+    {
+      "ref_label": "3c41",
+      "file": "juno6.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/current-source/juno6.c",
+      "bytes": 5960,
+      "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+      "git_blob": "223e6bdc5ac269b3d6cac97ae890204b16da185c"
+    },
+    {
+      "ref_label": "d158",
+      "file": "juno6.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/accepted-d158/juno6.c",
+      "bytes": 5960,
+      "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+      "git_blob": "223e6bdc5ac269b3d6cac97ae890204b16da185c"
+    },
+    {
+      "ref_label": "e581",
+      "file": "juno6.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/base-e581/juno6.c",
+      "bytes": 5960,
+      "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+      "git_blob": "223e6bdc5ac269b3d6cac97ae890204b16da185c"
+    },
+    {
+      "ref_label": "ea10",
+      "file": "juno6.c",
+      "local_path": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/head-ea10/juno6.c",
+      "bytes": 5960,
+      "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+      "git_blob": "223e6bdc5ac269b3d6cac97ae890204b16da185c"
+    }
+  ],
+  "function_identities": {
+    "describe_pages": {
+      "3c41": {
+        "first_line": 1461,
+        "last_line": 1584,
+        "sha256": "0862264bb0325c0d703179993317972ea5eccf9d3bb4481ecf8f0800e33d240a",
+        "characters": 8962
+      },
+      "d158": {
+        "first_line": 1461,
+        "last_line": 1584,
+        "sha256": "0862264bb0325c0d703179993317972ea5eccf9d3bb4481ecf8f0800e33d240a",
+        "characters": 8962
+      },
+      "e581": {
+        "first_line": 1461,
+        "last_line": 1584,
+        "sha256": "0862264bb0325c0d703179993317972ea5eccf9d3bb4481ecf8f0800e33d240a",
+        "characters": 8962
+      },
+      "ea10": {
+        "first_line": 1461,
+        "last_line": 1584,
+        "sha256": "0862264bb0325c0d703179993317972ea5eccf9d3bb4481ecf8f0800e33d240a",
+        "characters": 8962
+      },
+      "all_four_identical": true
+    },
+    "page_of": {
+      "3c41": {
+        "first_line": 1428,
+        "last_line": 1431,
+        "sha256": "1a4670f3ded20188247c705551f685efbc79c0dfc7441e17ce387f2e5de08492",
+        "characters": 128
+      },
+      "d158": {
+        "first_line": 1428,
+        "last_line": 1431,
+        "sha256": "1a4670f3ded20188247c705551f685efbc79c0dfc7441e17ce387f2e5de08492",
+        "characters": 128
+      },
+      "e581": {
+        "first_line": 1428,
+        "last_line": 1431,
+        "sha256": "1a4670f3ded20188247c705551f685efbc79c0dfc7441e17ce387f2e5de08492",
+        "characters": 128
+      },
+      "ea10": {
+        "first_line": 1428,
+        "last_line": 1431,
+        "sha256": "1a4670f3ded20188247c705551f685efbc79c0dfc7441e17ce387f2e5de08492",
+        "characters": 128
+      },
+      "all_four_identical": true
+    },
+    "set_view": {
+      "3c41": {
+        "first_line": 2754,
+        "last_line": 2781,
+        "sha256": "41aa623170732a6ea873126cc34040e6f8a61a59113934c7305b022f813aad11",
+        "characters": 1057
+      },
+      "d158": {
+        "first_line": 2754,
+        "last_line": 2781,
+        "sha256": "41aa623170732a6ea873126cc34040e6f8a61a59113934c7305b022f813aad11",
+        "characters": 1057
+      },
+      "e581": {
+        "first_line": 2754,
+        "last_line": 2781,
+        "sha256": "41aa623170732a6ea873126cc34040e6f8a61a59113934c7305b022f813aad11",
+        "characters": 1057
+      },
+      "ea10": {
+        "first_line": 2754,
+        "last_line": 2781,
+        "sha256": "41aa623170732a6ea873126cc34040e6f8a61a59113934c7305b022f813aad11",
+        "characters": 1057
+      },
+      "all_four_identical": true
+    },
+    "draw_part_sound": {
+      "3c41": {
+        "first_line": 5742,
+        "last_line": 5836,
+        "sha256": "9296f69ed02b08f24412d0dc4024cb253cf3c07258f0411cc37ffc14a2a152eb",
+        "characters": 4583
+      },
+      "d158": {
+        "first_line": 5742,
+        "last_line": 5836,
+        "sha256": "9296f69ed02b08f24412d0dc4024cb253cf3c07258f0411cc37ffc14a2a152eb",
+        "characters": 4583
+      },
+      "e581": {
+        "first_line": 5742,
+        "last_line": 5836,
+        "sha256": "9296f69ed02b08f24412d0dc4024cb253cf3c07258f0411cc37ffc14a2a152eb",
+        "characters": 4583
+      },
+      "ea10": {
+        "first_line": 5742,
+        "last_line": 5836,
+        "sha256": "9296f69ed02b08f24412d0dc4024cb253cf3c07258f0411cc37ffc14a2a152eb",
+        "characters": 4583
+      },
+      "all_four_identical": true
+    },
+    "original_wave_view": {
+      "3c41": {
+        "first_line": 2913,
+        "last_line": 2927,
+        "sha256": "9f387addbcce5db783f2d90470377bb5fa49c1c2b397db19a5f0bdcf7adb5fcf",
+        "characters": 976
+      },
+      "d158": {
+        "first_line": 2913,
+        "last_line": 2927,
+        "sha256": "9f387addbcce5db783f2d90470377bb5fa49c1c2b397db19a5f0bdcf7adb5fcf",
+        "characters": 976
+      },
+      "e581": {
+        "first_line": 2913,
+        "last_line": 2927,
+        "sha256": "9f387addbcce5db783f2d90470377bb5fa49c1c2b397db19a5f0bdcf7adb5fcf",
+        "characters": 976
+      },
+      "ea10": {
+        "first_line": 2913,
+        "last_line": 2927,
+        "sha256": "9f387addbcce5db783f2d90470377bb5fa49c1c2b397db19a5f0bdcf7adb5fcf",
+        "characters": 976
+      },
+      "all_four_identical": true
+    },
+    "wave_shape": {
+      "3c41": {
+        "first_line": 6915,
+        "last_line": 6935,
+        "sha256": "f019acf869d576729c3a596607c6b369c925da22bc79323360be7b061af1d05b",
+        "characters": 1016
+      },
+      "d158": {
+        "first_line": 6915,
+        "last_line": 6935,
+        "sha256": "f019acf869d576729c3a596607c6b369c925da22bc79323360be7b061af1d05b",
+        "characters": 1016
+      },
+      "e581": {
+        "first_line": 6920,
+        "last_line": 6940,
+        "sha256": "f019acf869d576729c3a596607c6b369c925da22bc79323360be7b061af1d05b",
+        "characters": 1016
+      },
+      "ea10": {
+        "first_line": 6920,
+        "last_line": 6940,
+        "sha256": "f019acf869d576729c3a596607c6b369c925da22bc79323360be7b061af1d05b",
+        "characters": 1016
+      },
+      "all_four_identical": true
+    },
+    "matrix_name": {
+      "3c41": {
+        "first_line": 7003,
+        "last_line": 7040,
+        "sha256": "b1195cbe87ffe8718c21fc0361836122437e8ca35371c028ee138a7860695a0d",
+        "characters": 1694
+      },
+      "d158": {
+        "first_line": 7003,
+        "last_line": 7040,
+        "sha256": "b1195cbe87ffe8718c21fc0361836122437e8ca35371c028ee138a7860695a0d",
+        "characters": 1694
+      },
+      "e581": {
+        "first_line": 7008,
+        "last_line": 7045,
+        "sha256": "b1195cbe87ffe8718c21fc0361836122437e8ca35371c028ee138a7860695a0d",
+        "characters": 1694
+      },
+      "ea10": {
+        "first_line": 7008,
+        "last_line": 7045,
+        "sha256": "b1195cbe87ffe8718c21fc0361836122437e8ca35371c028ee138a7860695a0d",
+        "characters": 1694
+      },
+      "all_four_identical": true
+    },
+    "matrix_value": {
+      "3c41": {
+        "first_line": 7042,
+        "last_line": 7053,
+        "sha256": "f3928fe7178355a71e5b9533b58a7725cd199af719ed1cd9a9461f37c5354ded",
+        "characters": 282
+      },
+      "d158": {
+        "first_line": 7042,
+        "last_line": 7053,
+        "sha256": "f3928fe7178355a71e5b9533b58a7725cd199af719ed1cd9a9461f37c5354ded",
+        "characters": 282
+      },
+      "e581": {
+        "first_line": 7047,
+        "last_line": 7058,
+        "sha256": "f3928fe7178355a71e5b9533b58a7725cd199af719ed1cd9a9461f37c5354ded",
+        "characters": 282
+      },
+      "ea10": {
+        "first_line": 7047,
+        "last_line": 7058,
+        "sha256": "f3928fe7178355a71e5b9533b58a7725cd199af719ed1cd9a9461f37c5354ded",
+        "characters": 282
+      },
+      "all_four_identical": true
+    },
+    "draw_param_widget": {
+      "3c41": {
+        "first_line": 7202,
+        "last_line": 7303,
+        "sha256": "4d14f0037d2e0bc6e34becd92114425eff03122fb05eb2d13c3a9266eaabb810",
+        "characters": 5569
+      },
+      "d158": {
+        "first_line": 7202,
+        "last_line": 7303,
+        "sha256": "4d14f0037d2e0bc6e34becd92114425eff03122fb05eb2d13c3a9266eaabb810",
+        "characters": 5569
+      },
+      "e581": {
+        "first_line": 7207,
+        "last_line": 7308,
+        "sha256": "4d14f0037d2e0bc6e34becd92114425eff03122fb05eb2d13c3a9266eaabb810",
+        "characters": 5569
+      },
+      "ea10": {
+        "first_line": 7207,
+        "last_line": 7308,
+        "sha256": "4d14f0037d2e0bc6e34becd92114425eff03122fb05eb2d13c3a9266eaabb810",
+        "characters": 5569
+      },
+      "all_four_identical": true
+    },
+    "adsr_values": {
+      "3c41": {
+        "first_line": 7314,
+        "last_line": 7346,
+        "sha256": "d7569889471ac653c3fd73b9078240738eac561025efa9b7ed933688c9ee737f",
+        "characters": 1638
+      },
+      "d158": {
+        "first_line": 7314,
+        "last_line": 7346,
+        "sha256": "d7569889471ac653c3fd73b9078240738eac561025efa9b7ed933688c9ee737f",
+        "characters": 1638
+      },
+      "e581": {
+        "first_line": 7319,
+        "last_line": 7351,
+        "sha256": "d7569889471ac653c3fd73b9078240738eac561025efa9b7ed933688c9ee737f",
+        "characters": 1638
+      },
+      "ea10": {
+        "first_line": 7319,
+        "last_line": 7351,
+        "sha256": "d7569889471ac653c3fd73b9078240738eac561025efa9b7ed933688c9ee737f",
+        "characters": 1638
+      },
+      "all_four_identical": true
+    },
+    "adsr_row": {
+      "3c41": {
+        "first_line": 7371,
+        "last_line": 7377,
+        "sha256": "030fe936a94157bb2fa4df8fd2702baddb6b5d61df991c004eb76cfc8e3efda8",
+        "characters": 302
+      },
+      "d158": {
+        "first_line": 7371,
+        "last_line": 7377,
+        "sha256": "030fe936a94157bb2fa4df8fd2702baddb6b5d61df991c004eb76cfc8e3efda8",
+        "characters": 302
+      },
+      "e581": {
+        "first_line": 7376,
+        "last_line": 7382,
+        "sha256": "030fe936a94157bb2fa4df8fd2702baddb6b5d61df991c004eb76cfc8e3efda8",
+        "characters": 302
+      },
+      "ea10": {
+        "first_line": 7376,
+        "last_line": 7382,
+        "sha256": "030fe936a94157bb2fa4df8fd2702baddb6b5d61df991c004eb76cfc8e3efda8",
+        "characters": 302
+      },
+      "all_four_identical": true
+    },
+    "adsr_original_level": {
+      "3c41": {
+        "first_line": 7380,
+        "last_line": 7385,
+        "sha256": "df51618c95602b77933c56b23893bf5669c6aba7a746274afab6645d77cfa62c",
+        "characters": 266
+      },
+      "d158": {
+        "first_line": 7380,
+        "last_line": 7385,
+        "sha256": "df51618c95602b77933c56b23893bf5669c6aba7a746274afab6645d77cfa62c",
+        "characters": 266
+      },
+      "e581": {
+        "first_line": 7385,
+        "last_line": 7390,
+        "sha256": "df51618c95602b77933c56b23893bf5669c6aba7a746274afab6645d77cfa62c",
+        "characters": 266
+      },
+      "ea10": {
+        "first_line": 7385,
+        "last_line": 7390,
+        "sha256": "df51618c95602b77933c56b23893bf5669c6aba7a746274afab6645d77cfa62c",
+        "characters": 266
+      },
+      "all_four_identical": true
+    },
+    "adsr_layout": {
+      "3c41": {
+        "first_line": 7389,
+        "last_line": 7403,
+        "sha256": "090a1367ee8f57dbaf1cadb30ca50336be3b540609dd26673a3ed88153eba294",
+        "characters": 804
+      },
+      "d158": {
+        "first_line": 7389,
+        "last_line": 7403,
+        "sha256": "090a1367ee8f57dbaf1cadb30ca50336be3b540609dd26673a3ed88153eba294",
+        "characters": 804
+      },
+      "e581": {
+        "first_line": 7394,
+        "last_line": 7408,
+        "sha256": "090a1367ee8f57dbaf1cadb30ca50336be3b540609dd26673a3ed88153eba294",
+        "characters": 804
+      },
+      "ea10": {
+        "first_line": 7394,
+        "last_line": 7408,
+        "sha256": "090a1367ee8f57dbaf1cadb30ca50336be3b540609dd26673a3ed88153eba294",
+        "characters": 804
+      },
+      "all_four_identical": true
+    },
+    "draw_adsr_inline": {
+      "3c41": {
+        "first_line": 7404,
+        "last_line": 7490,
+        "sha256": "959d869c24c299e1093d61317cbe96eac0ed1ecb042d1626229e106bf8890088",
+        "characters": 4402
+      },
+      "d158": {
+        "first_line": 7404,
+        "last_line": 7490,
+        "sha256": "959d869c24c299e1093d61317cbe96eac0ed1ecb042d1626229e106bf8890088",
+        "characters": 4402
+      },
+      "e581": {
+        "first_line": 7409,
+        "last_line": 7495,
+        "sha256": "959d869c24c299e1093d61317cbe96eac0ed1ecb042d1626229e106bf8890088",
+        "characters": 4402
+      },
+      "ea10": {
+        "first_line": 7409,
+        "last_line": 7495,
+        "sha256": "959d869c24c299e1093d61317cbe96eac0ed1ecb042d1626229e106bf8890088",
+        "characters": 4402
+      },
+      "all_four_identical": true
+    },
+    "orig_strip_slot": {
+      "3c41": {
+        "first_line": 7736,
+        "last_line": 7743,
+        "sha256": "1c239c5a127f557c83e8bce62cba52abef5bbc4e20521bee38b46de8df909e7e",
+        "characters": 343
+      },
+      "d158": {
+        "first_line": 7736,
+        "last_line": 7743,
+        "sha256": "1c239c5a127f557c83e8bce62cba52abef5bbc4e20521bee38b46de8df909e7e",
+        "characters": 343
+      },
+      "e581": {
+        "first_line": 7741,
+        "last_line": 7748,
+        "sha256": "1c239c5a127f557c83e8bce62cba52abef5bbc4e20521bee38b46de8df909e7e",
+        "characters": 343
+      },
+      "ea10": {
+        "first_line": 7741,
+        "last_line": 7748,
+        "sha256": "1c239c5a127f557c83e8bce62cba52abef5bbc4e20521bee38b46de8df909e7e",
+        "characters": 343
+      },
+      "all_four_identical": true
+    },
+    "orig_strip_glyph": {
+      "3c41": {
+        "first_line": 7848,
+        "last_line": 7961,
+        "sha256": "f3fe40c2b18569f1ba89912dc51d3a215413a80a805e3891d505dcee4ce7d4f3",
+        "characters": 7588
+      },
+      "d158": {
+        "first_line": 7848,
+        "last_line": 7961,
+        "sha256": "f3fe40c2b18569f1ba89912dc51d3a215413a80a805e3891d505dcee4ce7d4f3",
+        "characters": 7588
+      },
+      "e581": {
+        "first_line": 7853,
+        "last_line": 7966,
+        "sha256": "f3fe40c2b18569f1ba89912dc51d3a215413a80a805e3891d505dcee4ce7d4f3",
+        "characters": 7588
+      },
+      "ea10": {
+        "first_line": 7853,
+        "last_line": 7966,
+        "sha256": "f3fe40c2b18569f1ba89912dc51d3a215413a80a805e3891d505dcee4ce7d4f3",
+        "characters": 7588
+      },
+      "all_four_identical": true
+    },
+    "control_glyph": {
+      "3c41": {
+        "first_line": 7660,
+        "last_line": 7731,
+        "sha256": "4f7fa8854318e865fff0ed4a1d650deda21df63efd8f990868447f81626680ea",
+        "characters": 3797
+      },
+      "d158": {
+        "first_line": 7660,
+        "last_line": 7731,
+        "sha256": "4f7fa8854318e865fff0ed4a1d650deda21df63efd8f990868447f81626680ea",
+        "characters": 3797
+      },
+      "e581": {
+        "first_line": 7665,
+        "last_line": 7736,
+        "sha256": "4f7fa8854318e865fff0ed4a1d650deda21df63efd8f990868447f81626680ea",
+        "characters": 3797
+      },
+      "ea10": {
+        "first_line": 7665,
+        "last_line": 7736,
+        "sha256": "4f7fa8854318e865fff0ed4a1d650deda21df63efd8f990868447f81626680ea",
+        "characters": 3797
+      },
+      "all_four_identical": true
+    }
+  },
+  "all_named_functions_identical": true,
+  "public_ui_files_changed_by_pr931": [],
+  "ui_changes_from_3c41_to_e581_ea10": "Only question YES card/footer and SCALE LED honor action_key_cue; no Juno/ADSR/glyph/page/parameter-route change in inspected files.",
+  "d158_public_glyph_files_identical_to_3c41": true,
+  "source_execution": "NOT_RUN",
+  "effective_model_effort": "Not exposed",
+  "juno6_ADSR_laws_identical_all_four": true
+}

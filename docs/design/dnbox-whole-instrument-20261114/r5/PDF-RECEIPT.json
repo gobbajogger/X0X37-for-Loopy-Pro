@@ -1,0 +1,50 @@
+{
+  "path": "DnBOX-R5-whole-instrument-comparison.pdf",
+  "bytes": 202721,
+  "sha256": "413669b98ad852e08c0c197f26b034968a911c1fd72a129e3bec6002a9760f4a",
+  "pages": 10,
+  "native_images": "8 actual plus8 proposal, 240x240 each",
+  "pair_page_bottoms": [
+    {
+      "page": 1,
+      "comparison": "drum",
+      "bottom": 345.2897637795277
+    },
+    {
+      "page": 2,
+      "comparison": "drum-para",
+      "bottom": 357.88976377952764
+    },
+    {
+      "page": 3,
+      "comparison": "chicago",
+      "bottom": 320.08976377952774
+    },
+    {
+      "page": 4,
+      "comparison": "juno",
+      "bottom": 320.0897637795277
+    },
+    {
+      "page": 5,
+      "comparison": "home",
+      "bottom": 357.88976377952764
+    },
+    {
+      "page": 6,
+      "comparison": "mix909",
+      "bottom": 345.2897637795277
+    },
+    {
+      "page": 7,
+      "comparison": "break",
+      "bottom": 357.88976377952764
+    },
+    {
+      "page": 8,
+      "comparison": "song",
+      "bottom": 332.6897637795277
+    }
+  ],
+  "iOS_device_open": "NOT_RUN; standard PDF parsing/render follows"
+}

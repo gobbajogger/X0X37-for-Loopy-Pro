@@ -1,0 +1,16 @@
+{
+  "decision": "OUTPUT-ONLY DESIGN GEOMETRY within existing mockup/Git authority; not a grant for restricted source/native snapshots",
+  "drawing_sha256": "24a450b6c3c7d193121b2d645eaaf4c53dd48be75167856777073398a8914eee",
+  "content": "128 arrays of29 integer0..18 row coordinates and zero9; final source-projected glyph drawing instructions",
+  "excluded": [
+    "12 restricted numerical headers",
+    "32-byte factory cells",
+    "program/native float snapshots",
+    "raw coefficient tables",
+    "host executable",
+    "FWSC/WASM/SDK/toolchain"
+  ],
+  "scope": "Fixed visible Chicago factory0 with20 explicit edits. Other factory descriptors require distinct evidence. No audio/device or byte-identical LCD claim.",
+  "private_evidence_retained": "helpers/parameters/private-projection/; not exported",
+  "status": "No action-specific denial is retried; old Library401 and fileURI denial remain preserved."
+}

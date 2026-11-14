@@ -1,0 +1,1 @@
+The first visual reading of a small count was uncertain. The source breaks_count() at3c41/d158 returns a positive8 fallback, not a negative/unavailable count. R5 retains8. No new negative-count runtime finding or unavailable-count treatment is claimed. Empty waveform and displayed A NONE/B INVALID remain bounded observed pixels.

@@ -1,0 +1,206 @@
+{
+  "convention": "Source-derived logical input gestures, not measured time or calibrated encoder detents. One unused tap=down+up; one complete hold/release=one gesture with release explicit in trace; one accepted K2 sign event=one page step. Input processes sign not magnitude for navigation. Known start states and page memory are mandatory.",
+  "scenarios": [
+    {
+      "id": "P01",
+      "task": "Chicago first cutoff correction",
+      "start": "V_SEQ, Chicago assigned, REC off, V_PART remembered OSCILLATOR, no held input/modal",
+      "sequence": [
+        "PARA down/up",
+        "K2 one accepted + sign event",
+        "K5 slow one-step turn"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "result": "FILTER1, cutoff base edited. No note/step write from navigation."
+    },
+    {
+      "id": "P02",
+      "task": "Chicago EFFECT from OSCILLATOR",
+      "start": "V_PART Chicago OSCILLATOR page0, no held input/modal/pending request",
+      "sequence": [
+        "K2 - one accepted event: SOUND page7",
+        "K2 - one accepted event: EFFECT page6",
+        "K5 slow turn TYPE"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "alternative": "PARA six unused taps + K5 =7 gestures. Keep wrap, do not force forward-only exploration.",
+      "boundary": "Passing through SOUND performs no edit. CP1 SOUND details unexercised."
+    },
+    {
+      "id": "P03",
+      "task": "Juno CHORUS from OSCILLATOR",
+      "start": "V_PART Juno OSCILLATOR page0, no held input/modal/pending request",
+      "sequence": [
+        "K2 - to SOUND page4",
+        "K2 - to LFO/CHORUS page3",
+        "K8 slow one-step turn"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "alternative": "PARA three unused taps + K8 =4 gestures."
+    },
+    {
+      "id": "P04",
+      "task": "Drone release correction from STRING",
+      "start": "V_PART Drone STRING page0, no held input/modal",
+      "sequence": [
+        "K2 + to ENVELOPE page1",
+        "K6 slow one-step turn RELEASE"
+      ],
+      "count": {
+        "navigation_gestures": 1,
+        "value_gestures": 1,
+        "total_gestures": 2
+      }
+    },
+    {
+      "id": "P05",
+      "task": "Chicago cutoff through existing deep list",
+      "start": "V_PART Chicago any parameter page, no held input/modal",
+      "sequence": [
+        "SCALE unused down/up: first list row WAVE",
+        "K2 + to GLIDE",
+        "K2 + to CUTOFF",
+        "K3 slow turn, or > fresh press, changes value",
+        "PATCH unused tap returns parameter matrix"
+      ],
+      "count": {
+        "enter_exit_taps": 2,
+        "row_moves": 2,
+        "value_gestures": 1,
+        "total_gestures": 5
+      },
+      "note": "No new confirm tap for a scalar. Headers are skipped; list starts at first ref, not current page."
+    },
+    {
+      "id": "P06",
+      "task": "Step cutoff lock then return to base",
+      "start": "V_PART Chicago FILTER1 already selected; existing step05 in current pattern; REC off; stopped; no modal",
+      "sequence": [
+        "SEQ unused tap: V_SEQ",
+        "Hold W5=C4 or pad4 (GRID): step05",
+        "PARA unused tap while original step stays held: retained FILTER1",
+        "K5 slow turn: cutoff lock for step05",
+        "Release original step05: stored lock retained; stopped preview restored",
+        "K5 slow turn: base cutoff, step05 lock unchanged"
+      ],
+      "count": {
+        "navigation_taps": 2,
+        "step_hold_and_release_gestures": 1,
+        "value_gestures": 2,
+        "total_gestures": 5
+      },
+      "note": "One complete step hold/release is one gesture; trace preserves release explicitly. Two K5 value turns: lock and post-release base.",
+      "guardrails": [
+        "K2 while holding edits chance; it cannot navigate to FILTER1. Preselect desired sound page first.",
+        "While held in V_PART, SEQ refusal RELEASE STEP FIRST is existing behavior.",
+        "V_PART melodic keys normally play notes; initiating a fresh step hold there is not the SEQ step-inspection route."
+      ]
+    },
+    {
+      "id": "P07",
+      "task": "Clear only held-step cutoff lock",
+      "start": "Same known step05 and FILTER1 as P06; lock exists; REC off; no modal",
+      "sequence": [
+        "SEQ unused tap",
+        "Hold original W5/pad4 step05",
+        "PARA unused tap",
+        "Hold BT",
+        "K5 turn",
+        "Release BT and original step05"
+      ],
+      "count": {
+        "navigation_taps": 2,
+        "step_hold_gesture": 1,
+        "BT_hold_gesture": 1,
+        "value_gestures": 1,
+        "total_gestures": 5
+      },
+      "result": "Only cutoff lock at step05 cleared. Used BT release consumed; no extra save."
+    },
+    {
+      "id": "P08",
+      "task": "HOME pump while cue is pending",
+      "start": "V_HOME, O_NONE, ordinary firmware UI, cue pending, no held modifier",
+      "sequence": [
+        "K8 slow one-step turn PUMP"
+      ],
+      "count": {
+        "navigation_gestures": 0,
+        "value_gestures": 1,
+        "total_gestures": 1
+      },
+      "guardrails": [
+        "TEMPO/SWING/FILTER/PUMP stay visible and controllable while normal cue/WAIT status is shown.",
+        "Power/context additions do not silently remap K5\u2013K8."
+      ]
+    },
+    {
+      "id": "P09",
+      "task": "Master pump from first mixer page",
+      "start": "V_MIX PARTS page0, ordinary UI; no held modifier",
+      "sequence": [
+        "K2 - to WAVE page4",
+        "K2 - to MASTER page3",
+        "K7 slow turn PUMP"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "alternative": "Three NOTE REPEAT taps + K7 =4. WAVE alone exposes same pump with one reverse step +turn =2 if waveform view acceptable."
+    },
+    {
+      "id": "P10",
+      "task": "BREAK choose loopA then adjust groove",
+      "start": "V_PART BREAK LOOPS, O_NONE; known fixture, no held input",
+      "sequence": [
+        "K5 slow one-step turn LOOP A",
+        "SEQ unused tap: remembered SEQUENCE page0",
+        "K2 + to GROOVE page1",
+        "K7 slow turn ROLL"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 2,
+        "total_gestures": 4
+      },
+      "guardrails": [
+        "LOOP A/B/B CHANCE are pattern refs; PITCH is sound ref.",
+        "Do not substitute a diagnostic SOUNDING/HELD list for the four live page controls."
+      ]
+    },
+    {
+      "id": "P11",
+      "task": "Drum track decay edit without hidden step write",
+      "start": "V_SEQ 909, sound page remembered track first row, REC off, drum SD desired",
+      "sequence": [
+        "Press/release black2=G#3: select SD; stopped also auditions under source KEY SOUND",
+        "PARA unused tap",
+        "K7 slow turn DECAY"
+      ],
+      "count": {
+        "track_selection_gestures": 1,
+        "navigation_gestures": 1,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "guardrails": [
+        "A step write is different from drum-track selection/audition.",
+        "SD DECAY is K7 after named-rank sorting, SNAPPY K8."
+      ]
+    }
+  ]
+}
