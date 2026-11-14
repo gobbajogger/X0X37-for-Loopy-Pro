@@ -1,0 +1,244 @@
+In file included from tests/host/../../host/x0x_host.c:338,
+                 from tests/host/smc_ui_test.c:8,
+                 from tests/host/step_navigation_restore_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set_impl’:
+tests/host/../../host/../firmware/src/app/ui.c:821:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  821 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘original_value_text’:
+tests/host/../../host/../firmware/src/app/ui.c:1058:40: warning: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Wsign-compare]
+ 1058 |         put_s(num, value >= 0 && value <= ORIGINAL_SOUND_JUNO ? BENGINE_N[value] : "INVALID");
+      |                                        ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:3072:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 3072 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:6033:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 6033 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:6033:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 6033 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7459:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7459 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7459:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7459 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7480:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7480 |             if(lv<0)lv=0; if(lv>1)lv=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7480:27: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7480 |             if(lv<0)lv=0; if(lv>1)lv=1;
+      |                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7828:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7828 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7828:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7828 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7839:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7839 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7839:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7839 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7862:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7862 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7862:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7862 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7865:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7865 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7865:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7865 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7884:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7884 |         if(eg<0)eg=0; if(eg>1)eg=1; if(pq<0)pq=0; if(pq>1)pq=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7884:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7884 |         if(eg<0)eg=0; if(eg>1)eg=1; if(pq<0)pq=0; if(pq>1)pq=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7905:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7905 |         if(f<0)f=0; if(f>1)f=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7905:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7905 |         if(f<0)f=0; if(f>1)f=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7964:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7964 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7964:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7964 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:8025:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 8025 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:8025:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 8025 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:8069:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 8069 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:8069:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 8069 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:8124:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 8124 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:8124:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 8124 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8871:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8871 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8873:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8873 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1104:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1104 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:335:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+In file included from tests/host/smc_ui_test.c:56:
+/workspace/f2-repair/firmware/src/app/smc_mixer.c: In function ‘smc_fx_bus’:
+/workspace/f2-repair/firmware/src/app/smc_mixer.c:1824:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1824 |     int strip = note < 32u ? (note & 7u) : -1;
+      |                                            ^~
+/workspace/f2-repair/firmware/src/app/smc_mixer.c: At top level:
+/workspace/f2-repair/firmware/src/app/smc_mixer.c:2288:5: warning: missing initializer for field ‘pending’ of ‘smc_panic_peer_t’ [-Wmissing-field-initializers]
+ 2288 |     {{0, 0}, 0, -1}
+      |     ^
+/workspace/f2-repair/firmware/src/app/smc_mixer.c:2285:13: note: ‘pending’ declared here
+ 2285 |     uint8_t pending;              /* single BANK action waits for its physical release */
+      |             ^~~~~~~
+tests/host/step_navigation_restore_test.c: In function ‘main’:
+tests/host/step_navigation_restore_test.c:133:25: warning: comparison of integer expressions of different signedness: ‘unsigned int’ and ‘int’ [-Wsign-compare]
+  133 |   printf("CASE %s\n",bad==before_bad?"PASS":"FAIL");
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1141:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1141 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1142:5: note: here
+ 1142 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3516:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3516 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+bank=0 voice=0 path=release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=list then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=part change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=list choose page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=0 path=HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=list then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=part change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=list choose page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=0 voice=1 path=HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=list then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=part change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=list choose page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=0 path=HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=list then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=part change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=list choose page then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+bank=1 voice=1 path=HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0
+CASE PASS
+PASS older-step release preserves successor; final release clears part=0
+PASS older-step release preserves successor; final release clears part=1
+PASS older-step release preserves successor; final release clears part=2
+PASS older-step release preserves successor; final release clears part=3
+CASE PASS multi-page cleanup bank=0 voice=0 finish=0
+CASE PASS multi-page cleanup bank=0 voice=0 finish=1
+CASE PASS multi-page cleanup bank=0 voice=0 finish=2
+CASE PASS playing cancellation discards stopped-preview inventory bank=0 voice=0
+CASE PASS multi-page cleanup bank=0 voice=0 finish=4
+CASE PASS multi-page cleanup bank=0 voice=1 finish=0
+CASE PASS multi-page cleanup bank=0 voice=1 finish=1
+CASE PASS multi-page cleanup bank=0 voice=1 finish=2
+CASE PASS playing cancellation discards stopped-preview inventory bank=0 voice=1
+CASE PASS multi-page cleanup bank=0 voice=1 finish=4
+CASE PASS multi-page cleanup bank=1 voice=0 finish=0
+CASE PASS multi-page cleanup bank=1 voice=0 finish=1
+CASE PASS multi-page cleanup bank=1 voice=0 finish=2
+CASE PASS playing cancellation discards stopped-preview inventory bank=1 voice=0
+CASE PASS multi-page cleanup bank=1 voice=0 finish=4
+CASE PASS multi-page cleanup bank=1 voice=1 finish=0
+CASE PASS multi-page cleanup bank=1 voice=1 finish=1
+CASE PASS multi-page cleanup bank=1 voice=1 finish=2
+CASE PASS playing cancellation discards stopped-preview inventory bank=1 voice=1
+CASE PASS multi-page cleanup bank=1 voice=1 finish=4
+step-navigation 718 assertions 0 failures

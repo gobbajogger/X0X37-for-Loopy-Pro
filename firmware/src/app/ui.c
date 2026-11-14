@@ -190,6 +190,7 @@ typedef struct {
     int8_t held_step;
     uint8_t held_step_part, held_step_pat; /* owner at key-down; a pattern can change before key-up */
     uint8_t step_edited;
+    uint32_t step_lock_preview;        /* stopped bass-step parameters published during this gesture */
     uint8_t paste_src[NPARTS];        /* source slots chosen with a paste target; stable through confirmation */
     uint8_t step_preview;              /* the held step is sounding (only while stopped) */
     uint8_t step_created;              /* the press turned the held step on (its release keeps it) */
@@ -2979,8 +2980,11 @@ static void lock_turn(pref_t r, int e, int role)
     nv = nv < 0 ? 0 : nv > d->max ? d->max : nv;
     }
     l->val[s] = (uint8_t)nv;
-    if (!seq.playing)                                 /* stopped: heard at once, until the step is let go */
+    if (!seq.playing) {                               /* stopped: heard at once, until the step is let go */
         engine_set(r.a, r.b, r.c, nv);
+        if (r.a == T_303)
+            ui.step_lock_preview |= 1u << r.c;
+    }
     mark_dirty();
     ui.touched = (int8_t)(role - EN_K1);
     ui.touch_until = plat_ms() + 900u;
@@ -3012,8 +3016,13 @@ static void bass_step_cancel(void)
         return;
     if (ui.step_preview)
         engine_bass_off(ui.held_step_part - PART_303A);
-    if (ui.step_edited && lock_step() >= 0)
-        lock_release();
+    /* Paging/list overlays can replace the current refs or hide lock_step().
+     * Restore only what this gesture published, to its press-time voice. */
+    if (!seq.playing)
+        for (int i = 0; i < NPARAMS_MAX; i++)
+            if (ui.step_lock_preview & (1u << i))
+                ui_restore_base(T_303, ui.held_step_part - PART_303A, i);
+    ui.step_lock_preview = 0;
     ui.step_preview = 0;
     ui.step_edited = 0;
     ui.held_step = -1;

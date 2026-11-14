@@ -1,0 +1,83 @@
+{
+  "request": "F2-15-16",
+  "stage": "isolated_15_repair_proposal",
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "base_tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+  "ui_blob": "7a7ea2b8f29ed2e1e35169c3cdc286fcfff26696",
+  "fixture_blob": "32136845a30261fd811becff2f1c7d953a46a9ea",
+  "fixture_sha256": "9ee0087236f6db6fb61d8f1beecd05515920272018c9fab9a030f544f6326ad6",
+  "verified_source_blobs_before": 5345,
+  "original_source_deltas_after": [
+    "firmware/src/app/ui.c"
+  ],
+  "original_inputs_manifest": "9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc",
+  "environment": {
+    "os": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0",
+    "python": "3.12.14",
+    "fixture": "Linux whole-app host with production UI/engine; inherited hardware/clip substitutes and X0X_DEV_PADCAL=1"
+  },
+  "checks": [
+    {
+      "command": "sh tests/host/step_navigation_restore_test.sh",
+      "exit": 0,
+      "assertions": 718,
+      "failures": 0,
+      "result": "PASS",
+      "log": "step-normal.log"
+    },
+    {
+      "command": "SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' SMC_UI_OUT=build/host/step-navigation-restore-sanitized sh tests/host/step_navigation_restore_test.sh",
+      "exit": 0,
+      "assertions": 718,
+      "failures": 0,
+      "result": "PASS",
+      "log": "step-sanitized.log"
+    },
+    {
+      "command": "sh tests/host/held_step_release_test.sh",
+      "exit": 0,
+      "assertions": 144,
+      "result": "PASS",
+      "log": "held-safety.log"
+    },
+    {
+      "command": "X0X_LIVE_TEST_OUT=build/host/freeplay-live-keys-safety sh tests/host/freeplay_live_keys_test.sh",
+      "exit": 0,
+      "assertions": 17957,
+      "result": "PASS",
+      "log": "freeplay-safety.log"
+    }
+  ],
+  "baseline_reused": {
+    "step_assertions": 426,
+    "step_failures": 12,
+    "live_assertions": 408,
+    "live_failures": 20,
+    "rerun": false
+  },
+  "review": "independent semantics and changed-check review; no blocking findings; not Sol",
+  "ownership_apply_check": {
+    "893": {
+      "head": "bc54e1b2440759f5f9d1c550b31e8cd57281dca1",
+      "ui_blob": "73392ba0056ae10aa9c8f683e3d9657f7513e6c7",
+      "patch_context_lines": 2,
+      "exit": 0
+    },
+    "896": {
+      "head": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+      "ui_blob": "5af70e36fe02e05287760a8e182c80d828d650b9",
+      "patch_context_lines": 2,
+      "exit": 0
+    }
+  },
+  "not_run": [
+    "full suite",
+    "integrated FMB composition",
+    "Elite/Pro native target builds and resource budgets",
+    "device checks"
+  ],
+  "row16": "unchanged; existing qualification FAIL retained; policy pending FMB/#891",
+  "incumbent_consumption": "NOT_OBSERVED",
+  "user_action_required": false
+}

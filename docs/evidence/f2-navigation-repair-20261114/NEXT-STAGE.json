@@ -1,0 +1,21 @@
+{
+  "request": "F2-15-16",
+  "state": "15_REVIEWED_PROPOSAL_16_CONTRACT_PENDING",
+  "branch": "chat/f2-navigation-repair-20261114",
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "candidate_ui_blob": "7a7ea2b8f29ed2e1e35169c3cdc286fcfff26696",
+  "next_owner": "FMB / incumbent ui.c integrator; UX #891 for navigation contract",
+  "first_action": "Read REPORT.md/results.json/source.patch and reconcile the three ui.c hunks on the actual FMB candidate, retaining UI_READOUT_MS from #893 and REC feeder ownership from #896. Do not replace either entire ui.c file. Qualify the exact resulting composition before integration.",
+  "row16_action": "Disposition HOME list-back, other-part viewing, GLO/FX and presentation SMC versus genuine mode/project/Stop/PANIC invalidation before changing lifetime semantics. Preserve source voice/token/generation and suppress-until-release safeguards.",
+  "reuse": "Original qualification and prior review consumed; retain unchanged passes. Rerun only impacted checks on changed composition. No complete audit repetition.",
+  "intake": "FMB pointer via existing #893; actual scoped receiver action NOT_OBSERVED",
+  "successor": {
+    "created": false,
+    "reason": "No standard create_thread/read_thread in exposed registry",
+    "return_to_creator": "01a1af1b-2207-7017-b4fb-4e7f6c2c90ea"
+  },
+  "merge": false,
+  "publication": false,
+  "device_actions": false,
+  "user_action_required": false
+}
