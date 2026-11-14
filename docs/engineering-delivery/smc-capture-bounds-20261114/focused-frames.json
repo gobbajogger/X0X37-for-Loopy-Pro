@@ -1,0 +1,34 @@
+[
+  {
+    "name": "glyph-pattern-cue",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "e501e5b340089011fce59cfd4c16f6095f71d0e2af5ef6f4b8f1461b272b5ea3"
+  },
+  {
+    "name": "glyph-pattern-cue-dim",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "0bbe9f661b03e086102ad384373f3583a80ca5711ea626229837bdf70cd04bce"
+  },
+  {
+    "name": "glyph-pattern-range",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "f0172a5d0dfc66393823f97d12e6186db1c9e6223bf623217ea4dc452240cda7"
+  },
+  {
+    "name": "glyph-pattern-chain",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "705ab20ed3a94a6890ad086d6493d7b2c65c34e6e26101a30c355f91c1ff2719"
+  }
+]
