@@ -146,6 +146,7 @@ def unit_tests(cc, flags, out):
         'table_interpolation': ['experiments/original_synth/fused_reference.c'],
         'bypass': ['experiments/original_synth/miami_fx_chain.c',
                    'experiments/original_synth/fixed_fx.c',
+                   'experiments/original_synth/chicago_modulation.c',
                    'experiments/wobble/miami_decimator_adapter.c',
                    'experiments/wobble/miami_decimator_component.c',
                    'experiments/wobble/miami_fx_conversion.c',

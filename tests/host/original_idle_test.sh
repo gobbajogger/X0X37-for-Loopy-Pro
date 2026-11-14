@@ -62,6 +62,23 @@ backend='firmware/src/dsp/original_miami_backend.c'
 names=sorted(set(re.findall(r'\b(original_miami_backend_\w+)\s*\(',Path(backend).read_text())))
 rename=['-D'+n+'=reference_'+n[len('original_'):] for n in names]
 rename+=['-Doriginal_miami_output_process=reference_miami_output_process']
+# The reference TU needs its own name for the exported shared pitch table.
+# Keep the pinned header and every expression unchanged; the production TU
+# defines/undefines this name internally, so a compiler -D cannot rename it.
+reference_source=Path(backend).read_text()
+original_backend_sha256=hashlib.sha256(Path(backend).read_bytes()).hexdigest()
+pitch_alias='extern const int32_t original_pitch44100[128] __attribute__((alias("original_pitch44100_local")));'
+pitch_alias_replacements=reference_source.count(pitch_alias)
+if pitch_alias_replacements>1:raise SystemExit('Ambiguous shared pitch alias')
+if pitch_alias_replacements:
+ reference_source=reference_source.replace(pitch_alias,
+  'extern const int32_t reference_original_pitch44100[128] __attribute__((alias("original_pitch44100_local")));\n#define original_pitch44100 reference_original_pitch44100')
+reference_backend=out/'reference_miami_backend.c'
+reference_backend.write_text(reference_source)
+(out/'reference-source.json').write_text(json.dumps({'source':backend,
+ 'source_sha256':original_backend_sha256,
+ 'reference_sha256':hashlib.sha256(reference_backend.read_bytes()).hexdigest(),
+ 'shared_pitch_alias_replacements':pitch_alias_replacements},indent=2)+'\n')
 cc=os.environ.get('CC','cc')
 flags=['-std=c99','-Os','-fno-builtin','-U_FORTIFY_SOURCE','-D_FORTIFY_SOURCE=0','-DORIGINAL_USE_SOFT_FMA','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-Wno-array-parameter','-pedantic','-fno-fast-math','-ffp-contract=off','-frounding-math','-Ifirmware/src/dsp','-Iexperiments/original_synth','-Iexperiments/wobble']
 dependency_cmd=[cc,*flags,'-MM','tests/host/original_idle_test.c',*sorted(src)]
@@ -82,7 +99,7 @@ try:
     for mode in ['normal','sanitized']:
         extra=[] if mode=='normal' else ['-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all']
         obj=out/(mode+'-reference.o');exe=out/mode
-        for cmd in [[cc,*flags,*extra,*rename,'-c',backend,'-o',str(obj)],
+        for cmd in [[cc,*flags,*extra,*rename,'-c',str(reference_backend),'-o',str(obj)],
                     [cc,*flags,*extra,'tests/host/original_idle_test.c',*sorted(src),str(obj),
                      *['-Wl,--wrap='+name for name in wrapped],'-lm','-o',str(exe)]]:
             stage=mode+' compile';commands.append(cmd)
