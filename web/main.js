@@ -12,8 +12,9 @@ const CLOCKS = [60, 80, 100, 120, 160, 200, 240, 360];
 // data-device="smk37">): its catalog, words and panel. A package says which board it runs on, and
 // the panel follows it (an SMK-37 package opened on the FM-1 page gets the SMK-37's).
 const DEVICE = document.documentElement.dataset.device === "smk37" ? "smk37" : "fm1";
+const DNBOX = document.documentElement.dataset.dnbox === "true";
 const DEV = DEVICE === "smk37"
-  ? { product: "M-VAVE SMK-37", board: 1, key: "smk37.", stock: "SMK-37 Pro_016.fwsc", stockFile: /^SMK-37 (Pro|Elite)_\d+( \(\d+\))?\.fwsc$/i,
+  ? { product: DNBOX ? "DnBOX" : "M-VAVE SMK-37", board: 1, key: DNBOX ? "dnbox." : "smk37.", stock: "SMK-37 Pro_016.fwsc", stockFile: /^SMK-37 (Pro|Elite)_\d+( \(\d+\))?\.fwsc$/i,
       other: { name: "FM-1", href: "../" } }
   : { product: "M-VAVE FM-1", board: 0, key: "fm1.", stock: "FM-1.fwsc", stockFile: /^FM-1( \(\d+\))?\.fwsc$/i,
       other: { name: "SMK-37", href: "smk37/" } };
@@ -39,7 +40,7 @@ const EMBED = document.documentElement.hasAttribute("data-embed");
 // ?package=URL: a package on another site (https), for a page that lists firmware this one does not
 // (mutant.cloud's "Try", other hubs, older versions); &name= names it. It plays like a catalog entry,
 // its saved flash kept by its package as every firmware's is, and is not added to the list for later.
-const linked = linkedFirmware(params);
+const linked = DNBOX ? null : linkedFirmware(params);
 if (linked) byId.set(linked.id, linked);
 let fw = linked || byId.get(params.get("fw")) || byId.get(stored(DEV.key + "fw")) || byId.get(catalog.default) || catalog.firmwares[0];
 // ?flash= / ?script=: a try-out of that firmware (web/tryout.js), from this site's own files: a session of its
@@ -220,11 +221,21 @@ async function keptEntry(id) {
   catch (error) { saveFailure(error); return null; }
 }
 async function packageOf(f) {
+  // DnBOX public demo is restricted to the real, model-specific published images.
+  // Verify even IndexedDB-cached packages, not just the first download.
+  const check = async got => {
+    if (DNBOX && (!f.sha256 || got.bytes.length !== f.size ||
+        await packageHash(got.bytes) !== f.sha256)) {
+      throw new Error('firmware bytes failed DnBOX model/version SHA-256 verification');
+    }
+    return got;
+  };
+  if (DNBOX && (f.link || f.byo || f.id === "local")) throw new Error('firmware is not in the DnBOX public trial');
   if (f.id === "local") return { bytes: f.bytes, url: null };
-  if (packages.has(f.id)) return packages.get(f.id);
+  if (packages.has(f.id)) return check(packages.get(f.id));
   const kept = !f.link && await keptEntry(f.id);   // (a link's entry is whichever link ran last)
   if (kept) {
-    const got = { bytes: kept.package, url: kept.url };
+    const got = await check({ bytes: kept.package, url: kept.url });
     packages.set(f.id, got);
     return got;
   }
@@ -237,7 +248,7 @@ async function packageOf(f) {
     packages.set(f.id, got);
     return got;
   }
-  const got = await fetchPackage(f);
+  const got = await check(await fetchPackage(f));
   packages.set(f.id, got);
   noteVersion(f, got.version);
   return got;
@@ -352,6 +363,7 @@ mhzSel.addEventListener("change", () => {
 // a package from this computer: the file picker or a drop on the panel. With M-VAVE's entry
 // chosen, or a file named like theirs, it is that entry's copy and is kept for next time.
 async function openLocal(file) {
+  if (DNBOX) return;  // Do not turn the public try-before-install page into an arbitrary firmware loader.
   if (!file) return;
   const mv = catalog.firmwares.find((f) => f.byo);
   if (mv && (fw.byo || DEV.stockFile.test(file.name))) {
@@ -427,7 +439,22 @@ function draw() {
 requestAnimationFrame(draw);
 
 // ---------------------------------------------------------------- input to the machine
-const send = (m) => node && node.port.postMessage(m);
+// Probe only occasional note-ons; measuring messages must never enter the audio
+// rendering hot path. Round trip is NOT key-to-speaker latency.
+let nextInputProbe = 0, lastInputProbe = -Infinity;
+const inputProbes = new Map(), inputRtts = [];
+const send = (m) => {
+  if (!node) return;
+  if (DNBOX && m.type === 'key' && m.down && performance.now() - lastInputProbe >= 250) {
+    const at = performance.now(), probe = ++nextInputProbe;
+    lastInputProbe = at;
+    inputProbes.set(probe, at);
+    if (inputProbes.size > 16) inputProbes.delete(inputProbes.keys().next().value);
+    node.port.postMessage({ ...m, probe });
+    return;
+  }
+  node.port.postMessage(m);
+};
 function setKey(id, on) {
   if (down[id] === (on ? 1 : 0)) return;
   down[id] = on ? 1 : 0;
@@ -457,6 +484,33 @@ function setVelocity(f) {
 }
 const NKEY = 37, BTN0 = 37;
 
+// The DnBOX page uses the same tested hold registry for canvas, accessible
+// controls, computer keyboard and optional Web MIDI. It emits a hardware
+// transition only on first press and final release of each key/button/pad.
+// Non-DnBOX FM-1 and SMK-37 pages keep their original event routing.
+const dnboxHolds = DNBOX ? (await import('./controls.js')).heldRouter(({ kind, id, down: on }) => {
+  if (kind === 'pad') setAnalog(id, on ? 700 : 0);
+  else setKey(id, on);
+}) : null;
+if (DNBOX) document.addEventListener('dnbox:input', (e) => {
+  const { kind, id, down: on, value, clicks } = e.detail || {};
+  const token = 'access:' + kind + ':' + id;
+  if (kind === 'key' && Number.isInteger(id) && id >= 0 && id < NKEY) {
+    if (on) setVelocity(.75);
+    if (on) press(id, token); else unpress(id, token);
+  } else if (kind === 'button' && Number.isInteger(id) && id >= BTN0 && id <= 54) {
+    if (on) press(id, token); else unpress(id, token);
+  } else if (kind === 'pad' && Number.isInteger(id) && id >= 0 && id < 16) {
+    if (on) pressPad(id, token); else unpressPad(id, token);
+  } else if (kind === 'analog' && Number.isInteger(id) && id >= 16 && id <= 21 &&
+    Number.isFinite(value)) {
+    setAnalog(id, value);
+  } else if (kind === 'encoder' && Number.isInteger(id) && id >= 0 && id < 8 &&
+    Number.isInteger(clicks) && Math.abs(clicks) === 1) {
+    turn(id, clicks);
+  }
+});
+
 // pointer: keys and buttons held while pressed (drag across keys: glissando), knobs dragged
 // up / down or scrolled, MASTER as a pot. Every pointer on its own, so on a touch screen
 // several fingers play a chord, or hold a key while one turns a knob.
@@ -464,25 +518,41 @@ const at = (e) => {
   const r = canvas.getBoundingClientRect();
   return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
 };
-const holds = new Uint8Array(64);          // pointers holding each key / button
-function press(id) { if (holds[id]++ === 0) setKey(id, true); }
-function unpress(id) { if (holds[id] && --holds[id] === 0) setKey(id, false); }
-const pointers = new Map();                // pointerId -> { grab, lastY, acc, held }
+const holds = new Uint8Array(64);          // original FM-1/SMK-37 pointer refcounts
+function press(id, token) {
+  if (DNBOX) return dnboxHolds.press(token, id < NKEY ? 'key' : 'button', id);
+  if (holds[id]++ === 0) setKey(id, true);
+}
+function unpress(id, token) {
+  if (DNBOX) return dnboxHolds.release(token);
+  if (holds[id] && --holds[id] === 0) setKey(id, false);
+}
+function pressPad(id, token) {
+  if (DNBOX) return dnboxHolds.press(token, 'pad', id);
+  setAnalog(id, 700);
+}
+function unpressPad(id, token) {
+  if (DNBOX) return dnboxHolds.release(token);
+  setAnalog(id, 0);
+}
+const pointers = new Map();                // pointerId -> { token, grab, lastY, acc, held }
 canvas.addEventListener("pointerdown", (e) => {
+  if (pointers.has(e.pointerId) || (DNBOX && (booting || !running))) return;
   const [x, y] = at(e);
-  const p = { grab: ui.panel_hit(x, y), lastY: y, acc: 0, held: -1 };
+  const p = { grab: ui.panel_hit(x, y), lastY: y, acc: 0, held: -1,
+    token: 'canvas:pointer:' + e.pointerId };
   pointers.set(e.pointerId, p);
   canvas.setPointerCapture(e.pointerId);
   if (p.grab >= 100 && p.grab < 200) {
     p.held = p.grab - 100;
     // SMK-37: a key hit further down sounds harder
     if (board === 1 && p.held < NKEY) setVelocity(ui.panel_hit_y());
-    press(p.held);
+    press(p.held, p.token);
   } else if (board === 1 && p.grab >= 200) slide(p, y);
 });
 // SMK-37: a pad pressed (harder the lower it is hit), a fader or a wheel dragged
 function slide(p, y) {
-  if (p.grab < 300) setAnalog(p.grab - 200, 700);
+  if (p.grab < 300) pressPad(p.grab - 200, p.token);
   else if (p.grab < 400) setAnalog(16 + p.grab - 300, ui.panel_slide(p.grab - 300, y));
   else setAnalog(p.grab === 400 ? 20 : 21, ui.panel_slide(p.grab === 400 ? 4 : 5, y));
 }
@@ -494,10 +564,10 @@ canvas.addEventListener("pointermove", (e) => {
   if (p.grab >= 100 && p.grab < 200 && p.held >= keys[0] && p.held < keys[1]) {
     const h = ui.panel_hit(x, y);              // glissando over the note keys
     if (h >= 100 + keys[0] && h < 100 + keys[1] && h - 100 !== p.held) {
-      unpress(p.held);
+      unpress(p.held, p.token);
       p.held = h - 100;
       if (board === 1) setVelocity(ui.panel_hit_y());
-      press(p.held);
+      press(p.held, p.token);
     }
   } else if (board === 1 && p.grab >= 300) {
     slide(p, y);
@@ -513,8 +583,8 @@ canvas.addEventListener("pointermove", (e) => {
 const release = (e) => {
   const p = pointers.get(e.pointerId);
   if (!p) return;
-  if (p.held >= 0) unpress(p.held);
-  if (board === 1 && p.grab >= 200 && p.grab < 216) setAnalog(p.grab - 200, 0);   // a pad let go
+  if (p.held >= 0) unpress(p.held, p.token);
+  if (board === 1 && p.grab >= 200 && p.grab < 216) unpressPad(p.grab - 200, p.token);
   if (board === 1 && p.grab === 400) setAnalog(20, PITCH_REST);                   // the pitch wheel springs back
   pointers.delete(e.pointerId);
 };
@@ -555,23 +625,73 @@ function keyId(k) {
   return b === undefined ? -1 : b;
 }
 const padKey = (k) => (board === 1 && /^[1-8]$/.test(k) ? Number(k) - 1 : -1);
+const keyboardDown = new Map(); // physical KeyboardEvent.code -> owned key or pad
+const keyboardToken = e => 'keyboard:' + (e.code || e.key.toLowerCase());
 addEventListener("keydown", (e) => {
-  if (e.metaKey || e.ctrlKey || e.target instanceof HTMLSelectElement) return;
+  if (DNBOX && (booting || !running)) return;
+  if (e.metaKey || e.ctrlKey || e.target instanceof HTMLSelectElement ||
+      (DNBOX && (e.target?.closest?.('#dnbox-controls') || e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement ||
+        e.target?.isContentEditable))) return;
   if (ENC_KEYS[e.key]) { e.preventDefault(); turn(...ENC_KEYS[e.key]); return; }
   const pad = padKey(e.key);
-  if (pad >= 0) { e.preventDefault(); if (!e.repeat) setAnalog(pad, 700); return; }
+  if (pad >= 0) {
+    e.preventDefault();
+    if (!e.repeat) {
+      if (DNBOX) {
+        const token = keyboardToken(e);
+        if (!keyboardDown.has(token)) {
+          keyboardDown.set(token, { kind: 'pad', id: pad });
+          pressPad(pad, token);
+        }
+      } else setAnalog(pad, 700);
+    }
+    return;
+  }
   const id = keyId(e.key);
   if (id < 0 || e.repeat) return;
   e.preventDefault();
-  if (board === 1 && id < NKEY) setVelocity(0.75);
-  setKey(id, true);
+  if (DNBOX) {
+    const token = keyboardToken(e);
+    if (keyboardDown.has(token)) return; // duplicate keydown must not leak a hold
+    keyboardDown.set(token, { kind: 'key', id });
+    if (board === 1 && id < NKEY) setVelocity(0.75);
+    press(id, token);
+  } else {
+    if (board === 1 && id < NKEY) setVelocity(0.75);
+    setKey(id, true);
+  }
 });
 addEventListener("keyup", (e) => {
+  if (DNBOX) {
+    // Release the original key, even if focus/keyboard layout changed meanwhile.
+    // A key-up from an editor/button with no owned note must not release a touch.
+    const token = keyboardToken(e), owner = keyboardDown.get(token);
+    if (!owner) return;
+    keyboardDown.delete(token);
+    e.preventDefault();
+    if (owner.kind === 'pad') unpressPad(owner.id, token);
+    else unpress(owner.id, token);
+    return;
+  }
   const pad = padKey(e.key);
   if (pad >= 0) { setAnalog(pad, 0); return; }
   const id = keyId(e.key);
   if (id >= 0) setKey(id, false);
 });
+
+// All input sources release their own ownership when the page loses focus,
+// a tab is hidden or a firmware instance is replaced. DnBOX only.
+function releaseDnboxInputs() {
+  if (!DNBOX) return;
+  dnboxHolds.releaseAll();
+  keyboardDown.clear();
+  pointers.clear();
+  if (analog[20] !== PITCH_REST) setAnalog(20, PITCH_REST);
+  down.fill(0);
+  holds.fill(0);
+}
+addEventListener("blur", releaseDnboxInputs);
 
 // ---------------------------------------------------------------- MIDI in (Web MIDI)
 // The chosen input(s) play the synth through its MIDI IN jack (UART1 at 31250 baud in the
@@ -602,7 +722,11 @@ function midiMessage(e) {
     if ((st === 0x90 || st === 0x80) && k >= 0 && k < NKEY) {
       const on = st === 0x90 && bytes[2] > 0;
       if (on) setVelocity((bytes[2] - 1) / 126);
-      setKey(k, on);
+      if (DNBOX) {
+        // Different MIDI devices/channels pressing C4 are independent owners.
+        const token = 'midi:' + (e.target?.id || 'input') + ':' + (d[0] & 15) + ':' + bytes[1];
+        if (on) press(k, token); else unpress(k, token);
+      } else setKey(k, on);
     } else if (st === 0xe0) {
       const bend = ((bytes[2] << 7) | bytes[1]) - 8192;
       setAnalog(20, PITCH_REST + (bend >= 0 ? bend / 8191 * (640 - PITCH_REST) : bend / 8192 * (PITCH_REST - 445)));
@@ -923,7 +1047,14 @@ function boot(options = {}) {
       sessions.set(seq, session);
       loadedUrl = got.url;
       showFirmware();
-      down.fill(0); holds.fill(0); pointers.clear(); encClicks.fill(0);
+      if (DNBOX) {
+        document.dispatchEvent(new Event('dnbox:booting'));
+        releaseDnboxInputs();
+        inputProbes.clear(); inputRtts.length = 0; lastInputProbe = -Infinity;
+      } else {
+        down.fill(0); holds.fill(0); pointers.clear();
+      }
+      encClicks.fill(0);
       frame = last = null;
       booting = seq;
       perf.reset();
@@ -988,8 +1119,23 @@ async function startAudio(auto = false) {
 // what the audio thread sends: the screen and LEDs with its timing, boot and error news
 function onWorklet(e) {
   const m = e.data;
+  if (DNBOX && m.type === 'input-ack') {
+    const at = inputProbes.get(m.probe);
+    if (at !== undefined && m.seq === bootSeq) {
+      inputProbes.delete(m.probe);
+      inputRtts.push(performance.now() - at);
+      if (inputRtts.length > 64) inputRtts.shift();
+      const sorted = [...inputRtts].sort((a, b) => a - b);
+      document.dispatchEvent(new CustomEvent('dnbox:input-latency', {
+        detail: { samples: sorted.length, medianMs: sorted[Math.floor((sorted.length - 1) / 2)],
+          p95Ms: sorted[Math.ceil(.95 * sorted.length) - 1] }
+      }));
+    }
+    return;
+  }
   if (m.type === "error") {
     if (m.fatal && running?.seq === m.seq) {
+      if (DNBOX) document.dispatchEvent(new Event('dnbox:stopped'));
       running = null;
       for (const [id, pending] of snapshotWaiters) if (pending.seq === m.seq) {
         clearTimeout(pending.timer); snapshotWaiters.delete(id); pending.resolve();
@@ -1032,6 +1178,7 @@ function onWorklet(e) {
       booting = 0;
       setBoard(m.board);
       if (m.board === 1) for (let i = 16; i < 22; i++) send({ type: "analog", idx: i, value: analog[i] });
+      if (DNBOX) document.dispatchEvent(new CustomEvent('dnbox:booted', { detail: { board: m.board } }));
     }
     return;
   }
@@ -1047,6 +1194,11 @@ function onWorklet(e) {
   const now = performance.now();
   if (!last || now - last.t > 1000) {
     perf.second(m);
+    if (DNBOX) document.dispatchEvent(new CustomEvent('dnbox:telemetry', {
+      detail: { short: m.short, worstQuantumMs: m.worst, emulatedMs: m.emulated,
+        speed: perf.speedText(), load: perf.loadText(), halted: m.halted, playing: m.playing,
+        audioFrames: m.frames, audioQuanta: m.quanta }
+    }));
     status.textContent = (tryOutError ? `${tryOutError} · ` : "") + (m.halted ? `${fw.name}: the emulated CPU halted` :
       `${fw.name} · ${mhz} MHz · ${perf.speedText()} · load ${perf.loadText()} · ` +
       `${(m.ms / 1000).toFixed(1)} s`);
@@ -1077,7 +1229,17 @@ async function start(auto = false) {
   // a phone on its side: the synth fills the screen, so bring all of it into view
   if (!auto && matchMedia("(orientation: landscape) and (max-height: 560px)").matches) canvas.scrollIntoView({ block: "center" });
 }
-startBtn.addEventListener("click", () => start());
+startBtn.addEventListener("click", () => start().catch(async error => {
+  // AudioWorklet.addModule(), AudioContext.resume() and device output can fail
+  // after feature detection. Keep a useful retry state, not an inert Start button.
+  status.textContent = 'audio startup failed: ' + (error?.message || String(error));
+  startBtn.disabled = false;
+  startBtn.hidden = false;
+  if (DNBOX) document.dispatchEvent(new Event('dnbox:stopped'));
+  node?.disconnect(); node = null;
+  try { await ac?.close(); } catch { /* a failed context can refuse to close */ }
+  ac = null;
+}));
 if (tryOutError) status.textContent = tryOutError;
 else if (tryOut) {
   saveMessage("A try-out: it starts from the firmware's own flash and is not saved in this browser");
@@ -1154,7 +1316,10 @@ document.getElementById("update-firmware").addEventListener("click", action(asyn
   else saveMessage("Firmware ready: click Start");
 }));
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && running) flushRunning().catch(saveFailure);
+  if (document.visibilityState === "hidden") {
+    releaseDnboxInputs();
+    if (running) flushRunning().catch(saveFailure);
+  }
 });
 
 // Closing a tab is best effort: the browser may terminate the worklet before its reply.

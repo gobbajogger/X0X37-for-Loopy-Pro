@@ -32,4 +32,10 @@ cp web/index.html web/style.css web/main.js web/persistence.js web/tryout.js web
 mkdir -p "$OUT/smk37"
 cp web/smk37/index.html web/smk37/firmwares.json web/smk37/og.png "$OUT/smk37/"
 cp web/style.css web/main.js web/persistence.js web/tryout.js web/worklet.js web/jit.js web/fwsc.js "$OUT/fm1_web.wasm" "$OUT/smk37/"
+# A separate DnBOX try-before-install page: reuse the exact same Rust/WASM runtime,
+# its AudioWorklet, and original front-panel renderer. No firmware binary is bundled.
+mkdir -p "$OUT/dnbox"
+cp web/dnbox/index.html web/dnbox/entry.js web/dnbox/controls.js web/dnbox/identity.mjs web/dnbox/firmwares.json web/dnbox/style.css "$OUT/dnbox/"
+cp web/style.css "$OUT/dnbox/base.css"
+cp web/main.js web/persistence.js web/tryout.js web/worklet.js web/jit.js web/fwsc.js "$OUT/fm1_web.wasm" "$OUT/dnbox/"
 ls -la "$OUT" | grep -v "^total"

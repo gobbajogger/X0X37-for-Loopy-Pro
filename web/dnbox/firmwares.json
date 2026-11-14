@@ -1,0 +1,34 @@
+{
+  "note": "Pinned published DnBOX 0.0.25.1 packages. Source: main gh-pages/versions.json latest nightly-79280e76-dev; firmware is not redistributed in this tree. The 0.0.26 development candidate is deliberately excluded.",
+  "default": "dnbox-elite-0251",
+  "firmwares": [
+    {
+      "id": "dnbox-elite-0251",
+      "name": "DnBOX · Elite",
+      "version": "0.0.25.1",
+      "model": "SMK-37 Elite_900",
+      "source_commit": "79280e763341d03ba43266d3e25dad66f12de860",
+      "size": 651721,
+      "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "author": "DnBOX contributors",
+      "license": "GPL-3.0 firmware source; third-party components retain their own terms",
+      "about": "The published 0.0.25.1 build for SMK-37 Elite, intended for real-firmware emulation on the keyboard. Exact browser boot is NOT_RUN. Emulation is not a physical install or proof of hardware timing.",
+      "repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "package": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc"
+    },
+    {
+      "id": "dnbox-pro-0251",
+      "name": "DnBOX · Pro",
+      "version": "0.0.25.1",
+      "model": "SMK-37 Pro_900",
+      "source_commit": "79280e763341d03ba43266d3e25dad66f12de860",
+      "size": 651721,
+      "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "author": "DnBOX contributors",
+      "license": "GPL-3.0 firmware source; third-party components retain their own terms",
+      "about": "The published 0.0.25.1 build for SMK-37 Pro, intended for real-firmware emulation on the keyboard. Exact browser boot is NOT_RUN. Emulation is not a physical install or proof of hardware timing.",
+      "repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "package": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc"
+    }
+  ]
+}
