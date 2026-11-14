@@ -1,0 +1,27 @@
+:root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;background:#111211;color:#f1efe6}
+*{box-sizing:border-box}
+body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+a{color:inherit;text-decoration:none}
+a:focus-visible,summary:focus-visible{outline:3px solid #e9f575;outline-offset:3px}
+.skip{position:fixed;top:-5rem;left:1rem;background:#e9f575;color:#111;padding:.8rem;z-index:30}
+.skip:focus{top:.5rem}
+header{display:flex;align-items:center;flex:none;gap:1rem;padding:.6rem 2vw;border-bottom:1px solid #353831}
+.brand{font-size:1.3rem;font-weight:bold}.brand span{color:#e9f575}
+.local{font-size:.6rem;letter-spacing:.12em;color:#b5b7a8}
+.guide{margin-left:auto;font-size:.75rem;text-decoration:underline}
+main{width:100%;max-width:1600px;margin:0 auto;padding:.6rem 2vw;flex:1;min-height:0;display:flex;flex-direction:column}
+.intro{flex:none}.intro h1{font-size:1.35rem;line-height:1.1;letter-spacing:-.03em;margin:0}
+nav{display:flex;flex:none;gap:.4rem;margin:.6rem 0 .4rem;flex-wrap:wrap}
+nav a{display:flex;align-items:center;min-height:44px;padding:.55rem .7rem;border:1px solid #545a42;border-radius:3px;font-size:.83rem}
+nav a[aria-current=page]{background:#e9f575;color:#111;border-color:#e9f575}
+.tool-info{flex:none;position:relative;margin:0 0 .4rem;z-index:20;font-size:.78rem}
+.tool-info summary{cursor:pointer;width:fit-content;min-height:24px;line-height:1.5;color:#d1d2c7}
+.info-body{position:absolute;left:0;right:0;top:calc(100% + 3px);max-height:min(32dvh,240px);overflow:auto;padding:.8rem 1rem;border:1px solid #626b4d;border-radius:3px;background:#1c2119;color:#d1d2c7;line-height:1.5;box-shadow:0 10px 30px #0009}
+.info-body p{margin:.4rem 0}
+#tools{flex:1;min-height:0;border:1px solid #545a42;background:#161915;border-radius:4px;overflow:hidden}
+iframe{display:block;width:100%;height:100%;min-height:0;border:0}
+iframe[hidden]{display:none}
+.handoff{flex:none;font-size:.7rem;line-height:1.35;color:#b6b8aa;margin:.4rem 0}
+.foot{display:flex;flex:none;flex-wrap:wrap;gap:.3rem 1rem;font-size:.7rem;line-height:1.35}
+.foot a{text-decoration:underline}
+@media(max-width:650px){header{flex-wrap:wrap;gap:.4rem .8rem}.guide{margin-left:0}.local{font-size:.56rem}.intro h1{font-size:1.2rem}.info-body{padding:.6rem}.foot{gap:.25rem .8rem}}

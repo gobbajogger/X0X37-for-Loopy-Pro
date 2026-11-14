@@ -1,6 +1,9 @@
 {
+  "base_manifest": "a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f",
+  "current_manifest": "44188b31a644cde2b7992547faf2f3c6a51b0f729ba7161cf88b168362243496",
   "changed": [
     "MANIFEST.sha256",
+    "app.js",
     "journeys.js",
     "product.js",
     "provenance/integration-20261114.md"

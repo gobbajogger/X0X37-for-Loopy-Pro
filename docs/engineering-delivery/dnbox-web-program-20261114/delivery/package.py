@@ -35,6 +35,9 @@ for prefix, name in [(BASE, 'accepted-website'), (ROOT, 'integrated-web-learning
     for p in sorted(prefix.rglob('*')):
         if included(p, prefix):
             files.append((p, name + '/' + p.relative_to(prefix).as_posix()))
+for name in ['package.py','prepare_git.py','PUBLISHER-HANDOFF.md','COMPONENT-FINDINGS.md','git-payload.json','git-preservation-receipt.json']:
+    p = ROOT/'delivery'/name
+    files.append((p,'integrated-web-learning/delivery/'+name))
 assert len({name for _, name in files}) == len(files)
 rows = [{'path': name, 'bytes': p.stat().st_size,
          'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p, name in files]
@@ -44,7 +47,7 @@ manifest = json.dumps({'files': rows, 'exclusions': [
     'Diagnostic first-pass raw PCM/WAV duplicates; their JSON/screens remain',
     'Canonical tracker-history copies; intake reports retain exact source references'
 ]}, indent=2).encode() + b'\n'
-with tarfile.open(OUT, 'w:xz', preset=6) as tar:
+with tarfile.open(OUT, 'w:xz', preset=8) as tar:
     for p, name in files:
         info = tar.gettarinfo(str(p), arcname=name)
         info.mtime = 0
