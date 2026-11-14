@@ -6662,8 +6662,10 @@ static UI_DRAW void draw_ask(int band)
         cv_rect(6, 0, 1, 44, red);
         cv_rect(233, 0, 1, 44, red);
         cv_rect(7, 44, 226, 1, red);
-        box(22, 10, 92, 24, red);
-        text_c(68, vc(&FONT_B, 10, 24), &FONT_B, UI_CAP_SEL "  YES", C_BLACK);
+        if (action_key_cue()[0]) {
+            box(22, 10, 92, 24, red);
+            text_c(68, vc(&FONT_B, 10, 24), &FONT_B, UI_CAP_SEL "  YES", C_BLACK);
+        }
         frame(126, 10, 92, 24, C_GRAY);
         text_c(172, vc(&FONT_B, 10, 24), &FONT_B, UI_CAP_HOME "  NO", C_GRAY);
     }
@@ -6742,8 +6744,11 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
         return C_GRAY;
     }
     if (ui.overlay == O_ASK) {
-        *a = UI_CAP_SEL ": YES";
-        *b = UI_CAP_HOME ": NO";
+        if (action_key_cue()[0]) {
+            *a = UI_CAP_SEL ": YES";
+            *b = UI_CAP_HOME ": NO";
+        } else
+            *a = UI_CAP_HOME ": NO";
     } else if (ui.overlay == O_LIST) {
         *a = UI_CAP_SELECT ": MOVE";
         *b = ui.view==V_GLO&&ui.glo_section<0?">: ENTER":UI_CAP_ALGO ": CHANGE";
@@ -8491,7 +8496,7 @@ static void leds(void)
         b |= 1u << B_LFO;
     if (ui.view == V_GLO)
         b |= 1u << B_GLO;
-    if (ui.overlay != O_NONE)
+    if (ui.overlay != O_NONE && (ui.overlay != O_ASK || action_key_cue()[0]))
         b |= 1u << B_SEL;
     if (ui.view == V_HOME || ui.view == V_SONG ? ui.pbank : ui.spage)
         b |= 1u << B_OCTUP;
