@@ -1,0 +1,363 @@
+[
+  [
+    {
+      "id": "R_CLKSRC",
+      "name": "CLOCK SOURCE",
+      "max": 2,
+      "value": 0,
+      "names": [
+        "AUTO",
+        "INTERNAL",
+        "EXTERNAL"
+      ]
+    },
+    {
+      "id": "R_CLKOUT",
+      "name": "CLOCK OUT",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_NOTEOUT",
+      "name": "NOTES OUT",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_MIDICH:0",
+      "name": "909 MIDI CH",
+      "max": 16,
+      "value": 10,
+      "midi": true
+    },
+    {
+      "id": "R_MIDICH:1",
+      "name": "808 MIDI CH",
+      "max": 16,
+      "value": 11,
+      "midi": true
+    },
+    {
+      "id": "R_MIDICH:4",
+      "name": "BREAK MIDI CH",
+      "max": 16,
+      "value": 4,
+      "midi": true
+    },
+    {
+      "id": "R_MIDICH:3",
+      "name": "CHICAGO MIDI CH",
+      "max": 16,
+      "value": 3,
+      "midi": true
+    },
+    {
+      "id": "R_MIDICH:2",
+      "name": "MIAMI MIDI CH",
+      "max": 16,
+      "value": 2,
+      "midi": true
+    },
+    {
+      "id": "R_CKCH",
+      "name": "CLIP KEYS CH",
+      "max": 13,
+      "value": 0,
+      "clipch": true,
+      "smk": true
+    }
+  ],
+  [
+    {
+      "id": "R_BT",
+      "name": "BLUETOOTH",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_SMC_ROLE",
+      "name": "BT ROLE",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "DEVICE",
+        "SMC HOST"
+      ]
+    },
+    {
+      "id": "R_SMC_MAP",
+      "name": "SMC PRESET",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "DAW",
+        "USER"
+      ]
+    },
+    {
+      "id": "R_BTSTAT",
+      "name": "STATUS",
+      "max": 7,
+      "value": 4,
+      "names": [
+        "NO IMAGE",
+        "OFF",
+        "RESTART",
+        "STARTING",
+        "READY",
+        "CONNECTED",
+        "FAILED",
+        "BAD IMAGE"
+      ],
+      "ro": true
+    },
+    {
+      "id": "R_BTNAME",
+      "name": "NAME",
+      "max": 0,
+      "value": 0,
+      "text": "SMC-Mixer-Stage-Left, Keys-Right",
+      "ro": true
+    }
+  ],
+  [
+    {
+      "id": "R_OUTLOUD",
+      "name": "OUTPUT",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "NORMAL",
+        "LOUD"
+      ]
+    },
+    {
+      "id": "R_USBFULL",
+      "name": "USB AUDIO",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "FOLLOWS KNOB",
+        "FULL"
+      ]
+    },
+    {
+      "id": "R_FINETUNE",
+      "name": "TUNE",
+      "max": 127,
+      "value": 64,
+      "tune": true
+    },
+    {
+      "id": "R_PARTON:0",
+      "name": "909",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_PARTON:1",
+      "name": "808",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_PARTON:4",
+      "name": "BREAK",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_PARTON:3",
+      "name": "CHICAGO",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_PARTON:2",
+      "name": "MIAMI",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_QUEUEMUTE",
+      "name": "QUEUE MUTES",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_NOTELOCK",
+      "name": "NOTE LOCK",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "OFF",
+        "ON"
+      ],
+      "scope": "Runtime capture flag; not saved"
+    }
+  ],
+  [
+    {
+      "id": "R_KEYLED",
+      "name": "LIGHTS",
+      "max": 2,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON",
+        "KEYS"
+      ]
+    },
+    {
+      "id": "R_KEYSOUND",
+      "name": "KEY SOUND",
+      "max": 1,
+      "value": 0,
+      "names": [
+        "STOPPED",
+        "ALWAYS"
+      ]
+    },
+    {
+      "id": "R_PALETTE",
+      "name": "THEME",
+      "max": 5,
+      "value": 1,
+      "names": [
+        "GREEN",
+        "AMBER",
+        "CYAN",
+        "RED",
+        "MONO",
+        "LIGHT"
+      ]
+    }
+  ],
+  [
+    {
+      "id": "R_ACT:ACT_SAVE",
+      "name": "SAVE PROJECT",
+      "max": 0,
+      "value": 0,
+      "act": "save"
+    },
+    {
+      "id": "R_ACT:ACT_LOAD",
+      "name": "LOAD SAVED",
+      "max": 0,
+      "value": 0,
+      "act": "load",
+      "question": [
+        "LOAD SAVED PROJECT?",
+        "DISCARD UNSAVED EDITS"
+      ]
+    },
+    {
+      "id": "R_AUTOSAVE",
+      "name": "AUTOSAVE",
+      "max": 1,
+      "value": 1,
+      "names": [
+        "OFF",
+        "ON"
+      ]
+    },
+    {
+      "id": "R_ACT:ACT_CLEAR_PAT",
+      "name": "CLEAR PATTERN",
+      "max": 0,
+      "value": 0,
+      "act": "clear",
+      "question": [
+        "CLEAR THIS PATTERN?",
+        "ALL FIVE PARTS"
+      ]
+    },
+    {
+      "id": "R_ACT:ACT_RESET",
+      "name": "RESET PROJECT",
+      "max": 0,
+      "value": 0,
+      "act": "reset",
+      "question": [
+        "RESET PROJECT?",
+        "SAMPLES ARE KEPT"
+      ]
+    }
+  ],
+  [
+    {
+      "id": "R_ACT:ACT_PERF",
+      "name": "PERFORMANCE",
+      "max": 0,
+      "value": 0,
+      "act": "perf"
+    },
+    {
+      "id": "R_ACT:ACT_ABOUT",
+      "name": "ABOUT DnBOX",
+      "max": 0,
+      "value": 0,
+      "act": "about"
+    },
+    {
+      "id": "R_BATT",
+      "name": "BATTERY",
+      "max": 5,
+      "value": 4,
+      "names": [
+        "EMPTY",
+        "1/3",
+        "2/3",
+        "FULL",
+        "USB POWER",
+        "..."
+      ],
+      "ro": true
+    },
+    {
+      "id": "R_ACT:ACT_PADCAL",
+      "name": "PAD COLOURS",
+      "max": 0,
+      "value": 0,
+      "act": "padcal",
+      "dev": true
+    }
+  ]
+]

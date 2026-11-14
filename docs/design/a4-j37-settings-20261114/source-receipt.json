@@ -1,0 +1,111 @@
+{
+  "task": "A4 / J37 Settings design only",
+  "source_commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "policy_commit": "83fc6d60289869116f93352cf845a9a7e271cdba",
+  "branch": "chat/a4-j37-settings-design-20261114",
+  "archive_sha256": "75c34c301d4667a116f6607a0429dfb2af8e2ecaa02991f5301bef9206410fc2",
+  "r22_manifest_expected_sha256": "ce2682d3a09470781e60a74897101cd9c399f3308635798a58cbe352c98bc31a",
+  "r22_manifest_verification": "UNVERIFIED_SUPPLIED_PIN: owner confirmed design ZIP intentionally clean subset; verified archive and member hashes are authority for consumed content, not full-plan admission",
+  "inputs": [
+    {
+      "path": "firmware/hal/smk_input.h",
+      "sha256": "054cfaebb766119d6ca41b6632bbae3e2ec6dbb1f1f11387eebec4ae6a7e98d9",
+      "bytes": 31352,
+      "git_blob_sha1": "46ac1cb1ec4d33e1618be8c6057625f48de6a39a"
+    },
+    {
+      "path": "firmware/src/app/main_fm1.c",
+      "sha256": "20b8614282b833f8bcbdec3c800adcdd80c3407f083746883790b7d1d86d3fe6",
+      "bytes": 115641,
+      "git_blob_sha1": "85fe641796f734744e5745f8f26017f851fb9e49"
+    },
+    {
+      "path": "firmware/src/app/panel.c",
+      "sha256": "bc8863de58fcec03c5e5b2caf184659b5216f30558f99b44e48764c87cf10c22",
+      "bytes": 5538,
+      "git_blob_sha1": "60ca44f92557d8682227cdfe5d1ccd1e5c1bac54"
+    },
+    {
+      "path": "firmware/src/app/plat_fm1.c",
+      "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7",
+      "bytes": 15628,
+      "git_blob_sha1": "78f46798c2316d989b12bfe0d5e7d8140dd0033d"
+    },
+    {
+      "path": "firmware/src/app/smk_arrows.h",
+      "sha256": "fc2907106c155feef7ef1cd53da41ef25f87ccb2a02135aa23c0e0deb43ef700",
+      "bytes": 3763,
+      "git_blob_sha1": "110cfe7fa6567015090da85ca98c7260e4044802"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "sha256": "b21c83aace675322c56ee84731cef430078f50307ccb86e12ffae5ebdf7a9f9b",
+      "bytes": 390108,
+      "git_blob_sha1": "eb911f58db83e417c67dd71576331803fa6c829e"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/settings/design-interaction-test.py",
+      "sha256": "7311b04640d26c4cd9c674cd445775d6349fe09861c8f9baa321494c1f9f8df3",
+      "bytes": 1031,
+      "git_blob_sha1": "0e20de5909dda3f5c37b9f2f162e729154217b70"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/settings/mapping.json",
+      "sha256": "f5d40d9ecbf52423ebfe4f95b65856e6d1f7e9bf411c9f6f44dac6797290fd5b",
+      "bytes": 6118,
+      "git_blob_sha1": "394f3abbc61d13d8a90b4def11bab3387f96745d"
+    },
+    {
+      "path": "tests/host/ui_settings_sections_test.c",
+      "sha256": "0791841a2ccfe52bc38fc3ed454d6f79389da6bc6ac659ae2da5cb642494b1b8",
+      "bytes": 4301,
+      "git_blob_sha1": "6b1a50fceff709b07f7b27a9c60b25babb75d69b"
+    },
+    {
+      "path": "physical-route-evidence.md",
+      "sha256": "38e042dd13822c1c8f0e4ff4bd63fe1ff39b560cffc6a73b919b4993e93f247d",
+      "bytes": 3920,
+      "git_blob_sha1": null
+    },
+    {
+      "path": "plan/design-admission.md",
+      "sha256": "184b48b582b1a297e1c43cd62ad04edbd9bd878e0b0bc8f87875e76f03107919",
+      "bytes": 115094,
+      "git_blob_sha1": null
+    },
+    {
+      "path": "plan/first-tranche-manifest.json",
+      "sha256": "74bb34843148b6f4413b04b0ff175a1d0d4dc24b632a8e05415a2c80af7efcab",
+      "bytes": 119855,
+      "git_blob_sha1": null
+    }
+  ],
+  "ownership": {
+    "writer": "A4/J37 isolated design owner",
+    "excluded": [
+      "CP1",
+      "capture-policy",
+      "firmware runtime",
+      "shared #891 files",
+      "catalogs",
+      "release assets"
+    ],
+    "independent_review": "separate read-only reviewers; one writer"
+  },
+  "current_reference_inventory": {
+    "historical_mapping_rows": 28,
+    "SMK37_normal_rows": 35,
+    "SMK37_developer_nonclip_rows": 36,
+    "preserved_existing_refs": 28,
+    "source_added_rows": [
+      "TUNE",
+      "909 ON/OFF",
+      "808 ON/OFF",
+      "BREAK ON/OFF",
+      "CHICAGO ON/OFF",
+      "MIAMI ON/OFF",
+      "QUEUE MUTES",
+      "NOTE LOCK"
+    ]
+  }
+}

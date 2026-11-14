@@ -1,0 +1,580 @@
+{
+  "evidence": "HISTORICAL_REAL_FIRMWARE_EMULATOR",
+  "url": "https://joakimeriksson.github.io/fm1-emu/smk37/?package=https%3A%2F%2Fgobbajogger.github.io%2Fx0x37-for-Loopy-Pro_nightly%2Fartifacts%2Fnightly-dev%2F5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a%2Fx0x37-elite-dev.fwsc&name=DnBOX+0.0.25.1+Elite&mhz=360&embed=1",
+  "browser": "154.0.8037.57",
+  "clock_MHz": 360,
+  "runtime_version": "Published runtime; no semantic version displayed. Exact JS/WASM/worklet digests identify observed version.",
+  "assets": [
+    {
+      "url": "https://joakimeriksson.github.io/fm1-emu/smk37/main.js",
+      "sha256": "a4cc8a8be499278fba7594219248231221d296f76d7aa471e616cfa51fd0bf0a",
+      "bytes": 57774,
+      "status": 200
+    },
+    {
+      "url": "https://joakimeriksson.github.io/fm1-emu/smk37/persistence.js",
+      "sha256": "8f104e713f5ba6230a61e36a0e44b2711c6cb5d111e58410de3e163d4104aae4",
+      "bytes": 8033,
+      "status": 200
+    },
+    {
+      "url": "https://joakimeriksson.github.io/fm1-emu/smk37/tryout.js",
+      "sha256": "0bc16e4d31203caa838e8c800ae1e523e31713264eb7b38c23c5a187ddad4a15",
+      "bytes": 3859,
+      "status": 200
+    },
+    {
+      "url": "https://joakimeriksson.github.io/fm1-emu/smk37/fwsc.js",
+      "sha256": "aab743b5eb68a29cdacc7af0368d8269b66cd72685018e9f435032e19ce1a652",
+      "bytes": 10828,
+      "status": 200
+    },
+    {
+      "url": "https://joakimeriksson.github.io/fm1-emu/smk37/fm1_web.wasm",
+      "sha256": "1a996196b256c5f61a9386de62c48edcd2c1af536eef1ef2866caf258876588b",
+      "bytes": 3427886,
+      "status": 200
+    },
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc",
+      "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "bytes": 651721,
+      "status": 200
+    }
+  ],
+  "worklet": {
+    "status": 200,
+    "bytes": 13881,
+    "sha256": "ac56451ceef4406fb73d1f731a2d4950d76031c5d577f877729da338786e435c"
+  },
+  "frames": [
+    {
+      "id": "00-boot",
+      "action": "Start user gesture, await boot",
+      "observation": {
+        "events": [],
+        "ms": 8985
+      },
+      "lcd_sha256": "0cdafc9ede5bf55d6bc0fed2fb74a8f791204dfe5b106ef8d1eb5096656cd660"
+    },
+    {
+      "id": "01-global",
+      "action": "GLOBE physical pointer down180ms then release",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          }
+        ],
+        "ms": 10622
+      },
+      "lcd_sha256": "36b07f0671d727d81063ce77434f64474f594478e78453844747bd26dc094759"
+    },
+    {
+      "id": "02-held-enter",
+      "action": "Physical > held1400ms, not yet released",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          },
+          {
+            "wall": 12792.199999999953,
+            "type": "key",
+            "id": 40,
+            "down": true
+          }
+        ],
+        "ms": 13128
+      },
+      "lcd_sha256": "24d9c7e166b29ab131d406b577c147a70890dccdfda3932a22a4e460fddee285"
+    },
+    {
+      "id": "03-fresh-increment",
+      "action": "Release entry hold; fresh > down180ms then release",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          },
+          {
+            "wall": 12792.199999999953,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15328.400000000023,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 15553.5,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15753.699999999953,
+            "type": "key",
+            "id": 40,
+            "down": false
+          }
+        ],
+        "ms": 14661
+      },
+      "lcd_sha256": "b57b16730409a9f09b8c68109a9e0cbffe8c06e903498af03e1e7ac1ea94154b"
+    },
+    {
+      "id": "04-select-next",
+      "action": "Documented K2 adapter: four ArrowUp pulses,100ms down/100ms gap",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          },
+          {
+            "wall": 12792.199999999953,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15328.400000000023,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 15553.5,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15753.699999999953,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 17091.900000000023,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17318.099999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17534.199999999953,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17752.599999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          }
+        ],
+        "ms": 16854
+      },
+      "lcd_sha256": "2966543a6e04dae4ed4a2cd8bc470afe642a53fac1f898b7c5f10f8ddb33b379"
+    },
+    {
+      "id": "05-algorithm",
+      "action": "Documented K3 adapter: four period pulses,100ms down/100ms gap",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          },
+          {
+            "wall": 12792.199999999953,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15328.400000000023,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 15553.5,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15753.699999999953,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 17091.900000000023,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17318.099999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17534.199999999953,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17752.599999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 18958.699999999953,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19182.79999999993,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19404.5,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19635.900000000023,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          }
+        ],
+        "ms": 18734
+      },
+      "lcd_sha256": "1c21f7e6aab94feddcfc7b5fdd3529fba410b8221035df35acacc70bb42f1de5"
+    },
+    {
+      "id": "06-back",
+      "action": "Physical < down180ms then release",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          },
+          {
+            "wall": 12792.199999999953,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15328.400000000023,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 15553.5,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15753.699999999953,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 17091.900000000023,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17318.099999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17534.199999999953,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17752.599999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 18958.699999999953,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19182.79999999993,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19404.5,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19635.900000000023,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 20887.5,
+            "type": "key",
+            "id": 39,
+            "down": true
+          },
+          {
+            "wall": 21071.199999999953,
+            "type": "key",
+            "id": 39,
+            "down": false
+          }
+        ],
+        "ms": 19953
+      },
+      "lcd_sha256": "06130e27b33ad1a2f215e8f8e1f05270174e1c8cd7a72b968df7b9dedc606250"
+    },
+    {
+      "id": "07-exit",
+      "action": "GLOBE down180ms then release",
+      "observation": {
+        "events": [
+          {
+            "wall": 11487.79999999993,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 11689.599999999977,
+            "type": "key",
+            "id": 47,
+            "down": false
+          },
+          {
+            "wall": 12792.199999999953,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15328.400000000023,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 15553.5,
+            "type": "key",
+            "id": 40,
+            "down": true
+          },
+          {
+            "wall": 15753.699999999953,
+            "type": "key",
+            "id": 40,
+            "down": false
+          },
+          {
+            "wall": 17091.900000000023,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17318.099999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17534.199999999953,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 17752.599999999977,
+            "type": "enc",
+            "enc": 1,
+            "clicks": 1
+          },
+          {
+            "wall": 18958.699999999953,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19182.79999999993,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19404.5,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 19635.900000000023,
+            "type": "enc",
+            "enc": 2,
+            "clicks": 1
+          },
+          {
+            "wall": 20887.5,
+            "type": "key",
+            "id": 39,
+            "down": true
+          },
+          {
+            "wall": 21071.199999999953,
+            "type": "key",
+            "id": 39,
+            "down": false
+          },
+          {
+            "wall": 22234,
+            "type": "key",
+            "id": 47,
+            "down": true
+          },
+          {
+            "wall": 22418.699999999953,
+            "type": "key",
+            "id": 47,
+            "down": false
+          }
+        ],
+        "ms": 21310
+      },
+      "lcd_sha256": "f1a1d23e0a3a36f4575505545d67d7ce91b8578979e887bfb5e94b5eb047c554"
+    }
+  ],
+  "limits": [
+    "Historical25.1 only; no proposed/current firmware execution",
+    "Observed LCD and adapter events; no audio/tail/timing qualification",
+    "First zero-duration click attempt did not change LCD; rerun used180ms holds",
+    "No device inputs or writes",
+    "Browser launch used ignore_https_errors because initial public-page load reported ERR_CERT_AUTHORITY_INVALID in this managed environment"
+  ],
+  "observations": [
+    {
+      "frames": [
+        "01-global",
+        "02-held-enter"
+      ],
+      "observed": "Real LCD: GLOBAL six categories, then MIDI + CLOCK first CLOCK SOURCE AUTO after held >. Held entry did not change first value."
+    },
+    {
+      "frames": [
+        "03-fresh-increment",
+        "04-select-next",
+        "05-algorithm"
+      ],
+      "observed": "Real LCD: fresh > after200ms release gap changed CLOCK SOURCE AUTO to INTERNAL. Four documented K2 adapter pulses moved focus from first CLOCK SOURCE to fourth909 MIDI CH row; four K3 pulses changed909 MIDI CH10 to13. Adapter event count is not a calibrated mechanical-detent/timing claim."
+    },
+    {
+      "frames": [
+        "06-back",
+        "07-exit"
+      ],
+      "observed": "Real LCD: < returned GLOBAL with MIDI + CLOCK focused; GLOBE returned909 SEQ."
+    }
+  ],
+  "initial_attempt": {
+    "outcome": "NOT_A_PASS",
+    "detail": "Zero-duration mouse clicks did not change LCD. First180ms run entered/backed/exited; release-to-freshpress gap14ms left fresh > unqualified. Final rerun adds200ms release gap and four encoder pulses; earlier screenshots retained privately."
+  }
+}

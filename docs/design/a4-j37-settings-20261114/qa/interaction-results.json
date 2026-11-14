@@ -1,0 +1,281 @@
+{
+  "evidence": "SIMULATED_DESIGN_MODEL_AND_CANVAS_RENDER",
+  "browser": "154.0.8037.57",
+  "command": "python3 verify.py",
+  "passed": 67,
+  "failed": 0,
+  "page_errors": [],
+  "results": [
+    {
+      "check": "six categories / 36 inventoried source refs",
+      "passed": true
+    },
+    {
+      "check": "first category does not wrap",
+      "passed": true
+    },
+    {
+      "check": "last category does not wrap",
+      "passed": true
+    },
+    {
+      "check": "held category entry does not run action",
+      "passed": true
+    },
+    {
+      "check": "held entry never edits first CLOCK SOURCE",
+      "passed": true
+    },
+    {
+      "check": "fresh > edits one value",
+      "passed": true
+    },
+    {
+      "check": "no repeat before 400ms",
+      "passed": true
+    },
+    {
+      "check": "repeat at 400ms",
+      "passed": true
+    },
+    {
+      "check": "held repeat saturates at upper bound",
+      "passed": true
+    },
+    {
+      "check": "K3 decrements EXTERNAL to INTERNAL",
+      "passed": true
+    },
+    {
+      "check": "< backs and consumes repeat without value decrement",
+      "passed": true
+    },
+    {
+      "check": "re-entry retains row",
+      "passed": true
+    },
+    {
+      "check": "lower value does not wrap",
+      "passed": true
+    },
+    {
+      "check": "last MIDI row, scroll and boundary",
+      "passed": true
+    },
+    {
+      "check": "PATCH restores category and re-entry preserves scroll",
+      "passed": true
+    },
+    {
+      "check": "category 0 count",
+      "passed": true
+    },
+    {
+      "check": "category 0 focus restored",
+      "passed": true
+    },
+    {
+      "check": "category 1 count",
+      "passed": true
+    },
+    {
+      "check": "category 1 focus restored",
+      "passed": true
+    },
+    {
+      "check": "category 2 count",
+      "passed": true
+    },
+    {
+      "check": "category 2 focus restored",
+      "passed": true
+    },
+    {
+      "check": "category 3 count",
+      "passed": true
+    },
+    {
+      "check": "category 3 focus restored",
+      "passed": true
+    },
+    {
+      "check": "category 4 count",
+      "passed": true
+    },
+    {
+      "check": "category 4 focus restored",
+      "passed": true
+    },
+    {
+      "check": "category 5 count",
+      "passed": true
+    },
+    {
+      "check": "category 5 focus restored",
+      "passed": true
+    },
+    {
+      "check": "action row 0 inert under encoder and held >",
+      "passed": true
+    },
+    {
+      "check": "action row 3 inert under encoder and held >",
+      "passed": true
+    },
+    {
+      "check": "action row 4 inert under encoder and held >",
+      "passed": true
+    },
+    {
+      "check": "question 1 opens without commit",
+      "passed": true
+    },
+    {
+      "check": "GLOBE ignored by question",
+      "passed": true
+    },
+    {
+      "check": "question 1 cancellation returns exact row",
+      "passed": true
+    },
+    {
+      "check": "question 3 opens without commit",
+      "passed": true
+    },
+    {
+      "check": "GLOBE ignored by question",
+      "passed": true
+    },
+    {
+      "check": "question 3 cancellation returns exact row",
+      "passed": true
+    },
+    {
+      "check": "question 4 opens without commit",
+      "passed": true
+    },
+    {
+      "check": "GLOBE ignored by question",
+      "passed": true
+    },
+    {
+      "check": "question 4 cancellation returns exact row",
+      "passed": true
+    },
+    {
+      "check": "deliberate SAVE activation exactly once, simulated only",
+      "passed": true
+    },
+    {
+      "check": "SAVE is labelled as request, without clearing dirty",
+      "passed": true
+    },
+    {
+      "check": "deliberate RESET confirm exactly once, simulated only",
+      "passed": true
+    },
+    {
+      "check": "clean LOAD has direct request cue",
+      "passed": true
+    },
+    {
+      "check": "clean LOAD requests once without a question",
+      "passed": true
+    },
+    {
+      "check": "dirty LOAD asks without another request",
+      "passed": true
+    },
+    {
+      "check": "dirty LOAD cancel restores exact row",
+      "passed": true
+    },
+    {
+      "check": "modal fully masks underlying focus strip",
+      "passed": true
+    },
+    {
+      "check": "clip SCALE and arrows cannot run SAVE",
+      "passed": true
+    },
+    {
+      "check": "K3 works in clip menu",
+      "passed": true
+    },
+    {
+      "check": "developer nonclip pad colours included",
+      "passed": true
+    },
+    {
+      "check": "clip hides PAD COLOURS",
+      "passed": true
+    },
+    {
+      "check": "non-SMK Bluetooth category absent",
+      "passed": true
+    },
+    {
+      "check": "non-SMK clip channel absent",
+      "passed": true
+    },
+    {
+      "check": "STATUS retains READY on native LCD and read-only footer",
+      "passed": true
+    },
+    {
+      "check": "BATTERY retains USB POWER on native LCD",
+      "passed": true
+    },
+    {
+      "check": "long NAME read-only and clipped to value region",
+      "passed": true
+    },
+    {
+      "check": "full two-peer identity visible within native detail strip",
+      "passed": true
+    },
+    {
+      "check": "Tune lower bound 0 raw / -40.0 Hz",
+      "passed": true
+    },
+    {
+      "check": "Tune upper bound 127 raw / +39.3 Hz",
+      "passed": true
+    },
+    {
+      "check": "navigation preserves transport but exposes retired local key",
+      "passed": true
+    },
+    {
+      "check": "GLOBE restores original view",
+      "passed": true
+    },
+    {
+      "check": "PLAY cancels question and stops previously running transport",
+      "passed": true
+    },
+    {
+      "check": "actual pointer controls navigate to Bluetooth",
+      "passed": true
+    },
+    {
+      "check": "actual PATCH click restores focus",
+      "passed": true
+    },
+    {
+      "check": "keyboard held entry consumed without edit",
+      "passed": true
+    },
+    {
+      "check": "keyboard fresh hold uses repeat timer",
+      "passed": true
+    },
+    {
+      "check": "edited EXTERNAL source shows waiting fixture clock",
+      "passed": true
+    }
+  ],
+  "frames": 59,
+  "firmware_tests_run": false,
+  "audio_observed": false
+}

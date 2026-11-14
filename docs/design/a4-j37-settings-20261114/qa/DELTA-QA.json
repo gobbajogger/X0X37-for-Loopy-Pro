@@ -1,0 +1,235 @@
+{
+  "utc": "2026-11-14T12:22:17.705574+00:00",
+  "role": "Independent read-only presentation delta QA",
+  "html_sha256": "9e49cb6e02772d2c601685266d1c0a007f8d0dbf02fd2c6bde843b967bda4992",
+  "readme_sha256": "61375d9612744d7815b03f94e55e2881b5dd512f9e2825d94d16ba6496dceb72",
+  "command": "python3 delta-check.py",
+  "exit_code": 0,
+  "checks": {
+    "original_html_sha": true,
+    "served_html_sha": true,
+    "served_readme_matches_original": true,
+    "note_lock_edit_and_runtime_cue": true,
+    "responsive_aria_label": true,
+    "readme_desktop2_export3_distinction": true,
+    "desktop_2x_display_3x_backing": true,
+    "mobile_scales_to_fit": true,
+    "no_js_errors": true
+  },
+  "passed": 9,
+  "failed": 0,
+  "note_lock": {
+    "name": "NOTE LOCK \u00b7 Current OFF",
+    "bounds": [
+      {
+        "text": "CHICAGO B \u00b7 P1",
+        "shown": "CHICAGO B \u00b7 P1",
+        "x": 8,
+        "y": 6,
+        "w": 92.7158203125,
+        "h": 11,
+        "max": 218
+      },
+      {
+        "text": "RUN INT120",
+        "shown": "RUN INT120",
+        "x": 161.7744140625,
+        "y": 6,
+        "w": 66.2255859375,
+        "h": 11,
+        "max": 67.2255859375
+      },
+      {
+        "text": "AUDIO",
+        "shown": "AUDIO",
+        "x": 8,
+        "y": 30,
+        "w": 39.13330078125,
+        "h": 13,
+        "max": 218
+      },
+      {
+        "text": "10 / 10",
+        "shown": "10 / 10",
+        "x": 181.64208984375,
+        "y": 47,
+        "w": 46.35791015625,
+        "h": 11,
+        "max": 47.35791015625
+      },
+      {
+        "text": "808",
+        "shown": "808",
+        "x": 12,
+        "y": 64,
+        "w": 19.86767578125,
+        "h": 11,
+        "max": 194.7548828125
+      },
+      {
+        "text": "ON",
+        "shown": "ON",
+        "x": 214.7548828125,
+        "y": 64,
+        "w": 13.2451171875,
+        "h": 11,
+        "max": 15.2451171875
+      },
+      {
+        "text": "BREAK",
+        "shown": "BREAK",
+        "x": 12,
+        "y": 86,
+        "w": 33.11279296875,
+        "h": 11,
+        "max": 194.7548828125
+      },
+      {
+        "text": "ON",
+        "shown": "ON",
+        "x": 214.7548828125,
+        "y": 86,
+        "w": 13.2451171875,
+        "h": 11,
+        "max": 15.2451171875
+      },
+      {
+        "text": "CHICAGO",
+        "shown": "CHICAGO",
+        "x": 12,
+        "y": 108,
+        "w": 46.35791015625,
+        "h": 11,
+        "max": 194.7548828125
+      },
+      {
+        "text": "ON",
+        "shown": "ON",
+        "x": 214.7548828125,
+        "y": 108,
+        "w": 13.2451171875,
+        "h": 11,
+        "max": 15.2451171875
+      },
+      {
+        "text": "MIAMI",
+        "shown": "MIAMI",
+        "x": 12,
+        "y": 130,
+        "w": 33.11279296875,
+        "h": 11,
+        "max": 194.7548828125
+      },
+      {
+        "text": "ON",
+        "shown": "ON",
+        "x": 214.7548828125,
+        "y": 130,
+        "w": 13.2451171875,
+        "h": 11,
+        "max": 15.2451171875
+      },
+      {
+        "text": "QUEUE MUTES",
+        "shown": "QUEUE MUTES",
+        "x": 12,
+        "y": 152,
+        "w": 72.84814453125,
+        "h": 11,
+        "max": 188.13232421875
+      },
+      {
+        "text": "OFF",
+        "shown": "OFF",
+        "x": 208.13232421875,
+        "y": 152,
+        "w": 19.86767578125,
+        "h": 11,
+        "max": 21.86767578125
+      },
+      {
+        "text": "NOTE LOCK",
+        "shown": "NOTE LOCK",
+        "x": 12,
+        "y": 174,
+        "w": 59.60302734375,
+        "h": 11,
+        "max": 188.13232421875
+      },
+      {
+        "text": "OFF",
+        "shown": "OFF",
+        "x": 208.13232421875,
+        "y": 174,
+        "w": 19.86767578125,
+        "h": 11,
+        "max": 21.86767578125
+      },
+      {
+        "text": "K3 \u2212/+; runtime, not saved",
+        "shown": "K3 \u2212/+; runtime, not saved",
+        "x": 8,
+        "y": 206,
+        "w": 172.1865234375,
+        "h": 11,
+        "max": 218
+      },
+      {
+        "text": "< / PATCH back  GLOBE exit",
+        "shown": "< / PATCH back  GLOBE exit",
+        "x": 8,
+        "y": 225,
+        "w": 156.533203125,
+        "h": 10,
+        "max": 218
+      }
+    ],
+    "rows": [
+      "OUTPUT",
+      "USB AUDIO",
+      "TUNE",
+      "909",
+      "808",
+      "BREAK",
+      "CHICAGO",
+      "MIAMI",
+      "QUEUE MUTES",
+      "NOTE LOCK"
+    ],
+    "value": 0
+  },
+  "desktop_enlarged_canvas": {
+    "width": 480,
+    "height": 480,
+    "backingWidth": 720,
+    "backingHeight": 720,
+    "aria": "Responsive enlarged display; three-times pixel export"
+  },
+  "mobile_enlarged_canvas": {
+    "width": 334,
+    "height": 334,
+    "backingWidth": 720,
+    "backingHeight": 720,
+    "viewportWidth": 390
+  },
+  "page_errors": [],
+  "diff": "FINAL-PRESENTATION.diff",
+  "prior_qa": {
+    "receipt": "INDEPENDENT-QA.json",
+    "sha256": "ee3919aa1571fbc186d92cd59f16ea11802cc533a907204b47a1a9c96f7804c7",
+    "html_sha256": "27f0f52b0387d0992882244e88c90d330b36153c7ff1f4478d9761599f4f4d66",
+    "model_checks_passed": 67,
+    "independent_checks_passed": 18,
+    "reused_not_rerun": true
+  },
+  "limits": [
+    "Presentation delta checked only. Prior 67 model plus 18 independent checks remain evidence for the frozen prior artifact; no broad rerun performed.",
+    "No shared design edits, emulator rerun, firmware/native build or physical-device/audio tests."
+  ],
+  "visual_inspection": {
+    "tool": "view_image",
+    "file": "qa/final-note-lock-browser.png",
+    "observation": "NOTE LOCK footer visibly retains K3 minus/plus with runtime/not saved cue in native240 and enlarged display; no clipping or overlap detected."
+  },
+  "diff_inspection": "Only two HTML substitutions versus prior verified copy: enlarged canvas aria-label and runtime-scope footer text. Navigation/source/model logic unchanged by inspected diff."
+}
