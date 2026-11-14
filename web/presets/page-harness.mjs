@@ -253,6 +253,48 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
     expect(ui.$("session-list").children.length === 0, "Source-conflict preview mutated session");
   });
 
+  await check("explicit target accepts actual engine and preserves provenance warning and downloads", async () => {
+    for (const [engine, provenance] of [["chicago",2],["miami",1]]) {
+      const ui=environment(), b=makePreset(engine); b[21]=provenance;
+      new DataView(b.buffer).setUint32(16,codec.crc32(b,true),true);
+      ui.$("target").value=engine;
+      await ui.choose(ui.file("provenance.dnpr",b));
+      expect(!ui.$("preview").hidden, "Actual-engine target rejected valid provenance");
+      const warning=treeText(ui.$("preview-warnings"));
+      expect(warning.includes("Original engine differs from record engine") &&
+        warning.includes("provenance") && warning.includes("actual record engine") &&
+        !warning.includes("blocked unless both agree"), "Misleading target/provenance warning");
+      expect(ui.$("session-list").children.length===0, "Preview changed session");
+      ui.click("keep");
+      expect(ui.$("session-list").children.length===1, "Keep did not accept actual engine");
+      expect(treeText(ui.$("selected-warnings")).includes("provenance"), "Provenance warning lost after Keep");
+      ui.click("save-file");
+      expect(String(await ui.selectedDownload())===String(b), "Provenance file bytes changed");
+    }
+  });
+
+  await check("rejected target and invalid provenance/schema/CRC cannot enter pending or replace session", async () => {
+    for (const [engine, provenance, wrong] of [["chicago",2,"miami"],["miami",1,"chicago"]]) {
+      const ui=environment(), b=makePreset(engine); b[21]=provenance;
+      new DataView(b.buffer).setUint32(16,codec.crc32(b,true),true);
+      await ui.choose(ui.file("existing.dnpr",makePreset(engine))); ui.click("keep");
+      const retained=ui.$("session-list").children[0];
+      for (const [at,value,code] of [[null,null,"WRONG ENGINE"],[21,255,"BAD FILE"],[8,2,"NEWER DATA"],[100,255,"BAD FILE"]]) {
+        ui.$("target").value=at===null ? wrong : engine;
+        const bad=Uint8Array.from(b);
+        if (at!==null) { bad[at]=value; if(at!==100) new DataView(bad.buffer).setUint32(16,codec.crc32(bad,true),true); }
+        await ui.choose(ui.file("valid.dnpr",makePreset(ui.$("target").value)),ui.file("bad.dnpr",bad));
+        expect(ui.$("preview").hidden && ui.$("session-list").children[0]===retained &&
+          ui.$("session-list").children.length===1, "Refusal mutated pending/session");
+        expect(ui.$("status").textContent.includes(code), "Wrong rejection code");
+        ui.click("keep");
+        expect(ui.$("session-list").children.length===1, "Rejected bytes remained pending");
+        ui.click("save-file");
+        expect(String(await ui.selectedDownload())===String(makePreset(engine)), "Refusal changed existing bytes/selection");
+      }
+    }
+  });
+
   await check("model filename conflict is blocked; model does not prove device compatibility", async () => {
     const ui=environment(), a=makePreset("chicago"); ui.$("model").value="pro";
     await ui.choose(ui.file("owner.elite.chicago.dnpr",a));

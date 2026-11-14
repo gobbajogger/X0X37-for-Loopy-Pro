@@ -46,7 +46,7 @@ function appendMeta(element, record) {
 function appendWarnings(el, record) {
   const warnings = sampleWarnings(record);
   if (record.originalEngine && record.originalEngine !== record.engineId)
-    warnings.unshift("Original engine differs from record engine. Import to a target engine is blocked unless both agree.");
+    warnings.unshift("Original engine differs from record engine. It is retained as provenance. Target checks use the actual record engine; no conversion is performed.");
   if (record.isFactoryDerived)
     warnings.unshift("FACTORY EXPORT OFF. You can inspect this file, but cannot download or send factory-derived bytes.");
   if (!warnings.length) { el.hidden = true; el.replaceChildren(); return; }

@@ -103,10 +103,10 @@ export function parseDnpr(input, options = {}) {
     fail("BAD FILE", "Invalid provenance fields");
   if (factoryIndex > spec.factory || (origin === 1 && factoryIndex === 0))
     fail("BAD FILE", "Invalid factory provenance");
-  // For import to a target we require both record and original engine to match.
-  // This is intentionally stricter than C's original-engine-only import helper.
-  if (expectedId && (engineId !== expectedId || (originalEngine && originalEngine !== expectedId)))
-    fail("WRONG ENGINE", "Target differs from record or original engine");
+  // Like native preset_record_import, target eligibility follows the actual engine.
+  // Recognized originalEngine remains provenance; it does not authorize conversion.
+  if (expectedId && engineId !== expectedId)
+    fail("WRONG ENGINE", "Target differs from actual record engine");
   const hint = explicitModelHint(options.fileName || "");
   if (options.targetModel != null && !["elite", "pro"].includes(options.targetModel))
     fail("DEVICE UNVERIFIED", "Unknown target model");
