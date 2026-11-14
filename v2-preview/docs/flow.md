@@ -72,7 +72,9 @@ flowchart TB
 
 ---
 
-## 2. First use, after a confirmed install
+## 2. First use, after a confirmed install (historical sketch; superseded)
+
+**Do not implement or teach the diagram below.** It was based on an FM-1 tour and is superseded by the S25/S26 source mapping in [journeys-20261114.md](journeys-20261114.md), J2/J3. In particular, BREAK is **HOME black key 3** in both pinned SMK source versions (HOME black key 5 is a different part). The draft SMK manual in #884 describes current controls but is not owner-approved firmware UX or a hardware test. The earlier PNG `flow-first.png` is preserved as an unapproved historical rendering.
 
 Grounded in the production playing manual, with SMK-37 names from `SMK37.md`, and with the nightly manual’s warning that older X0X documentation may describe a different device. Steps that are FM-1-specific and not restated for the SMK-37 are marked UNVERIFIED on the page.
 
