@@ -2588,6 +2588,43 @@ static void fm1_main(void)
     }
 }
 
+#if DNBOX_PRESET_MEASURE_STAGE
+/* Measurement hook: one init-time reference so --gc-sections and LTO keep
+ * the selected codec stage. The keep[] pointers themselves are volatile
+ * (not the pointed-to type), so the address stores stay live. Not in ui.c,
+ * not in any audio callback, not in the main loop. Results are ignored. */
+#include "preset_record.h"
+__attribute__((used, noinline))
+static void preset_measure_touch(void)
+{
+    void *volatile keep[12];
+    unsigned n = 0;
+    keep[n++] = (void *)preset_record_load;
+#if DNBOX_PRESET_MEASURE_STAGE >= 2
+    keep[n++] = (void *)preset_record_decode;
+    keep[n++] = (void *)preset_record_verify_sample;
+    keep[n++] = (void *)preset_record_verify_samples;
+    keep[n++] = (void *)preset_record_import;
+    keep[n++] = (void *)preset_slot_find_empty;
+#endif
+#if DNBOX_PRESET_MEASURE_STAGE >= 3
+    keep[n++] = (void *)preset_record_encode;
+    keep[n++] = (void *)preset_commit_encode;
+    keep[n++] = (void *)preset_commit_decode;
+    keep[n++] = (void *)preset_commit_winner;
+    keep[n++] = (void *)preset_commit_previous;
+#endif
+#if DNBOX_PRESET_MEASURE_STAGE >= 4
+    keep[n++] = (void *)preset_record_export;
+#endif
+    {
+        void *volatile sink = keep[0];
+        (void)sink;
+        (void)n;
+    }
+}
+#endif
+
 void fm1_cstart(void)
 {
     uint32_t *s, *d, p3, src, wdt;
@@ -2633,6 +2670,9 @@ void fm1_cstart(void)
     fm1_boot.p3_rst = (uint8_t)p3;
     fm1_boot.rst_src = src;
     fm1_boot.wdt_con = (uint8_t)wdt;
+#if DNBOX_PRESET_MEASURE_STAGE
+    preset_measure_touch();             /* once at init; never on the audio path */
+#endif
     fm1_main();
     for (;;)
         ;

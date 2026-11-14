@@ -211,4 +211,12 @@ _Static_assert(sizeof st_buf >= PLAT_STORE_MAX, "project object fits the store b
 #include "app/smc_mixer.c"
 #endif
 #include "app/editor.c"
+#if DNBOX_PRESET_MEASURE_STAGE
+/* Measurement only. Stage 0 (the default, or an unset define) does not
+ * include the codec, so the image stays byte-identical to the base. */
+#ifndef PRESET_RECORD_NO_STRINGS
+#define PRESET_RECORD_NO_STRINGS 1
+#endif
+#include "app/preset_record.c"
+#endif
 #include "app/main_fm1.c"
