@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "scope": "source/test/docs/hashmanifest and scalar public-source results only",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 20,
+      "sha256": "c7cd0fc55d4b88bc4ed87b1cdc33670d9046174ab762188a0f2ce10290bb56e0"
+    },
+    {
+      "path": "README.md",
+      "bytes": 9230,
+      "sha256": "3115f669f3f06fb3230a07402daf37df78796171066d5eb60e0e3b85d9b11804"
+    },
+    {
+      "path": "RESULTS.json",
+      "bytes": 3324,
+      "sha256": "fe2ca81f0a65c85a9f9ff0521e7371a65f6a8b4bf5afc8d80456d81849a4e0cd"
+    },
+    {
+      "path": "SOURCE-INPUTS.json",
+      "bytes": 21305,
+      "sha256": "c08dbf689ce4295acd565f52a16b5af32835edab4695133c012da9a7dd4f8020"
+    },
+    {
+      "path": "pack_tables.py",
+      "bytes": 9869,
+      "sha256": "1b59260c615b23417ca5ac2f51336d9d9e361eb9f6320729049a9e24d30d7753"
+    },
+    {
+      "path": "run_tests.py",
+      "bytes": 6040,
+      "sha256": "a5b1a1d7a0a5fa062b9c21d07e740bd676481d35f8ac5ec17fde848a112329a7"
+    },
+    {
+      "path": "tests/alias_graph_test.cpp",
+      "bytes": 16120,
+      "sha256": "29c8b4231c88ac20ef9164c3655f566295119797cbb53f48cb4099731cd6c9a1"
+    },
+    {
+      "path": "tests/test_compile_bindings.py",
+      "bytes": 3735,
+      "sha256": "eff7b225ec50b7169c50101d928db93694621f7301b8a1a521a592bce78ddf02"
+    },
+    {
+      "path": "tests/test_packer.py",
+      "bytes": 5490,
+      "sha256": "71b5a55fb5e58173078cc0dedcd9a0980a660ff9d2575dfcaae62c54443dc4a2"
+    },
+    {
+      "path": "verify_closure.py",
+      "bytes": 2404,
+      "sha256": "c0557f85f34fde9c6f6515ded354d04db9055241ca8dc55f2cd05701ed2db18f"
+    }
+  ]
+}
