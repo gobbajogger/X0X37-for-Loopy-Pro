@@ -50,7 +50,7 @@ export function heldRouter(send) {
   };
 }
 
-export function mountControls(doc = document) {
+export function mountControls(doc = document, win = window) {
   const root = doc.getElementById('dnbox-controls');
   const keys = doc.getElementById('dnbox-keys');
   const pads = doc.getElementById('dnbox-pads');
@@ -193,7 +193,7 @@ export function mountControls(doc = document) {
     });
   }
 
-  window.addEventListener('blur',drop);
+  win.addEventListener('blur',drop);
   doc.addEventListener('visibilitychange',()=>{if(doc.hidden)drop();});
   doc.addEventListener('dnbox:booting',()=>enable(false));
   doc.addEventListener('dnbox:booted',e=>enable(e.detail?.board===1));
