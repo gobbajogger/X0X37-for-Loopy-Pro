@@ -1,0 +1,70 @@
+{
+  "schema": "touchosc-feedback-delivery-receipt/v1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "chat/touchosc-feedback-lifetime-20261114",
+  "implementation_commit": "c14761e1ef0fb2c72127d731e4295f9c6d14908a",
+  "implementation_tree": "93c208e1ae691c9b5bc116ed8eafe71777ea4133",
+  "implementation_parent": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "source_lane": {
+    "branch": "lane/026-combined-20261112",
+    "verified_sha": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "unchanged": true
+  },
+  "verified_source_bytes": 3,
+  "verified_archive_bytes": true,
+  "archive": {
+    "path": "web/offline-sequencer/touchosc/evidence/20261114-feedback-repair/touchosc-feedback-repair-evidence.zip",
+    "git_blob": "d520374b068c977a65246e198c6ccf22d00e068f",
+    "size": 222994,
+    "sha256": "4bc0ba9ddc8caf59c4224ed6769adad381ff00241ae2dbcd5f2288d8b9190261"
+  },
+  "artifact_sha256": {
+    "tosc": "fd7b23ef77ba5b347c384be5a34cb29e64d6f3d69300e86ea164375d2d9d0617",
+    "xml": "df1b7077a7b3de598142126173c6e96fdba697828fca7ef44b0b6f222e7618c7"
+  },
+  "independent_review_sha256": "34df11e484b86db14c2c1f6691ef09d24f0b5ec2aa9dca31e9eed1765d6f3af9",
+  "packaging_review_sha256": "e7a9b2b1db6b266dc32e5ec28e866a210f7abe1931a0f704ba868920d6b9f996",
+  "proof": {
+    "lua_new_scenarios": "8 PASS plus original controller checks",
+    "old_controller": "Expected sensitivity FAIL7/8, exit1",
+    "packing": "4 PASS",
+    "actual_tosc": "206 matching comparisons, exit0",
+    "actual_xml": "8 matching comparisons, exit0",
+    "baseline_runtime": "Stale feedback reproduced; supplemental dirty-flag assertion FAIL, exit1 retained"
+  },
+  "pr": {
+    "status": "DENIED; not created",
+    "action": "Create non-draft public pull request",
+    "head": "chat/touchosc-feedback-lifetime-20261114",
+    "base": "lane/026-combined-20261112",
+    "title": "fix(touchosc): clear received-note feedback when disarming",
+    "automatic_approval_reason": "Opening a non-draft public pull request is an external commitment and publication step not explicitly authorized by the user; the user’s artifact-push approval does not clearly cover creating or submitting a PR.",
+    "retry_status": "Not retried; current user history checked and no TouchOSC PR authorization found. Do not use a draft, another API or another worker to bypass this denial. Retry only after materially new relevant explicit authorization, once known not to have executed.",
+    "required_approval": "Open the non-draft review PR in gobbajogger/X0X37-for-Loopy-Pro from chat/touchosc-feedback-lifetime-20261114 to lane/026-combined-20261112; no merge or release."
+  },
+  "source_blob_initial_denial": {
+    "status": "Resolved by one authorized retry after new verified owner instruction requiring Git preservation and rechecking public repository identity. No bypass."
+  },
+  "successor": {
+    "status": "PENDING; no new Work/Codex successor created or consumed",
+    "parent_thread": "01a1af1b-2207-7017-b4fb-4e7f6c2c90ea",
+    "producer_thread": "6af7fdc7-4680-8191-afa8-b98a685c30f4",
+    "reason": "No top-level Work/Codex creation/result-reader tool exposed. Saved supervisor liveness is unverified; no supported status-thread reader.",
+    "brief": "ZIP/successor-handoff.md",
+    "next_action": "Parent creates a qualified fresh Work/Codex successor for pending virtual endpoint lifecycle and actual touch cases; receiver verifies exact source/artifact hashes and inspects the fixed controller/findings as its first scoped action. Parent must read that action and final result. Preserve the PR denial unchanged.",
+    "source_writer_released": true
+  },
+  "remaining_unrun": [
+    "OS virtual endpoint disappearance/reappearance/reconnect",
+    "ALSA/CoreMIDI/IAC enumeration/reconnect",
+    "held-note RELEASE/channel change with independent actual touches",
+    "multitouch/local simultaneous notes",
+    "outside-release/cancel/focus loss",
+    "mobile/iPhone/macOS",
+    "physical MIDI/hardware"
+  ],
+  "safety": "Virtual MIDI only; no physical MIDI, paid licence, active-session disturbance, firmware/UI, ROADMAP, merge, force push or release. Lost-OFF transport limitation unchanged; no disconnected delivery promise.",
+  "processes": "Task-owned TouchOSC1174, Bridge peer1326 and Xvfb1164 stopped; original workspace checkout untouched and clean.",
+  "source_identity": "Default connected GitHub author/committer; no custom override.",
+  "note": "This receipt is a metadata-only follow-up on the implementation commit; controller/test/generated artifact bytes remain unchanged."
+}
