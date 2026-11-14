@@ -78,23 +78,3 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 |---|---|---|---|---|
 | #116 | Forget no request. This file is the sole list. Owner 2026-11-13 23:23 UTC+10: "did you add all my requests to roadmap so you would have to ask me a ton of stupid questions that were already answered"; 23:24: "can you find all the requests I've made so you can figure out on what's you supposed to work and what am I waiting for". | 122-list / #699 / #812 (2026-11-01) | IN PROGRESS | this PR |
 
-## W3
-
-**Live Git read (2026-11-14 11:20 UTC):** [PR #901](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/901), head `7bece9b819790600bb755e2900817b249d875567`, branch `lane/w3-web-dnpr-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
-
-**Current disposition:** Verified source-stage progress, not completed device transfer. Isolated parity correction [#915](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/915) is draft at `0472ca4ca75cf477be171554071f972f60dba88c`, stacked on unchanged #901 `7bece9b819790600bb755e2900817b249d875567`. Its frozen source received independent SCOPED ACCEPT; broader UX, integration and transport remain pending.
-
-**Owner:** Existing bounded [W3 parity producer](https://chatgpt.com/c/6af841f4-7a4c-8191-a8e2-069856ba70d1), owns only `wip/w3-explicit-target-parity-20261114`; incumbent W3 ownership remains unchanged. Task read at 11:25 UTC reports inProgress, not proof of later stage execution.
-
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
-
-**Next action:** Existing W3/incumbent QA consumes exact #915 changed closure and records acceptance/integration separately; do not repeat unchanged 548-assertion/native proof. Continue warning adjacency, deliberate focus and mixed eligible-only export under verified existing ownership. No deployment or device transfer inferred.
-
-**Observed intake and execution evidence:** [Committed receipt](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/0472ca4ca75cf477be171554071f972f60dba88c/web/presets/evidence/2026-11-14-explicit-target-parity.md), blob `977dd02c4456e1a8a55c960035c83f4be655da9f`, records exact source intake at 11:14:52.828438Z and original-source red reproduction at 11:16:08Z. Producer reports final Node 24/24 and Chromium 6/6; independent frozen-source reviewer checked identities, logs and screenshots without rerunning suites. This coordinator read the exact Git receipt and live PR head; did not rerun tests. Review-acceptance timestamp and incumbent next-stage consumption are unknown.
-
-**Preserved source section:** Later owner requests (2026-11-13)
-
-| # | Item | Owner source | Status | Link |
-|---|---|---|---|---|
-| W3 | Website and installer **preset file transfer**: upload and download of `.dnpr` files, plus the firmware-to-web contract. Draft implementation exists in #901; integrated system acceptance remains open. Installer QA retains acceptance criteria A1–A8 for integrated system acceptance. Web implementation is independent of plugin captures; Dot coordinates routing, not the transport implementation. | Same request as 26.8. An earlier research doc wrongly named Dot. | DRAFT #901 `7bece9b819790600bb755e2900817b249d875567`; proposal semantics/feasibility scoped PASS 6870119278. This proposal's actual visual/layout/browser behavior unassessed; rendered proposals need accessible internal review. Historical baseline tests are reused only within unchanged scope. Device handshake/storage/A1–A8 acceptance remains pending; implementation-consumption not established. The same F1/W3 seam disposition owns only uncovered cross-lane identity, precision, validation and round-trip questions. It does not establish device transfer or visual acceptance; admission is not receiver execution. | 26.8b; Website UX; FMB DNPR A1–A8 at [`e0c42135`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e0c42135) |
-
