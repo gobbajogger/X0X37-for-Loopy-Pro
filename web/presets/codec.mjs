@@ -170,6 +170,8 @@ export function ensureExportable(record) {
   return new Uint8Array(record.bytes);
 }
 export function sampleWarnings(record, inventory = null) {
+  if (record.engine === "808" && record.sampleRefs.length === 0)
+    return ["No sample references are recorded; the kit cannot be verified and may be incomplete."];
   return record.sampleRefs.flatMap((r, i) => {
     if (r.source === 0) return ["Sample " + (i + 1) + " is unassigned; the kit may be incomplete."];
     const key = r.source + ":" + r.index;

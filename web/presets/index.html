@@ -19,6 +19,7 @@
     h2 { font-size:1.12rem; margin:0 0 10px; }
     h3 { font-size:1rem; margin:18px 0 6px; }
     p { margin:10px 0; max-width:72ch; }
+    a { color:#ffce8c; }
     .muted, .help { color:var(--muted); font-size:.9rem; }
     .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,.9fr); gap:18px; align-items:start; margin-top:22px; }
     .panel { padding:22px; border:1px solid var(--edge); border-radius:12px; background:var(--panel); min-width:0; }
@@ -32,13 +33,16 @@
     button { cursor:pointer; min-height:44px; padding:9px 15px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#1c1e19; font-weight:750; }
     button.secondary { background:transparent; color:var(--ink); border-color:#718375; }
     button:disabled { opacity:.48; cursor:not-allowed; }
-    button:focus-visible, select:focus-visible, input:focus-visible, .drop:focus-visible { outline:3px solid #ffe2aa; outline-offset:3px; }
+    a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, .drop:focus-visible, #preview-title:focus-visible { outline:3px solid #ffe2aa; outline-offset:3px; }
     .actions { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin-top:18px; }
     .drop { padding:14px; border:1px dashed #79927d; border-radius:8px; }
     .drop.over { border-color:var(--accent); background:#2d3529; }
     #status { min-height:3em; border-left:3px solid var(--edge); padding:12px 14px; background:#141a15; white-space:pre-wrap; overflow-wrap:anywhere; margin:18px 0 0; }
     #status[data-type=error] { border-color:var(--fail); color:var(--fail); }
     #status[data-type=ok] { border-color:var(--ok); }
+    .local-status { border-left:3px solid var(--edge); padding:10px 12px; background:#141a15; overflow-wrap:anywhere; }
+    .local-status[data-type=error] { border-color:var(--fail); color:var(--fail); }
+    .local-status[data-type=ok] { border-color:var(--ok); }
     .meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 15px; margin:14px 0; }
     .meta div { border-bottom:1px solid var(--edge); padding:6px 0; min-width:0; overflow-wrap:anywhere; }
     dt { color:var(--muted); font-size:.8rem; }
@@ -49,8 +53,6 @@
     .preview-record { border-top:1px solid var(--edge); padding-top:8px; min-width:0; }
     .preview-record h3 { margin:2px 0; overflow-wrap:anywhere; }
     .preview-record .meta { margin:8px 0 6px; }
-    .preview-warning-record { overflow-wrap:anywhere; }
-    .preview-warning-record + .preview-warning-record { border-top:1px solid #8a6b45; margin-top:10px; padding-top:10px; }
     .records { display:grid; gap:8px; margin-top:14px; }
     .record { width:100%; text-align:left; border:1px solid var(--edge); background:#111a13; color:var(--ink); display:flex; justify-content:space-between; gap:12px; align-items:center; }
     .record[aria-pressed=true] { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent); }
@@ -70,6 +72,7 @@
   <header><div class="brand">DnBOX</div><div class="cols"><span class="pill">PRESET FILES</span><span class="muted">DNPR v1 · offline</span></div></header>
   <h1>Inspect before you load.</h1>
   <p class="muted">Read, check and back up user-made engine presets without changing the keyboard. The DnBOX device preset transport is not available yet. This page never writes to the instrument or uploads files to a server.</p>
+  <p class="help"><a href="../offline-sequencer/">Open the offline music editor</a> · The editor and this preset session keep separate local state.</p>
   <div class="layout">
     <section class="panel" aria-labelledby="open-title">
       <h2 id="open-title">01 / Open preset files</h2>
@@ -90,18 +93,19 @@
       <p id="status" role="status" aria-live="polite">Choose a file to inspect. Nothing is sent or saved automatically.</p>
     </section>
     <section class="panel" id="preview-panel" aria-labelledby="preview-title">
-      <h2 id="preview-title">02 / Review</h2>
+      <h2 id="preview-title" tabindex="-1">02 / Review</h2>
       <p id="preview-empty" class="muted">A validated file preview will appear here before it enters the session.</p>
       <div id="preview" hidden>
         <div id="preview-meta" class="meta"></div>
         <div id="preview-warnings" class="warning" hidden></div>
         <p class="help" id="preview-count"></p>
         <div class="actions"><button id="keep">Keep in browser session</button><button id="discard" class="secondary">Discard preview</button></div>
+        <p id="preview-status" class="local-status" hidden></p>
       </div>
     </section>
     <section class="panel full" aria-labelledby="library-title">
       <h2 id="library-title">03 / Browser session</h2>
-      <p class="help">Temporary file list, maximum 32 records. No keyboard slots are reserved. Refreshing closes this session; download files you want to keep. Duplicate names never overwrite another file here.</p>
+      <p class="help">Temporary file list, maximum 32 records. No keyboard slots are reserved. Refreshing or closing this page clears the list; download files you want to keep. Duplicate names never overwrite another file here.</p>
       <p id="session-empty" class="muted">No validated presets in this session.</p>
       <div id="session-list" class="records" aria-label="Session presets"></div>
       <div id="session-detail" hidden>
@@ -113,6 +117,7 @@
         <button id="save-zip" class="secondary" disabled>Download session .zip</button>
         <button id="clear" class="secondary" disabled>Clear browser session</button>
       </div>
+      <p id="session-status" class="local-status" hidden></p>
       <p class="help">Factory or factory-derived exports stay blocked. 909, 808 and BREAK records reference external samples; without a keyboard sample CRC check, the kit is not verified complete. No plugin preset conversion or J6 fidelity is implied.</p>
     </section>
   </div>

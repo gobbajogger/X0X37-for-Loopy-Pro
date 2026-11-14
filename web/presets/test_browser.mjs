@@ -5,7 +5,7 @@
 // No external network, MIDI/USB, firmware, installation or deployment is used.
 import { createRequire } from "node:module";
 import { createServer } from "node:http";
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -84,8 +84,8 @@ const count=page=>page.$$eval("#session-list > button",items=>items.length);
 const upload=async(page,...paths)=>{await (await page.$("#files")).uploadFile(...paths);};
 const previewSummary=page=>page.evaluate(()=>({
   count:document.querySelector("#preview-count").textContent,
-  warningsHidden:document.querySelector("#preview-warnings").hidden,
-  warnings:[...document.querySelectorAll("#preview-warnings .preview-warning-record")].map(x=>x.textContent),
+  warningsHidden:!document.querySelector("#preview-meta .preview-record .warning"),
+  warnings:[...document.querySelectorAll("#preview-meta .preview-record")].filter(x=>x.querySelector(".warning")).map(x=>x.textContent),
   records:[...document.querySelectorAll("#preview-meta .preview-record > h3")].map(x=>x.textContent),
   overflow:document.documentElement.scrollWidth > innerWidth + 1
 }));
@@ -215,8 +215,12 @@ try {
     desktopShots.push(await screenshot(multi,"desktop-mixed-zip-warnings.png"));
     await multi.click("#keep");await waitStatus(multi,"Added 3 validated");
     assert.equal(await count(multi),3);
+    await multi.click("#save-zip");await waitStatus(multi,"ZIP download requested");
+    const mixed = await readDnprZip(new Uint8Array(await download(downloads,"DnBOX-user-presets.dnpr.zip")));
+    assert.equal(mixed.length,2);
+    assert.deepEqual(mixed.map(x=>x.bytes),[new Uint8Array(readFileSync(fixture.chicago)),new Uint8Array(readFileSync(fixture.kit))]);
+    unlinkSync(join(downloads,"DnBOX-user-presets.dnpr.zip"));
     const before=readdirSync(downloads).length;
-    await multi.click("#save-zip");await waitStatus(multi,"FACTORY EXPORT OFF");
     await multi.click("#session-list button:nth-child(3)");
     await multi.click("#save-file");await waitStatus(multi,"FACTORY EXPORT OFF");
     assert.equal(readdirSync(downloads).length,before,"A blocked export created a download");
@@ -235,13 +239,17 @@ try {
       new Uint8Array(readFileSync(fixture.juno)),
       new Uint8Array(readFileSync(fixture.drone))
     ]);
+    unlinkSync(join(downloads,"DnBOX-user-presets.dnpr.zip"));
   });
-  await run("Factory-derived preset preview but both export methods refuse",async()=>{
+  await run("Factory-derived selected file is refused and omitted from mixed ZIP",async()=>{
     await upload(desktop,fixture.factory);await waitStatus(desktop,"passed file checks");
     await desktop.click("#keep");await waitStatus(desktop,"Added 1 validated");
     const countBefore=readdirSync(downloads).length;
     await desktop.click("#save-file");await waitStatus(desktop,"FACTORY EXPORT OFF");
-    await desktop.click("#save-zip");await waitStatus(desktop,"FACTORY EXPORT OFF");
+    await desktop.click("#save-zip");await waitStatus(desktop,"ZIP download requested");
+    const mixed = await readDnprZip(new Uint8Array(await download(downloads,"DnBOX-user-presets.dnpr.zip")));
+    assert.equal(mixed.length,3);
+    unlinkSync(join(downloads,"DnBOX-user-presets.dnpr.zip"));
     assert.equal(readdirSync(downloads).length,countBefore);
   });
   await run("909 sample references visibly warn when hardware inventory absent",async()=>{

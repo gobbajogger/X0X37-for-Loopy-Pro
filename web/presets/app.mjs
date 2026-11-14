@@ -7,14 +7,19 @@ const $ = id => document.getElementById(id);
 const session = new PresetSession(32);
 let pending = [], selectedId = null, readToken = 0;
 
-function status(message, type = "") {
+function status(message, type = "", region = "") {
   $("status").textContent = message;
   $("status").dataset.type = type;
+  for (const id of ["preview-status", "session-status"]) {
+    const local = $(id);
+    local.hidden = id !== region;
+    if (id === region) { local.textContent = message; local.dataset.type = type; }
+  }
 }
-function errorOf(err) {
+function errorOf(err, region = "") {
   const code = err instanceof PresetError ? err.code : "BAD FILE";
   const details = err instanceof Error ? err.message : String(err);
-  status(code + ". " + details + " No browser-session entries or keyboard data were changed.", "error");
+  status(code + ". " + details + " No browser-session entries or keyboard data were changed.", "error", region);
 }
 function options() {
   return { expectedEngine: $("target").value || null, targetModel: $("model").value || null };
@@ -60,6 +65,7 @@ function appendWarnings(el, record) {
 function clearPending(message = "") {
   ++readToken;
   pending = [];
+  $("keep").disabled = false;
   $("preview").hidden = true; $("preview-empty").hidden = false;
   $("preview-meta").replaceChildren(); $("preview-warnings").replaceChildren();
   $("files").value = "";
@@ -87,13 +93,11 @@ function renderPending() {
       group.append(heading, details); meta.append(group);
       appendWarnings(notice, record);
       if (!notice.hidden) {
-        const warningGroup = document.createElement("section"), label = document.createElement("strong");
-        warningGroup.className = "preview-warning-record";
-        label.textContent = "Record " + (index + 1) + " of " + pending.length + ": " + name + " (" + record.title + ")";
-        warningGroup.append(label, notice); warnings.append(warningGroup);
+        notice.className = "warning";
+        group.append(notice);
       }
     }
-    warnings.hidden = warnings.children.length === 0;
+    warnings.hidden = true;
   }
   $("preview-count").textContent = pending.length === 1
     ? "One validated record. Keeping it does not send to a keyboard."
@@ -102,13 +106,19 @@ function renderPending() {
 }
 async function inspectFiles(files) {
   const token = ++readToken;
-  pending = [];
-  $("preview").hidden = true; $("preview-empty").hidden = false;
-  if (!files.length) return status("Choose at least one DNPR file.");
+  if (!files.length) {
+    $("keep").disabled = false;
+    return status("Choose at least one DNPR file.");
+  }
+  // Keep the last valid preview intact until the entire replacement validates.
+  // It must not be kept while a new selection is still being checked.
+  $("keep").disabled = true;
   status("Checking files locally. No keyboard connection is used.");
+  let sourceName = "";
   try {
     const prepared = [];
     for (const file of files) {
+      sourceName = file.name;
       if (!/\.(dnpr|zip)$/i.test(file.name))
         throw new PresetError("BAD FILE", "Unsupported file extension; choose .dnpr or .zip");
       if (file.size > ZIP_MAX_INPUT) throw new PresetError("BAD FILE", "Input exceeds 2 MiB");
@@ -119,15 +129,32 @@ async function inspectFiles(files) {
       if (prepared.length > session.capacity) throw new PresetError("MEMORY FULL", "More than 32 files in one browser session");
     }
     if (token !== readToken) return;
+    sourceName = "";
     if (session.entries.length + prepared.length > session.capacity)
       throw new PresetError("MEMORY FULL", "Browser session is full; no files were added");
     const target = options();
-    pending = prepared.map(f => ({ name: f.name, bytes: f.bytes, record: parseDnpr(f.bytes, {
-      ...target, fileName: f.name
-    }) }));
+    pending = prepared.map(f => {
+      sourceName = f.name;
+      return { name: f.name, bytes: f.bytes, record: parseDnpr(f.bytes, {
+        ...target, fileName: f.name
+      }) };
+    });
     renderPending();
     status("All " + pending.length + " record(s) passed file checks. Review and explicitly keep them to continue.", "ok");
-  } catch (err) { if (token === readToken) { clearPending(); errorOf(err); } }
+    $("preview-title").focus();
+  } catch (err) {
+    if (token === readToken) {
+      $("files").value = "";
+      const details = err instanceof Error ? err.message : String(err);
+      const code = err instanceof PresetError ? "" : "BAD FILE: ";
+      status(code + (sourceName ? sourceName + ": " : "") + details +
+        " No browser-session entries or keyboard data were changed." +
+        (pending.length ? " The previous validated preview is still available." : ""),
+        "error", pending.length ? "preview-status" : "");
+    }
+  } finally {
+    if (token === readToken) $("keep").disabled = false;
+  }
 }
 function selectedEntry() { return session.entries.find(e => e.id === selectedId) || null; }
 function renderSession(restoreFocus = false) {
@@ -159,15 +186,35 @@ function renderSession(restoreFocus = false) {
 }
 function download(bytes, name, mime) {
   const url = URL.createObjectURL(new Blob([bytes], { type:mime }));
-  const a = document.createElement("a");
-  a.href = url; a.download = name;
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  let a = null, requested = false;
+  try {
+    a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.append(a); a.click();
+    requested = true;
+  } finally {
+    try { if (a) a.remove(); }
+    finally {
+      if (requested) setTimeout(() => URL.revokeObjectURL(url), 30000);
+      else URL.revokeObjectURL(url);
+    }
+  }
+}
+function exportError(err, downloadAttempted = false) {
+  const details = err instanceof Error ? err.message : String(err);
+  status("EXPORT FAILED. " + details + ". " + (downloadAttempted ? "Check browser downloads before retrying. " : "") +
+    "Browser-session entries are unchanged.", "error", "session-status");
 }
 function uniqueFilesForZip() {
-  const used = new Set();
-  return session.entries.map(entry => {
-    const b = ensureExportable(entry.record);
+  const used = new Set(), files = [];
+  let skipped = 0;
+  for (const entry of session.entries) {
+    let bytes;
+    try { bytes = ensureExportable(entry.record); }
+    catch (err) {
+      if (err instanceof PresetError && err.code === "FACTORY EXPORT OFF") { skipped++; continue; }
+      throw err;
+    }
     const base = fileNameFor(entry.record, entry.id);
     let name = base, counter = 2;
     while (used.has(name.toLowerCase())) {
@@ -177,41 +224,58 @@ function uniqueFilesForZip() {
       name = stem.slice(0, 64 - suffix.length - mark.length) + mark + suffix;
     }
     used.add(name.toLowerCase());
-    return { name, bytes:b };
-  });
+    files.push({ name, bytes });
+  }
+  return { files, skipped };
 }
 $("files").addEventListener("change", event => inspectFiles([...event.target.files]));
 $("model").addEventListener("change", () => clearPending("Target model changed. Choose files again for a fresh check."));
 $("target").addEventListener("change", () => clearPending("Target engine changed. Choose files again for a fresh check."));
-$("discard").addEventListener("click", () => clearPending("Preview discarded; nothing was changed."));
+$("discard").addEventListener("click", () => {
+  clearPending("Preview discarded; nothing was changed.");
+  $("files").focus();
+});
 $("keep").addEventListener("click", () => {
+  if (!pending.length || $("keep").disabled) return;
   try {
     const entries = session.importMany(pending.map(p => ({ name:p.name, bytes:p.bytes })), options());
     selectedId = entries[0].id;
     clearPending();
-    renderSession();
-    status("Added " + entries.length + " validated record(s) to this browser session. No keyboard data changed.", "ok");
-  } catch (err) { errorOf(err); }
+    renderSession(true);
+    status("Added " + entries.length + " validated record(s) to this browser session. No keyboard data changed.", "ok", "session-status");
+  } catch (err) { errorOf(err, "preview-status"); }
 });
 $("save-file").addEventListener("click", () => {
   try {
     const item = session.exportOne(selectedId);
-    download(item.bytes, item.name, "application/octet-stream");
-    status("Download requested for " + item.name + ". The browser controls where the file is saved.", "ok");
-  } catch (err) { errorOf(err); }
+    try { download(item.bytes, item.name, "application/octet-stream"); }
+    catch (err) { return exportError(err, true); }
+    status("Download requested for " + item.name + ". The browser controls where the file is saved.", "ok", "session-status");
+  } catch (err) {
+    if (err instanceof PresetError && err.code === "FACTORY EXPORT OFF") errorOf(err, "session-status");
+    else exportError(err);
+  }
 });
 $("save-zip").addEventListener("click", () => {
   try {
-    const files = uniqueFilesForZip();
-    download(makeDnprZip(files), "DnBOX-user-presets.dnpr.zip", "application/zip");
-    status("ZIP download requested for " + files.length + " unchanged preset(s). No device transfer took place.", "ok");
-  } catch (err) { errorOf(err); }
+    const { files, skipped } = uniqueFilesForZip();
+    if (!files.length) {
+      status("No eligible records to download. " + skipped + " factory or factory-derived record(s) remain in this browser session.", "error", "session-status");
+      return;
+    }
+    const bytes = makeDnprZip(files);
+    try { download(bytes, "DnBOX-user-presets.dnpr.zip", "application/zip"); }
+    catch (err) { return exportError(err, true); }
+    status("ZIP download requested for " + files.length + " unchanged eligible preset(s). " + skipped +
+      " factory or factory-derived record(s) excluded and retained in this session. The browser controls where the file is saved.", "ok", "session-status");
+  } catch (err) { exportError(err); }
 });
 $("clear").addEventListener("click", () => {
   if (!window.confirm("Clear the temporary browser session? Files on disk and the keyboard will not change.")) return;
   session.entries.length = 0;
   selectedId = null; renderSession();
-  status("Browser session cleared. The keyboard and downloaded files are unchanged.");
+  $("files").focus();
+  status("Browser session cleared. The keyboard and downloaded files are unchanged.", "", "session-status");
 });
 const drop = $("drop");
 drop.addEventListener("dragover", event => { event.preventDefault(); drop.classList.add("over"); });

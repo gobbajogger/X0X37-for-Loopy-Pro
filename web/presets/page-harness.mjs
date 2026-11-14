@@ -179,9 +179,9 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
         ? [ui.file("clean.chicago.dnpr", clean), ui.file("kit.909.dnpr", kit)]
         : [ui.file("kit.909.dnpr", kit), ui.file("clean.chicago.dnpr", clean)];
       await ui.choose(...files);
-      const warnings = ui.$("preview-warnings"), label = "Record " + (second ? 2 : 1) + " of 2: Owner 909 (909)";
-      expect(!warnings.hidden && warnings.children.length === 1, "Missing indexed sample warning");
-      expect(treeText(warnings).includes(label) && /not checked against keyboard/.test(treeText(warnings)),
+      const records = ui.$("preview-meta").children, affected = records[second ? 1 : 0], cleanRecord = records[second ? 0 : 1];
+      expect(treeText(affected).includes("Owner 909") && /not checked against keyboard/.test(treeText(affected)) &&
+        !/not checked against keyboard/.test(treeText(cleanRecord)),
         "Sample warning not associated with the correct record");
       expect(ui.$("preview-meta").children.length === 2 &&
         treeText(ui.$("preview-meta")).includes("Owner 909") &&
@@ -192,7 +192,7 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
     }
   });
 
-  await check("multi-record factory warning is visible in either order before keep and export stays blocked", async () => {
+  await check("multi-record factory warning is visible in either order and mixed ZIP excludes it", async () => {
     const clean = makePreset("chicago"), factory = makePreset("miami", 1, 1);
     for (const second of [true, false]) {
       const ui = environment();
@@ -200,18 +200,22 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
         ? [ui.file("clean.chicago.dnpr", clean), ui.file("factory.miami.dnpr", factory)]
         : [ui.file("factory.miami.dnpr", factory), ui.file("clean.chicago.dnpr", clean)];
       await ui.choose(...files);
-      const warnings = ui.$("preview-warnings"), index = second ? 2 : 1;
-      expect(!warnings.hidden && treeText(warnings).includes("Record " + index + " of 2: Owner miami (Miami)") &&
-        treeText(warnings).includes("FACTORY EXPORT OFF"), "Factory warning missing before bulk Keep");
+      const records = ui.$("preview-meta").children, affected = records[second ? 1 : 0], cleanRecord = records[second ? 0 : 1];
+      expect(treeText(affected).includes("Owner miami") && treeText(affected).includes("FACTORY EXPORT OFF") &&
+        !treeText(cleanRecord).includes("FACTORY EXPORT OFF"), "Factory warning missing before bulk Keep");
       expect(ui.$("session-list").children.length === 0, "Factory preview changed session");
       ui.click("keep");
       expect(ui.$("session-list").children.length === 2, "Keep failed to stage both validated records");
       ui.click("save-zip");
-      expect(ui.downloads.length === 0 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
-        "Bulk ZIP exported a factory-derived record");
-      ui.$("session-list").children[index - 1].emit("click");
+      const exported = await zip.readDnprZip(await ui.selectedDownload());
+      expect(ui.downloads.length === 1 && exported.length === 1 &&
+        JSON.stringify([...exported[0].bytes]) === JSON.stringify([...clean]),
+        "Bulk ZIP must contain only the unchanged eligible record");
+      expect(ui.$("session-list").children.length === 2 && /1 factory/.test(ui.$("status").textContent),
+        "Excluded factory record was not retained and reported");
+      ui.$("session-list").children[second ? 1 : 0].emit("click");
       ui.click("save-file");
-      expect(ui.downloads.length === 0 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
+      expect(ui.downloads.length === 1 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
         "Factory-derived single-file export was not blocked");
     }
   });
@@ -224,20 +228,23 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
       { name:"factory.miami.dnpr", bytes:makePreset("miami", 1, 1) }
     ]);
     await ui.choose(ui.file("mixed.zip", archive));
-    const warnings = ui.$("preview-warnings"), text = treeText(warnings);
+    const records = ui.$("preview-meta").children;
     expect(/3 validated records/.test(ui.$("preview-count").textContent), "ZIP count missing");
     expect(ui.$("preview-meta").children.length === 3, "All ZIP metadata not visible");
-    expect(!warnings.hidden && warnings.children.length === 2, "Both ZIP warnings must be shown");
-    expect(text.includes("Record 2 of 3: Owner 909 (909)") && text.includes("not checked against keyboard"),
+    expect(treeText(records[1]).includes("Owner 909") && treeText(records[1]).includes("not checked against keyboard"),
       "ZIP sample warning missing or mislabelled");
-    expect(text.includes("Record 3 of 3: Owner miami (Miami)") && text.includes("FACTORY EXPORT OFF"),
+    expect(treeText(records[2]).includes("Owner miami") && treeText(records[2]).includes("FACTORY EXPORT OFF"),
       "ZIP factory warning missing or mislabelled");
     expect(ui.$("session-list").children.length === 0, "ZIP preview silently staged records");
     ui.click("keep");
     expect(ui.$("session-list").children.length === 3, "ZIP Keep failed");
     ui.click("save-zip");
-    expect(ui.downloads.length === 0 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
-      "Mixed ZIP export bypassed factory guard");
+    const exported = await zip.readDnprZip(await ui.selectedDownload());
+    expect(ui.downloads.length === 1 && exported.length === 2 &&
+      JSON.stringify([...exported[0].bytes]) === JSON.stringify([...makePreset("chicago")]) &&
+      JSON.stringify([...exported[1].bytes]) === JSON.stringify([...makePreset("909")]),
+      "Mixed ZIP must contain the two unchanged eligible records only");
+    expect(ui.$("session-list").children.length === 3, "Excluded record was discarded");
   });
 
   await check("cross-engine original-source warning on second record is visible before Keep", async () => {
@@ -246,10 +253,9 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
     new DataView(conflict.buffer).setUint32(16, codec.crc32(conflict, true), true);
     await ui.choose(ui.file("clean.chicago.dnpr", makePreset("chicago")),
       ui.file("source-other.chicago.dnpr", conflict));
-    const warnings = ui.$("preview-warnings"), text = treeText(warnings);
-    expect(!warnings.hidden && warnings.children.length === 1, "Source conflict warning hidden");
-    expect(text.includes("Record 2 of 2: Owner chicago (Chicago)") &&
-      text.includes("Original engine differs from record engine"), "Source-conflict warning missing");
+    const records = ui.$("preview-meta").children;
+    expect(!treeText(records[0]).includes("Original engine differs from record engine") &&
+      treeText(records[1]).includes("Original engine differs from record engine"), "Source-conflict warning missing");
     expect(ui.$("session-list").children.length === 0, "Source-conflict preview mutated session");
   });
 

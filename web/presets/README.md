@@ -21,8 +21,16 @@ Serve the repository's `web` directory through any localhost static server
 4. Choose **Keep in browser session** to add all valid records atomically to
    the *temporary* local session. Bad files, unsupported formats, mismatched
    target engines, newer versions and capacity failures change no session entry.
-5. Explicitly download a selected non-factory user record or a ZIP of allowed
-   records. The raw DNPR bytes are not re-encoded, names updated or relabelled.
+5. Explicitly download a selected non-factory user record or a ZIP of eligible
+   records. A mixed session ZIP excludes factory and factory-derived records,
+   reports how many were excluded, and keeps every record in the session. The
+   raw DNPR bytes are not re-encoded, names updated or relabelled. A download
+   request does not prove that the browser saved a file; check its downloads.
+
+Each record's warnings appear beside its metadata. If a replacement selection
+fails validation, an earlier valid preview remains available. While a new
+selection is being checked, the earlier preview cannot be kept. The session is
+temporary: refreshing or closing the page clears its list.
 
 The browser session has 32 entries; no device capacity is assumed. ZIP input
 is limited to 64 members, 2 MiB total and max 548 B DNPR records.
@@ -68,6 +76,16 @@ Run locally with Node.js 22+ from the repository root:
 ```sh
 node --test web/presets/test_codec.mjs web/presets/test_page.mjs
 ```
+
+For actual Chromium workflow checks, install Playwright separately and run:
+
+```sh
+DNBOX_PLAYWRIGHT_MODULE=/path/to/playwright DNBOX_CHROMIUM=/path/to/chromium \
+  node --test web/presets/test_workflow_browser.mjs web/presets/test_export_browser.mjs web/presets/test_ux_browser.mjs web/presets/test_preview_atomic.mjs
+```
+
+These tests use synthetic preset records and loopback HTTP. They do not test a
+physical instrument, its sample inventory, persistent storage or transport.
 
 - `test_codec.mjs` pins two byte-exact native C encoder golden fixtures;
   checks all seven engines including 808 with 0/16 refs; malformed CRC,
