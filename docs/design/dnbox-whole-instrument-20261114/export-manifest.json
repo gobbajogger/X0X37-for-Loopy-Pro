@@ -1,0 +1,24 @@
+{
+  "original_html_sha256": "e5924da7e2b065344c2cba547efa54ce72be17e2a0c760bb329884792139c54d",
+  "sanitization": "Replace one internal Settings thread UUID with Settings source owner; no render or interaction changes",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3586,
+      "sha256": "9f739352b72bd99890def47cfa305ee0050f7ebb1dfacef73bbfae2100fb6b56",
+      "git_blob": "b2932298acb4c8242ed801b10baf7af26f60b94e"
+    },
+    {
+      "path": "independent-review.md",
+      "bytes": 4006,
+      "sha256": "e0c65c572190afdf826982ffc9424a718005290bcd7ae2d3ae85817e355a8fda",
+      "git_blob": "85a53a860d9040828b911e6fe425dc43c4a28f2d"
+    },
+    {
+      "path": "walkthrough.html",
+      "bytes": 1957122,
+      "sha256": "da9fc7e193ddc138e68675d99621dd12fb878108915b1946772bfdb1007d3418",
+      "git_blob": "800064f06ed8a6ec2a9eec602e0a268fa0ef054b"
+    }
+  ]
+}
