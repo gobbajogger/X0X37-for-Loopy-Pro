@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "scope": "Portable public control-binding successor; scheduler runtime/fixture arithmetic unchanged",
+  "files": [
+    {
+      "path": "scheduler.hpp",
+      "bytes": 4017,
+      "sha256": "d54b37188315d701d6ac3d25ea25772870795d96b66d80a66dd2a749f610a61d",
+      "git_blob_sha": "ec184ca9bb529061df895b6d84963037f247454b"
+    },
+    {
+      "path": "scheduler.cpp",
+      "bytes": 14501,
+      "sha256": "d092837529cc71a167de00f1d7861a73fceda4f03a5e72848a0013aa4c8e068b",
+      "git_blob_sha": "eb9c1ca359b887e2b27abc0a508ef79c56ba3248"
+    },
+    {
+      "path": "tests/scheduler_test.cpp",
+      "bytes": 16287,
+      "sha256": "23af3ec6e093215bf3f582cf193513bf40fe018811c4d5ba9d44cc0fae7d5a6f",
+      "git_blob_sha": "00a6b43d5df2de97452dc299132b3e2694d3d254"
+    },
+    {
+      "path": "run_tests.py",
+      "bytes": 8005,
+      "sha256": "e3b41c3cc62b557a9caf8de6217c37bef35303afea0b5b5675a2cf905da07e4d",
+      "git_blob_sha": "b9e7af1d33bb28d21868e8f2eed3bd4f68dbde47"
+    },
+    {
+      "path": "mutation_checks.py",
+      "bytes": 4665,
+      "sha256": "5f7101d92d7a897cb96151f8ca76188c0d3d166de5b2844533b7c5392675c642",
+      "git_blob_sha": "d4054e866104bcea2582c681fcdb22b86c8f4333"
+    },
+    {
+      "path": "DEPENDENCIES.json",
+      "bytes": 8793,
+      "sha256": "b553d6273e9ae819fd306a70c8372ad42857365303f9a23a8c01da0f6f18cf8b",
+      "git_blob_sha": "433b86a77a704ac6705ddf71d17f67d1428a1387"
+    },
+    {
+      "path": "README.md",
+      "bytes": 10083,
+      "sha256": "07bb5e2608abfc720aacfb5ee49cdad353423c065df1610a131282c5097f9e05",
+      "git_blob_sha": "b8f148151136f19d1bef22ad4d5a397c82adef5e"
+    },
+    {
+      "path": "oracle/generate.py",
+      "bytes": 14643,
+      "sha256": "47ee5ef07510bc52367cda501f143f938a51bc023b71514c8afd745468b95a96",
+      "git_blob_sha": "d23d14ae9d5e823ca9a4b2fa29224d3517c08fce"
+    },
+    {
+      "path": "oracle/oracle.hpp",
+      "bytes": 779,
+      "sha256": "c856ac499d87f24ff6d1d239ddaf333e298c486c61cf4aca9579c7d195c38b64",
+      "git_blob_sha": "c6cabf6ab493de924ed287002c691ab2f1fe16d4"
+    },
+    {
+      "path": "oracle/oracle.cpp",
+      "bytes": 15017,
+      "sha256": "7526b71d59063dca29c9dbd41a64e01414f46fe31974784e3eb18e1d505e498c",
+      "git_blob_sha": "a861d7fb50845e271b23e96fc3b69e1edc7a6d40"
+    },
+    {
+      "path": "oracle/MANIFEST.json",
+      "bytes": 14423,
+      "sha256": "8f1e66a1165e09aefad5086923f0ef5c41afb66325cbfeb9c5b6ee91d5cad4ce",
+      "git_blob_sha": "6b4d8a8caf6c319b0592115469d6a029cb748142"
+    },
+    {
+      "path": "notices/SynthOne-MIT.txt",
+      "bytes": 1075,
+      "sha256": "71ac2b8af8849096ba2d0f3510972b8384204f17517e773bfa52fc755fb0fc49",
+      "git_blob_sha": "be8551b835e760f321887b531d2f09d8ffa05c5a"
+    },
+    {
+      "path": "notices/AudioKit-4.9.2-MIT.txt",
+      "bytes": 1085,
+      "sha256": "b9aad96b49e7afcadb3f351b733de24577924b3ba48c82a3e07393d8b9f96c5e",
+      "git_blob_sha": "e99249a865bfbacdeeda22e965268a42ff638913"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 39,
+      "sha256": "6d9dd2863a77d46eb538f9032b69297ef450edf9afcd2b99ed117d80a0cb1a74",
+      "git_blob_sha": "f5b12847bf65ebf58c92f376a2045bf10e05c7e6"
+    }
+  ],
+  "origin_source_manifest_sha256": "5a507c9cac27fb63f58544072dc79df85a9af8dd13eb8f53b56cff0e29c5fa59"
+}
