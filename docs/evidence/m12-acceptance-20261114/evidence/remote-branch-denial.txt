@@ -1,0 +1,12 @@
+Action: github_create_branch
+Repository: gobbajogger/X0X37-for-Loopy-Pro
+Branch: wip/m12-acceptance-20261114
+Base: 94197fc839b00aff47b98ca02f3c6396e4a6eabf
+
+This action was rejected due to unacceptable risk.
+Reason: Creating a remote GitHub branch is an external repository mutation/commitment, but the user did not explicitly authorize this branch creation or destination.
+Do not bypass this rejection through a workaround or indirect execution. Continue with a safer alternative, or carry out checks to prove that the action is authorized or low risk before trying again. Complete unaffected work without asking for confirmation. Report anything that remains blocked, clarify why it was blocked by auto-review, inform the user of the risk and ask for approval.
+
+Observed post-denial read: /git/ref/heads/wip/m12-acceptance-20261114 returned 404 Not Found.
+Retry count after denial: 0.
+Result: NOT PUSHED, PR none; local parent handoff is available.

@@ -1,0 +1,79 @@
+{
+  "schema": "dnbox-m12-boundary-probes-v1",
+  "checker_sha256": "dd04ce045dd02f715d8c1cbc798c8aec7d044c38472bca3f7b6a2aaf82e5a5d0",
+  "scope": "synthetic acceptance boundaries; not candidate qualification",
+  "cases": [
+    {
+      "case": "structural_positive",
+      "expected_exit": 0,
+      "exit": 0,
+      "stdout": "STRICT_RESULT PASS rows=2 required=2\n",
+      "stderr": "",
+      "meets_acceptance": true,
+      "meaning": "Positive structural control; fixture claims are not real test proof.",
+      "candidate": "cccccccccccccccccccccccccccccccccccccccc",
+      "independent_scope_sha256": "1e05468f36dc3c44d2d56703d274341cd3a311bc49df056bebe8da0709dbdc4c",
+      "source_sha256": "60d75bf4a31e3360fe167dc683979673d4386af089ba1bf54aa1510c56a7c529",
+      "has_git_directory": false
+    },
+    {
+      "case": "missing_json_control",
+      "expected_exit": 1,
+      "exit": 1,
+      "stdout": "STRICT_FAIL #2: missing_required_json\nSTRICT_RESULT FAIL rows=1 required=2\n",
+      "stderr": "",
+      "meets_acceptance": true,
+      "meaning": "Required row deletion alone is detected by current strict checker.",
+      "candidate": "cccccccccccccccccccccccccccccccccccccccc",
+      "independent_scope_sha256": "1e05468f36dc3c44d2d56703d274341cd3a311bc49df056bebe8da0709dbdc4c",
+      "source_sha256": "60d75bf4a31e3360fe167dc683979673d4386af089ba1bf54aa1510c56a7c529",
+      "has_git_directory": false
+    },
+    {
+      "case": "shrunk_inventory",
+      "expected_exit": 1,
+      "exit": 0,
+      "stdout": "STRICT_RESULT PASS rows=1 required=1\n",
+      "stderr": "",
+      "meets_acceptance": false,
+      "meaning": "Same independently selected #2 and same source; local inventory cannot waive it.",
+      "candidate": "cccccccccccccccccccccccccccccccccccccccc",
+      "independent_scope_sha256": "1e05468f36dc3c44d2d56703d274341cd3a311bc49df056bebe8da0709dbdc4c",
+      "source_sha256": "60d75bf4a31e3360fe167dc683979673d4386af089ba1bf54aa1510c56a7c529",
+      "has_git_directory": false
+    },
+    {
+      "case": "changed_source_bytes",
+      "expected_exit": 1,
+      "exit": 0,
+      "stdout": "STRICT_RESULT PASS rows=2 required=2\n",
+      "stderr": "",
+      "meets_acceptance": false,
+      "meaning": "File existence cannot bind source bytes to the claimed candidate.",
+      "candidate": "cccccccccccccccccccccccccccccccccccccccc",
+      "independent_scope_sha256": "1e05468f36dc3c44d2d56703d274341cd3a311bc49df056bebe8da0709dbdc4c",
+      "source_sha256": "6fe1965fc3e47e2277d6295833692780d69120942bbd69b1ae95571a415fa536",
+      "has_git_directory": false
+    },
+    {
+      "case": "self_consistent_wrong_roadmap",
+      "expected_exit": 1,
+      "exit": 0,
+      "stdout": "STRICT_RESULT PASS rows=2 required=2\n",
+      "stderr": "",
+      "meets_acceptance": false,
+      "meaning": "Internal agreement cannot replace independently expected ROADMAP pins.",
+      "candidate": "cccccccccccccccccccccccccccccccccccccccc",
+      "independent_scope_sha256": "1e05468f36dc3c44d2d56703d274341cd3a311bc49df056bebe8da0709dbdc4c",
+      "source_sha256": "60d75bf4a31e3360fe167dc683979673d4386af089ba1bf54aa1510c56a7c529",
+      "has_git_directory": false
+    }
+  ],
+  "acceptance_passed": false,
+  "historical_parser_current_roadmap": {
+    "result": "REJECTED",
+    "reason": "ROADMAP must contain both the historical Done and complete Master tracker tables",
+    "gate_sha256": "6cd80e6075123fb849d388ab5d0c01343260f24f4625102a4d42e3418fd4bbf8",
+    "roadmap_sha256": "520db2adbb4d7d7c1a4e18b7ac2e44b6e154fae3de13fb504c9f2fea9971e611"
+  }
+}

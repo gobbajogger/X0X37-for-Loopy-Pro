@@ -1,0 +1,15 @@
+# Parent handoff: M12 / #822
+
+Consume REPORT.md, PROPOSAL.md, REVIEW.md and evidence/boundary-results.json. This worker completed only the assigned isolated acceptance investigation, concrete fixture and independently reviewed repair proposal. No gate implementation/adoption or release acceptance is claimed.
+
+Pins: canonical repository `gobbajogger/X0X37-for-Loopy-Pro`; combined source `94197fc839b00aff47b98ca02f3c6396e4a6eabf` / tree `72d28fbc741244d18fa3d18495da16ab0fcb1d24`; canonical ROADMAP `12e72b586c31e7ed412b6f4315bdf408c6f712b0` / blob `923cf5a243ab4d6abe59ed493b506c3a928ca661`; historical closed/unmerged #822 `46d3e95251f145eed6d6d8a67e66d4942d03ad26`.
+
+Recovered and executed existing historical v2 focused suites: 24/24 PASS, exit 0. Current strict checker self-test: 42 checks PASS, exit 0. New probe exit 1 honestly retains three acceptance gaps (mutable inventory shrink, changed source bytes, self-consistent wrong ROADMAP pins); two controls pass. Historical parser rejects the current document layout. Current assigned source lacks historical gate/map/selection/focused suites and package/preview completeness hooks. Legacy shell publication retirement is also not adopted; inspection only, preserve publisher ownership.
+
+The next owner is the parent/current integration owner. Select the applicable already-authorized release/stage obligations from current ROADMAP, then assign a bounded adapter implementation using the reviewed proposal and red probes. Preserve deferred #119, declined 26.7, undefined M5, aspiration and the existing #122/UX owners. Package/preview and actual uploader adoption remain separate owner stages. No need to re-ask resolved feature decisions or repeat unchanged tooling proofs.
+
+Deliverable identities: PROPOSAL.md SHA256 `3abc79124fbe96499b95a818d87c5a3edae5a81082633efeaa67339236b148a1`; fixture SHA256 `a3d0d77a4ecf500c1245dffeea3d8c7e19c4d627a1e5cdbbe406e40ceceb61f4`; boundary-results JSON SHA256 `c29b850d360617739afdb180d994eb47878772f02782527f89461af5656c070a`. REVIEW.md includes final 33-input manifest verification and its own review scope. All artifacts are under `/workspace/m12-acceptance/`.
+
+Remote delivery remains NOT PUSHED; PR none. Creating `wip/m12-acceptance-20261114` in the canonical repository was denied once by automatic approval review because this exact branch creation/destination lacked explicit authorization. Post-denial ref read returned 404; relevant trusted-history checks supplied no new authorization. No retry or workaround occurred. Preserve this block unchanged if delegating remote delivery; obtain explicit approval before retrying that action. STOP-REASON.json is validated. Local findings are ready to consume without remote delivery.
+
+Fresh Work/Codex creation and direct parent-thread send are not exposed here. The local independent reviewer consumed the pinned artifacts and executed its scoped probes; no fresh Work successor or parent integration consumption is observed. This final parent handoff is the requested fallback. No packages/downloads, builds, publication, device writes, shared source changes or duplicate #122 contribution/UX audit occurred.

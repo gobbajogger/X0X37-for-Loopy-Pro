@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "M12-822-isolated-acceptance",
+  "run_id": "parent-01a1af1b-2207-7017-b4fb-4e7f6c2c90ea",
+  "request_stage": "Reviewed proposal complete; optional remote evidence delivery denied",
+  "input_identity": "gobbajogger/X0X37-for-Loopy-Pro candidate 94197fc839b00aff47b98ca02f3c6396e4a6eabf; canonical ROADMAP 12e72b586c31e7ed412b6f4315bdf408c6f712b0; intended evidence branch wip/m12-acceptance-20261114",
+  "operation": "github_create_branch in gobbajogger/X0X37-for-Loopy-Pro, branch wip/m12-acceptance-20261114 from 94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "reason_code": "OBSERVED_FAILURE",
+  "cause_known": true,
+  "reason": "Automatic approval review rejected branch creation as an external repository mutation/commitment because the user did not explicitly authorize this branch creation or destination.",
+  "evidence": [
+    "github_create_branch returned rejection, isError=true; no commit or push attempted",
+    "After rejection, github_fetch of /git/ref/heads/wip/m12-acceptance-20261114 returned 404 Not Found",
+    "Trusted user_message_read latest history and user branch-authority search did not supply new authorization for this exact operation",
+    "Local evidence/input-manifest.json, evidence/test-receipts.json, evidence/boundary-results.json and REVIEW.md preserve completed results"
+  ],
+  "recovery_result": "Confirmed branch absent and checked relevant trusted history. No retry or alternate write route used. Local reviewed artifacts and source-evidence archive remain available for the parent handoff.",
+  "owner": "Parent/current integration owner in thread 01a1af1b-2207-7017-b4fb-4e7f6c2c90ea",
+  "next_action": "Consume local reviewed proposal and intentionally failing acceptance fixture; select applicable release/stage scope and assign the bounded adapter implementation. If remote delivery is still desired, obtain explicit approval for the exact isolated branch.",
+  "resume_condition": "Remote branch creation may resume only after materially new explicit authorization for branch wip/m12-acceptance-20261114 in gobbajogger/X0X37-for-Loopy-Pro, with a fresh ref check.",
+  "independent_work": "Completed exact-pin adoption review, verified 33 text inputs, recovered existing v2 coverage, executed 24 focused historical tests and 42 current structural self-checks, reproduced three acceptance gaps, completed independent proposal/fixture review and prepared local handoff.",
+  "user_action": "required",
+  "user_action_detail": "For the denied remote branch action only, explicitly approve creation of wip/m12-acceptance-20261114 in gobbajogger/X0X37-for-Loopy-Pro for reviewed text evidence. Local artifact consumption can proceed without that approval."
+}

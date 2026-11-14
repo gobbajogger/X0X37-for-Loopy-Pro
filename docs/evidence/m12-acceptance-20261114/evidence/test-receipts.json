@@ -1,0 +1,35 @@
+[
+  {
+    "name": "historical-v2-focused",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/host",
+      "-p",
+      "test_roadmap_*.py",
+      "-v"
+    ],
+    "cwd": "/workspace/m12-acceptance/inputs/historical",
+    "exit": 0,
+    "duration_seconds": 2.438,
+    "log": "historical-v2-focused.log",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  {
+    "name": "candidate-strict-selftest",
+    "command": [
+      "sh",
+      "tests/host/roadmap_evidence_check_test.sh"
+    ],
+    "cwd": "/workspace/m12-acceptance/inputs/candidate",
+    "exit": 0,
+    "duration_seconds": 1.761,
+    "log": "candidate-strict-selftest.log",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  }
+]

@@ -1,0 +1,299 @@
+[
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "AGENTS.md",
+    "blob": "3700e0a11507897c5f5041c76198e09e9ea01694",
+    "mode": "100644",
+    "sha256": "a0d879a2bad29536d6d02a1b609688a8585675273c0362df56c247e20ebf8d33",
+    "bytes": 7353
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "docs/FEATURE-REGISTRY.md",
+    "blob": "9fff09e3251a0d2d65c2a0ce93857125ca543a9a",
+    "mode": "100644",
+    "sha256": "30b247d26f711b8296d48c82da565b8ba0e674ad6322d92bfabb6c57ee527395",
+    "bytes": 49204
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "docs/ROADMAP.md",
+    "blob": "8f6e368e2f3a36e606ab516bd1ce9af6325e39cd",
+    "mode": "100644",
+    "sha256": "1ddc0e3d0b751f428b726c81f40f23a9f24debceaa0436346bd7588b0338110b",
+    "bytes": 35751
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "docs/roadmap-evidence/SCHEMA.md",
+    "blob": "6cb86e27b64653dbda1086a39dc5529012260ea3",
+    "mode": "100644",
+    "sha256": "85a6fe8ed98487dfe46f11c25550062aee8dcaca654ab1b216fa3c77f7b63ebb",
+    "bytes": 5022
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "docs/roadmap-evidence/pass2/PASS2-REPORT.md",
+    "blob": "5e86e6708788cfb3727afda91be6eed80d6c2407",
+    "mode": "100644",
+    "sha256": "b50fce736b5641f3c1157455f01fa7b2c32e287f42d72d7e8450598264d7a60c",
+    "bytes": 37309
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "docs/roadmap-evidence/pass2/PASS2-SELFTEST.txt",
+    "blob": "ec14c22b094cbd67e2b0834ea3b2f8bac8e294c5",
+    "mode": "100644",
+    "sha256": "b6af7f7886f04588a87a9ceed748f495c0087e48e0a0e683ccea461c908aec03",
+    "bytes": 869
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "tests/host/roadmap_evidence_check.sh",
+    "blob": "17da00da9320cb875da9ea811fb531196673d8a8",
+    "mode": "100755",
+    "sha256": "dd04ce045dd02f715d8c1cbc798c8aec7d044c38472bca3f7b6a2aaf82e5a5d0",
+    "bytes": 14472
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "tests/host/roadmap_evidence_check_test.sh",
+    "blob": "b97ac6b975aae5cffe2de8ed343616f4a1733658",
+    "mode": "100755",
+    "sha256": "4f92236bde047fd56831fde267e8cb73604a98dc2387ee46b2b2eeba1efaf120",
+    "bytes": 12821
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "tools/package_nightly.py",
+    "blob": "5f5fdb9c6cbccc8d7715c15c0c16cb9dcf10cca2",
+    "mode": "100644",
+    "sha256": "671867d119d8d284934eb0626d3c19a6c557059bee2d280a3f171350a00c5076",
+    "bytes": 13917
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "tools/publish_nightly.py",
+    "blob": "3f749aae41182546988a38a504d65922ea83f4dd",
+    "mode": "100755",
+    "sha256": "30060939cf6792e7f75a821b8ae7faa3d5750ac9e6e7e5ad6feda7fc3f3dc2f0",
+    "bytes": 27045
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "docs/release-selection.json",
+    "blob": "f9d572a3748708fb2427c1601ef03e21b118af9d",
+    "mode": "100644",
+    "sha256": "7fb42b01a7afb7adda9dd1d9d9ceca005de77ab5cfd4fb9c80ff30ce49add54d",
+    "bytes": 3328
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "docs/roadmap-completeness-gate.md",
+    "blob": "56c021569df6aa1c46f7ffd909762c39b7a88eb1",
+    "mode": "100644",
+    "sha256": "fdfc6b4f0a253acfb58fc28d281d6c62559adcfb8273da15dc9272cec89c1a0e",
+    "bytes": 4389
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "docs/roadmap-source-evidence.json",
+    "blob": "f96f53ddd7d55203801880fb57295f21f3fcce8b",
+    "mode": "100644",
+    "sha256": "acec210c8285ce0e3547979e577dc4d3a2dcebbf752e1091b31e30c58a7cd7b6",
+    "bytes": 1229
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tests/host/test_roadmap_completeness.py",
+    "blob": "fa4965765fd389be784f08bb4c09cd9a61a3b9e9",
+    "mode": "100644",
+    "sha256": "22f768f93c041e76d67f349289b9e7e0cb7ea231ebef2eaa045b9da9b233c269",
+    "bytes": 10711
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tests/host/test_roadmap_release_scope.py",
+    "blob": "15bceaf6190f9f0e48349fbfb6dd77af28eb0ead",
+    "mode": "100644",
+    "sha256": "3c5a63444897f3a97deb2e5173d3dc48c753877ee3fbba5f7382ab2a591fd189",
+    "bytes": 15511
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/add_ctl.py",
+    "blob": "67351363f7fc2336f24e449be2d05b3a9cfed78f",
+    "mode": "100755",
+    "sha256": "3580e2be51dc50ef8ec2376cef62e45d32e0b09317116d98a64d049665ddc772",
+    "bytes": 12692
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/dev_validate.py",
+    "blob": "f476ff80a25a7054545a5ededa1e2e9965e3d083",
+    "mode": "100644",
+    "sha256": "4b5bb7549226e2f938081d53e755f5edb37a8ce7ae991350fcd437ab4f4e0012",
+    "bytes": 22232
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/firmware_build_labels.py",
+    "blob": "32fa131cbce901d3844bbba3a5b833fae3139190",
+    "mode": "100644",
+    "sha256": "6dbeefdd9539b2348c0c16507c6f05bd8890eea7cf1050387d402536e1623609",
+    "bytes": 5326
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/fm1_install.py",
+    "blob": "f57d8e2e8a844b4278efa44aabe5b647d5d5e1c4",
+    "mode": "100755",
+    "sha256": "d088a8a839b4ba0a202a91f26eb46872370dd765c72777ea7bbe04dc7ef0290a",
+    "bytes": 50454
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/fm1pkg_make.py",
+    "blob": "41d7c51e3497e0423c4fd469dcd87acc13fa2ea5",
+    "mode": "100755",
+    "sha256": "4fae5cd783fbad5050870f17bbf06952b554f6de21b08f47c9507cf26b440beb",
+    "bytes": 13040
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/make_pages.py",
+    "blob": "7e97e3e120b712a77222af237a313369c9360554",
+    "mode": "100755",
+    "sha256": "979b0a9726cb23d65d0727ca69946c1dd514265bd208f59f82d0d9ce9d9e77ca",
+    "bytes": 17158
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/package_nightly.py",
+    "blob": "4050932fcd4eb784ebb7170dbddb4b7014bbb850",
+    "mode": "100644",
+    "sha256": "b8f7ab0fb0c1c364c4ca2908f2228ef20d359bd1ab1c6b3bda3fce989f15da79",
+    "bytes": 14830
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/publish_nightly.py",
+    "blob": "3af1f57e7cf6d147741cda65ec1acccf5820ee06",
+    "mode": "100755",
+    "sha256": "968c8e8849b21c9232b4bfc1df3916f45221e6a3ea7f1a12e9ea56f9a43bd8bd",
+    "bytes": 28673
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/publish_pages.sh",
+    "blob": "c487052a3bba962499b464d7bec9117479f9d582",
+    "mode": "100755",
+    "sha256": "b61ea24c40906dc14809f5fbca9465b4a664a4d58a2a661c65bceb75ecab4c67",
+    "bytes": 498
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/release_alloc.py",
+    "blob": "3926f1d409c8ae41e3d2e969d3a8a0e812505fc2",
+    "mode": "100644",
+    "sha256": "c43cbdfe27525e7c8c5e8d6302d326fa03caf7d53609d4ae8f6186083e0ee0ab",
+    "bytes": 19842
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/roadmap_completeness.py",
+    "blob": "ceaba973b14b6d20b2805a6a62cf867019a2ee15",
+    "mode": "100644",
+    "sha256": "6cd80e6075123fb849d388ab5d0c01343260f24f4625102a4d42e3418fd4bbf8",
+    "bytes": 28185
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/validation_inputs.py",
+    "blob": "c0ff0664c59ee4e1e04b8134a51d3ca42df7e1e2",
+    "mode": "100644",
+    "sha256": "244220eace9448e2a0c315466246996db28385ff599adb0188f227648584d2c7",
+    "bytes": 12708
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "tools/x0x_slots.py",
+    "blob": "ca1a5cb21fe400cd89a5f4a8b4cc3f57ae7dad54",
+    "mode": "100755",
+    "sha256": "07c5de50eab3143229a0ec2df7c7a0e6adaae8531d4d9a416a8ddd975baf4a4f",
+    "bytes": 30165
+  },
+  {
+    "label": "historical",
+    "ref": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+    "path": "web/make_site.py",
+    "blob": "e98904afc8e38dbce693fffd26f97da1e809aca4",
+    "mode": "100644",
+    "sha256": "9c967516a5811e19222ad7e82c85f8f39bf829f15d63b2740c34021c70d7f6c1",
+    "bytes": 3251
+  },
+  {
+    "label": "roadmap",
+    "ref": "12e72b586c31e7ed412b6f4315bdf408c6f712b0",
+    "path": "docs/ROADMAP.md",
+    "blob": "923cf5a243ab4d6abe59ed493b506c3a928ca661",
+    "mode": "100644",
+    "sha256": "520db2adbb4d7d7c1a4e18b7ac2e44b6e154fae3de13fb504c9f2fea9971e611",
+    "bytes": 109171
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "tests/run_tests.sh",
+    "blob": "b8f64f303a58464aac3df1237bdd9b9c34669e08",
+    "mode": "100644",
+    "sha256": "0b15a5c6786118762882ca066a11533cfd30af422d61b78c0c21ad15c9041398",
+    "bytes": 67117
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "tools/publish_pages.sh",
+    "blob": "b0ee416921054ef595587e42228bfb27d5d05acf",
+    "mode": "100755",
+    "sha256": "bba11b032e2e6504f2e7ba26d5a41b1554d5e37d931cc8e1d6c7906b4a45b0c1",
+    "bytes": 3651
+  },
+  {
+    "label": "candidate",
+    "ref": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "path": "docs/rules/local-proof.md",
+    "blob": "0fb258e9cd01884adaee0a673c68e2a9252f4a6f",
+    "mode": "100644",
+    "sha256": "e80954ef6d48c1358f8b55dd021fc8f41bdf133ad11d8423830f120c65e87c60",
+    "bytes": 5566
+  }
+]

@@ -1,0 +1,67 @@
+{
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "inputs": [
+    {
+      "label": "candidate",
+      "commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+      "complete_recursive_tree": true
+    },
+    {
+      "label": "roadmap",
+      "commit": "12e72b586c31e7ed412b6f4315bdf408c6f712b0",
+      "tree": "d7036a7882dec35eecf6158297d264eecbbb0c2e",
+      "complete_recursive_tree": true
+    },
+    {
+      "label": "historical",
+      "commit": "46d3e95251f145eed6d6d8a67e66d4942d03ad26",
+      "tree": "a7bbf33fecc2552d081344513c91997ff044057a",
+      "complete_recursive_tree": true
+    }
+  ],
+  "gate_paths": [
+    {
+      "path": "tools/roadmap_completeness.py",
+      "candidate": null,
+      "historical": "ceaba973b14b6d20b2805a6a62cf867019a2ee15",
+      "roadmap": null
+    },
+    {
+      "path": "docs/roadmap-source-evidence.json",
+      "candidate": null,
+      "historical": "f96f53ddd7d55203801880fb57295f21f3fcce8b",
+      "roadmap": null
+    },
+    {
+      "path": "docs/release-selection.json",
+      "candidate": null,
+      "historical": "f9d572a3748708fb2427c1601ef03e21b118af9d",
+      "roadmap": null
+    },
+    {
+      "path": "tests/host/test_roadmap_completeness.py",
+      "candidate": null,
+      "historical": "fa4965765fd389be784f08bb4c09cd9a61a3b9e9",
+      "roadmap": null
+    },
+    {
+      "path": "tests/host/test_roadmap_release_scope.py",
+      "candidate": null,
+      "historical": "15bceaf6190f9f0e48349fbfb6dd77af28eb0ead",
+      "roadmap": null
+    }
+  ],
+  "historical_pr": {
+    "number": 822,
+    "state": "closed",
+    "merged": false,
+    "head": "46d3e95251f145eed6d6d8a67e66d4942d03ad26"
+  },
+  "live_policy_nightly": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "coordination_branch_read": {
+    "branch": "coordination/merge-queue",
+    "result": "404 Branch not found",
+    "scope": "this connected API read; no inference of role absence"
+  }
+}

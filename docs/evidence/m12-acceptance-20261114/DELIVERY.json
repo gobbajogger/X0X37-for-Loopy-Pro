@@ -1,0 +1,23 @@
+{
+  "request": "M12/#822 isolated completeness acceptance",
+  "parent_thread": "01a1af1b-2207-7017-b4fb-4e7f6c2c90ea",
+  "operation": "deliver reviewed text evidence and regression fixture on isolated canonical branch",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "wip/m12-acceptance-20261114",
+  "base_commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "base_tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+  "destination_prefix": "docs/evidence/m12-acceptance-20261114/",
+  "authority": "delegated isolated acceptance stage and exact-artifact delivery to current integration owner; no shared tooling or firmware edits",
+  "status": "REMOTE_BRANCH_CREATION_DENIED_NOT_PUSHED",
+  "next_owner": "parent/current integration owner",
+  "next_action": "consume reviewed proposal and red fixture, select applicable accepted release/stage scope, assign bounded adapter implementation",
+  "successor_creation": "UNAVAILABLE_IN_THIS_THREAD",
+  "consumer_execution": "NOT_OBSERVED",
+  "user_action_required": true,
+  "remote_readback": "404 Not Found after denial",
+  "remote_branch_created": false,
+  "pr": "none",
+  "local_proposal": "REVIEWED",
+  "user_action_scope": "Denied remote branch creation only; local findings can be consumed without approval",
+  "approval_reason": "Automatic approval review requires explicit authorization for exact remote branch/destination"
+}
