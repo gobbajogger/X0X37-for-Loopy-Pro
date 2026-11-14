@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "touchosc-lifecycle-d1-d2-20261114",
+  "run_id": "20261114-native-repair",
+  "request_stage": "source repair and exact native lifecycle qualification",
+  "input_identity": "base679a2c947db6a5296810190a99148f9edb05cc5d; candidate-inputs.json",
+  "operation": "Download official TouchOSC1.5.4.269 runtime for isolated exact-artifact qualification",
+  "reason_code": "OBSERVED_FAILURE",
+  "cause_known": true,
+  "reason": "Official checksum and archive HTTPS requests returned HTTP403 Forbidden with Cloudflare1010. No TouchOSC executable exists in this scoped environment. Native execution did not start.",
+  "recovery_result": "Verified inherited official SHA256 and Library packet/member closure, searched Library TouchOSC titles: no runtime archive. Extracted Debian Lua for independent API-boundary checks. No archive retry or alternate denied-operation route.",
+  "owner": "Creator01a1af1b-2207-7017-b4fb-4e7f6c2c90ea retains integration and assigns legitimate runtime executor",
+  "next_action": "Consume exact candidate source/artifact manifest; use existing checksum-verified official runtime in a private session to qualify D1 return-only original-channel OFF and D2 first recovery tap, then independently audit actual datagrams/state.",
+  "resume_condition": "Legitimate official runtime1.5.4.269 available with archive91c98d855a05c197998f70b9e4aced724825b258b1b71dd16eb8baf31d831ee6 and executablea2b76be8cd87eda33a3c0430a7b21f7115c94a4adca90243679bd0065443b4a9",
+  "independent_work": "7 Lua lifecycle regressions PASS after4 baseline failures;1 lifecycle packing check PASS; exact generated artifact pinned; independent source review; source delivery continues separately.",
+  "evidence": [
+    "runtime-access.json",
+    "runtime-archive-access.json",
+    "lifecycle-red.log",
+    "lifecycle-green.log",
+    "candidate-inputs.json"
+  ],
+  "user_action": "none",
+  "user_action_detail": "No new permission requested. Parent can reuse an already legitimate recovered official runtime; no bypass, paid licence or physical device needed."
+}

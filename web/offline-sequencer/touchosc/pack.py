@@ -75,7 +75,7 @@ def make_xml(directory):
             "visible": ("b", 1),
         }
         if kind == "BUTTON":
-            props.update({"buttonType": ("i", 0), "press": ("b", 1), "release": ("b", 1), "valuePosition": ("b", 0)})
+            props.update({"tag": ("s", ""), "buttonType": ("i", 0), "press": ("b", 1), "release": ("b", 1), "valuePosition": ("b", 0)})
         if kind == "LABEL":
             props.update({"font": ("i", 0), "textAlignH": ("i", 2), "textAlignV": ("i", 2), "textClip": ("b", 1), "textColor": ("c", (0.93, 0.97, 0.96, 1)), "textLength": ("i", 0), "textSize": ("i", 15)})
         if script:

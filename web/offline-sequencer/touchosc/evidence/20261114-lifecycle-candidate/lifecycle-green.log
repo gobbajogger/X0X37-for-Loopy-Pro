@@ -1,0 +1,8 @@
+D1 VM re-entry releases on original channel once: PASS
+D1 same-VM init releases multiple notes once: PASS
+D2 timeout resets stale x and first re-armed tap sounds: PASS
+RELEASE and channel change clear x without reentrant duplicate OFF: PASS
+receive-only notes never acquire release debt: PASS
+attempted OFF is never retried on re-entry: PASS
+invalid and foreign markers cannot emit MIDI: PASS
+TouchOSC lifecycle: 7 scenarios PASS

@@ -1,0 +1,34 @@
+{
+  "base": "679a2c947db6a5296810190a99148f9edb05cc5d",
+  "files": {
+    "controller.lua": {
+      "sha256": "82573ce4dd7531d1a9dac6e5071238d0db2e9bdbde65cf866c8a76ace3d8af7d",
+      "git_blob": "75e1b1d2a731fbfb0e3a7c3c490696c45f01ccaa"
+    },
+    "button.lua": {
+      "sha256": "347db93b4e59eef2b4a189f2a672a4a1b81f48d13dfb8fc949bcdbad92c36068",
+      "git_blob": "53dec40f3b2187005f787e14d87874cd72f7f64b"
+    },
+    "pack.py": {
+      "sha256": "fad7961e70f2cf5960d6f1dcf991053c8d6c4244b9c14cb1af3eee1b910ad36b",
+      "git_blob": "fa739a87bfb6c877f7c45bd29d3cef98f9d26e4f"
+    },
+    "pack.test.py": {
+      "sha256": "4ea0a2f767f1146c1de5da1df5aaaddf2302605b8a1fa13537f7cba21520a56d",
+      "git_blob": "624a1b589269b5bef53fd081963315ede62b3cd4"
+    },
+    "lifecycle.test.lua": {
+      "sha256": "4908ec2fb4125ba55c87b9d58b9badf456db852208838e6abe19d5a39d928e19",
+      "git_blob": "06f82dd8891ff1096944a84b4c0eec4bf411c097"
+    },
+    "README.md": {
+      "sha256": "901afa559c6ae7adafee9a6fb92673457297e10719f2dd3473ea8456316db349",
+      "git_blob": "ba2c80cb204a4b5952ef89e60837e239f5c059d9"
+    }
+  },
+  "artifacts": {
+    "DnBOX-lifecycle-candidate.xml": "fae67d328d915512c2bc4fbbf045c6da01e7ffb0d4bb6c9ace4de9e6a8ad236f",
+    "DnBOX-lifecycle-candidate.tosc": "efe39a1e2a692ba6b4a352a036e6249b271cd13c024047fbc9bc4548442effe3"
+  },
+  "native_qualification": "NOT_RUN"
+}
