@@ -1,6 +1,14 @@
 # DnBOX manual
 
-DnBOX turns an SMK-37 keyboard into a groovebox with 909 and 808 drums, Chicago and Miami synthesizers, a BREAK sample player, and Loopy Pro control. This development tree uses project revision 13. Keep backups with the firmware version that made them.
+This companion explains how to install DnBOX, back up samples and work with project files in the browser. Use the [SMK-37 keyboard manual](legacy.html) to play, record and navigate the instrument.
+
+It describes the **0.0.26 hardware-test candidate** at source `94197fc8`, **not** the [recommended published 0.0.25.1 release](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). **Neither is fully hardware-qualified.** Release notes report Elite testing of 0.0.25.1 without a confirmed installed-package hash, and no Pro device test; the exact 0.0.26 candidate's boot/restart remain unverified. Juno, Drone and held-key chord recording belong to the 0.0.26 candidate only. Chicago is the 303 engine; Miami is not.
+
+This browser workspace imports project revision 13. Keep a project backup made with the original firmware version; incompatible engines and older project revisions are not silently migrated.
+
+## Start with music
+
+The [four musical tasks](legacy.html#s3) take you through a 909 beat, a Chicago/Miami bass line, saving and power-off, then switching and chaining patterns. They use the **printed SMK-37 controls**, not the older FM-1 panel labels. For the control map, see [The panel](legacy.html#s2). The browser tools below are for installation and file management; navigation here does not play or modify a pattern.
 
 ## Connect and choose firmware
 
@@ -8,21 +16,28 @@ Use a USB data cable and a browser that provides Web MIDI with SysEx. Desktop Ch
 
 Close other MIDI editors. Connect the keyboard, press Connect and allow MIDI and SysEx access. Scanning means identification is in progress. Try again follows a failed lookup; Rescan checks an existing connection again. Read the reported identity and check the model printed on the keyboard. An old Elite may identify as Pro; a shared USB name does not prove the physical model.
 
-Choose an admitted published version or select your local `.fwsc` file. The file's current validation result appears beside the chooser. A new selection clears the old package and model confirmation. A controller image is optional only when the package permits it; its format and approved digest must match the selected model. Never substitute an unrelated controller image.
+On the [published main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/), choose the **visible Elite/Pro model and admitted version in the firmware list**. The separate **`Restore original firmware / local package` chooser is hidden and disabled** on that site; a downloaded `.fwsc` cannot be dropped there. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) has a separate visible local-file section in its published source, but that is not proof of a safe or hardware-tested stock recovery. Prefer its listed admitted packages for deliberate testing. Changing model/version clears the previous confirmation. Only supply a controller image if that specific admitted package asks for it and validates it.
 
 ## Back up and install
 
-Stop playback and recording. Keep USB connected throughout the operation. If the update puts samples at risk, the installer reads every slot, offers an `.x0xslots` backup, and requires you to select the saved file again. Every byte must match before firmware writing begins.
+When an **existing DnBOX app responds (update or reinstall)**, stop playback and recording. From [Samples](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/) save an `.x0xslots` archive, and from [Projects](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/) separately export a portable `.x0xproject` including its samples; **verify both files exist on disk**. These tools are not available from M-VAVE factory firmware before installing DnBOX. A project export and a raw sample-slot backup serve different purposes. Keep USB connected during any write. The [main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) blocks a write if a required at-risk slot backup fails. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) may warn and **continue automatically without a backup**; unbacked-up samples can be lost permanently. A browser download request alone does not prove the file was retained.
 
-The installer checks the selected package and target again immediately before OTA. A changed connection or sample snapshot refuses the operation. On completion it waits for the application to return, then restores compatible sample slots and reads them back. A partial restore is a warning: keep the named archive and resolve every skipped slot. Reconnecting does not erase that warning.
+The installer checks the selected package and target again immediately before OTA. A changed connection or sample snapshot may refuse the write. When a verified backup exists, the installer attempts to restore compatible sample slots after the application returns and checks the restored data. A partial restore is **not** complete: keep the named archive and resolve each skipped slot. If installation continued without backup, there may be no samples to restore.
 
 Browser workspaces on the same origin share an operation lock. Close other MIDI applications too: this firmware does not provide an atomic snapshot-to-OTA ticket against every external client. A last-moment concurrent write from another application remains a limitation.
 
 ## Recovery and older firmware
 
-If the keyboard is already in its update loader, the old application's sample reader is unavailable. Resume only with a verified existing backup, or after confirming that there were no samples to preserve. The explicit recovery prompt is not a claim that a new backup was made.
+Use the **observed state** to choose a path; an SMK-37 USB product name alone does not prove the printed Elite/Pro model.
 
-For stock firmware, obtain the exact model's package from the manufacturer and use the visible local-file chooser. Stock firmware may have no DnBOX sample slots. Keep the exported archive for restoration after returning to compatible firmware. Interrupted installation, partial sample restoration and successful firmware transfer are different outcomes.
+**First switch from M-VAVE factory firmware to DnBOX:** There is **no running DnBOX application or DnBOX project yet**, so neither a DnBOX `.x0xslots` backup nor a `.x0xproject` export can be made. Preserve any factory data using a manufacturer-supported method if available. Select an admitted package for the physical model in the visible main installer catalog; if the factory app cannot satisfy required sample-layout preflight and the installer refuses to write, **stop rather than bypassing the guard**. Do not assume that factory samples are already protected by a DnBOX backup.
+
+1. **DnBOX application already responds (update or reinstall).** Save and check the separate sample and project backups above. In the **main installer**, Connect, grant MIDI/SysEx permission, choose the printed physical model and a **listed, admitted published DnBOX package**, then follow the visible confirmation. A file downloaded from GitHub Releases is a download, **not** a working local upload route on the main website.
+2. **Only the update loader responds after an interrupted write.** Connect and check the installer's actual loader status (`ota-` identity). The running application's sample reader is unavailable, so **no new `.x0xslots` or project backup can be made from that state**. The main installer has a loader-resume path for a **listed, admitted package matched to the physical model**; it bypasses app-side sample backup. Proceed only if that exact option is available and a retained backup or the possible sample loss is acceptable. A matching USB name alone is insufficient. If no safe match is offered, stop; do not use the hidden file chooser or invent a button combination.
+3. **Uncertain restart or no device found.** Wait until any in-progress write ends, then reconnect and use **Connect / Rescan** to distinguish the normal app from the update loader. Check MIDI/SysEx permission and close other MIDI apps. Do **not** guess the state from a transient disconnect or repeat an unverified write.
+4. **Return to M-VAVE stock firmware.** Obtain the package for the **exact physical model** from [M-VAVE](https://www.m-vave.com/download) and follow the manufacturer's **M-UPGRADE** procedure. The main DnBOX web installer's local stock chooser is hidden; it does not contain or support uploading the factory package. Keep your existing `.x0xslots` / project archives for later use with compatible DnBOX firmware. Stock firmware may not read DnBOX sample slots.
+
+**What completion means.** The browser's `Done` status follows a **fresh, matching application MIDI response** after the write, not a flash-byte attestation, an audio test, or a successful sample restore. Check that the normal app truly runs and plays sound, then inspect the saved project and sample slots. If sample restoration reports skipped slots, a partial result, or missing read-back, keep the recovery archive: **restoration is not complete**. Neither published package nor nightly build has full Elite/Pro hardware qualification.
 
 ## Prepare and preview samples
 
@@ -42,10 +57,12 @@ Restore preserves slot numbering. It lists slots that do not fit and reports a p
 
 Export a portable project with original samples for a complete project backup. A project-only export contains sample identities and requires matching sample slots at import. The page checks the file before preparing an import preview. A recovery backup is available before replacing occupied slots.
 
-The current Chicago/Miami build imports revision 13 only. Earlier files can be inspected, but this workspace does not migrate engine projects. Keep their original firmware and backups. Import replaces the live project; Save on keyboard stores it. Load and Reset require explicit confirmation and keep uploaded sample slots.
+The browser workspace imports revision 13 only. You can inspect earlier files, but this workspace does not migrate engine projects. Keep their original firmware and backups. Import replaces the live project. Save on the keyboard stores it. Load and Reset require explicit confirmation and keep uploaded sample slots.
 
 A disconnect invalidates the device session and import preview. Local selected files and recovery downloads remain available. Reconnect, read the new target, and prepare a fresh preview. If firmware holds audio after an interrupted sample transfer, use the complete portable recovery backup described by the Projects workspace before playing.
 
-## Detailed keyboard controls and provenance
+## Keyboard controls
 
-The [keyboard control reference](legacy.html) preserves the project's full existing manual and diagrams. Its older engine and firmware descriptions are historical; current revision 13 uses only Chicago and Miami in the two synth slots. See the repository's SMK37.md for the physical control map. A website build, host test or package checksum does not establish hardware acceptance.
+For playing, control glyphs, chord recording and the difference between factory presets and project backups, read the source-matched [SMK-37 manual](legacy.html). This companion does not reproduce its controls or supersede them.
+
+A website build, host test, matching USB identity or package checksum does not prove hardware startup, restart, audio, or sample recovery.
