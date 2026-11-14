@@ -1,0 +1,114 @@
+{
+  "kind": "CURRENT_SOURCE_SONG_AUTHORING_CONTRACT_NOT_EXECUTED",
+  "source": {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+    "parent": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "ui_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+    "ui_sha256_reused_3c41_receipt": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+    "sequencer_blob": "1c92a17d43a444d067a8aff60eb0f3a5e8e3fc8f",
+    "sequencer_sha256": "40a393b76de9f11d41bf99828fab99f87f91e29ed3b21f672c9ab1cf984b8156",
+    "identity_limit": "UI/sequence whole-file blob pins fetched at d158; UI SHA256 reused from exact same3c41 blob receipt. Not package/runtime execution."
+  },
+  "indices": "Internal bar/pattern indices are0-based; LCD BAR/P labels are1-based.",
+  "native_controls": [
+    {
+      "page_index": 0,
+      "title": "BAR",
+      "K5": "R_SBAR current bar cursor",
+      "K6": "R_SPAT PART_909",
+      "K7": "R_SPAT PART_808",
+      "K8": "R_SPAT PART_BRK"
+    },
+    {
+      "page_index": 1,
+      "title": "BAR",
+      "K5": "R_SBAR same cursor",
+      "K6": "R_SPAT PART_303B",
+      "K7": "R_SPAT PART_303A",
+      "K8": "R_SREP encoded0..7→displayx1..x8"
+    }
+  ],
+  "cursor": {
+    "range": "0..len inclusive while len<192;0..191 at capacity",
+    "empty": "len0 has only cursor0. K5+ clamps0;it does not append.",
+    "one_bar": "After adding bar0,len1,cursor1 is END/displayBAR2. K5− returns0;K5+ returns1.",
+    "advance": "White pad/key write advances only if k+1<192. Writing existing bar191 or appending last bar191 leaves cursor191.",
+    "page_navigation": "K2/ordinary arrows move between two BAR pages with clamp0..1,not wrap. K5 edits bar value,not page.",
+    "dirty": "Generic pref_set marks dirty before R_SBAR assignment,even a clamped attempt. Cursor edit does not itself create a bar or change pattern arrays."
+  },
+  "fill_defaults": {
+    "first": "song_fill first bar copies each seq.ppat[p];mute byte0 means all parts unmuted/repeat1.",
+    "later": "New bars copy the whole preceding bar,including all part pattern IDs,mutes and repeat bits.",
+    "trigger": "White pad assignment,black mute,per-part scalar,repeat scalar or length extension can call song_fill. Merely selecting END does not."
+  },
+  "pad_and_key_input": {
+    "gate": "SONG,no PATCH held,no earlier BT-copy modifier,keydown only,k<192;key-up never writes.",
+    "white": "wp=patternBank*16+whiteIndex. Fill selected bar,set all five bar.pat[p]=wp,advance cursor as above,mark dirty. This edits the Song;it does not merely queue live patterns.",
+    "black": "Only first5 logical black keys accepted. Fill selected bar,XOR1<<part_at(blackIndex),keep cursor. Order909,808,BREAK,BASS B,BASS A. Others ignored.",
+    "mods": "BT+white has earlier pattern-copy/paste priority. PATCH+white uses Home cue/chain route. Do not treat either as unmodified Song bar entry."
+  },
+  "scalar_semantics": {
+    "patterns": "R_SPAT clamp0..31,displayP1..P32. At END read previous bar's per-part assignment,or current seq.ppat when empty. Edit fills the row and changes only that part;cursor stays.",
+    "repeat": "R_SREP clamp0..7,displayx1..x8. At END its read value is0(x1),even if preceding bar repeats more. Edit fills then writes high3 mute bits,retaining low5 part-mute bits;cursor stays.",
+    "pinned_smc": "r.b can bind explicit bar. Deleted bound bar is not recreated. Ordinary panel r.b0 follows ui.song_sel.",
+    "length": "List LENGTH0..192. Extending inherits through song_fill;shortening updates len and clamps cursor to len,or191 when full. Stored beyond-length bytes are not represented as active bars."
+  },
+  "body": {
+    "view": "11 visible bar slots under heading,with selected-row highlight and current playing-bar triangle only when song_on&&playing.",
+    "end": "k==len is END;empty row0 says EMPTY: WHITE KEYS ADD BARS. It displays no stored part pattern IDs.",
+    "rows": "Existing row shows each part Pn;muted part prints '-';x2..x8 shown only when repeat>1. Selected cursor is separate from sounding song_pos."
+  },
+  "transport_record": {
+    "enter": "Ordinary PATCH toggles HOME→SONG;from other no-overlay view goes HOME first. Questions/list/pending-sound routes can consume PATCH first.",
+    "play": "While stopped input sets song_on=(view==V_SONG). PLAY start uses selected bar if selected<len,else0. While playing,navigation does not change song_on. PLAY stops separately.",
+    "rec": "SEQ REC toggles broad ui.rec on press;seq.song_rec=seq.song_on&&ui.rec. Manual bar editing works independently of REC. Starting SONG+REC writes arrangement at selected existing bar or0 if END.",
+    "recorded_bar": "Source song_write stores current next[] pattern tuple plus current part mutes,grows len,and resets repeat bits to1 by starting mute byte0. Recording is arrangement state,not audio/allFX.",
+    "capacity": "At192 new recorded bars source clears song_rec;does not allocate beyond capacity. UI REC lamp still represents ui.rec,not proof that arrangement storage continues."
+  },
+  "feedback": {
+    "buttons": "PATCH lit in HOME/SONG;PLAY follows source beat/WAIT;REC lit when ui.rec;BT uses source saved/dirty/queued/failure policy.",
+    "pads": "When LIGHTS enabled,used patterns dim. Existing selected bar's909 pattern bright in visible bank. Empty/END has no selected existing bar,so no current-pattern bright layer is added. HOME queued-cue blink is not applied as SONG pending cue.",
+    "logical_black": "Source mute k/d masks for black keys are not proof of physical keybedLEDs;SMK hardware has no piano-key LEDs."
+  },
+  "minimal_reducer_dispositions": [
+    "Do not repair empty Song K5 clamp by inventing an append. Repair unmodified pad write+len+cursor advance first.",
+    "After pad0 into empty:len1,cursor1,bar0 all fiveP1,repeat1,unmuted. Cursor now END,not selected storedbar0.",
+    "K5− then+ must visit storedbar1 and ENDbar2 without changing assignments;retain source dirty-policy distinction.",
+    "Both BAR pages edit the exact selected row/part/repeat;K2 page clamping is independent.",
+    "Do not select CP2/CP3 to implement current manual Song authoring or current view-owned start behavior."
+  ],
+  "anchors": {
+    "ui": [
+      "99–111",
+      "490,505–535",
+      "578–583",
+      "667–672,687–689",
+      "715–748,814–820",
+      "868–898",
+      "1573–1577",
+      "1721–1725",
+      "2628–2659",
+      "3718–3733",
+      "4009–4053",
+      "4539–4543",
+      "4554–4572",
+      "6051–6088",
+      "8467–8519"
+    ],
+    "sequencer": [
+      "399–425",
+      "549–606"
+    ],
+    "sequencer_h": [
+      "52,70–78"
+    ]
+  },
+  "limits": [
+    "Source contract only;no emulator/test/review execution.",
+    "No frozenR5/proposal/source/runtime change.",
+    "No CP2 choice,CP3 freeze,CP1/Settings redesign or new owner.",
+    "Effective model/effort not exposed."
+  ]
+}
+

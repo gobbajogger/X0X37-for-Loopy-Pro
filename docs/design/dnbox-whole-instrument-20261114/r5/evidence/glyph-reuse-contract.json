@@ -1,0 +1,103 @@
+{
+  "scope": "Read-only exact public source reuse contract; no private input or export",
+  "source_refs": {
+    "historical_current": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "accepted": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "pr931_base": "e581333f1ef2586c6c37f72e80d0b51fe5a00723",
+    "pr931_head": "ea10fb1492527932476b0ecfa668348f5c1a8a03"
+  },
+  "accepted_identity": "Full d158 independently fetched; never equated to e581",
+  "source_comparison": "d158 and3c41 four UI/glyph inputs byte-identical. e581 andea10 byte-identical; only source delta is masked question cues. Juno DSP law byte-identical all four.",
+  "actual_current_Chicago_ADSR": {
+    "admission": "V_PART actual Chicago row7,8,9,10 only, active or inactive",
+    "functions": [
+      "draw_part_sound",
+      "adsr_row",
+      "adsr_values",
+      "adsr_original_level",
+      "adsr_layout",
+      "draw_adsr_inline"
+    ],
+    "reuse": [
+      "full-row graph",
+      "K5 A/K6 D/K7 S/K8 R value labels at rest/turn",
+      "edited stage/value caption",
+      "segment highlight/underline",
+      "illustrative fixed sustain hold",
+      "note-off marker",
+      "qualified native live gauge/cursor"
+    ],
+    "baseline_status": "Pre-existing source behavior; do not call new"
+  },
+  "actual_current_Juno_PART": {
+    "pages": [
+      [
+        "OSCILLATOR",
+        0,
+        1,
+        12,
+        15
+      ],
+      [
+        "FILTER",
+        2,
+        3,
+        4,
+        9
+      ],
+      [
+        "ENVELOPE",
+        5,
+        6,
+        7,
+        8
+      ],
+      [
+        "LFO/CHORUS",
+        10,
+        11,
+        13,
+        14
+      ]
+    ],
+    "full_cycle_includes_SOUND": 5,
+    "selected_paths": "wave_shape/original_wave_view/original_wave_slot/orig_strip_slot/adsr_row do not admit dedicated Juno cues at inspected pins",
+    "fallback": "human labels,rounded percent,neutral bars,selected row and knob map",
+    "scope_limit": "Does not deny Juno shared sequence/mixer/FX vocabulary",
+    "novelty": "Dedicated Juno PART semantic pictograms/full-row envelope would be proposal extensions; retained R4 glyphs are retained proposal art, not native baseline"
+  },
+  "Juno_full_row_extension_contract": {
+    "geometry_and_control_language": "Reuse existing full-row family and four knob labels,retain readable values and all navigation",
+    "law_source": "firmware/src/dsp/juno6.c19-51,88-99",
+    "normalization": "x=q/127",
+    "A": "A=.002+3*xA*xA; E+=1/max(1,A*Fs) to1",
+    "D": "D=.01+3*xD*xD; E-=(1-S)/max(1,D*Fs) toS",
+    "S": "S=xS",
+    "R": "R=.01+4*xR*xR; E*=1-1/max(1,R*Fs); retire E<1e-5",
+    "shape": "linear A,linear D,held S,exponential R",
+    "duration_limits": [
+      "A remaining time depends on retrigger starting level",
+      "S=1 has no decay height",
+      "R coefficient is not total tail duration",
+      "static completed envelope assumes note-off at sustain; early-release cursor needs actual starting level",
+      "fixed hold is illustrative,not real elapsed time"
+    ],
+    "legacy_family_limit": "adsr_fall/adsr_release are not called by active draw_adsr_inline. adsr_values non-Chicago uses legacy IDs/disabled display_env_ms. Loosening adsr_row alone is incorrect. Explicit engine-law dispatch required.",
+    "Chicago_regression_guard": "Retain native Chicago path and existing current labels/curve/gauge; no q-only synthetic replacement",
+    "runtime_marker_limit": "No invented wall-time live cursor or Chicago-only native view used as Juno evidence"
+  },
+  "dynamic_labels": {
+    "pre_existing": "ADSR edited-stage/value caption and parameter labels/readouts",
+    "legacy_FX_branch": "matrix_name returns ui_original_name first; later active-original R_ENG/T_303 switch is preempted at all four refs",
+    "claim_limit": "Do not call a separate dynamic FX treatment either new or active baseline without its accepted artifact/source pin"
+  },
+  "read_only_files": "source-and-function-manifest.json and exact public source subdirectories",
+  "not_run": [
+    "emulator",
+    "tests/builds",
+    "renders",
+    "candidate/runtime edits",
+    "independent review",
+    "private input/export"
+  ]
+}

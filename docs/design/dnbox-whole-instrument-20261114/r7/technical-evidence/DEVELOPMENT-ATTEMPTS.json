@@ -1,0 +1,64 @@
+{
+  "classification": "Failed producer checks preserved, not relabeled; exact full originals retained separately",
+  "attempts": [
+    {
+      "attempt": "physical-dom-first-10of11.json",
+      "bytes": 1793,
+      "sha256": "82010f74e0e647f8fc789cf9377ffe64cf75fa4088ead379908c06956363fbca",
+      "passed": 10,
+      "total": 11,
+      "failures": [
+        {
+          "name": "Browser cancellation ends physical GRID owner without short-tap deletion",
+          "pass": false
+        }
+      ]
+    },
+    {
+      "attempt": "delivery-delta-first-52of53.json",
+      "bytes": 53904,
+      "sha256": "74d4fa1301613964385c0cd03e54f6fb8986ebf8c49594507a38604330008dfd",
+      "passed": 52,
+      "total": 53,
+      "failures": [
+        {
+          "name": "Tab exit disposes original Settings frame",
+          "pass": false
+        }
+      ]
+    },
+    {
+      "attempt": "delivery-delta-second-52of53.json",
+      "bytes": 53917,
+      "sha256": "88804c5862ed4e1fa61d34fc23786bc6b7f9b3b28f32fbf2381857dc718adc40",
+      "passed": 52,
+      "total": 53,
+      "failures": [
+        {
+          "name": "Global keeps reserved Settings host route",
+          "pass": false
+        }
+      ]
+    },
+    {
+      "attempt": "asset-first-171of172.json",
+      "bytes": 20066,
+      "sha256": "90e98233853fe4b093f1876becddc5fb2d5d8a39f8a2951a551626effde937b7",
+      "passed": 171,
+      "total": 172,
+      "failures": [
+        {
+          "name": "Actual-before source receipt exists: gen-held",
+          "pass": false
+        }
+      ]
+    }
+  ],
+  "dispositions": [
+    "Physical cancel test selected empty step instead of existing hit; test fixture corrected, model unchanged.",
+    "Reference response/scroll was not complete; pointer click did not dispatch. Wait for message and stable target; original host unchanged.",
+    "Global test was still in Clip after prior exception check. Declare normal-mode fixture; connected Clip ownership stays unqualified.",
+    "Actual GEN held capture had no optional second local copy. Validator now uses its exact pinned capture-receipt SHA/bytes; pixels unchanged."
+  ],
+  "final_checks": "See named final affected receipts. Earlier failures do not become passes."
+}

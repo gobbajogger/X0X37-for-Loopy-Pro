@@ -1,0 +1,20 @@
+--- checked-model-5e0797e6
++++ R6-final-native-fill
+@@ -276,7 +276,7 @@
+ function songCardGlyph(k,x,y,ink){
+  if(S.page===1&&k===3){for(let i=0;i<8;i++)rect(x-1+i*5,y+4,3,9,i<=songRepeat()?ink:C.line);return;}
+  const count=k===0?Math.min(S.songBars+1,192):32,val=k===0?S.songSel:songPattern((S.page===0?[null,0,1,4]:[null,3,2])[k]),selected=count<=8?val:Math.floor(val*7/(count-1));
+- for(let j=0;j<Math.min(count,8);j++){g.strokeStyle=j===selected?ink:C.line;g.lineWidth=1;g.beginPath();g.roundRect(x+j%4*10+.5,y+Math.floor(j/4)*10+.5,6,6,1);g.stroke();}
++ for(let j=0;j<Math.min(count,8);j++){g.fillStyle=j===selected?ink:C.line;g.beginPath();g.roundRect(x+j%4*10,y+Math.floor(j/4)*10,7,7,1);g.fill();}
+ }
+ function song(){
+  const names=[0,1,2,3,4].map(p=>laneName(p).replace('CHICAGO','CHI').replace('MIAMI','MIA').replace('BREAK','BRK'));text('BAR',4,20,11,C.gray);names.forEach((n,i)=>text(n,58+i*36,20,11,partInk[i],false,'center'));
+@@ -558,7 +558,7 @@
+ 
+ function junoMatrix(){
+  // Current Juno large readouts and neutral bars are retained. New shared-family
+- // thumbnails use only the unused row-heading gutter, never the value area.
++ // heading thumbnails are withdrawn; scoped feedback uses only the selected-row gutter.
+  const pp=pages(),first=Math.floor(S.page/4)*4;
+  for(let r=0;r<4;r++){const p=first+r;if(!pp[p])continue;const row=pp[p],y=24+r*50,active=p===S.page,ink=active?C.ink:C.gray;slab(3,y,234,49,active);text((p+1)+' '+row.title,8,y,10,ink,true);if(active)text('K5 6 7 8',232,y,10,C.ink,true,'right');
+   rowScopeCue(p,105,y+1);

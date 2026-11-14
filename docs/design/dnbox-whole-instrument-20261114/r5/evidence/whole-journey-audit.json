@@ -1,0 +1,732 @@
+{
+  "kind": "READ_ONLY_WHOLE_JOURNEY_CONTROL_AUDIT",
+  "date": "2026-11-14",
+  "effective_model_effort": "NOT_EXPOSED",
+  "scope": "Public-source and retained inventory synthesis only;not proposal implementation,review disposition or runtime acceptance.",
+  "source_intake": {
+    "commits": [
+      {
+        "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+        "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+        "parents": [
+          "3c41ef4bedf9701f549ce2752b73306e2fab1eb8"
+        ],
+        "message": "Compose retained lossless DSP savings with instrument lifecycle fixes"
+      },
+      {
+        "commit": "e581333f1ef2586c6c37f72e80d0b51fe5a00723",
+        "tree": "9a570ed0b69cbd8e07e53a9b3e7048e58d52e109",
+        "parents": [
+          "d158444101d569f9ee64ba05d7cb54f24de1be30"
+        ],
+        "message": "fix(ui): hide unavailable SCALE cues on clip questions"
+      },
+      {
+        "commit": "ea10fb1492527932476b0ecfa668348f5c1a8a03",
+        "tree": "152873b89c7f68c3a8369d629bf111d09964b2da",
+        "parents": [
+          "e581333f1ef2586c6c37f72e80d0b51fe5a00723"
+        ],
+        "message": "feat(runtime): retain Drone archives in a disabled DSP profile"
+      }
+    ],
+    "ui_d158_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+    "ui_pr930_blob": "0694f20d1e7106d2479aa3846873426af7d114c9",
+    "smc_d158_blob": "8942c49681e9bd15f39b4cfd3745826ba58b4a16",
+    "main_d158_blob": "f47fb8780f7c1ff7b339426b56fe3de9baf368d5",
+    "sequencer_d158_blob": "1c92a17d43a444d067a8aff60eb0f3a5e8e3fc8f",
+    "pr931_original_runtime_h_blob": "cfe2b6f2c8967a3284cd723607b5eb2dc704a9ba",
+    "pr931_original_presets_blob": "85dc7e9a290c0f6bb1c6e7c8a6b2b4d0d1edb9cb",
+    "provenance": "Authenticated connected GitHub read-only fetches. Source blobs are whole-file remote identities even when only named line ranges were consumed."
+  },
+  "actual_label_and_profile_limits": [
+    "Actual dynamic engine labels,native ADSR and engine-specific glyph/pages are pre-existing;not candidate improvements.",
+    "#931 ea10fb14 defaults X0X_DRONE_RUNTIME_ENABLED=0,preserves valid Drone archive cell/tag identity and returns unavailable/silent runtime;do not describe old four-audible-engine map as latest shipping availability.",
+    "Current source already has ENGINE UNAVAILABLE request rejection. No newly designed persistent engine-availability LCD label is claimed as current.",
+    "Chicago/Miami/Juno parameter routes are useful source baselines;existing Drone page/schema data remain archival/optional-profile context."
+  ],
+  "counting": {
+    "convention": "Source-derived logical gestures,not measured time,encoder calibration or musician performance. One unused tap=down+up;one complete hold/release=one gesture;chord physical presses stated separately;one accepted K2 sign event=one page. Start state,page memory,held owners and model/build gates are mandatory.",
+    "input_count_inventory": "35 retained R4 access tasks +11 detailed P01\u2013P11 cases;not35 new tests or executed speed claims."
+  },
+  "inventory": {
+    "retained_journeys": 39,
+    "coverage_rows": 261,
+    "roadmap_rows": 199,
+    "crosswalk_rows": 62,
+    "whole_design_acceptance": false
+  },
+  "groups": [
+    {
+      "id": "W01",
+      "journeys": [
+        "J01",
+        "J04",
+        "J29"
+      ],
+      "goal": "First audible beat, then an intentional drum edit",
+      "start": "909 SEQ, known empty working pattern, REC off, established output/clock; BD selected",
+      "route": [
+        "Tap W1/W5/W9/W13 once",
+        "Press SEQ PLAY",
+        "Select SD with black2=G#3, PARA, K7 DECAY if desired"
+      ],
+      "count": "Beat:4 step gestures +1 PLAY press =5. Add1 BD-selection gesture if not selected. SD correction from its remembered first sound row:1 track selection +1 PARA +1 turn =3.",
+      "actual": "Drum track selection/audition and step writing are different. Running REC-off selection need not add or audition a hit. Keep real kit/track values and direct sound-page control.",
+      "feedback": "Content dim base, current/held/playhead layers follow source priority; REC lamp is arm only. No pad light proves recorded or saved.",
+      "retain": "Keep the 16-step surface, 11-track drum selection and native per-voice controls.",
+      "opportunity": "Name SELECT TRACK / AUDITION / WRITE context without adding a mode-confirmation detour; complete the beat by listening to replay, not by seeing steps.",
+      "sources": [
+        "ui.c3208\u20133215",
+        "ui.c3412\u20133504",
+        "ui.c8460\u20138583",
+        "R4:P11"
+      ],
+      "gate": "Audible monitoring and physical velocity remain unqualified here."
+    },
+    {
+      "id": "W02",
+      "journeys": [
+        "J08",
+        "J09"
+      ],
+      "goal": "Explore the actual sound, then choose another preset deliberately",
+      "start": "Selected supported melodic slot, REC off, no held input/question, known remembered page",
+      "route": [
+        "PARA enters remembered sound page",
+        "K2 moves both directions through engine-specific pages",
+        "SOUND: K5 ENGINE, K6 PRESET, K7 read-only STATUS; K4 also changes requested preset"
+      ],
+      "count": "From SEQ with the first sound page remembered: PARA +K2 reverse1 to SOUND +K6 turn =3 gestures for available Chicago/Miami/Juno. From Chicago OSCILLATOR to EFFECT:2 reverse K2 events +K5 turn =3.",
+      "actual": "Dynamic engine labels and engine-specific page/glyph/ADSR vocabulary already exist. Engine/preset turns submit requests; universal inert browsing/reversible audition is not established.",
+      "feedback": "PARA view LED; real status and old sounding identity must be distinguished from requested choice. Blank/read-only columns stay unavailable.",
+      "retain": "Current sparse four-knob matrix and full page cycles; do not substitute generic diagnostics or claim dynamic naming as new.",
+      "opportunity": "Unify target/scope hierarchy and real native glyphs. Keep current sound versus request explicit; detailed pending/Keep cases stay reserved.",
+      "sources": [
+        "ui.c730\u2013742",
+        "ui.c1509\u20131526",
+        "ui.c4061\u20134069",
+        "ui.c4610\u20134625",
+        "original_presets.inc223\u2013346 @ea10fb14",
+        "R4:P01\u2013P05"
+      ],
+      "gate": "Seven CP1 cases and Keep/native user-bank policy excluded. #931 default Drone DSP availability differs from archived identity; no newly invented current LCD label."
+    },
+    {
+      "id": "W03",
+      "journeys": [
+        "J02",
+        "J03",
+        "J19",
+        "J33"
+      ],
+      "goal": "Record a phrase, stop, correct and perform another take",
+      "start": "Selected melodic V_SEQ, known pattern/cursor/rate/direction, stopped, REC off; supported engine available",
+      "route": [
+        "SEQ REC press arms and resets selected melodic write cursor",
+        "Play and release N deliberate notes/chord onsets for stopped step entry",
+        "SEQ REC press disarms",
+        "For running take add PLAY start and PLAY stop, then inspect/replay before retry"
+      ],
+      "count": "Stopped take:2 REC presses +N note gestures. Running take adds2 PLAY presses. Counts exclude context selection, chord-size changes and listening duration.",
+      "actual": "Current physical bass_write/bass_kbd stores BASS_VELOCITY_DEFAULT; live audition velocity is not universal recorded onset velocity. External MIDI/SMC REC uses source masks/channels; input endpoints are not one universal recorder.",
+      "feedback": "Red REC means ui.rec armed. A heard onset, moving playhead, input acknowledgement or arm lamp is not stored-note proof. Refused direction/chord/note-sound paths remain visible source facts.",
+      "retain": "Useful stopped step entry and running recording; existing duration/endpoint/lifecycle fixes are retained source context, not rerun proof.",
+      "opportunity": "Show actual current mode, target, cursor and accepted/rejected pass evidence; provide a correction/replay/retry journey. Do not declare the future exclusive capture class chosen.",
+      "sources": [
+        "ui.c3315\u20133407",
+        "ui.c4023\u20134042",
+        "ui.c4455\u20134457",
+        "ui.c4543",
+        "smc_mixer.c1727\u20131737"
+      ],
+      "gate": "CP2 strategy depends on CP1; CP3 lifecycle depends on selected CP2. Full37 expressive capture and repeated-take burden remain design/verification requirements, not current success claims."
+    },
+    {
+      "id": "W04",
+      "journeys": [
+        "J06",
+        "J10",
+        "J30",
+        "J31",
+        "J38"
+      ],
+      "goal": "Correct one held step, then return to the base sound",
+      "start": "Known existing step and sound page preselected; REC off, no overlay",
+      "route": [
+        "From V_SEQ hold original W5/pad4 step05",
+        "PARA enters retained sound page while step stays held",
+        "Turn target K5\u2013K8 for eligible p-lock",
+        "Release original step; next turn edits base",
+        "Held step +K2 edits chance; melodic held step +K3 edits velocity"
+      ],
+      "count": "Known SEQ/page:1 hold/release +1 PARA +1 turn =3. R4 P06 adds SEQ entry and post-release base turn for5 total. Chance from known held step:1 hold +1 K2 turn =2.",
+      "actual": "K2 while held is probability, not page browsing. Preselect sound page first. Page/bank/octave/rate are context-sensitive; held original owner controls release.",
+      "feedback": "Selected step, held marker, lock and base value need distinct text/geometry. No keybed LEDs; physical pad colour does not encode all scopes.",
+      "retain": "Original owner binding, 64-step paging, scalar editing without extra confirm and source K2/K3 overrides.",
+      "opportunity": "Persistent STEP05/track/scope cue plus clear return-to-base; keep all editable native controls visible.",
+      "sources": [
+        "ui.c2840\u20133010",
+        "ui.c3412\u20133504",
+        "ui.c4116\u20134167",
+        "ui.c4554\u20134587",
+        "R4:P06\u2013P07"
+      ],
+      "gate": "No test/replay of held-transition timing or collision correctness in this audit."
+    },
+    {
+      "id": "W05",
+      "journeys": [
+        "J07",
+        "J16"
+      ],
+      "goal": "Record motion, override it for a pass, and remove only the intended lane",
+      "start": "Running pattern and known eligible engine parameter page",
+      "route": [
+        "REC on:turn the parameter to record its lane",
+        "REC off:turn an existing lane parameter for a one-pass hold",
+        "Hold BT and turn that parameter to clear its lane",
+        "In held-step scope the same BT+turn clears that one p-lock instead"
+      ],
+      "count": "Known target:1 turn for record/override;1 BT hold +1 turn =2 for lane clear. REC toggle adds1 press when needed.",
+      "actual": "Only R_ENG playing routes motion; target is engine_motion_part, not necessarily visible part for shared controls. Full capacity says MOTION FULL; stationary control is not a write.",
+      "feedback": "Show base/playing motion/temporary override/lock separately; used BT release is consumed and must not save.",
+      "retain": "Direct four-knob, wheel and fader destinations plus pickup and original ownership.",
+      "opportunity": "Show named destination and stored-versus-live scope beside native controls, with refusal that preserves unrelated lanes.",
+      "sources": [
+        "ui.c2783\u20132817",
+        "ui.c4628\u20134689",
+        "main_fm1.c885\u20131110",
+        "R4:P06\u2013P09"
+      ],
+      "gate": "Future capture-class motion policy stays CP2/CP3 dependent."
+    },
+    {
+      "id": "W06",
+      "journeys": [
+        "J05"
+      ],
+      "goal": "Explore BREAK slices and return to the groove",
+      "start": "BREAK LOOPS, known bank/slot/sample identity; no held input",
+      "route": [
+        "K5 changes LOOP A; K6 LOOP B; remaining actual page refs retain their scope",
+        "SEQ to remembered SEQUENCE, K2 to GROOVE, K7 ROLL",
+        "Hold live slices/reverse/stutter and release original owners"
+      ],
+      "count": "R4 P10:LOOP A turn +SEQ +K2 +ROLL turn =4 gestures. Slice performance cost depends on exact onset/release schedule.",
+      "actual": "Last-held live slice overrides generator; release restores source-defined generator route. LOOP A/B/B CHANCE are pattern refs; PITCH is sound ref. Physical audition is not a universal BREAK recording promise.",
+      "feedback": "Requested sample/bank, actual fallback source, active slice and live override differ; no false recorded flash.",
+      "retain": "Loops, slice/groove/retrigger controls and four live lower controls.",
+      "opportunity": "Native bank/slot/slice identity and explicit release destination; complete multi-slice phrase and recovery to groove.",
+      "sources": [
+        "ui.c3218\u20133248",
+        "R22:J05",
+        "R4:P10",
+        "R4:drum_and_bottom"
+      ],
+      "gate": "Physical BREAK capture proposal and sample portability/atomicity remain unqualified; capture-class choice not selected."
+    },
+    {
+      "id": "W07",
+      "journeys": [
+        "J39"
+      ],
+      "goal": "Generate a useful variation without misrepresenting destructive replacement",
+      "start": "Eligible Chicago/Miami generator context; current pattern understood",
+      "route": [
+        "ARP enters generator",
+        "OCTAVE+ produces NEW LINE with seed",
+        "OCTAVE\u2212 mutates current line",
+        "Use existing history route if admissible"
+      ],
+      "count": "From eligible non-generator view:ARP +OCTAVE action =2 gestures; already in generator =1.",
+      "actual": "Current NEW LINE/mutate edits the live current pattern and marks dirty; it is not an inert preview buffer.",
+      "feedback": "Generator page/seed and changed pattern must remain explicit; no unchanged/original badge after actual mutation.",
+      "retain": "Source generator controls and existing Undo constraints.",
+      "opportunity": "R22 random-preview/adopt comparison remains a new design capability needing staging, memory and correction proof.",
+      "sources": [
+        "ui.c4071\u20134079",
+        "ui.c4118\u20134140",
+        "R22:J39"
+      ],
+      "gate": "No invented preview implementation or one-tap whole-take undo guarantee."
+    },
+    {
+      "id": "W08",
+      "journeys": [
+        "J11"
+      ],
+      "goal": "Copy the audible multi-part idea to a safe destination",
+      "start": "Current source slots per part known; destination bank visible",
+      "route": [
+        "Hold BT",
+        "Press chosen destination white key/pad",
+        "If occupied, SCALE confirms or PATCH cancels",
+        "Release used BT without extra save"
+      ],
+      "count": "Empty destination:2 physical press/hold gestures. Occupied destination adds1 confirm or cancel tap =3; bank selection adds BT+OCTAVE context action.",
+      "actual": "Copies all five parts from their respective current source slots. Occupied destination asks; partial motion capacity can yield MOTION FULL: NOT ALL PASTED.",
+      "feedback": "Exact source/destination/scope; do not call partial copy complete or consumed BT a save.",
+      "retain": "Fast combo and contextual confirmation.",
+      "opportunity": "Show five-part source tuple and copy/overwrite result without replacing direct performance controls.",
+      "sources": [
+        "ui.c3700\u20133716",
+        "ui.c2618\u20132625",
+        "ui.c4111\u20134115"
+      ],
+      "gate": "No bytes/data comparison or undo round-trip executed."
+    },
+    {
+      "id": "W09",
+      "journeys": [
+        "J20",
+        "J21"
+      ],
+      "goal": "Save the current idea, recognise delay/failure, then retry deliberately",
+      "start": "Any ordinary UI context, project not in transfer, unused BT gesture",
+      "route": [
+        "Short unused BT release requests save",
+        "If running, stop; disarm REC; release/retire actual note/transfer/clip owners",
+        "Wait for eligible safe write and inspect exact result",
+        "On actual failure keep RAM work and use a fresh explicit retry"
+      ],
+      "count": "Request=1 tap. From RUN+REC on, readiness can add PLAY stop +REC off =2 presses; owners/quiet time prevent a fixed completion count.",
+      "actual": "Source statuses SAVED/UNSAVED/QUEUED/FAILED and SAVE AT STOP/REC OFF TO SAVE/SAVE WHEN QUIET already exist. Explicit request queues latest live data until safe; request acknowledgement is not completion.",
+      "feedback": "BT queued steady, unsaved ui.frame8 blink, failure ui.frame2 blink, saved off under current source. Text/geometry must disambiguate; binary lamp cannot show invented colour/breathing.",
+      "retain": "Current feedback and safe write conditions, including autosave quiet/gap and newer-data/memory errors.",
+      "opportunity": "Persistent compact actual blocker/outcome with selected target preserved; never turn stopped/refused/requested into durability.",
+      "sources": [
+        "ui.c281\u2013303",
+        "ui.c2224\u20132296",
+        "ui.c8773\u20138819",
+        "ui.c8498\u20138499"
+      ],
+      "gate": "Seven CP1 cases and transactional result lifecycle reserved. No save/reload, flash fault, power-loss or safe-power-off proof."
+    },
+    {
+      "id": "W10",
+      "journeys": [
+        "J22",
+        "J23",
+        "J25"
+      ],
+      "goal": "Recover a saved idea or reject an unsafe replacement",
+      "start": "Project LOAD row already selected through reserved Settings component",
+      "route": [
+        "Clean LOAD:SCALE sends action directly",
+        "Dirty LOAD:SCALE opens question;SCALE confirms or PATCH cancels",
+        "Normal unmodified PLAY cancels and issues start/stop;clip PLAY delegates",
+        "Successful staged load resets to909 SEQ;failed/refused load retains current project/context per source"
+      ],
+      "count": "At selected row:clean1 tap;dirty open+confirm/cancel2 taps. PLAY cancellation1 press after question. Full Settings navigation counts remain with R2 producer.",
+      "actual": "Source validates/stages before apply. LOAD can refuse for more than transport, so STOP PLAYING TO LOAD is not a full causal diagnosis. Reset/import/load and sound/sample/project scopes differ.",
+      "feedback": "#930 removes unavailable physical SCALE YES cue/LED on clip questions while keeping PATCH NO; SMC confirmation route is a separate source path.",
+      "retain": "Staging/refusal protection and truthful returned view; backup files/samples need their own content/readback contract.",
+      "opportunity": "Explicit consequence and preserved-old-data wording; retain originals and show version/asset limits at recovery boundaries.",
+      "sources": [
+        "ui.c3876\u20133891",
+        "ui.c3961\u20134020",
+        "ui.c8635\u20138710",
+        "PR930:e581333f ui.c",
+        "SettingsR2 receipt only"
+      ],
+      "gate": "Private Settings payload is referenced, not copied. Host/file librarian and device transfer remain incumbent scopes; no restore/update/device execution."
+    },
+    {
+      "id": "W11",
+      "journeys": [
+        "J13",
+        "J14"
+      ],
+      "goal": "Turn a live sequence into an explicit durable arrangement",
+      "start": "HOME stopped, no overlay/pending-sound navigation consumption",
+      "route": [
+        "PATCH enters SONG",
+        "White key/pad writes all-part pattern at selected bar and advances cursor",
+        "Use two BAR pages for per-part patterns and repeats; black keys toggle bar mutes",
+        "BT requests project save after deliberate edits"
+      ],
+      "count": "HOME\u2192SONG1 tap;one all-part bar assignment1 pad gesture;save request1 tap =3 before readiness. Per-part/repeat edits add actual turns/page moves; no fixed complete-song count.",
+      "actual": "Current Song max192 bars, repeats1\u20138, two BAR pages and11-bar overview are useful. Live chain is transient and not serialized by Save everything.",
+      "feedback": "Show selected bar versus playing bar, empty entry versus stored bar, repeat and mute content. Do not light an empty song bar as stored.",
+      "retain": "Current Song authoring, overview and native parameter controls.",
+      "opportunity": "A concise LIVE CHAIN\u2192durable SONG teaching route; proposed Keep chain as Song is a future conversion, not an existing serializer.",
+      "sources": [
+        "ui.c1573\u20131577",
+        "ui.c3718\u20133733",
+        "ui.c2628\u20132659",
+        "R22:J13\u2013J14"
+      ],
+      "gate": "CP2/CP3 capture/conversion contract remains open; source-only save request does not prove persistence."
+    },
+    {
+      "id": "W12",
+      "journeys": [
+        "J14",
+        "J03"
+      ],
+      "goal": "Capture an arrangement performance, inspect it, correct it and repeat",
+      "start": "HOME stopped, intended start bar selected/known and existing Song protected",
+      "route": [
+        "PATCH to SONG",
+        "REC arms",
+        "PLAY starts using stopped view's source authority",
+        "Perform N intentional pattern/mute changes",
+        "PLAY stops;REC disarms;inspect bars and edit/undo only known scope"
+      ],
+      "count": "From stated HOME start:PATCH+REC+PLAY start+PLAY stop+REC off =5 control presses/taps, plus N performance gestures; protect/restore/compare adds context-specific actions.",
+      "actual": "seq.song_rec follows seq.song_on && ui.rec. Source Song recording stores pattern/mute/length, not full audio or all FX. Physical, external-note and motion paths still share broader ui.rec semantics.",
+      "feedback": "SONG/PATTERNS authority, recording scope, selected/playing bar and existing-content replacement must be readable; REC lamp alone cannot explain which domains write.",
+      "retain": "Useful baseline Song capture and immediate mute dirty marking.",
+      "opportunity": "Provide a full take\u2192inspect\u2192correct\u2192repeat\u2192save journey without freezing separated/combined future capture strategy.",
+      "sources": [
+        "ui.c4539\u20134543",
+        "ui.c3535\u20133538",
+        "sequencer.c399\u2013425,549\u2013606",
+        "smc_mixer.c1727\u20131737"
+      ],
+      "gate": "Selected CP2 strategy and CP3 lifecycle must resolve before dependent proposal can claim ready capture."
+    },
+    {
+      "id": "W13",
+      "journeys": [
+        "J12",
+        "J32",
+        "J34"
+      ],
+      "goal": "Perform queued variations and mutes with a known next boundary",
+      "start": "HOME or part/SEQ with known current patterns, QUEUE MUTES preference known",
+      "route": [
+        "HOME pad/white key cues pattern(all parts);K4 in PART/SEQ cues current part",
+        "HOME black key toggles whole-part mute",
+        "PATCH+drum black key toggles one track mute",
+        "SMC REW/FWD accumulates from pending target;opposite return to current cancels"
+      ],
+      "count": "HOME cue1 gesture;whole-part mute1;drum-track mute2 physical presses;SMC delta1 per accepted button event.",
+      "actual": "Selected/current/queued are different. Adoption follows actual source bar/part policy; stopped cues apply at next audio advance. Queue mutes only queues when option enabled and running.",
+      "feedback": "Keep content, held/playhead, pending and mute markers distinct. Existing normal pads share selected-part hue; no per-contained-part pad colour claim. LCD STOP/WAIT cue static intent is separate from source cue-pad blink.",
+      "retain": "Direct cue/mute routes, real content and source boundary.",
+      "opportunity": "Per-part now\u2192next and separate mute intent, readable in collisions; optional motion only with admitted musical activity.",
+      "sources": [
+        "ui.c3523\u20133568",
+        "ui.c3735\u20133754",
+        "ui.c4610\u20134625",
+        "smc_mixer.c2238\u20132249",
+        "sequencer.c1094\u20131103",
+        "F5 disposition receipt"
+      ],
+      "gate": "Pending adoption fidelity and autonomous LED/audio timing not measured here."
+    },
+    {
+      "id": "W14",
+      "journeys": [
+        "J16",
+        "J24"
+      ],
+      "goal": "Shape a five-part performance without losing useful lower controls",
+      "start": "HOME, MIX or FX, ordinary UI, no overlay/held modifier",
+      "route": [
+        "HOME K5 TEMPO/K6 SWING/K7 FILTER/K8 PUMP",
+        "NOTE REPEAT enters MIX, repeated taps/K2 cycle five pages",
+        "FX enters REVERB/DELAY;K2 reverse route retained",
+        "Faders/wheels use actual bank/pickup targets"
+      ],
+      "count": "HOME control:0 navigation+1 turn. Enter known FX/MIX then edit:1 tap+1 turn =2. R4 P09 master PUMP from MIX PARTS:2 reverse page events+K7 =3.",
+      "actual": "Four PERFORM controls and full current mixer/FX pages already exist; dynamic engine label/native ADSR are retained baseline, not new benefits.",
+      "feedback": "Keep values/units/pickup and actual target; no prose diagnostic panel displaces playable controls.",
+      "retain": "Whole ensemble overview, direct lower controls, reverse page access and sparse mapping.",
+      "opportunity": "Cohesive hierarchy, common glyph materials and compact power/transport status while preserving exactly these functions.",
+      "sources": [
+        "ui.c1470\u20131474",
+        "ui.c4081\u20134091",
+        "main_fm1.c885\u20131110",
+        "R4:P08\u2013P09"
+      ],
+      "gate": "Latency/deadline/native-resource/audio acceptance cannot be inferred from source or gesture counts."
+    },
+    {
+      "id": "W15",
+      "journeys": [
+        "J17",
+        "J19"
+      ],
+      "goal": "Use SMC follow/lock/peek and held effects without stealing another target",
+      "start": "Supported connected SMC build, current mapped target known",
+      "route": [
+        "Pause press while following captures targets",
+        "Short Pause press while locked peeks",
+        "A fresh locked Pause hold\u2265900ms unlocks",
+        "Known FX bus button hold applies/release retires original effect;BRK-strip REC requests next-bar fill"
+      ],
+      "count": "Lock1 press;peek1 tap;unlock1 complete hold;known FX throw1 hold/release. Connection/reselection and alternate peer context add variable actions.",
+      "actual": "Physical Pause is context lock, MMC STOP remains transport. Buttons keep normal actions while fader/knob targets stay locked. Fill is momentary,next 909 bar,release/leaveFX ends request.",
+      "feedback": "Locked target/follow state distinct from STOP. Preserve exact ROOM/TIGHT/ECHO assignments and eight spatial buses; no new fake controller-light colours.",
+      "retain": "Captured ownership, original effect release, exact source supported-build/multi-peer envelope.",
+      "opportunity": "Show keyboard selection and captured SMC target together without cancelling lock to navigate; clearly separate requested fill from active progress.",
+      "sources": [
+        "smc_mixer.c732\u2013789",
+        "smc_mixer.c1002\u20131025",
+        "smc_mixer.c1984\u20132079",
+        "smc_mixer.c2190\u20132272"
+      ],
+      "gate": "Peer reconnect/fault-detail cases remain incumbent scope; no physical controller test or new connection performed."
+    },
+    {
+      "id": "W16",
+      "journeys": [
+        "J18",
+        "J31"
+      ],
+      "goal": "Launch Loopy clips and release the original cell after viewport changes",
+      "start": "Standalone, no active transaction, host mapping/feedback understood",
+      "route": [
+        "KNOB BANK rising press toggles clip mode",
+        "Press visible occupied pad",
+        "OCTAVE\u2212/+ changes bounded local viewport",
+        "Release original pad;stored note determines note-off",
+        "KNOB BANK press exits and releases owned clip notes"
+      ],
+      "count": "Enter1 press;launch/hold1 gesture;viewport move1 per press;exit1. No hold deadline is present in current clip toggle source.",
+      "actual": "Sixteen physical pads are a viewport of host APC cells, not all host clips. Clip transport/history intercept normal PLAY/REC. Host palette/feedback owns pad state; local optimistic transport feedback is not host success.",
+      "feedback": "Show request versus host-confirmed/stale state; preserve original release owner while current viewport display updates.",
+      "retain": "Exact entry/exit flush, clip keybed SCALE/CHORD/ARP route, viewport fold/trim/flip and no off-viewport access promise.",
+      "opportunity": "Make mode/host scope/await-feedback legible without inventing a new standalone engine or assuming a held toggle.",
+      "sources": [
+        "main_fm1.c2098\u20132210",
+        "main_fm1.c773\u2013844",
+        "smk_apc40.h",
+        "PR930:e581333f"
+      ],
+      "gate": "Host launch/audio/control binding unrun. Historical emulator captures are not execution of accepted latest source."
+    },
+    {
+      "id": "W17",
+      "journeys": [
+        "J27",
+        "J34"
+      ],
+      "goal": "Recognise clock preference, loss, WAIT and rejoin",
+      "start": "Clock source row/active source known; running pattern or explicit stopped state",
+      "route": [
+        "At selected CLOCK SOURCE row,K3/arrow changes preference",
+        "EXTERNAL loss retains place and WAIT;AUTO may fallback by source policy",
+        "Accepted new clocks rejoin source observer;pending cue remains until actual adoption"
+      ],
+      "count": "Known row:1 value gesture. Full Settings navigation belongs to R2. Waiting/rejoin is an event, not an extra hidden button count.",
+      "actual": "Clock preference, measured active source and actual clock progress differ. Request start does not prove advancing clock. Clip mode forces its source-defined AUTO clock policy.",
+      "feedback": "LCD musical beat neutral/static in STOP/WAIT; standalone PLAY LED slow WAIT blink uses UI frames. Keep these separate;source pad queued blink may continue.",
+      "retain": "Current source filtering/lock/loss semantics and readable tempo.",
+      "opportunity": "Persistent explicit WAIT/fallback/active-source identity that does not simulate beats from wall time.",
+      "sources": [
+        "ui.c8840\u20138852",
+        "sequencer.c954\u20131014,1038\u20131054,1185\u20131240",
+        "ui.c8467\u20138478",
+        "R22:A2"
+      ],
+      "gate": "No seamless phase, perceptual blink or physical clock-rejoin acceptance."
+    },
+    {
+      "id": "W18",
+      "journeys": [
+        "J28",
+        "J15"
+      ],
+      "goal": "Retire stranded notes and make a fresh musical recovery",
+      "start": "Known keyboard/clip/SMC context and original held inputs",
+      "route": [
+        "Keyboard FX+SEQ chord requests notes-off;release both",
+        "Fresh note acquires a new generation",
+        "Clip NOTE REPEAT panic and SMC DAW bankL+bankR use their own scoped routes",
+        "Use PLAY separately when transport stop is actually desired"
+      ],
+      "count": "Keyboard panic2 physical presses(one chord)+releases;fresh played note1 gesture. SMC bank chord2 presses only in admitted DAW context.",
+      "actual": "Panic is notes-off retirement, not guaranteed global silence, STOP, FX-tail cutoff or an external-device reset. Source consumes chord member releases to avoid accidental page changes.",
+      "feedback": "Show actual retired scope and fresh-input recovery; no generic success toast that implies stopped transport.",
+      "retain": "Exact gesture/context and source generation fencing.",
+      "opportunity": "A brief scoped receipt and a playable next-note checkpoint; navigation continuity versus intentional engine/panic cuts remains explicit.",
+      "sources": [
+        "ui.c4174\u20134195,4484\u20134494",
+        "smc_mixer.c2323\u20132357",
+        "R22:J15,J28"
+      ],
+      "gate": "No device or sustained-note/audio recovery test; do not broaden panic authority."
+    },
+    {
+      "id": "W19",
+      "journeys": [
+        "J37",
+        "J35"
+      ],
+      "goal": "Adjust Settings safely and see truthful power status during use",
+      "start": "Current ordinary musical context; Settings component reserved",
+      "route": [
+        "Use accepted R2 category/value/action/back/modal routes unchanged",
+        "Return to musical view with source session-focus reset understood",
+        "Compact top power status uses actual0..3/USB/unknown semantics"
+      ],
+      "count": "Settings full route counts remain owned by producer;no candidate-added confirmation for scalar. Battery is read-only,not an action.",
+      "actual": "Settings is an existing six-section surface. Power source does not supply calibrated percentage or proven charging state/model support.",
+      "feedback": "#930 masks physical SCALE affirmative cue/LED in clip questions;all 37keys/16pads do not acquire fictitious LEDs. Compact power must not displace musical identity/tempo.",
+      "retain": "R2 component and exact receipt,physical captions,existing help and native glyph vocabulary.",
+      "opportunity": "Integrate accepted component visually and keep truthful normal-use power visible; percentage-inside-icon remains unsupported.",
+      "sources": [
+        "SettingsR2 receipt only",
+        "PR930:e581333f",
+        "revision-r5/OWNER-CORRECTION-INTAKE.json",
+        "R22:J35,J37"
+      ],
+      "gate": "No Settings redesign/private payload copy;USB/unknown/charging assumptions remain bounded."
+    },
+    {
+      "id": "W20",
+      "journeys": [
+        "J26",
+        "J32",
+        "J35",
+        "J36"
+      ],
+      "goal": "Make feedback/tutorial meaning survive the complete musical journey",
+      "start": "Any admitted musical journey above,including simultaneous/held/queued states",
+      "route": [
+        "Retain native glyph-first parameter and ensemble information",
+        "Make accepted state transitions refresh without another corrective input",
+        "Teach exact physical route on website and instrument",
+        "After correction,replay,repeat and recovery compare data/audio/LCD/requestedLED/sentLED/durablestate separately"
+      ],
+      "count": "No fabricated speed benefit. Existing35 access tasks and11 detailed P01\u2013P11 counts remain baseline;changes require same-start comparison.",
+      "actual": "Current labels,glyphs,ADSR,overview,button hints and confirmations already do useful work. Static source/proposals cannot establish autonomous physical feedback or final whole-instrument usefulness.",
+      "feedback": "RGB selected-part hue/host palette/binary button meanings remain distinct; geometry/text resolves collisions; no keybedLED assumption.",
+      "retain": "All39 retained journeys and261 R22 routing rows,including deferred/nonvisual owners.",
+      "opportunity": "Judge coherent whole workflows and real function loss,not number of screens. Every displacement needs retained/replaced/control-count rationale.",
+      "sources": [
+        "revision-r4/SOURCE-FUNCTION-INVENTORY.json",
+        "revision-r4/SOURCE-COVERAGE-R22-R3.json",
+        "revision-r4/source-access-counts.json",
+        "R22:journey-contracts.md"
+      ],
+      "gate": "Comparator adoption,DF1,current native qualification,resource/physical proof and full-design acceptance remain open."
+    }
+  ],
+  "reserved": {
+    "cp1_cases": [
+      "B6-ACCESS-BASE-STATUS",
+      "B6-ACCESS-ALT-STATUS",
+      "G1-PENDING-SOUND-BASE",
+      "G1-PENDING-SOUND-ALT-A",
+      "G1-PENDING-SOUND-ALT-B",
+      "KAR-SUCCESS",
+      "KAR-WRITE-FAILED"
+    ],
+    "settings_owner": "6af84d26-84d0-8191-9e55-0448748ca0dc",
+    "settings_private_receipt": {
+      "file_id": "file_00000000519481f590b8e601e2c82862",
+      "library_version": 1,
+      "zip_sha256": "3ba167e0b01c21e08a14eb84d87d2c3b074d46b16b8960319e81c66aabaabc9d",
+      "consumption": "Parent's accepted visual intake/receipt reference only;no private payload copied into this audit."
+    },
+    "capture_dependency": "CP1 decision\u2192CP2 selected strategy\u2192CP3 lifecycle;current useful baseline routes remain available without choosing future policy.",
+    "other_open": [
+      "Comparator adoption",
+      "DF1 complete design freeze",
+      "Current candidate native qualification",
+      "Repeat/correction/recovery musical usefulness",
+      "Resource and physical proof"
+    ]
+  },
+  "historical": {
+    "emulator_version": "0.0.25.1",
+    "source": "79280e763341d03ba43266d3e25dad66f12de860",
+    "candidate_execution_equivalent": false
+  },
+  "not_run": [
+    "No new renders or proposal edits.",
+    "No emulator,interaction test,broad suite or independent review run.",
+    "No firmware build,device operation or runtime edit.",
+    "No Git/Library write or new agent."
+  ],
+  "output_scope": "Only revision-r5/evidence/whole-journey-audit.json and .md written.",
+  "local_input_identities": [
+    {
+      "path": "revision-r4/SOURCE-FUNCTION-INVENTORY.json",
+      "bytes": 378146,
+      "sha256": "4d6aaa0102d806649bd31b157f344673d8faf98ee0b258b522d764a384bb0af7"
+    },
+    {
+      "path": "revision-r4/SOURCE-COVERAGE-R22-R3.json",
+      "bytes": 161158,
+      "sha256": "0d6d2cccbe0c863c202fe67a04aed4782a0b1c1113dc6ac9f084a753c2f79022"
+    },
+    {
+      "path": "revision-r4/source-access-counts.json",
+      "bytes": 7313,
+      "sha256": "4ca56bc6f792081b5f7d9d8ac35e0b9e645dd126afacc837d51049d683ea22f7"
+    },
+    {
+      "path": "revision-r5/OWNER-CORRECTION-INTAKE.json",
+      "bytes": 2502,
+      "sha256": "1401942c66bac8cbbb9a8639d2d0e7833032cf1da1304a42aae2e9de676ed4f2"
+    },
+    {
+      "path": "R22/plan/journey-contracts.md",
+      "bytes": 30384,
+      "sha256": "5ba59a8a4afbe24ff71f7eb78d16a222313a995387f02fa7dcecc248ae074c4f"
+    },
+    {
+      "path": "R22/plan/design-admission.md",
+      "bytes": 115094,
+      "sha256": "184b48b582b1a297e1c43cd62ad04edbd9bd878e0b0bc8f87875e76f03107919"
+    },
+    {
+      "path": "R22/plan/authoritative-decisions.md",
+      "bytes": 12154,
+      "sha256": "0060ac4f18a3938a9cb429304ed7f7f0b73b032e08fe5a5cb2e333dda433af5f"
+    }
+  ],
+  "coverage_arithmetic": {
+    "groups": 20,
+    "covered_journey_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04",
+      "J05",
+      "J06",
+      "J07",
+      "J08",
+      "J09",
+      "J10",
+      "J11",
+      "J12",
+      "J13",
+      "J14",
+      "J15",
+      "J16",
+      "J17",
+      "J18",
+      "J19",
+      "J20",
+      "J21",
+      "J22",
+      "J23",
+      "J24",
+      "J25",
+      "J26",
+      "J27",
+      "J28",
+      "J29",
+      "J30",
+      "J31",
+      "J32",
+      "J33",
+      "J34",
+      "J35",
+      "J36",
+      "J37",
+      "J38",
+      "J39"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "meaning": "Inventory arithmetic only;not interaction or firmware verification."
+  }
+}

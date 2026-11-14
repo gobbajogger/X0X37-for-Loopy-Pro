@@ -1,0 +1,72 @@
+{
+  "class": "FINAL PROPOSAL DELIVERY SMOKE; NOT FIRMWARE/INDEPENDENT ACCEPTANCE",
+  "html_sha256": "a471685d3247e731b0a759dfab025135478682d3d4883e348c40dca71fb2e476",
+  "renderer_sha256": "4f6cc5afd66084acddebcc8afff6a7476d1bfe258711ca7d7bbb515f2e9c5672",
+  "scoped_proof_reused": "affected-checks.json31checks; renderer and data equivalence established above",
+  "checks": [
+    {
+      "name": "Final data differs only embedded updated comparison images",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image drum",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image drum-para",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image chicago",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image juno",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image home",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image mix909",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image break",
+      "pass": true
+    },
+    {
+      "name": "R5 paired image song",
+      "pass": true
+    },
+    {
+      "name": "Whole20-group journey selector present",
+      "pass": true
+    },
+    {
+      "name": "First-beat journey opens true empty909 fixture",
+      "pass": true
+    },
+    {
+      "name": "First-beat model uses4step gestures then PLAY",
+      "pass": true
+    },
+    {
+      "name": "Power USB fixture reaches matrix through shared top header",
+      "pass": true
+    },
+    {
+      "name": "Owner-facing host has no horizontal page overflow at390px",
+      "pass": true
+    },
+    {
+      "name": "Final host has no page errors or network dependencies",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "requests": [],
+  "passed": 15,
+  "total": 15
+}

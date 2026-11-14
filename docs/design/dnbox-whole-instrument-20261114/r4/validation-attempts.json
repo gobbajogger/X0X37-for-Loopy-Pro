@@ -1,0 +1,20 @@
+[
+  {
+    "attempt": 1,
+    "input_html_sha256": "66a78ac71de372a8f5525ad87acb1fe26e92d22ee0b32d07a5e3b6b6579f4834",
+    "status": "HARNESS_FAILED; NOT_A_PASS",
+    "error": "Page.evaluate TypeError: Assignment to constant variable, in conga test trying to replace const canvas context g.",
+    "result_scope": "Script interrupted before final receipt. No claim for incomplete checks.",
+    "correction": "Render probe on same context then restore saved24x12pixels. No candidate change for this harness fix."
+  },
+  {
+    "attempt": "final core",
+    "state": "43_AFFECTED_PRODUCER_CHECKS_PASS",
+    "tested_html": "0831e42623fc0cb75003bd6f78743ebb2cef58482793eaedcb52b175a98ac129",
+    "renderer_sha256": "981e50f5fb857ff341d4469a24589905df906866582aac06804eac29e831c1fd",
+    "final_html": "34448892bbb370aaef057d140cd890230e06ba1d7f6821d82d4d13e646fabc6b",
+    "final_html_checks": 13,
+    "equivalence": "MODEL-CLOSURE-EQUIVALENCE.json",
+    "no_independent_acceptance": true
+  }
+]

@@ -1,0 +1,278 @@
+{
+  "input_html_sha256": "0831e42623fc0cb75003bd6f78743ebb2cef58482793eaedcb52b175a98ac129",
+  "scope": "Affected proposal controls/render/light/source-navigation checks only; not independent review or firmware",
+  "checks": [
+    {
+      "name": "Envelope K5 updates q and readout",
+      "pass": true,
+      "detail": {
+        "before_q": 34,
+        "after_q": 35,
+        "labels": [
+          "CHICAGO B",
+          "1",
+          "1 OSCILLATOR",
+          "WAVE",
+          "0%",
+          "GLIDE",
+          "14%",
+          "2 FILTER 1",
+          "CUTOFF",
+          "25%",
+          "PEAK",
+          "75%",
+          "ENV",
+          "+56%",
+          "3 FILTER 2",
+          "BITE",
+          "83%",
+          "GNAW",
+          "0%",
+          "4 ENVELOPE",
+          "K5 6 7 8",
+          "K5 A 28%",
+          "K6 D 40%",
+          "K7 S 57%",
+          "K8 R 17%",
+          "< >: ROW   PARA: NEXT   SCALE: ALL",
+          "1-4"
+        ]
+      }
+    },
+    {
+      "name": "Envelope changed region follows accepted edit",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All four ADSR stages bind values and curve geometry",
+      "pass": true,
+      "detail": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "name": "Held lock changes shown scope then release restores base",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Juno WAVE remains continuous",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Juno controls clamp127",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Juno controls clamp0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Juno factory0 exact q vector",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All16 Juno glyph-only regions respond at bounds",
+      "pass": true,
+      "detail": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "name": "K3 lower endpoint clamps909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "K3 magnitude selects one neighbor",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Display order ends at canonical A slot",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "K3 restores B page memory",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "K3 restores A page memory",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "FX shared memory survives return",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "MIX shared memory survives return",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "MIX follows clamped source part",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Miami Home identity is not Chicago A",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "B-slot header remains B",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PARTS no unheld content lights",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "909 MIX retains four-kick pads",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "MIX track/write stay on visible kit",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "808 MIX owns data/hue with melodic selection",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "MIX held input does not acquire p-lock scope",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "MASTER no drum content",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WAVE no drum content",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Drum PART retains step layer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "FX does not inherit drum pads",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Conga low/mid/high pictures distinct",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "909 gain uses1.35 maximum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "808 gain uses2.0 maximum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Zero gain reads OFF",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "909 source fresh-project levels exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "808 source fresh-project levels exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "View change retires lock scope but keeps held physical feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Released LIGHTS OFF has no pad layer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Chicago edited MODE matches native selector order",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Chicago edited RANGE preserves FULL",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Chicago ENV exact centered neutral",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Miami TUNE exact centered signed hundredths",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Affected native text bounds inside240",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No external requests",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "requests": [],
+  "acceptance": "PENDING same reviewer affected recheck"
+}

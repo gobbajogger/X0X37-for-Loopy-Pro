@@ -1,0 +1,74 @@
+{
+  "component_owner": "6af84d26-84d0-8191-9e55-0448748ca0dc",
+  "zip_sha256": "3ba167e0b01c21e08a14eb84d87d2c3b074d46b16b8960319e81c66aabaabc9d",
+  "library_version": 1,
+  "library_file": "file_00000000519481f590b8e601e2c82862",
+  "component_sha256": "edaf4eb27b6fc2c8199d8d00fbc2492d10600dabe25870ccbb8491f6a23bb2a6",
+  "component_bytes": 34582,
+  "paired_assets": [
+    {
+      "path": "qa/comparison/find-actual.png",
+      "bytes": 12753,
+      "sha256": "988b44c3bfb4ebf190a94d04ea3b0197d27f68c5bbc9c9b1147ea6bada2d8f2d"
+    },
+    {
+      "path": "qa/comparison/find-proposed.png",
+      "bytes": 21111,
+      "sha256": "22fae81975b2a762c587b2b2a9201e1feef1acec690d3549f01b411a2f553460"
+    },
+    {
+      "path": "qa/comparison/save-actual.png",
+      "bytes": 13459,
+      "sha256": "80fea58a9b6ca2291fff5cd57a0aea510ec3673294baa49d03d5e8c3059e9ea0"
+    },
+    {
+      "path": "qa/comparison/save-proposed.png",
+      "bytes": 21259,
+      "sha256": "f7c0bf7f56c9425fe245b4793c3db4949764b694da96bf9a5b11810c6b111a68"
+    },
+    {
+      "path": "qa/comparison/question-actual.png",
+      "bytes": 11453,
+      "sha256": "6a800a6b86fef6a69687b3e2362d28b7c0172520761227fac8fa7496667d1539"
+    },
+    {
+      "path": "qa/comparison/question-proposed.png",
+      "bytes": 20442,
+      "sha256": "471c99bf11791e4a6791416461ec922c8778c93a399409654e33d80a93dc530c"
+    },
+    {
+      "path": "qa/comparison/peers-actual.png",
+      "bytes": 11770,
+      "sha256": "4458d111975272e7612c36a643addf17272d38ce032c1b7d596d4115ac138acf"
+    },
+    {
+      "path": "qa/comparison/peers-proposed.png",
+      "bytes": 17068,
+      "sha256": "c56e1768045d82e97dd91b1a3fb4413f76850b1e18527c91a0502dfa9f226412"
+    },
+    {
+      "path": "qa/comparison/battery-actual.png",
+      "bytes": 11050,
+      "sha256": "5f7427c9a930421553700a0dca1aa81f2e0e2773b04f1ab34b51c7a209c56eea"
+    },
+    {
+      "path": "qa/comparison/battery-proposed.png",
+      "bytes": 17150,
+      "sha256": "c03f8122edd55adc2d2fdd0601d24cc7b562fe5bff345a588b5e3d7504f9c363"
+    },
+    {
+      "path": "qa/comparison/playing-actual.png",
+      "bytes": 11739,
+      "sha256": "cb52fd2b07eb821ca5a29b47973568fc162e889856c07c6ca6f29e2b96e70c9a"
+    },
+    {
+      "path": "qa/comparison/playing-proposed.png",
+      "bytes": 19873,
+      "sha256": "e65a0f830037b6f4a299066cdddcafd34df053ce4eb954ec5de9e5aeeaba7df4"
+    }
+  ],
+  "component_edit": "NONE; exact original bytes decoded into isolated iframe; separate host bridge only",
+  "evidence_reuse": "Existing Settings105 and prior composition54 remain separately scoped; changed R6 host navigation checks only",
+  "versions": "R2 actual-before historical requested25.1/registry0.0.25; component94197 proposal; not current3c41",
+  "pending": "Common header/power grammar and whole held-note continuity remain component-owner interfaces; no redesign or runtime approval"
+}

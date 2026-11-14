@@ -1,0 +1,207 @@
+{
+  "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "source_inputs": [
+    {
+      "repository_path": "firmware/src/app/ui.c",
+      "bytes": 390311,
+      "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+      "git_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+      "connector_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/ui_original_controls.h",
+      "bytes": 7799,
+      "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+      "git_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627",
+      "connector_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/engine.c",
+      "bytes": 143240,
+      "sha256": "9d8e011e5b87e2e82bf791e5a16f632aaa3f78a13f35c3b1c3f7ed91cb62bde1",
+      "git_blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570",
+      "connector_blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/bass_param_ids.h",
+      "bytes": 1032,
+      "sha256": "61fe885516a6175bef3bfa9a2eea8e14aff82127ff9593567a93442cec784bd4",
+      "git_blob": "fefbc55a7c505fe2476647e7f771f12af5dac083",
+      "connector_blob": "fefbc55a7c505fe2476647e7f771f12af5dac083",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/ui_pictograms.h",
+      "bytes": 3908,
+      "sha256": "bbab822f9ed3ec3820dcbbb2833c5dd5fe76c398c01e824ecc93280ca48a491f",
+      "git_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c",
+      "connector_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/panel.c",
+      "bytes": 5538,
+      "sha256": "bc8863de58fcec03c5e5b2caf184659b5216f30558f99b44e48764c87cf10c22",
+      "git_blob": "60ca44f92557d8682227cdfe5d1ccd1e5c1bac54",
+      "connector_blob": "60ca44f92557d8682227cdfe5d1ccd1e5c1bac54",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/engine.h",
+      "bytes": 17774,
+      "sha256": "9bc236d4f341a10960581332284fa0eca9f5a9e9823950573f41d9185135c699",
+      "git_blob": "9feda5fee976b901a269a7d13e7a0bc4d78aecad",
+      "connector_blob": "9feda5fee976b901a269a7d13e7a0bc4d78aecad",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/smk_arrows.h",
+      "bytes": 3763,
+      "sha256": "fc2907106c155feef7ef1cd53da41ef25f87ccb2a02135aa23c0e0deb43ef700",
+      "git_blob": "110cfe7fa6567015090da85ca98c7260e4044802",
+      "connector_blob": "110cfe7fa6567015090da85ca98c7260e4044802",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/hal/smk_input.h",
+      "bytes": 31352,
+      "sha256": "054cfaebb766119d6ca41b6632bbae3e2ec6dbb1f1f11387eebec4ae6a7e98d9",
+      "git_blob": "46ac1cb1ec4d33e1618be8c6057625f48de6a39a",
+      "connector_blob": "46ac1cb1ec4d33e1618be8c6057625f48de6a39a",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/original_sound.h",
+      "bytes": 4476,
+      "sha256": "6f3ffc5cbb84480a737490d1943632981512f7f5bf2497d5cad4d0394eab1f8f",
+      "git_blob": "ef386dc8c50ad7bde53006201cf85bcfa50866f8",
+      "connector_blob": "ef386dc8c50ad7bde53006201cf85bcfa50866f8",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/master.h",
+      "bytes": 3823,
+      "sha256": "b4a216724544f1eb3e924a81cefa38cd68257fcccb908bc17a21d8eb9ffbcebd",
+      "git_blob": "66c358aefe0533f0e07f11cb0e0d59a5e20bb168",
+      "connector_blob": "66c358aefe0533f0e07f11cb0e0d59a5e20bb168",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/fxbus.h",
+      "bytes": 3792,
+      "sha256": "492402f5570faa15b24241259c1e76011bfb3054fdee0d2e320b3e9171ca519c",
+      "git_blob": "2b18d8581dd86539437c1d4eb39be2f78928ab5b",
+      "connector_blob": "2b18d8581dd86539437c1d4eb39be2f78928ab5b",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/breaks.h",
+      "bytes": 8838,
+      "sha256": "df6690f6d70b3bb38c2c4dc3dc7859b04e78621dabfdcb456b5f9c49c9776f75",
+      "git_blob": "317ba0f6ed06be68132804c536dc37ae380edde1",
+      "connector_blob": "317ba0f6ed06be68132804c536dc37ae380edde1",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/drum909.c",
+      "bytes": 44815,
+      "sha256": "d558f150acfafa82eb5cc7fdd1d384e8bb18b3cf773032507cad3ff3675df584",
+      "git_blob": "2033c80d2ff3989bf3ea7374ab79cd3b0f8fab42",
+      "connector_blob": "2033c80d2ff3989bf3ea7374ab79cd3b0f8fab42",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/drum808.c",
+      "bytes": 99147,
+      "sha256": "643ffb949b394c9a7d50cc7cbe83aa0720bda06bf68335841b33c12fcba3d23b",
+      "git_blob": "de0f1ce8df77dd158248d04ee690960a82f5ef52",
+      "connector_blob": "de0f1ce8df77dd158248d04ee690960a82f5ef52",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/breaks.c",
+      "bytes": 39725,
+      "sha256": "0b5a0f36c59aa61e6d4d0f05b644141a8c6380f569519f1de32b0ce028098e36",
+      "git_blob": "e5dbc2ddddff3cc1a15791714f9b02d49c4d74fe",
+      "connector_blob": "e5dbc2ddddff3cc1a15791714f9b02d49c4d74fe",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/master.c",
+      "bytes": 20645,
+      "sha256": "ff3486879de216c5447c2a301456abc6cf7cd46c4643d93e500d5e6890e966b7",
+      "git_blob": "bbcc1c73eae575752b60a572747ecfcd5088f6ae",
+      "connector_blob": "bbcc1c73eae575752b60a572747ecfcd5088f6ae",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/original_sound.c",
+      "bytes": 17413,
+      "sha256": "b8ddda881f05521c5ecc945d22868cfcfee163f66fe5a1a9b7d3cc4a146fc54e",
+      "git_blob": "a250a77f9d20fb1973b1251dd9f9b5c205776b45",
+      "connector_blob": "a250a77f9d20fb1973b1251dd9f9b5c205776b45",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/juno6.c",
+      "bytes": 5960,
+      "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+      "git_blob": "223e6bdc5ac269b3d6cac97ae890204b16da185c",
+      "connector_blob": "223e6bdc5ac269b3d6cac97ae890204b16da185c",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/dsp/juno6.h",
+      "bytes": 1447,
+      "sha256": "1ab73dc959d62d6a52d3a3e2ee0404c1597f20ddf947b6585c709b00ba46ced2",
+      "git_blob": "0a2c151ecb75ad226785b347d9f497a00eb8368f",
+      "connector_blob": "0a2c151ecb75ad226785b347d9f497a00eb8368f",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "docs/engineering-delivery/026-juno-chorus/PLAN.md",
+      "bytes": 2556,
+      "sha256": "cafd03dfff7c1cabfd60e6a8552b47fe4bb0319ffbb183e9ae167ae3542df32e",
+      "git_blob": "30666d437b229b873ac9610709174595ff4d5d67",
+      "connector_blob": "30666d437b229b873ac9610709174595ff4d5d67",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "docs/engineering-delivery/026-juno-chorus/CONTINUATION.md",
+      "bytes": 2792,
+      "sha256": "a408601bf843ee0050d204be42eebc764120d36ae17f5604683c0e8057b12eac",
+      "git_blob": "e829854153122455621ee9877e51c3cea9c4e908",
+      "connector_blob": "e829854153122455621ee9877e51c3cea9c4e908",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/juno_stock_bank.h",
+      "bytes": 1263,
+      "sha256": "fb8836c3944d28b0a55fb5a1cafd832c7bcbed92d890aeb879394cc4820ce933",
+      "git_blob": "9c17efdbbb03b7de55cd9b4fab650dc1e1c7b013",
+      "connector_blob": "9c17efdbbb03b7de55cd9b4fab650dc1e1c7b013",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/original_runtime.c",
+      "bytes": 17427,
+      "sha256": "cba080a1f42f3803161a4562b93dc5fb1adc8be7b586ed500e27af97f63c181c",
+      "git_blob": "45f4bc53008ca2d65a979dc90634e731d9aeeb09",
+      "connector_blob": "45f4bc53008ca2d65a979dc90634e731d9aeeb09",
+      "blob_matches": true
+    },
+    {
+      "repository_path": "firmware/src/app/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f",
+      "connector_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f",
+      "blob_matches": true
+    }
+  ],
+  "class": "Exact source blob intake for source/UI semantics; not source execution or native reconstruction",
+  "additional_enum_readout_proof": "SOURCE-ENUM-READOUT-CONTRACT.md"
+}

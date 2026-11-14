@@ -1,0 +1,325 @@
+{
+  "scope": "R5_INDEPENDENT_WHOLE_INSTRUMENT_PROPOSAL_REVIEW; NOT_IMPLEMENTATION_ACCEPTANCE",
+  "files": [
+    {
+      "path": "RESULTS.json",
+      "bytes": 1347,
+      "sha256": "62afbe92965466cd6be7a6603eefe03e925340fd0273edd2d15f282b8cb1ca06"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 8808,
+      "sha256": "e0412c26d535fee223e05a18254c4bdfbe14866b59ca3be8dad6b60070b8ecc1"
+    },
+    {
+      "path": "admitted-reference-pixel-verification.json",
+      "bytes": 505,
+      "sha256": "0e19cc4a7ef0f80f8f4351900dd0de37be18a103e137c2bdaff2229184a0acdb"
+    },
+    {
+      "path": "command-01-model.log",
+      "bytes": 189,
+      "sha256": "93644d76dcb0bda13f1cba7450ad247c723c121150b685ddd775daba25711c43"
+    },
+    {
+      "path": "command-02-current.log",
+      "bytes": 1300,
+      "sha256": "bacae79afb50509ceb201d9869d2ac462d8341cea800292539681e5bc6d3a77e"
+    },
+    {
+      "path": "command-03-current.log",
+      "bytes": 1006,
+      "sha256": "85ee6e505e1c49fb726aa572540a27f58d13593795ffba85a62398e813da4a90"
+    },
+    {
+      "path": "command-04-render.log",
+      "bytes": 19,
+      "sha256": "029549d1b6b8c6963a6c7e7eaadf7bcedbefe0791d54e4244029d900d7b65fdd"
+    },
+    {
+      "path": "command-05-pdf.log",
+      "bytes": 2296,
+      "sha256": "c0a74fafffe25ca408373b5f454c9b690bf8f245f08bdc662cf5b2085ad85450"
+    },
+    {
+      "path": "command-06-pdf-text.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "command-07-final-model.log",
+      "bytes": 189,
+      "sha256": "9acd3f09792bf0e5f3c6b2e05ba01f1efe2bad75c77bf759a531ed6782a74290"
+    },
+    {
+      "path": "command-receipt.json",
+      "bytes": 2223,
+      "sha256": "3087b537b8b6a0b009ce0c6114d72aa2b3f21e709867297bcbd6f91af36cc513"
+    },
+    {
+      "path": "comparison-contact.png",
+      "bytes": 206878,
+      "sha256": "e1b4af75bfa5219ac4551b204126301f9337e2bfc3315bb89192aaa610212ed7"
+    },
+    {
+      "path": "contact.png",
+      "bytes": 138573,
+      "sha256": "a5ee1b0e1b55d52456f426d7bfe0a89f625366bf8f3e2109ad0007665531d778"
+    },
+    {
+      "path": "elite-qualified2-replay-00-boot.png",
+      "bytes": 8646,
+      "sha256": "0cdafc9ede5bf55d6bc0fed2fb74a8f791204dfe5b106ef8d1eb5096656cd660"
+    },
+    {
+      "path": "elite-qualified2-replay-00-boot.rgb565",
+      "bytes": 115200,
+      "sha256": "b3b9109427b09fc4ef66ee6389eb43e0bcb0c391c9e5522ac4c620f02d2cc4f3"
+    },
+    {
+      "path": "elite-qualified2-replay-01-break-loops.png",
+      "bytes": 10932,
+      "sha256": "3b3b60b0dea8e3a93db197760848e375172e2f45b924426ef449621c2f59f555"
+    },
+    {
+      "path": "elite-qualified2-replay-01-break-loops.rgb565",
+      "bytes": 115200,
+      "sha256": "bfc53ab0b2eb76ce005dba92c1b4f852db64c2b036fea978f68d6c4c44f20311"
+    },
+    {
+      "path": "elite-qualified2-replay-02-break-sequence.png",
+      "bytes": 9859,
+      "sha256": "b5d1a4e1ca347f2cedafa9bcc7200ff23784b8bb2465cc86fc16143e6bd1b30d"
+    },
+    {
+      "path": "elite-qualified2-replay-02-break-sequence.rgb565",
+      "bytes": 115200,
+      "sha256": "659f23b4d381f862894c64299f7d7786d6af9312fc626a84be6bbadbaf9ef733"
+    },
+    {
+      "path": "elite-qualified2-replay-03-break-groove.png",
+      "bytes": 11302,
+      "sha256": "fb03832d219e96749ca16b0f5d40e2a1f324435f6694645b2dc1687a65338f23"
+    },
+    {
+      "path": "elite-qualified2-replay-03-break-groove.rgb565",
+      "bytes": 115200,
+      "sha256": "9cfa1034869a212b40890dadc38b659a8b87be5923bbbabfcf96faff4ac81ae6"
+    },
+    {
+      "path": "elite-qualified2-replay-04-juno-oscillator.png",
+      "bytes": 12439,
+      "sha256": "12481829859cf471aae9b5aef22f0b784f12c881f7a05edb9f3b926b0e989027"
+    },
+    {
+      "path": "elite-qualified2-replay-04-juno-oscillator.rgb565",
+      "bytes": 115200,
+      "sha256": "16a15223526897c3a2b38f55e24e0d0072388464eba27b7c91184d966a9cdfe6"
+    },
+    {
+      "path": "elite-qualified2-replay-05-juno-envelope.png",
+      "bytes": 15913,
+      "sha256": "b52036a628ec2e21a8d82c09e3b619d2c80bd6eb153fac4c24384589bdde6d95"
+    },
+    {
+      "path": "elite-qualified2-replay-05-juno-envelope.rgb565",
+      "bytes": 115200,
+      "sha256": "8c3a8e46c50da49f48342795bec5e50da1bad4a6e5855113c0f4d574a314701e"
+    },
+    {
+      "path": "elite-qualified2-replay-zz-released.png",
+      "bytes": 15863,
+      "sha256": "f0b69711b3f12d90686d301b3c7a7288cba72f6bc618f6e1515b465519cb25aa"
+    },
+    {
+      "path": "elite-qualified2-replay-zz-released.rgb565",
+      "bytes": 115200,
+      "sha256": "865a111a868ac77887671bcafd968e6186adc47f73cecdd8e7e1bd6a21d60592"
+    },
+    {
+      "path": "elite-qualified2-replay.json",
+      "bytes": 45986,
+      "sha256": "7df19f51f69d9db2aadd83be5956e05a691ca39f60adff86995487b4959c93c9"
+    },
+    {
+      "path": "elite-song-authoring-00-boot.png",
+      "bytes": 8646,
+      "sha256": "0cdafc9ede5bf55d6bc0fed2fb74a8f791204dfe5b106ef8d1eb5096656cd660"
+    },
+    {
+      "path": "elite-song-authoring-00-boot.rgb565",
+      "bytes": 115200,
+      "sha256": "b3b9109427b09fc4ef66ee6389eb43e0bcb0c391c9e5522ac4c620f02d2cc4f3"
+    },
+    {
+      "path": "elite-song-authoring-01-empty-song.png",
+      "bytes": 9296,
+      "sha256": "23cf50773da70e535c297d05807c08ddec500c3292b5466480b59e074cbacc5a"
+    },
+    {
+      "path": "elite-song-authoring-01-empty-song.rgb565",
+      "bytes": 115200,
+      "sha256": "3af51f00c617019384a9e10ff35bd49d5d09f2a812f742574c7c4c3c892161dc"
+    },
+    {
+      "path": "elite-song-authoring-02-one-bar-assigned.png",
+      "bytes": 10059,
+      "sha256": "ea8e14bc66ebb6e0c04c89a4694d2fa41f89765fa90cc840599ade2c98d8595f"
+    },
+    {
+      "path": "elite-song-authoring-02-one-bar-assigned.rgb565",
+      "bytes": 115200,
+      "sha256": "7cdd947b58e8609ba0db6e3a0914b5d0d7e4e6e7391b75bd2967ad232fac10e8"
+    },
+    {
+      "path": "elite-song-authoring-03-bar-selection-turn.png",
+      "bytes": 11540,
+      "sha256": "91d3edb55328096dd6d252e911af3e36436f1decc3752efc79ca304581ab948e"
+    },
+    {
+      "path": "elite-song-authoring-03-bar-selection-turn.rgb565",
+      "bytes": 115200,
+      "sha256": "e4eff9d4f12bf3f0a43615383a110ee71202637952f7b4b1d691c77f9c7ed2dc"
+    },
+    {
+      "path": "elite-song-authoring-zz-released.png",
+      "bytes": 11540,
+      "sha256": "91d3edb55328096dd6d252e911af3e36436f1decc3752efc79ca304581ab948e"
+    },
+    {
+      "path": "elite-song-authoring-zz-released.rgb565",
+      "bytes": 115200,
+      "sha256": "e4eff9d4f12bf3f0a43615383a110ee71202637952f7b4b1d691c77f9c7ed2dc"
+    },
+    {
+      "path": "elite-song-authoring.json",
+      "bytes": 25129,
+      "sha256": "b8a28ef68d3621cddad0ad9354de360a11886b9e843aae6a005817ca55ae323b"
+    },
+    {
+      "path": "exercise-current.cjs",
+      "bytes": 4841,
+      "sha256": "0fb431c8dc5ad45b01a3ce090348063340fe2918cb8e5883b40df68de363aa4a"
+    },
+    {
+      "path": "exercise-model.cjs",
+      "bytes": 4586,
+      "sha256": "a34908709eb36ba894e627086bcb93f5c0ecfd42c37fe03c889c5baf31cd7d52"
+    },
+    {
+      "path": "header-inspection.json",
+      "bytes": 3529,
+      "sha256": "ef26580864f9dd2b0df5a771b1883efe1db571c775ce32e92fd82ed37c4712e9"
+    },
+    {
+      "path": "input-receipt.json",
+      "bytes": 18606,
+      "sha256": "481123cfb3f01848788e790f4ee2729e181187c2ec5c5155dc165b3038c895db"
+    },
+    {
+      "path": "juno-native-contrast.json",
+      "bytes": 565,
+      "sha256": "97469da23cad0c65c8a4b039be63bf1cde5bd32fc940fde557e56dc3efbed15b"
+    },
+    {
+      "path": "juno-native-pair.png",
+      "bytes": 44579,
+      "sha256": "75d9052b3ef5c1cc312b1f8a64fb42056f67418d3bdf23846f058a85a2486fac"
+    },
+    {
+      "path": "model-receipt.json",
+      "bytes": 22594034,
+      "sha256": "005c98180b136a593928e407355d4b2e7c203c68a997a04feb97e03f48138f8a"
+    },
+    {
+      "path": "pdf-contact.png",
+      "bytes": 591824,
+      "sha256": "3d4aeea653af071643ebae8f7e7bb87d9eb6504bc236c8c428c87a563d92d717"
+    },
+    {
+      "path": "pdf-page-01.png",
+      "bytes": 202716,
+      "sha256": "4ed71f37114fdecf02115a935a2f539fe3951a0fb988f07e59dd4032af7eb94b"
+    },
+    {
+      "path": "pdf-page-02.png",
+      "bytes": 158156,
+      "sha256": "4da674e260baa194418939e539a1b68e68e6ebcbe6c9884a6886740143e5ac2b"
+    },
+    {
+      "path": "pdf-page-03.png",
+      "bytes": 195993,
+      "sha256": "902a6cc26fdd8dca0b88a6f5c31f41b11b82ea45c2340fba96581a906516d53f"
+    },
+    {
+      "path": "pdf-page-04.png",
+      "bytes": 237980,
+      "sha256": "17075b1275c00dad820bf8e81fa2cabb39029792abd22a94882b60aeeefa4c8f"
+    },
+    {
+      "path": "pdf-page-05.png",
+      "bytes": 174557,
+      "sha256": "0568bf43d30bf63acc7a89defdc3980a56e5413c82e5e31238e6c99fc4fd6df7"
+    },
+    {
+      "path": "pdf-page-06.png",
+      "bytes": 174102,
+      "sha256": "2d2d6ac4161ae2793632a82ac0e2bbd5b765416f17b065ea281a74073735bfac"
+    },
+    {
+      "path": "pdf-page-07.png",
+      "bytes": 176561,
+      "sha256": "77fdbe759e95224d862daed36ca760d78829b9ce42d575df4860cde6ed273d35"
+    },
+    {
+      "path": "pdf-page-08.png",
+      "bytes": 165557,
+      "sha256": "78432b1d8e440d0ad2a3f2da058b2b03dec0b3c6148042876389e41138a7672b"
+    },
+    {
+      "path": "pdf-page-09.png",
+      "bytes": 252059,
+      "sha256": "389b3f3b656f53c9bc00f0e6fe694a90b46c44f2f22e5b015d089818b8ce3c58"
+    },
+    {
+      "path": "pdf-page-10.png",
+      "bytes": 224210,
+      "sha256": "b6b4a74e2965a4bebaf2e00b98afa10d204b8dd15a104e526f448a7b72ee6805"
+    },
+    {
+      "path": "pdf-text.txt",
+      "bytes": 19007,
+      "sha256": "e1efdd239f4986c7af1faf28c1022c0629735de4ab9a3e64f8e96aa027e31e8d"
+    },
+    {
+      "path": "producer-capture-verification.json",
+      "bytes": 1926,
+      "sha256": "d70e3e233ab89c0939dc0d9efc93f93dcb9ebe1a1c8ef62c4a9f591d8e108eb1"
+    },
+    {
+      "path": "qualified2-replay-plan.json",
+      "bytes": 901,
+      "sha256": "06036b18198949c965e70e64f855406ab19db1b02e70a332e451ba14d94ef407"
+    },
+    {
+      "path": "render-lcd.py",
+      "bytes": 757,
+      "sha256": "120239670f7b8ee506d92ab116209da4f8cf726d05e5ee5ed6f5b8229e78718a"
+    },
+    {
+      "path": "song-authoring-plan.json",
+      "bytes": 481,
+      "sha256": "49a1aa8549cbf78e35624c8d4a6858f5ac421c09b2f3dcd2ac945a170200b008"
+    },
+    {
+      "path": "source-and-reuse-receipt.json",
+      "bytes": 693,
+      "sha256": "669019f95db4b518edc31ac9cf0b6a5ea9203605df9e6ac4e353041fc4916a92"
+    },
+    {
+      "path": "wave-public-source-verification.json",
+      "bytes": 1193,
+      "sha256": "41ad132445ecaf131eb1a810a0671098dc7b6c65da996682b34c63a75530ea34"
+    }
+  ]
+}

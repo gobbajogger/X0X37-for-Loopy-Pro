@@ -1,0 +1,29 @@
+{
+  "kind": "NARROW_HOME_F5_SUCCESSOR_WORDING_VERIFICATION",
+  "disposition": "CONFIRMED",
+  "assessed_files": [
+    {
+      "path": "home-f5-design-disposition.md",
+      "bytes": 3278,
+      "sha256": "16d17f4272b029fe2f5369d4d6938493d0d4e6b39ff50d70de3c62ef60936023"
+    },
+    {
+      "path": "home-f5-source-receipt.json",
+      "bytes": 5736,
+      "sha256": "c1ca1b7ee04531a9983b1bd6a85fe15f307e396cfbf56d8c9a2305d2af33bd50"
+    }
+  ],
+  "confirmed_changes": [
+    "Lead condition limits stable arrow/number visibility to genuinely pending targets and explicitly allows real adoption/cancellation to update or clear the cue.",
+    "Historical requested/display0.0.25.1 label is separated from registry0.0.25/source79280e76, with candidate equivalence still false and execution NOT_RUN."
+  ],
+  "remaining_receipt_semantics_equal": true,
+  "other_observed_differences": "Derivative provenance annotations and equivalent JSON Unicode escaping only.",
+  "original_readme_sha256": "1789d05f4c37d703c3e117c898e7bf68136b27315219512b086f31e51f3c8715",
+  "original_receipt_sha256": "ea7849375c3b82ea079515bceb62e908c502f3fe88821dc030154059573a9081",
+  "scope": "Textual derivative verification only; no source audit repeated, candidate or native images reopened, original review edited, test, render, emulator or Git operation.",
+  "prior_disposition_unchanged": "Supported design intent; runtime correctness and pointer-overlap qualification remain unqualified.",
+  "effective_settings": "NOT_EXPOSED",
+  "original_independent_receipt_sha256": "ab8ec5e48c7137b019b67547df5b9ae807f4bf0669aa572c9b910bd717d560fc",
+  "public_copy_note": "Only absolute workspace paths replaced by delivered basenames; assessment/file hashes unchanged."
+}

@@ -1,0 +1,388 @@
+{
+  "candidate_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+  "scope": "Affected embedded Settings navigation/lifecycle, six unchanged pair presentations and normal/clip LOAD hint/model semantics only",
+  "not_run": [
+    "historical emulator",
+    "firmware",
+    "audio",
+    "storage",
+    "physical hardware",
+    "unchanged whole152/103 and Settings105 broad suites"
+  ],
+  "not_qualified": [
+    "Real overlapping pointer/frame teardown: prior attempt hung in Playwright mouse.up after frame removal; interrupted exit130. Keyboard-owned teardown below is a distinct check."
+  ],
+  "checks": [
+    {
+      "name": "Original Settings component bytes preserved",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Six curated workflows",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Comparison boundary and tradeoff retained: find",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual and proposal native geometry: find",
+      "pass": true,
+      "detail": [
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        },
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        }
+      ]
+    },
+    {
+      "name": "Task staged: find",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Inspection native canvas geometry: find",
+      "pass": true,
+      "detail": {
+        "w": 240,
+        "h": 240
+      }
+    },
+    {
+      "name": "Closed inspection status is truthful: find",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Comparison boundary and tradeoff retained: save",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual and proposal native geometry: save",
+      "pass": true,
+      "detail": [
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        },
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        }
+      ]
+    },
+    {
+      "name": "Task staged: save",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Inspection native canvas geometry: save",
+      "pass": true,
+      "detail": {
+        "w": 240,
+        "h": 240
+      }
+    },
+    {
+      "name": "Closed inspection status is truthful: save",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Comparison boundary and tradeoff retained: question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual and proposal native geometry: question",
+      "pass": true,
+      "detail": [
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        },
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        }
+      ]
+    },
+    {
+      "name": "Task staged: question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Inspection native canvas geometry: question",
+      "pass": true,
+      "detail": {
+        "w": 240,
+        "h": 240
+      }
+    },
+    {
+      "name": "Closed inspection status is truthful: question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Comparison boundary and tradeoff retained: peers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual and proposal native geometry: peers",
+      "pass": true,
+      "detail": [
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        },
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        }
+      ]
+    },
+    {
+      "name": "Task staged: peers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Inspection native canvas geometry: peers",
+      "pass": true,
+      "detail": {
+        "w": 240,
+        "h": 240
+      }
+    },
+    {
+      "name": "Closed inspection status is truthful: peers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Comparison boundary and tradeoff retained: battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual and proposal native geometry: battery",
+      "pass": true,
+      "detail": [
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        },
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        }
+      ]
+    },
+    {
+      "name": "Task staged: battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Inspection native canvas geometry: battery",
+      "pass": true,
+      "detail": {
+        "w": 240,
+        "h": 240
+      }
+    },
+    {
+      "name": "Closed inspection status is truthful: battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Comparison boundary and tradeoff retained: playing",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actual and proposal native geometry: playing",
+      "pass": true,
+      "detail": [
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        },
+        {
+          "width": 240,
+          "height": 240,
+          "nw": 240,
+          "nh": 240
+        }
+      ]
+    },
+    {
+      "name": "Task staged: playing",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Inspection native canvas geometry: playing",
+      "pass": true,
+      "detail": {
+        "w": 240,
+        "h": 240
+      }
+    },
+    {
+      "name": "Closed inspection status is truthful: playing",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Embedded reference route: README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Embedded reference route: source-receipt.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Embedded reference route: qa/interaction-results.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Embedded reference route: emulator-evidence.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Dirty LOAD question opened from PROJECT",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Normal running PLAY cancels plus stop, preserves edits and no LOAD attempt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stopped modal accessible hint names start",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Normal stopped PLAY cancels plus start command",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip PLAY delegated with question retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip physical SCALE masked, LOAD not activated",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PATCH cancels clip modal without transport toggle",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Keyboard held-arrow owner acquired before leaving",
+      "pass": true,
+      "detail": {
+        "inputs": 1,
+        "timer": true
+      }
+    },
+    {
+      "name": "Leaving Settings disposes frame",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reentry creates clean held-input ownership",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Overview route returns to outer curated selector with focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "LOAD inspection routes to whole native screen",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Whole native readable LOAD consequence matches pixels",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Exact sequencer source locator corrected",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Narrow viewport retains unscaled native canvas",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Keyboard closes inspection and restores open-button focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No network requests",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "network_requests": []
+}

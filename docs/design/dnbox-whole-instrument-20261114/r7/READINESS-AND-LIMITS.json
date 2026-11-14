@@ -1,0 +1,111 @@
+{
+  "state": "R7_FROZEN_FOR_AFFECTED_REVIEW; WHOLE_OVERHAUL_INCOMPLETE",
+  "classification": "Design proposal, no R7 firmware execution or implementation approval",
+  "reviewed_predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+  "review_report_sha256": "2d8d35cde946cc91bcd5819f2a5c7455c5c558c940dbb6da2ac7f76d633dd3b1",
+  "effective_model_effort_service": "Not exposed",
+  "new_scope": [
+    "Source-native GEN controls/roll/math",
+    "Select-only default GEN cell correction with bounded Undo/Redo",
+    "Three R6 model corrections and owner-delivery sanitization"
+  ],
+  "reuse": "Six connected musical paths,12 exact curated R6 frame pixels, original Settings component and all paired PNGs; unchanged proof stays pinned. One host dependency caption clarified.",
+  "primary": [
+    {
+      "file": "workbench.html",
+      "bytes": 1971264,
+      "sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659"
+    },
+    {
+      "file": "proposal.js",
+      "bytes": 93482,
+      "sha256": "e422f74492445d5be186822ddd3041ed6f09613e51a8469afacda21126e0c7e6"
+    },
+    {
+      "file": "physical-role-router.js",
+      "bytes": 5141,
+      "sha256": "5d605654638e5fd6985e40edd3efcb94f4581f618ce8ab1bee6826e4c3696ce8"
+    },
+    {
+      "file": "generator-math.js",
+      "bytes": 2904,
+      "sha256": "bbd76ceab51f96c884937d7ce045f4dd9d332daf61543e413671e588d2a17845"
+    },
+    {
+      "file": "generator-proposal.js",
+      "bytes": 15950,
+      "sha256": "d0088bd7ab1bfb0fc9f2e93174aa2dfdd2a5cd9f8b90c768e4bf93a726bf8a8a"
+    },
+    {
+      "file": "DnBOX-R7-owner-comparisons.pdf",
+      "bytes": 369110,
+      "sha256": "0db8d41329e39da6424fc6971e222fd8a3a901fc62a79370498c25f81fbf52e2"
+    },
+    {
+      "file": "CURATED-NATIVE-MANIFEST.json",
+      "bytes": 66253,
+      "sha256": "7428fefe73a0181f613d68e95133243fa3209eb8f3db68faad38a7bc48b7e5b7"
+    }
+  ],
+  "checks": [
+    {
+      "file": "GEN-AFFECTED-CHECKS.json",
+      "passed": 34,
+      "total": 34,
+      "sha256": "53771140635cd866d01d6c1ef75c79d4e59398b3e2dea964325d1280e1f6ed6a",
+      "executed_html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659"
+    },
+    {
+      "file": "PHYSICAL-DOM-CHECKS.json",
+      "passed": 11,
+      "total": 11,
+      "sha256": "9a9df8017446c859d56df0f2df94903d96e05d70fad28ac10a7a7f3fec5e463d",
+      "executed_html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659"
+    },
+    {
+      "file": "GENERATOR-MATH-CHECKS.json",
+      "passed": 132,
+      "total": 132,
+      "sha256": "aa4573d2301cc70ddfd9e7ca689134fa8fe17ca04cddec740a4ce6651d56d7a2",
+      "executed_html_sha256": null
+    },
+    {
+      "file": "DELIVERY-DELTA-CHECKS.json",
+      "passed": 53,
+      "total": 53,
+      "sha256": "1e99313c4d769c4b59009eeb0bae514e081f8ebab8c566a9e5d6d32cc681d37c",
+      "executed_html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659"
+    },
+    {
+      "file": "ASSET-CHECKS.json",
+      "passed": 172,
+      "total": 172,
+      "sha256": "8b44078a37ea79fa357d6de317e494d364fd9624c0a0b6d76790e8805f1c8c36",
+      "executed_html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659"
+    }
+  ],
+  "curation": {
+    "pairs": 15,
+    "guided_paths": 7,
+    "pdf_pages": 17,
+    "actual_reference_pngs": 22
+  },
+  "review": "Exact successor independent affected assessment pending; packaging audit is not acceptance.",
+  "remaining": [
+    "Full FX/controller/meter/held ownership",
+    "Valid populated BREAK slice/live-release performance",
+    "Real host/SMC peer and clock loss/rejoin",
+    "Running/poly/duration/expressive recording and durable recovery",
+    "Reserved preset/held-note decisions then selected capture strategy then lifecycle",
+    "Settings common-header and held-note continuity",
+    "Same-hardware comparator adoption and whole audible acceptance"
+  ],
+  "actual_source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8,0.0.26 Elite; accepted d158 UI-equivalent not executed; historical25.x Settings separate",
+  "limits": [
+    "No actual iOS or physical device test",
+    "Source math and Chromium model are not firmware/audio",
+    "Native whole-project history byte-pool/grouping/automatic mutation not simulated",
+    "No false battery percentage/charging",
+    "No merge, build, device or release"
+  ]
+}

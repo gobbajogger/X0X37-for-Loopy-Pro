@@ -1,0 +1,298 @@
+{
+  "role": "Read-only source navigation helper; no renderer/runtime edits or acceptance review",
+  "firmware_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "firmware_tree_parent_supplied": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "effective_model_effort": "Not exposed",
+  "evidence_class": "SOURCE_DERIVED_NOT_EXECUTED",
+  "no_change_part_function_in_pinned_ui_c": true,
+  "parts": [
+    {
+      "canonical": "PART_909",
+      "id": 0,
+      "presentation_index": 0,
+      "voice": null,
+      "slot": null
+    },
+    {
+      "canonical": "PART_808",
+      "id": 1,
+      "presentation_index": 1,
+      "voice": null,
+      "slot": null
+    },
+    {
+      "canonical": "PART_BRK",
+      "id": 4,
+      "presentation_index": 2,
+      "voice": null,
+      "slot": null
+    },
+    {
+      "canonical": "PART_303B",
+      "id": 3,
+      "presentation_index": 3,
+      "voice": 1,
+      "slot": "B"
+    },
+    {
+      "canonical": "PART_303A",
+      "id": 2,
+      "presentation_index": 4,
+      "voice": 0,
+      "slot": "A"
+    }
+  ],
+  "display_order_canonical_ids": [
+    0,
+    1,
+    4,
+    3,
+    2
+  ],
+  "neighbor": {
+    "input": "one sign(e) step per nonzero K3 sample, independent of abs(e)",
+    "edge_policy": "CLAMP_NOT_WRAP",
+    "table": [
+      {
+        "from": 0,
+        "negative": 0,
+        "positive": 1
+      },
+      {
+        "from": 1,
+        "negative": 0,
+        "positive": 4
+      },
+      {
+        "from": 4,
+        "negative": 1,
+        "positive": 3
+      },
+      {
+        "from": 3,
+        "negative": 4,
+        "positive": 2
+      },
+      {
+        "from": 2,
+        "negative": 3,
+        "positive": 2
+      }
+    ]
+  },
+  "K3_precedence": [
+    {
+      "when": "overlay O_ASK or perf_testing",
+      "result": "encoder drained before normal K3 dispatch"
+    },
+    {
+      "when": "overlay O_LIST",
+      "result": "turn_ref(selected_list_row,e,EN_ALGO), no part selection",
+      "boundary": "Settings/SOUND row edits remain incumbent owned"
+    },
+    {
+      "when": "V_SEQ and canonical part2/3 and ui.held_step>=0",
+      "result": "held melodic step velocity+=e, clamp1..127; step_edited=1; mark_dirty; refresh existing preview",
+      "uses_magnitude": true
+    },
+    {
+      "when": "otherwise",
+      "result": "one clamped neighbor; cancel bass/drum step hooks only if canonical part changes; assign part; V_GEN to non-synth falls back V_PART; outline invalid; rebuild pages",
+      "page_reset": false
+    },
+    {
+      "when": "resulting view V_MIX after normal part branch, including clamped same part",
+      "result": "mixsel=part; 909->page1,808->page2,BREAK/A/B->page0"
+    }
+  ],
+  "K3_non_overrides": [
+    "A held V_PART melodic step does not cause velocity edit",
+    "A held V_SEQ drum step does not cause melodic velocity edit",
+    "Normal K3 part selection does not directly edit sound or clear all page memories",
+    "Do not infer all-notes-off/panic from the named step-cancel hooks"
+  ],
+  "page_storage": {
+    "source_field": "ui.page[NVIEWS][NPARTS]",
+    "per_view_and_part": [
+      "V_PART",
+      "V_SEQ",
+      "V_GEN"
+    ],
+    "per_view_shared_index0": [
+      "V_HOME",
+      "V_FX",
+      "V_MIX",
+      "V_GLO",
+      "V_SONG",
+      "V_PERF"
+    ],
+    "part_key": "canonical part ID, not presentation index or engine kind",
+    "per_engine_memory": false,
+    "separate_from": [
+      "ui.spage",
+      "ui.pbank",
+      "ui.sel[NKIT]",
+      "ui.mixsel"
+    ],
+    "ordinary_rebuild": "build_pages resets stored out-of-range page to0",
+    "SOUND_interface": "Existing admitted SOUND descriptor follows the new final row; asynchronous bank-layout flags preserve the source interface. No new CP1 implementation or policy is specified.",
+    "current_full_synth_page_counts": {
+      "CHICAGO": 8,
+      "MIAMI": 6,
+      "JUNO": 5
+    },
+    "init_lifecycle": "ui_init zeros session UI/page memory and starts canonical909 V_SEQ; ordinary navigation does not"
+  },
+  "set_view": {
+    "destination_page_reset": false,
+    "destination_page": "restore page_of(destination) subject to descriptor normalization",
+    "held_PART_to_SEQ": "ui.held_step>=0 or ui.hold_step>=0 => RELEASE STEP FIRST; stay in PART",
+    "held_SEQ_to_PART": "retain bass/drum held step for p-lock route",
+    "other_changes": [
+      "bass_layout_accept source interface",
+      "SMC popup cancel",
+      "bass/drum step cancellation except SEQ->PART",
+      "prev_view update only if actual view changes",
+      "assign view",
+      "recorder mask updates",
+      "brk_held=-1",
+      "overlay=O_NONE",
+      "build_pages"
+    ],
+    "same_view_page_buttons": {
+      "PARA": "if already V_PART/O_NONE, increment modulo full page count; pending-SOUND cancel exception reserved",
+      "SEQ": "if already V_SEQ/O_NONE, increment modulo sequence descriptor count",
+      "FX": "if already V_FX/O_NONE, increment modulo FX descriptor count",
+      "NOTE REPEAT": "if already V_MIX/O_NONE, increment modulo mixer descriptor count"
+    }
+  },
+  "header_identity": {
+    "normal_PART_SEQ": "actual known engine name + A for canonical2/voice0, + B for canonical3/voice1, even when engines differ",
+    "dedicated_PART_cache_same_identity": true,
+    "general_part_display": "may omit A/B when engines differ; appends A/B when both use same engine",
+    "compact_lane_names": "JUN/CHI/MIA, or JU-A/JU-B,CH-A/CH-B,MI-A/MI-B when same engine in both slots",
+    "default_tagged_assignment": {
+      "canonical2_voice0_A": "MIAMI",
+      "canonical3_voice1_B": "CHICAGO"
+    },
+    "engine_change_moves_slot": false,
+    "unknown_unavailable_boundary": "Not selected here. Consume incumbent source/CP1 availability contract; no automatic substitution or renumbering. Drone active design withdrawn."
+  },
+  "source_derived_examples_not_executed": [
+    {
+      "given": "PART A canonical2 page3; PART B canonical3 remembered6; stable engine layouts",
+      "input": "K3 negative then positive",
+      "expected": "B page6 then A page3; memories preserved"
+    },
+    {
+      "given": "PART A remembered3; SEQ A remembered2",
+      "input": "SEQ then PARA from PART, no held step",
+      "expected": "SEQ A page2 then PART A page3"
+    },
+    {
+      "given": "FX remembered1; current PART",
+      "input": "FX then another unused FX tap",
+      "expected": "FX page1 then FX page0"
+    },
+    {
+      "given": "MIX remembered4; current PART",
+      "input": "NOTE REPEAT",
+      "expected": "MIX page4 restored"
+    },
+    {
+      "given": "canonical909 on MIX MASTER page3",
+      "input": "K3 negative",
+      "expected": "canonical909 retained by clamp; MIX page1 / 909 MIX selected"
+    },
+    {
+      "given": "canonical A at right endpoint on PART page3",
+      "input": "K3 positive",
+      "expected": "A and PART page3 retained if descriptors remain valid"
+    },
+    {
+      "given": "canonical B with JUNO and other slot MIAMI",
+      "input": "draw normal PART/SEQ header",
+      "expected": "JUNO B, not JUNO A or merely JUNO"
+    },
+    {
+      "given": "MIX PARTS page0; ui.part=909",
+      "input": "black key position4 (zero based3)",
+      "expected": "mixsel=B canonical3; ui.part still909"
+    }
+  ],
+  "exact_source_refs": [
+    {
+      "path": "firmware/src/app/engine.h",
+      "lines": "30",
+      "blob": "9feda5fee976b901a269a7d13e7a0bc4d78aecad",
+      "claim": "canonical part IDs"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "94-166",
+      "blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+      "claim": "presentation order, clamp, general display labels"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "179-185;339-347;1427-1430",
+      "claim": "page/state storage and synth voice mapping"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "1586-1629",
+      "claim": "descriptor rebuild, page normalization and reserved asynchronous interface"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "2754-2780",
+      "claim": "set_view and page preservation"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "3764-3768",
+      "claim": "MIX black keys change mixsel only"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "4061-4105",
+      "claim": "same-view cycle versus entering remembered view"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "4544-4608",
+      "claim": "K3 precedence, sign step, cancellation and MIX follow"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "5331-5335;5375-5388;5420-5439",
+      "claim": "explicit PART/SEQ A/B header identity"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "8588-8608",
+      "claim": "UI init resets page state only on init lifecycle"
+    },
+    {
+      "path": "firmware/src/app/engine.c",
+      "lines": "782-786",
+      "blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570",
+      "claim": "default A Miami/B Chicago tagged sound assignment"
+    },
+    {
+      "path": "firmware/src/app/panel.c",
+      "lines": "29-40",
+      "blob": "60ca44f92557d8682227cdfe5d1ccd1e5c1bac54",
+      "claim": "physical K3 is ALGORITHM under default panel mapping"
+    }
+  ],
+  "limitations": [
+    "No emulator/test/source execution",
+    "Source-derived examples are not test results",
+    "No renderer/runtime/Git edits",
+    "Settings unchanged",
+    "Reserved CP1 transaction semantics unchanged",
+    "Drone active removal belongs to existing firmware existing firmware owner",
+    "R4 reducer writer remains existing whole-design owner"
+  ]
+}

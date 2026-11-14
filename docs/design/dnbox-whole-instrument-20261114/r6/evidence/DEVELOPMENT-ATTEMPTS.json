@@ -1,0 +1,33 @@
+{
+  "classification": "Preserved development failures, not candidate acceptance",
+  "attempts": [
+    {
+      "issue": "Initial canonical melodic getter used a drum source ID",
+      "result": "Browser startup error; corrected fallback owner before successful checks"
+    },
+    {
+      "issue": "Intermediate event rewrite inserted semicolon before else",
+      "result": "Syntax check failed; corrected before browser verification"
+    },
+    {
+      "issue": "First cue validator requested two808 increments after all-partP2 but expectedP3",
+      "result": "24/26; corrected action sequence, not reducer"
+    },
+    {
+      "issue": "Miami known-q26 source wave isSAW, validator assumedTRI",
+      "result": "50/51; selectedq20 sourceTRI for adjacent-state test; no implementation change from this failure"
+    },
+    {
+      "issue": "Metadata copy expected manifest inside output-only rather than parent folder",
+      "result": "ENOENT; corrected source path, outputs unchanged"
+    }
+  ],
+  "pre_final_receipts": "Local continuation-evidence/r6-development/pre-final; source hashes inside each receipt",
+  "limits": "Not every failed transient process has a full local trace; original tool outputs remain conversation evidence. No failed result is relabeled passed.",
+  "final_audit_corrections": [
+    "Melodic hold input numeric owner shadowing corrected; original short release deletes only captured cell",
+    "Unavailable BREAK scalar branch declares unmodeled input instead of referencing undefined step",
+    "Native filled7x7 Song identity tiles restored after direct PDF/native comparison; prior outline substitute withdrawn",
+    "Source light-layer metadata and CHORD/save/Song/held alias gaps corrected, prior source assist retained with scope addendum"
+  ]
+}

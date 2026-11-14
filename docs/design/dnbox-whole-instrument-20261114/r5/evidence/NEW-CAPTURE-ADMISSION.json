@@ -1,0 +1,15 @@
+{
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "receipt_sha256": "102e31cea0d6adf2fb330c290b5049efea079bb2039526f538feae275e78fa07",
+  "producer_not_independent": true,
+  "admitted": [
+    "elite-qualified2-01-break-loops.png",
+    "elite-qualified2-05-juno-envelope.png"
+  ],
+  "excluded_from_equivalent_presentation": {
+    "new-baseline_attempt": "Misrouted targets808/Chicago rather than BREAK/Juno; retained unchanged in Dot",
+    "elite-qualified2-04-juno-oscillator.png": "Lower bands incomplete at capture; values/page reached but not a complete equivalent-state LCD. Use complete ENVELOPE capture05 instead."
+  },
+  "inference_limit": "No assumed cause/runtime defect from incomplete band; not d158 or R5 firmware execution",
+  "source_runtime_package_limits": "Existing exact0.0.26BUILD_ONLY package/WASM/worklet hashes retained; no firmware build/device persistence/release."
+}

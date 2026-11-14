@@ -1,0 +1,1038 @@
+{
+  "classification": "Producer working-R7 model checks, not independent review or firmware execution",
+  "html_sha256": "131db6ae9aa436274735d9dca3602f7d902c3c1a32453a302d118ed6f70a2659",
+  "inputs": {
+    "proposal.js": "e422f74492445d5be186822ddd3041ed6f09613e51a8469afacda21126e0c7e6",
+    "physical-role-router.js": "5d605654638e5fd6985e40edd3efcb94f4581f618ce8ab1bee6826e4c3696ce8",
+    "generator-math.js": "bbd76ceab51f96c884937d7ce045f4dd9d332daf61543e413671e588d2a17845",
+    "generator-proposal.js": "d0088bd7ab1bfb0fc9f2e93174aa2dfdd2a5cd9f8b90c768e4bf93a726bf8a8a"
+  },
+  "checks": [
+    {
+      "name": "Stopped NOTE preserves CHORD accent and consumes release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stopped NOTE preserves NOTE REPEAT slide and consumes release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Physical key31 follows GRID role and holds absolute64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Physical key31 original release keeps64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "White key/pad union keeps second alias owner after first release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final short alias release cannot turn a long union hold into deletion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Source admitted PART retains outer37 live key route",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Default SEQ outer keys do not acquire hidden step roles",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Known GEN phrase retains source NOTE/TIE pad layer and ARP identity",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Proposed GEN physical W3 selects stored3 without editing or navigating",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Held NOTE uses native23px white readout, no small amber-slider substitution",
+      "pass": true,
+      "detail": [
+        {
+          "text": "G3",
+          "x": 18.327499389648438,
+          "y": 193,
+          "width": 23.345001220703125,
+          "height": 23
+        }
+      ]
+    },
+    {
+      "name": "GEN held OCT+ corrects only step3 by12; no NEW generation",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Release restores every generator control without data deletion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Bounded correction Undo restores55 and keeps transport/REC/view",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Bounded correction Redo restores67 without stopping playback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "New GEN short tap remains select-only, no source-note deletion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Existing PATCH+white pattern cue still precedes GEN cell focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "GEN config edit marks stale without changing notes or motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "NEW source math resets hidden64 cells/velocities and authors an audible anchor",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "NEW Undo restores phrase/seed without stopping transport or inventing stale restoration",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "NEW Redo restores same source-math seed and line",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Existing GEN SCALE list exposes all8 typed config refs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "GEN list K2moves and K3edits ROOT without changing lower page",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Existing arrow edits selectedGEN scalar",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original lower GEN knobs remain active under list",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "ARP closes GEN list without advancing remembered page",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Existing view key closes list before next-page action",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Explicit Undo while GEN input remains held finalizes current correction first",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original release after Undo cannot silently re-commit undone data",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Current GEN part-select to BREAK enters its actual PART view",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Miami GEN Free Play keeps keyboard anchors, not SEQ-only division lights",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Leaving GEN commits explicit cell edit before its focus retires",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Changed native text remains within240x240",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Affected working model has no browser exception",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": 34,
+  "total": 34,
+  "limits": [
+    "Source GEN math with explicit simulated entropy/time; source-math reference receipt separate",
+    "No full native Undo byte-pool or whole-project history claim",
+    "Actual source captures and audio remain separate",
+    "R6 stays immutable; full independent R6 findings pending"
+  ],
+  "frames": [
+    {
+      "file": "verification/native/record-accent.png",
+      "sha256": "2fb20e94565fa4f32f05a09e883053523ef693b65188f8d2ac884f4322e7b126",
+      "bytes": 18216,
+      "bounds": [
+        {
+          "text": "CHICAGO B SEQ",
+          "x": 5,
+          "y": 1,
+          "width": 83.43968200683594,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 71,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "WRITE 2 A2 V100",
+          "x": 4,
+          "y": 140,
+          "width": 100.18568420410156,
+          "height": 15
+        },
+        {
+          "text": "P1 SEQUENCE",
+          "x": 8,
+          "y": 158,
+          "width": 57.92559814453125,
+          "height": 11
+        },
+        {
+          "text": "LENGTH",
+          "x": 12.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "16st",
+          "x": 17.47997283935547,
+          "y": 210,
+          "width": 25.040054321289062,
+          "height": 16
+        },
+        {
+          "text": "RATE",
+          "x": 78.76907348632812,
+          "y": 171,
+          "width": 22.46185302734375,
+          "height": 11
+        },
+        {
+          "text": "1/16",
+          "x": 77.823974609375,
+          "y": 210,
+          "width": 24.35205078125,
+          "height": 16
+        },
+        {
+          "text": "DIRECTION",
+          "x": 126.7131576538086,
+          "y": 171,
+          "width": 46.57368469238281,
+          "height": 11
+        },
+        {
+          "text": "FWD",
+          "x": 135.5919647216797,
+          "y": 210,
+          "width": 28.816070556640625,
+          "height": 16
+        },
+        {
+          "text": "TRANSP",
+          "x": 192.36711883544922,
+          "y": 171,
+          "width": 35.26576232910156,
+          "height": 11
+        },
+        {
+          "text": "0st",
+          "x": 199.74398040771484,
+          "y": 210,
+          "width": 20.512039184570312,
+          "height": 16
+        },
+        {
+          "text": "CHORD+OCTAVE: REST  NOTE REPEAT+OCTAVE: TIE",
+          "x": 4,
+          "y": 229,
+          "width": 198.45985412597656,
+          "height": 10
+        }
+      ],
+      "state_sha256": "d19935620585fb1e40cc8f4615b67651a72b811fb0992667ab3b906b4cdf6a04"
+    },
+    {
+      "file": "verification/native/record-slide.png",
+      "sha256": "b2530e30d5b05659dc708d129d77b42ce28419535aab3c45673be2ced4897777",
+      "bytes": 18472,
+      "bounds": [
+        {
+          "text": "CHICAGO B SEQ",
+          "x": 5,
+          "y": 1,
+          "width": 83.43968200683594,
+          "height": 14
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 71,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "WRITE 2 A2 V100",
+          "x": 4,
+          "y": 140,
+          "width": 100.18568420410156,
+          "height": 15
+        },
+        {
+          "text": "P1 SEQUENCE",
+          "x": 8,
+          "y": 158,
+          "width": 57.92559814453125,
+          "height": 11
+        },
+        {
+          "text": "LENGTH",
+          "x": 12.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "16st",
+          "x": 17.47997283935547,
+          "y": 210,
+          "width": 25.040054321289062,
+          "height": 16
+        },
+        {
+          "text": "RATE",
+          "x": 78.76907348632812,
+          "y": 171,
+          "width": 22.46185302734375,
+          "height": 11
+        },
+        {
+          "text": "1/16",
+          "x": 77.823974609375,
+          "y": 210,
+          "width": 24.35205078125,
+          "height": 16
+        },
+        {
+          "text": "DIRECTION",
+          "x": 126.7131576538086,
+          "y": 171,
+          "width": 46.57368469238281,
+          "height": 11
+        },
+        {
+          "text": "FWD",
+          "x": 135.5919647216797,
+          "y": 210,
+          "width": 28.816070556640625,
+          "height": 16
+        },
+        {
+          "text": "TRANSP",
+          "x": 192.36711883544922,
+          "y": 171,
+          "width": 35.26576232910156,
+          "height": 11
+        },
+        {
+          "text": "0st",
+          "x": 199.74398040771484,
+          "y": 210,
+          "width": 20.512039184570312,
+          "height": 16
+        },
+        {
+          "text": "CHORD+OCTAVE: REST  NOTE REPEAT+OCTAVE: TIE",
+          "x": 4,
+          "y": 229,
+          "width": 198.45985412597656,
+          "height": 10
+        }
+      ],
+      "state_sha256": "d317e71de55afdb94b160f00254801c1d736019f7144baad87bbdcce6d80dc52"
+    },
+    {
+      "file": "verification/native/gen-normal.png",
+      "sha256": "49b0580483912d678134f2c368af5f9be3695d2cfeada44da71c6edf713aa56a",
+      "bytes": 16962,
+      "bounds": [
+        {
+          "text": "CHICAGO",
+          "x": 5,
+          "y": 1,
+          "width": 48.62181091308594,
+          "height": 14
+        },
+        {
+          "text": "TB-3PO",
+          "x": 66.58003234863281,
+          "y": 4,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 71,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "A MIN",
+          "x": 4,
+          "y": 140,
+          "width": 32.74522399902344,
+          "height": 15
+        },
+        {
+          "text": "SEED 05A1",
+          "x": 54.74522399902344,
+          "y": 140,
+          "width": 61.470428466796875,
+          "height": 15
+        },
+        {
+          "text": "P1 GENERATE",
+          "x": 8,
+          "y": 158,
+          "width": 57.408599853515625,
+          "height": 11
+        },
+        {
+          "text": "DENS",
+          "x": 18.175079345703125,
+          "y": 171,
+          "width": 23.64984130859375,
+          "height": 11
+        },
+        {
+          "text": "70%",
+          "x": 16.822410583496094,
+          "y": 210,
+          "width": 26.355178833007812,
+          "height": 15
+        },
+        {
+          "text": "ACCENT",
+          "x": 72.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "40%",
+          "x": 76.1249008178711,
+          "y": 210,
+          "width": 27.750198364257812,
+          "height": 15
+        },
+        {
+          "text": "SLIDE",
+          "x": 137.3995819091797,
+          "y": 171,
+          "width": 25.200836181640625,
+          "height": 11
+        },
+        {
+          "text": "25%",
+          "x": 136.6349105834961,
+          "y": 210,
+          "width": 26.730178833007812,
+          "height": 15
+        },
+        {
+          "text": "OCTS",
+          "x": 198.5600814819336,
+          "y": 171,
+          "width": 22.879837036132812,
+          "height": 11
+        },
+        {
+          "text": "2",
+          "x": 206.25747680664062,
+          "y": 210,
+          "width": 7.48504638671875,
+          "height": 15
+        },
+        {
+          "text": "OCT+: NEW  OCT\u2212: MUTATE   HOLD: EDIT",
+          "x": 4,
+          "y": 229,
+          "width": 154.90988159179688,
+          "height": 10
+        }
+      ],
+      "state_sha256": "bd85936be8269514aec13d9f5e146bb0ba88f94cf36d10243462c2b0f6428d52"
+    },
+    {
+      "file": "verification/native/gen-held-before.png",
+      "sha256": "f97d889f71dd6580eaac9ea8bc87f8646a91af6d294e7c41ecc11cff3ea0b514",
+      "bytes": 18407,
+      "bounds": [
+        {
+          "text": "CHICAGO",
+          "x": 5,
+          "y": 1,
+          "width": 48.62181091308594,
+          "height": 14
+        },
+        {
+          "text": "TB-3PO",
+          "x": 66.58003234863281,
+          "y": 4,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 71,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "STEP 3 G3 V100",
+          "x": 4,
+          "y": 140,
+          "width": 91.36563110351562,
+          "height": 15
+        },
+        {
+          "text": "CHICAGO STEP 3",
+          "x": 8,
+          "y": 158,
+          "width": 69.93748474121094,
+          "height": 11
+        },
+        {
+          "text": "A MIN 05A1",
+          "x": 177.97003173828125,
+          "y": 158,
+          "width": 42.02996826171875,
+          "height": 10
+        },
+        {
+          "text": "NOTE",
+          "x": 17.05791473388672,
+          "y": 171,
+          "width": 25.884170532226562,
+          "height": 12
+        },
+        {
+          "text": "G3",
+          "x": 18.327499389648438,
+          "y": 193,
+          "width": 23.345001220703125,
+          "height": 23
+        },
+        {
+          "text": "GATE",
+          "x": 77.7599105834961,
+          "y": 171,
+          "width": 24.480178833007812,
+          "height": 12
+        },
+        {
+          "text": "NOTE",
+          "x": 65.19449615478516,
+          "y": 193,
+          "width": 49.61100769042969,
+          "height": 23
+        },
+        {
+          "text": "ACCENT",
+          "x": 130.69186401367188,
+          "y": 171,
+          "width": 38.61627197265625,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 132.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "SLIDE",
+          "x": 196.16991424560547,
+          "y": 171,
+          "width": 27.660171508789062,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 192.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "K2: CHANCE   K3: VELOCITY   RELEASE: BACK",
+          "x": 4,
+          "y": 229,
+          "width": 175.079833984375,
+          "height": 10
+        }
+      ],
+      "state_sha256": "2487fa8711d1674fd2c0ffb2817176d113aac18e91b8be51d25a5777f79de648"
+    },
+    {
+      "file": "verification/native/gen-held.png",
+      "sha256": "1c27860670278477be747e1591dc2dc50aeb3de95887ed0619265c02d65575cb",
+      "bytes": 18485,
+      "bounds": [
+        {
+          "text": "CHICAGO",
+          "x": 5,
+          "y": 1,
+          "width": 48.62181091308594,
+          "height": 14
+        },
+        {
+          "text": "TB-3PO",
+          "x": 66.58003234863281,
+          "y": 4,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 79,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "A4",
+          "x": 1,
+          "y": 20,
+          "width": 12.888092041015625,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "STEP 3 G4 V100",
+          "x": 4,
+          "y": 140,
+          "width": 92.22064208984375,
+          "height": 15
+        },
+        {
+          "text": "CHICAGO STEP 3",
+          "x": 8,
+          "y": 158,
+          "width": 69.93748474121094,
+          "height": 11
+        },
+        {
+          "text": "A MIN 05A1",
+          "x": 177.97003173828125,
+          "y": 158,
+          "width": 42.02996826171875,
+          "height": 10
+        },
+        {
+          "text": "NOTE",
+          "x": 17.05791473388672,
+          "y": 171,
+          "width": 25.884170532226562,
+          "height": 12
+        },
+        {
+          "text": "G4",
+          "x": 17.821502685546875,
+          "y": 193,
+          "width": 24.35699462890625,
+          "height": 23
+        },
+        {
+          "text": "GATE",
+          "x": 77.7599105834961,
+          "y": 171,
+          "width": 24.480178833007812,
+          "height": 12
+        },
+        {
+          "text": "NOTE",
+          "x": 65.19449615478516,
+          "y": 193,
+          "width": 49.61100769042969,
+          "height": 23
+        },
+        {
+          "text": "ACCENT",
+          "x": 130.69186401367188,
+          "y": 171,
+          "width": 38.61627197265625,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 132.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "SLIDE",
+          "x": 196.16991424560547,
+          "y": 171,
+          "width": 27.660171508789062,
+          "height": 12
+        },
+        {
+          "text": "OFF",
+          "x": 192.49700164794922,
+          "y": 193,
+          "width": 35.00599670410156,
+          "height": 23
+        },
+        {
+          "text": "K2: CHANCE   K3: VELOCITY   RELEASE: BACK",
+          "x": 4,
+          "y": 229,
+          "width": 175.079833984375,
+          "height": 10
+        }
+      ],
+      "state_sha256": "bbf5af9beb06c3de47298bea871589ffc12c2d3634c3be562121737d5b3ef5ba"
+    },
+    {
+      "file": "verification/native/gen-corrected.png",
+      "sha256": "2fc826d2e412a4cfcc3489d5fbc9609effe449140fca760d391351d8317bea0d",
+      "bytes": 17352,
+      "bounds": [
+        {
+          "text": "CHICAGO",
+          "x": 5,
+          "y": 1,
+          "width": 48.62181091308594,
+          "height": 14
+        },
+        {
+          "text": "TB-3PO",
+          "x": 66.58003234863281,
+          "y": 4,
+          "width": 29.419967651367188,
+          "height": 10
+        },
+        {
+          "text": "1",
+          "x": 119.60102844238281,
+          "y": 3,
+          "width": 3.3989715576171875,
+          "height": 11
+        },
+        {
+          "text": "125",
+          "x": 158.82394409179688,
+          "y": 0,
+          "width": 20.176055908203125,
+          "height": 16
+        },
+        {
+          "text": "A3",
+          "x": 1,
+          "y": 79,
+          "width": 12.360092163085938,
+          "height": 12
+        },
+        {
+          "text": "A4",
+          "x": 1,
+          "y": 20,
+          "width": 12.888092041015625,
+          "height": 12
+        },
+        {
+          "text": "AC",
+          "x": 3,
+          "y": 118,
+          "width": 12.81610107421875,
+          "height": 12
+        },
+        {
+          "text": "SL",
+          "x": 3,
+          "y": 130,
+          "width": 12.07208251953125,
+          "height": 12
+        },
+        {
+          "text": "A MIN",
+          "x": 4,
+          "y": 140,
+          "width": 32.74522399902344,
+          "height": 15
+        },
+        {
+          "text": "SEED 05A1",
+          "x": 54.74522399902344,
+          "y": 140,
+          "width": 61.470428466796875,
+          "height": 15
+        },
+        {
+          "text": "P1 GENERATE",
+          "x": 8,
+          "y": 158,
+          "width": 57.408599853515625,
+          "height": 11
+        },
+        {
+          "text": "DENS",
+          "x": 18.175079345703125,
+          "y": 171,
+          "width": 23.64984130859375,
+          "height": 11
+        },
+        {
+          "text": "70%",
+          "x": 16.822410583496094,
+          "y": 210,
+          "width": 26.355178833007812,
+          "height": 15
+        },
+        {
+          "text": "ACCENT",
+          "x": 72.46612548828125,
+          "y": 171,
+          "width": 35.0677490234375,
+          "height": 11
+        },
+        {
+          "text": "40%",
+          "x": 76.1249008178711,
+          "y": 210,
+          "width": 27.750198364257812,
+          "height": 15
+        },
+        {
+          "text": "SLIDE",
+          "x": 137.3995819091797,
+          "y": 171,
+          "width": 25.200836181640625,
+          "height": 11
+        },
+        {
+          "text": "25%",
+          "x": 136.6349105834961,
+          "y": 210,
+          "width": 26.730178833007812,
+          "height": 15
+        },
+        {
+          "text": "OCTS",
+          "x": 198.5600814819336,
+          "y": 171,
+          "width": 22.879837036132812,
+          "height": 11
+        },
+        {
+          "text": "2",
+          "x": 206.25747680664062,
+          "y": 210,
+          "width": 7.48504638671875,
+          "height": 15
+        },
+        {
+          "text": "OCT+: NEW  OCT\u2212: MUTATE   HOLD: EDIT",
+          "x": 4,
+          "y": 229,
+          "width": 154.90988159179688,
+          "height": 10
+        }
+      ],
+      "state_sha256": "911ff4787b81684dc3b88f762f7ee7ceb1721ad4137cb47378bd0e1f84ec28d5"
+    }
+  ],
+  "full_inventory": {
+    "file": "verification/GEN-AFFECTED-CHECKS-full.json.gz",
+    "uncompressed_bytes": 7655286,
+    "uncompressed_sha256": "76e81b0ba6711ce01dc8f9ddeb668ba388da6ba3590728f0fc8ae6b6e5cf12f7",
+    "gzip_sha256": "c72ffec4e480bdb663cb9485a28f94daecde487f034a45a5c5070684b4d09f7f"
+  }
+}

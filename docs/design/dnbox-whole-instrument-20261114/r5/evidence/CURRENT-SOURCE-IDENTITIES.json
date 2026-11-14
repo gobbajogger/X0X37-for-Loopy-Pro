@@ -1,0 +1,20 @@
+{
+  "accepted_source": {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+    "parent": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "verification": "Authenticated GitHub commit/tree/13 filenames read; UI and glyph files unchanged from3c41"
+  },
+  "captured_emulator_source": {
+    "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "version": "0.0.26 BUILD_ONLY Elite/Pro",
+    "class": "Existing independent actual package exercise; no d158 or R5 execution inferred"
+  },
+  "later_components": {
+    "clip_question": "e581333f1ef2586c6c37f72e80d0b51fe5a00723",
+    "drone_archive_component": "ea10fb1492527932476b0ecfa668348f5c1a8a03",
+    "class": "Read-only source components; not claimed integrated/runnable"
+  },
+  "restricted_inputs": "Numeric synth headers and factory/native snapshots remain private. No firmware FWSC/WASM/SDK/device output in design export.",
+  "effective_model_effort": "Not exposed"
+}

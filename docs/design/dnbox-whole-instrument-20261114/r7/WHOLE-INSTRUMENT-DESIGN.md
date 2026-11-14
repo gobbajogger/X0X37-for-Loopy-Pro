@@ -1,0 +1,49 @@
+# DnBOX R7: whole-instrument design in progress
+
+The goal is an easier musical instrument. Existing fast access, useful lower controls, compact native glyphs and large immediate values are the starting point. A nicer picture is not enough to justify slower editing or hidden information. The LCD,16 RGB pads,18 button positions/lamps,8knobs and37 unlit piano keys form one interface. No unimplemented hardware feedback is assumed.
+
+R7 preserves the six connected R6 studies and adds a generator correction/recovery path. It corrects three demonstrated prototype omissions. It is not a completed overhaul, source-faithful model of every route, or implemented firmware. Existing current behavior is labeled retained; new feedback and new routes are identified below.
+
+## One control and visual grammar
+
+The owned screen paths retain the20px header,138px musical body and82px lower-control region. Engine pages keep their sparse control positions, remembered navigation, established Chicago ADSR and Juno labels/bars. Current engine-kind labels and duplicate-slot suffixes already exist. Juno neighboring values stay bright independently of label hierarchy. Held-step NOTE/GATE/ACCENT/SLIDE uses the native23px SemiBold white values, not the rejected small amber/sliders. No new decorative Juno/ADSR thumbnails are introduced.
+
+K1 retains master scope; K2 retains context-sensitive page/list/probability; K3 part or held velocity; K4 pattern/preset scope; K5–8 aligned native controls. Ordinary arrows keep direct navigation. Menu hold-repeat, simultaneous arrows and complete held-FX/connected arbitration remain outside this model. FADER BANK is the one explicitly disabled button position; ARP now opens GEN and its two pages. All physical captions remain unchanged.
+
+The37-key router acquires a source contextual owner at press time. Central white keys alias pads/grid where admitted, black keys select tracks where admitted, PART/SEQ Free Play REC-off admits the existing37-key live route, and current REC uses central27. Original releases and pad/key aliases retain their own owner. The piano keybed has no LEDs. Pads retain source hue, note/tie/REST/content priority and held brightness. CHORD/accent and transport/save/Song button meanings are retained separately from LCD decoration.
+
+Compact top power status consistently uses the coarse0–3bars, USB-host or unknown data contract in the owned normal painters. No calibrated percentage or charging signal exists. Settings and connected independently painted headers remain integration work. STOP/WAIT pending feedback stays steady; running phase is separate. The current source pending-pixel phase difference is a documented design-intent question, not an assumed runtime defect.
+
+## Musical routes and actual improvement
+
+| Area | Current useful behavior retained | Concrete proposal / evidence | Remaining outcome |
+|---|---|---|---|
+| First beat / drums |11-track selection, audition vs step write, direct per-voice parameters,16 pads | Glyph-first instrument identity; source-correct drum PARA and MIX owners. Current/source comparisons and model routes remain. | Recognition, velocity/audible first-beat evidence on device. |
+| Chicago / Miami / Juno editing |Engine-specific sparse pages, native ADSR/Juno value/bar vocabulary, page memory and direct knobs | Explicit held/lock/motion context in a small existing gutter. Native Miami body and edited-q fixture are separately labeled. | Full factory/preset and audio parity; native compiled cue laws within declared bounds. |
+|64-step correction |OCTAVE paging, length/rate/direction, chance, held locks, original release | Absolute range survives pending-cue header use; selected chance and post-adoption base scope visible. Six-path study retained. | Timing, glare/recognition, audible outcome. |
+| Motion |Base edits, next matching-step write, one-pass override, BT clear and capacity behavior | Remaining override count and request/captured scope without added navigation. Whole and single-position clear exercised. | Native ramps, whole history, audio/persistence. |
+| Copy / cues / mutes |Five current source IDs, separate queued patterns, occupied confirmation, per-part mute policy | Five-source overwrite consequence, per-part pending arrows and pending-mute marks. No new confirmation; partial-capacity result remains explicit. | Recognition/collision timing and musical use. |
+| Stopped phrase / another pass |NOTE/TIE/REST, V100, visited-cell replacement, held correction/replay | Rewrite scope hint retained. Modifier flags/releases and physical-key roles restored in prototype; these are not new firmware features. | Running/poly/durations, expressive capture, saved/reloaded takes. |
+| GEN / correction / Undo |NEW/MUTATE, all8controls/2pages, root/scale/seed, SCALE list, source history chords | **New:** hold a default-GEN cell to edit without leaving GEN, release to restore controls. Two view presses removed. Exact public mathematics and current GEN→SEQ→GEN captures separate from proposal. | Native whole-project history grouping/byte-pool, automatic mutation/audio, independent use. |
+| Song |Native BAR/pattern identity cues, pad writes bar/advances to END, select/edit/repeat/mute | Truthful ordinary authoring retained; earlier prototype errors corrected. | Full arrangement recording and durable replay. |
+| Panic / recovery |FX+SEQ note retirement; original view/transport and consumed releases | Scoped acknowledgement; both releases rearm and a fresh note can recover. No promise of FX-tail/global silence. | Real external ownership, scope and musical recovery. |
+| BREAK |Current LOOP page and source slice/live controls | Honest unavailable-loop before/proposal and bounded source role model. | Valid populated loop, slice pin/live override/release/replay journey; unavailable is not success. |
+| FX / MIX / controller |Native track layouts and control owners | Selected MIX and partial FX fixtures retained. | Full FX/controller routes, meters, held ownership, meaningful improvement. |
+| Clock / Loopy / connected |No-host native body/lower controls, clip LOAD exception, WAIT | Header-only static composition explicitly labeled; local PLAY request is not host acknowledgement. | Real host/peer, viewport/original-cell releases, loss/rejoin. |
+| Presets / Settings / save |Original Settings component and six historical pairs; normal LOAD cancel/start/stop | Host composition and truthful version/dependency wording. Settings pixels/components stay owned. | Preset/held-note decisions, selected capture strategy→lifecycle, common status/continuity, durable save/recovery. |
+
+## Generator: exact proposed interaction and tradeoff
+
+Known start: Chicago B/P1, A MIN/seed05A1, known five-cell NOTE53/TIE/NOTE55/REST/NOTE57 phrase, REC and Free Play off. Current correction enters SEQ, holds W3, changes OCTAVE+, releases, then presses ARP once to return to the same GEN page. Proposed correction holds the same physical W3 directly in GEN, uses the same OCTAVE+/K5–8/K2/K3 editing grammar, then releases back to all generator controls. It removes two view-button presses; the hold/edit/release is unchanged.
+
+Default-GEN cell presses were inert; now they select only. A tap/release never writes or deletes. While held, native cell values temporarily occupy the generator control region; root/scale/seed and page markers stay in the compact heading. On release every GEN control returns. REC/Free Play audition, PATCH cue/history, BT operations and modal/list ownership have priority and do not silently become cell focus. Existing GEN window paging stays explicit. This temporary context and accidental-use burden still need independent exercise; no blanket insignificant-tradeoff claim is made.
+
+NEW resets all64cells before generating the active length, clears associated note-sound/chord records as source specifies, and retains unrelated parameter/probability lanes. MUTATE changes the active length probabilistically and can be zero-delta; an all-rest line has no forced anchor but may receive random notes. The browser uses explicit simulated entropy/time and a bounded generator/correction data history. It does not pretend to implement the native4096-byte/max32 whole-project history pool, quiet grouping, automatic mutation schedule or durable project storage. Undo while a GEN edit is still held commits that correction before undoing it, then preserves the original release owner.
+
+## Evidence and remaining acceptance
+
+Fifteen curated pairs use original240×240 actual images beside proposed images. Twelve proposed images reuse exact R6 pixels. Miami and no-host Loopy intentionally reuse current body/lower pixels under a proposed header. Motion phase and mixed-source copy are explicit model fixtures. The GEN held pair intentionally changes view from current SEQ to proposed GEN while keeping the same corrected cell. The modifier pair uses authentic current F3/NOTE/OFF/ON readouts; the source's recent RECORD OFF toast is a stated difference. Older G4/G3 discrepancy evidence remains historical, not silently corrected.
+
+Current before evidence runs unchanged3c41/0.0.26 Elite. Relevant UI source matches accepted d158, which was not executed. Historical25.x Settings, source mathematical output, Chromium interactions and independent current-emulator review are separate. Nonzero signal output establishes activity, not correct pitch/listening or a saved take. No R7 firmware exists.
+
+The whole requirement/function map remains open where its musical outcome has not been demonstrated. Preset/held-note decisions precede the selected capture strategy and lifecycle; the reserved component work is not replaced here. Same-hardware competitor findings need an actual adoption/rejection receipt. Whole audible idea, correction, replay, another take and durable recovery remain the acceptance goal.

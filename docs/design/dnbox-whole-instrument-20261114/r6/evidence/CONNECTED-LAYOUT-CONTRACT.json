@@ -1,0 +1,275 @@
+{
+  "kind": "READ_ONLY_CONNECTED_NATIVE_LAYOUT_CONTRACT",
+  "date": "2026-11-14",
+  "effective_model_effort": "NOT_EXPOSED",
+  "source": {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+    "parent": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "distinction": "These connected painters/input paths have identical retained UI/main/SMC blobs between 3c41 and d158. This is source identity, not d158 firmware execution. Later #930 concerns clip modal SCALE affordances; #931 concerns Drone DSP availability.",
+    "files": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "git_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+        "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "git_blob": "f47fb8780f7c1ff7b339426b56fe3de9baf368d5",
+        "sha256": "f9255b9630c0835a08198a77e5f9a26022127f88c5c327ed37a5167151df7d65"
+      },
+      {
+        "path": "firmware/src/app/smc_mixer.c",
+        "git_blob": "8942c49681e9bd15f39b4cfd3745826ba58b4a16",
+        "sha256": "e5707a2b0bcdff8d50d21597d27f708fc61d15da81fb765e01f2284e6cf32e1a"
+      },
+      {
+        "path": "firmware/hal/smk_input.h",
+        "git_blob": "46ac1cb1ec4d33e1618be8c6057625f48de6a39a",
+        "sha256": "054cfaebb766119d6ca41b6632bbae3e2ec6dbb1f1f11387eebec4ae6a7e98d9"
+      },
+      {
+        "path": "firmware/src/app/plat_fm1.c",
+        "git_blob": "78f46798c2316d989b12bfe0d5e7d8140dd0033d",
+        "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7"
+      }
+    ],
+    "anchors_base": "firmware/src/app/, except HAL path explicitly named"
+  },
+  "native_geometry": {
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 240,
+      "h": 20
+    },
+    "body": {
+      "x": 0,
+      "y": 20,
+      "w": 240,
+      "h": 138
+    },
+    "lower": {
+      "x": 0,
+      "y": 158,
+      "w": 240,
+      "h": 82
+    },
+    "source": "ui.c4694–4705; local painter coordinates below become absolute by adding the region y"
+  },
+  "smc": {
+    "presentation_ownership": "ui.c8882–8888 calls smc_ui_draw when active and replaces all three normal regions. A NEXT: PAT toast can subsequently repaint its header. smc_mixer.c897–917 cancels this overlay for keyboard help, project busy and O_ASK; expiry hides it without changing targets.",
+    "header": {
+      "source": "smc_mixer.c1236–1299",
+      "fields": [
+        {
+          "field": "Captured lock",
+          "coords": "LOCK glyph x5,y5 when locked",
+          "meaning": "Captured controller targets; not the title selection highlight"
+        },
+        {
+          "field": "Knob/bank context",
+          "coords": "KNOB glyph x5 unlocked / x18 locked; text x18 unlocked / x31 locked, vertically centered in 20 px",
+          "meaning": "Drum part B<number> plus PAN/REVERB/DELAY; main CUT+FX/PAN+FX/RVB+FX/DLY+FX; unlocked clip CLIP KEYS; otherwise optional part plus page number/name"
+        },
+        {
+          "field": "Held FX",
+          "coords": "effect glyph x182,y1 at2× when a legal held FX exists",
+          "meaning": "Original held assignment, distinct from newly navigated page"
+        },
+        {
+          "field": "Last physical control",
+          "coords": "x209,y5 plus one-based strip number right-aligned235; transport action instead uses x221,y5",
+          "meaning": "FADER/KNOB/KEY, or STOP/PLAY/RECORD for transport events"
+        }
+      ],
+      "max_tag_width_px": {
+        "no_fx_unlocked": 180,
+        "no_fx_locked": 167,
+        "held_fx_unlocked": 160,
+        "held_fx_locked": 147
+      },
+      "truncation": "FONT_XS; remove complete trailing words first, then characters if a single word remains"
+    },
+    "body": {
+      "source": "smc_mixer.c1070–1178",
+      "physical_columns": "8 fixed 30 px columns. Normal labels: 909,808,BREAK,BASS B,BASS A,RVB,DLY,FLT. Drum context instead shows actual voice names or track numbers; unavailable trailing drum tracks remain--.",
+      "fields": [
+        "Selected title localy0..12; selection follows that SMC context, while LOCK separately denotes capture.",
+        "Encoder target label y14; authoritative scalar arc center y36,r8; value y46. Value width is trimmed to27px; labels can use FONT_XS.",
+        "Fader travel x=column+3,y64..114, actual target marker, and fine white physical-position pickup marker while unpicked and metro condition permits; value y122.",
+        "MUTE/SOLO/REC positional rows localy62/74/86, from notes16+n/8+n/0+n; an extra SELECT row y98 appears in eligible FX view. Normal overlay renders three rows, not four.",
+        "Touch highlight C_HI applies to the touched fader or knob; title selection, touch, held-FX ownership and pickup are separate signals."
+      ],
+      "targets": [
+        "Faders: drum SEQ or drum MIX maps the selected eight-track bank to voice Level; otherwise source main mix levels for five presentation-ordered parts, reverb Level, delay Level, and master DJF/filter.",
+        "HOME or MIX page0 knobs: five part Cut/Pan/Rev/Dly banks. Only bank0 provides reverb Decay, delay Feedback and master Resonance tail knobs; other tail slots are NONE.",
+        "Drum knobs: selected bank's Pan/Rev/Dly. Other views use two authoritative descriptor pages over eight knobs, suppress duplicated fader/knob targets, and respect captured/peek contexts.",
+        "O_ASK maps targets to NONE. Captured engine-bank mismatch or removed song bar must not silently retarget."
+      ],
+      "target_anchors": "smc_mixer.c453–463,479–509,592–706"
+    },
+    "lower": {
+      "source": "smc_mixer.c1304–1400",
+      "ordinary": "Target name y4; authoritative numeric value/unit or positional action toggle around y22..46; status/page or pickup arrow+target around y49.",
+      "held_fx": "Card x5,y5,w230,h72: HOLD plus effect glyph, FX + < >, full effect name and previous/next glyphs; no ordinary four-knob strip underneath.",
+      "fill": "Two panels localx5/125,y7..73: request line/icon, HOLD versus PLAY, eight progress segments from actual drum position only when fill_on&&fill_req, and underlying held assignment with previous/next.",
+      "lights": "smc_led() supplies source boolean feedback. Drum REC is ui.rec plus selected track, SOLO is solo bit, MUTE is actual mute, SELECT is context selection. Main rows use presentation part_at; FX SELECT follows held bus. Pause0x5D is locked or beat indication; PLAY0x5E is seq.playing; REC0x5F is ui.rec. Outgoing Mackie NoteOn velocity127/0 is source intent, not verified physical LED colour/identity.",
+      "light_anchors": "smc_mixer.c2775–2849"
+    },
+    "peek": {
+      "source": "smc_mixer.c1405–1442; SMC_PEEK_MS=1200",
+      "body_lower": "Paint actual draw_main and draw_knobs, preserving the real page content/meters.",
+      "header": "Repaint full 20 px black. First10px line: SMC K/F<one-basedstrip>, resolved label and current value, character-trimmed to 232 px. Second10px line: ACTIVE or PICKUP: MOVE UP/DOWN TO TARGET.",
+      "consequence": "No guaranteed unused header corner; normal header is covered even though draw_header ran first."
+    },
+    "peer_limit": "Default SMC_PEERS=1; BLEC_TWO_PEER enables2. No peer/host operation was exercised by this helper."
+  },
+  "loopy": {
+    "header": {
+      "source": "ui.c5347–5371,5412–5418,5452–5505; main_fm1.c1815–1818",
+      "retained_fields": [
+        "1300 ms full-width action toast can temporarily replace the header.",
+        "LP mode chip at x4 after toast, except an active pickup hint occupies the left-chip route.",
+        "Existing save badge can occupy only the dynamic gap before x130, with fallback short flag; unsaved/failed dot at237,3 remains.",
+        "INT/EXT starts x132 and means Clip Keys arp accepted-clock recency (tick within 500 ms), not verified host audio.",
+        "Tempo is right-aligned x212 from seq_tempo(&seq); play pictogram x217,y4 uses seq.metro_view; REC dot x231,y9 uses ui.rec. These generic source fields must not be relabelled host launch/record confirmation."
+      ]
+    },
+    "body": {
+      "source": "ui.c6844–6864; main_fm1.c632–715,1901–1922",
+      "wait": {
+        "condition": "clip mode && overlay O_NONE && !help && !apc_link_host && !ck_page_on()",
+        "text": [
+          {
+            "text": "WAITING FOR",
+            "local_y": 34
+          },
+          {
+            "text": "LOOPY PRO",
+            "local_y": 56
+          },
+          {
+            "text": "USB OR BLUETOOTH",
+            "local_y": 86
+          }
+        ],
+        "meaning": "No accepted host feedback on either link and no Clip Keys page. It does not by itself prove physical cable/radio disconnection."
+      },
+      "grid": "APC 8×5 source cells mapped through actual layout; host LCD palette, dim idle mark, white border on the 16 visible physical-pad cells, and white queued dot. No held-cell RGB overlay. Redraw rate limit 64 ms; unchanged grid has 1 s refresh.",
+      "clip_keys_page": "SCALE/CHORD/ARP page replaces grid within 138 px body. Source field rows use up to two 120 px columns; values start 44 px after labels. PLAY KEYS at localy64 and physical keybed at76..121; bottom localy124 hint: KNOB2 FIELD KNOB3 / < > VALUE KEYS PLAY. Page opening and ON remain distinct."
+    },
+    "lower": {
+      "source": "ui.c8326–8334; main_fm1.c1502–1506,1820–1899",
+      "ownership": "clip mode with O_NONE and no help owns all 82 px; menus/help restore their own strip.",
+      "retained_fields": [
+        "SCALE/CHORD/ARP/LATCH badges: four 59 px-spaced columns starting x3,y4,w55,h13; white underline at18 for open page.",
+        "Logical sounding-note/accepted-arp octave keyboard x4,y23, with scale membership and root marker. Raw physical holds are deliberately not the sound model.",
+        "Scale name/filter around x114,y22; detected chord or bounded note names atx114,y35; latch/strum aroundy51.",
+        "Arp order/rate/octaves/gate plus optional swing/human/rhythm line y61; actual arp step/hit/rest indicator at y76."
+      ]
+    },
+    "lights": {
+      "source": "ui.c8463–8477; main_fm1.c518–548,773–844,845–865",
+      "pads": "Actual16-pad viewport takes host colour/velocity with physical orientation and owner calibration. Queued/channel flashing follows accepted clock; after no/recently lost clock it falls back250ms on/off. Zero velocity is dark.",
+      "transport": "Clip PLAY/REC physical button LEDs replace standalone LED state with apc transport feedback state. Presses can optimistically toggle local feedback before host response; a lit LED does not establish host success.",
+      "note": "Header seq fields, physical transport LEDs, clip host feedback, Clip Keys sounding notes and pending grid dots are distinct sources."
+    }
+  },
+  "power_header_constraints": [
+    "This receipt adds no power indicator or candidate coordinates. Existing SMC and Loopy painters do not reserve a persistent battery slot.",
+    "SMC full overlay already budgets dynamic tag widths around lock, optional held effect and last-control glyph/number; a new power footprint must be explicitly reserved in all four width cases without dropping owner/lock or touching the strip map.",
+    "SMC peek uses two 10 px full-width feedback lines. A power treatment must be planned for that separate painter; painting it only in draw_header would be overwritten.",
+    "LP header retains mode, dynamic save status, arp clock source, tempo, generic metro/REC and fallback save dot. The apparent gap is state-dependent, not a fixed free slot.",
+    "Transient action/pattern headers can replace either normal mode header. A persistent power promise must explicitly handle those replacements; a normal-header-only render cannot prove it.",
+    "No battery percentage, charging state, USB-as-charging inference or Elite/Pro equivalence is supplied here. Any future indicator must consume actual admitted power semantics and truthfully represent unavailable/unknown.",
+    "PART header has an explicit static snapshot cache with no power field (ui.c5304–5342). A later runtime implementation would need its own invalidation analysis; this source-only design receipt does not implement it."
+  ],
+  "no_host_capture_plan": {
+    "status": "SOURCE-SUPPORTED PLAN; NOT EXECUTED",
+    "answer": "Yes: fresh isolated KEY37 rising press is a legitimate path to current no-host waiting body within admitted KEY support; no SMC peer or host injection is required.",
+    "control_mapping": "Retained current LAUNCH.md: keybed IDs0..36, BTN0=37. HAL smk_input.h63,78–82: BTN0=KNOB BANK, matrix0x26. Main raw bit0 watcher is outside the mapped ordinary UI button actions.",
+    "steps": [
+      "Use a new isolated exact 3c41 instance and verify exact package/WASM/worklet hashes from retained input receipt. No host feedback injected; release all inputs. Wait for normal ready UI, O_NONE, no help, no pad calibration and no Clip Keys page.",
+      "Ensure KEY37 is released while ready, then fresh KEY37 down for an admitted nonzero press interval and up. A 180 ms down plus 200 ms release gap is a conservative existing harness convention, not a measured hardware requirement.",
+      "Advance beyond1300 ms from rising press so LOOPY CLIPS toast expires; settle at least one complete UI/LCD transfer. Capture native 240×240 once the LP header and three-line waiting body are visible.",
+      "Optional exit is a new KEY37 rising press, followed by release and settling. Do not label LP OFF toast as host disconnect.",
+      "If ready/busy/calibration/menu conditions differ, preserve the attempt and inspect actual state; do not patch runtime or inject unsupported host/controller state."
+    ],
+    "source_path": "main_fm1.c2098–2123,2563–2574 watches raw bit and toggles; ui.c3576–3595 retires old local note owners but does not close menus; main645–647 wait predicate; ui6844–6855 draws body; ui404–409 sets1300 ms toast.",
+    "edge_constraints": [
+      "Busy path samples knob_bank_prev then returns; held-through-busy does not create a fresh edge on becoming ready. Release and press again.",
+      "KNOB BANK toggles on press; holding is not a second mode gesture and release does not toggle.",
+      "Entry flushes old clip MIDI and local note owners, latches view0/layout from retained feedback; fresh process is needed for a clean no-feedback assumption.",
+      "Help/menu/question or Clip Keys page changes body ownership. Mere physical absence of Loopy does not force WAIT if old host feedback remains.",
+      "The retained mapping source does not establish byte-for-byte rebuild provenance of the older WASM. Preserve the actual runtime hashes.",
+      "Current admitted worklet KEY/analog/enc capability does not establish SMC peer, BLE/USB host, transport or clock injection."
+    ],
+    "retained_runtime_pins": {
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "Elite_FWSC_sha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2",
+      "Pro_FWSC_sha256": "c38bff0a661e8b4aaaf6b16b153e4ff9ad34fe5e32c4daa5f043db6818ea72e0",
+      "wasm_sha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14",
+      "worklet_sha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c"
+    }
+  },
+  "retained_capture_admission": {
+    "result": "No verified current native SMC/Loopy capture located in the checked retained current manifests/reference filenames. This is a bounded receipt search, not a claim no such frame exists anywhere.",
+    "checked": [
+      {
+        "path": "revision-r4/CURRENT-REFERENCE-MANIFEST.json",
+        "sha256": "437ec86a319b7ce3f57dd1a14775d40e488f894ae0a186afd30642585692be1c",
+        "result": "11 current 3c41 frames: envelope/mix/seq/HOME/step-lock/SONG/sound; no connected frame"
+      },
+      {
+        "path": "revision-r4/current-review-capture-pins.json",
+        "sha256": "19bb931d1e5935ded9cd9d4445f7f7538f4f788d2dc1f6c55e95b5b7988dd418",
+        "result": "5 current 3c41 envelope/mix frames; no connected frame"
+      },
+      {
+        "path": "revision-r5/evidence/CAPTURE-MANIFEST.json",
+        "sha256": "e4c734d458710119609689c8b1fe45511825c5a277e6aa17ffa8e558d33dc827",
+        "result": "BREAK/Juno actual capture inventory; no connected frame"
+      },
+      {
+        "path": "revision-r5/reference/",
+        "result": "19 retained reference PNG names checked; no connected frame"
+      },
+      {
+        "path": "revision-r3/current-emulator-intake/QUALIFIED-TRACE-EXTRACT.json",
+        "result": "No SMC/Loopy/clip-labelled capture in retained extract; no fresh execution"
+      },
+      {
+        "path": "evidence/historical-emulator/curated-before-index.json",
+        "sha256": "9ff84e95b9d001b8d8931b706e61815edaccb4bb414ebe9da071d4f2cab5003a",
+        "result": "15 actual historical 25.1 frames; no SMC/clip frame. CLOCK WAIT is not Loopy WAIT."
+      },
+      {
+        "path": "lanes/live_connected/evidence.md",
+        "sha256": "6937e61e5d58f374307a1da5f8dd22e8b85516fdda51c185d7ab0765fd1018db",
+        "result": "SMC/Loopy are explicitly source-backed proposals; no real peer/host executed. Historical pair crops concern HOME/CLOCK."
+      }
+    ],
+    "Settings_receipt_only": "R2 MANIFEST contains clip proposal/native and historical review filenames. Its emulator-evidence.json is explicitly historical 25.1 package 5e24e0d4..., and its curated comparison pins that same historical before package. Neither source-contract 94197 nor those filenames admit a current 3c41 SMC/Loopy capture. No Settings source changed or image copied.",
+    "historical_package_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a"
+  },
+  "ancillary_held_note_observation": {
+    "reported_by": "Parent source-explanation request; no capture image/PCM consumed or reproduced by this helper",
+    "observation": "Parent inspected stopped-v2 step3 octave-corrected frame: upper STEP3 G4 V100 and piano roll changed; lower NOTE remained G3.",
+    "source_checks": [
+      "held_note_by ui.c3474–3504 writes same cell note, marks step_edited/dirty; key_sounds preview uses new pitch.",
+      "knobs_sig ui.c8264–8266 explicitly mixes held cell note, flags and velocity. Ordinary descriptor loop also mixes refs/values. An omitted R_B note signature is not established.",
+      "draw_knobs ui.c8350–8352 skips only unchanged signature with valid tile; held strip8372–8391 bypasses ordinary R_B descriptors and directly reads cur_pat/bidx/held_step.",
+      "Upper held label ui.c5647–5661 and lowerNOTE8383 both render held_note_of(bp,s)+transpose−24; held_note_of5568–5572 resolves NOTE/TIE root from the same pattern."
+    ],
+    "disposition": "The source supports matching current upper/lower note intent. It does not establish the cause of the observed inconsistent captured pixels. Retain that bounded discrepancy; do not claim missing-ref fix, stale-cache root cause, physical device defect or actual-before/proposal pixel equivalence.",
+    "further_boundary": "Transfer/capture timing and other runtime state require separate admitted runtime-owner diagnosis if needed; none performed here."
+  },
+  "limits": [
+    "Source/evidence only. No new emulator, tests, reviews, builds, hardware operations or publication.",
+    "No candidate/proposal/source/runtime edits. Only these connected-layout evidence files created.",
+    "Settings and seven CP1 cases remain reserved; no CP2 strategy or CP3 lifecycle chosen.",
+    "No SMC peer, USB/BLE Loopy host, physical LEDs, power sensor or audio success exercised.",
+    "No fresh reviewer role or prior review score inspection."
+  ]
+}

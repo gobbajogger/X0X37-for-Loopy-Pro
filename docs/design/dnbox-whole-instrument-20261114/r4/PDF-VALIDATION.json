@@ -1,0 +1,103 @@
+{
+  "pdf_sha256": "83389b25fe7bfa8b2bbc2aaade0660ba64acc65e94504ffb986e94823c5eedaa",
+  "bytes": 152790,
+  "pages": [
+    {
+      "page": 1,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "page": 2,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "page": 3,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "page": 4,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "page": 5,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "page": 6,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "page": 7,
+      "text_inside_page": true,
+      "bad": [],
+      "embedded_image_sizes": []
+    }
+  ],
+  "iOS_device_open": "NOT_RUN; standard PDF parsed/rendered and native image geometry inspected"
+}

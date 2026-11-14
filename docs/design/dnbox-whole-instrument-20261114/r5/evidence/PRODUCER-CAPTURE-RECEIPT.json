@@ -1,0 +1,968 @@
+{
+  "model": "elite",
+  "tag": "qualified2",
+  "node": "v24.22.1",
+  "packageSha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2",
+  "wasmSha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14",
+  "workletSha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c",
+  "board": 1,
+  "wallMs": 4177.277269,
+  "quanta": 3104,
+  "end": {
+    "ms": 9529,
+    "halted": 0,
+    "lcdRevision": 421539,
+    "short": 13,
+    "cpu1Fault": 0,
+    "held": []
+  },
+  "messages": [
+    {
+      "type": "booted",
+      "board": 1,
+      "revision": 0
+    }
+  ],
+  "actions": [
+    {
+      "action": {
+        "type": "enc",
+        "enc": 2,
+        "count": 3,
+        "clicks": 1,
+        "gap": 240
+      },
+      "before": {
+        "ms": 2502,
+        "halted": 0,
+        "lcdRevision": 106428,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 3224,
+        "halted": 0,
+        "lcdRevision": 137935,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 63744,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50,
+        "capture": "01-break-loops"
+      },
+      "before": {
+        "ms": 3224,
+        "halted": 0,
+        "lcdRevision": 137935,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 3628,
+        "halted": 0,
+        "lcdRevision": 142493,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35584,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 52,
+        "capture": "02-break-sequence"
+      },
+      "before": {
+        "ms": 3628,
+        "halted": 0,
+        "lcdRevision": 142493,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 4030,
+        "halted": 0,
+        "lcdRevision": 145763,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35584,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50
+      },
+      "before": {
+        "ms": 4030,
+        "halted": 0,
+        "lcdRevision": 145763,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 4431,
+        "halted": 0,
+        "lcdRevision": 149033,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 52
+      },
+      "before": {
+        "ms": 4431,
+        "halted": 0,
+        "lcdRevision": 149033,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 4834,
+        "halted": 0,
+        "lcdRevision": 152303,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35584,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 52,
+        "capture": "03-break-groove"
+      },
+      "before": {
+        "ms": 4834,
+        "halted": 0,
+        "lcdRevision": 152303,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 5235,
+        "halted": 0,
+        "lcdRevision": 155575,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "enc",
+        "enc": 2,
+        "count": 2,
+        "clicks": 1,
+        "gap": 240
+      },
+      "before": {
+        "ms": 5235,
+        "halted": 0,
+        "lcdRevision": 155575,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 5716,
+        "halted": 0,
+        "lcdRevision": 190045,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 42496,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50
+      },
+      "before": {
+        "ms": 5716,
+        "halted": 0,
+        "lcdRevision": 190045,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 6117,
+        "halted": 0,
+        "lcdRevision": 222572,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 39
+      },
+      "before": {
+        "ms": 6117,
+        "halted": 0,
+        "lcdRevision": 222572,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 6520,
+        "halted": 0,
+        "lcdRevision": 276491,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35584,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "enc",
+        "enc": 4,
+        "count": 3,
+        "clicks": 1,
+        "gap": 300
+      },
+      "before": {
+        "ms": 6520,
+        "halted": 0,
+        "lcdRevision": 276491,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 7425,
+        "halted": 0,
+        "lcdRevision": 339699,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 79872,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "wait",
+        "ms": 600
+      },
+      "before": {
+        "ms": 7425,
+        "halted": 0,
+        "lcdRevision": 339699,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 8026,
+        "halted": 0,
+        "lcdRevision": 339699,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 52992,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50,
+        "capture": "04-juno-oscillator"
+      },
+      "before": {
+        "ms": 8026,
+        "halted": 0,
+        "lcdRevision": 339699,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 8426,
+        "halted": 0,
+        "lcdRevision": 361850,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50
+      },
+      "before": {
+        "ms": 8426,
+        "halted": 0,
+        "lcdRevision": 361850,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 8827,
+        "halted": 0,
+        "lcdRevision": 398416,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50,
+        "capture": "05-juno-envelope"
+      },
+      "before": {
+        "ms": 8827,
+        "halted": 0,
+        "lcdRevision": 398416,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 9227,
+        "halted": 0,
+        "lcdRevision": 418274,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "00-boot",
+      "stem": "elite-qualified2-00-boot",
+      "sha256": "b3b9109427b09fc4ef66ee6389eb43e0bcb0c391c9e5522ac4c620f02d2cc4f3",
+      "ms": 2502,
+      "halted": 0,
+      "lcdRevision": 106428,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "01-break-loops",
+      "stem": "elite-qualified2-01-break-loops",
+      "sha256": "bfc53ab0b2eb76ce005dba92c1b4f852db64c2b036fea978f68d6c4c44f20311",
+      "ms": 3628,
+      "halted": 0,
+      "lcdRevision": 142493,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "02-break-sequence",
+      "stem": "elite-qualified2-02-break-sequence",
+      "sha256": "659f23b4d381f862894c64299f7d7786d6af9312fc626a84be6bbadbaf9ef733",
+      "ms": 4030,
+      "halted": 0,
+      "lcdRevision": 145763,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "03-break-groove",
+      "stem": "elite-qualified2-03-break-groove",
+      "sha256": "9cfa1034869a212b40890dadc38b659a8b87be5923bbbabfcf96faff4ac81ae6",
+      "ms": 5235,
+      "halted": 0,
+      "lcdRevision": 155575,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "04-juno-oscillator",
+      "stem": "elite-qualified2-04-juno-oscillator",
+      "sha256": "16a15223526897c3a2b38f55e24e0d0072388464eba27b7c91184d966a9cdfe6",
+      "ms": 8426,
+      "halted": 0,
+      "lcdRevision": 361850,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        1056267,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1056267,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "05-juno-envelope",
+      "stem": "elite-qualified2-05-juno-envelope",
+      "sha256": "8c3a8e46c50da49f48342795bec5e50da1bad4a6e5855113c0f4d574a314701e",
+      "ms": 9227,
+      "halted": 0,
+      "lcdRevision": 418274,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        1056267,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1056267,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "zz-released",
+      "stem": "elite-qualified2-zz-released",
+      "sha256": "865a111a868ac77887671bcafd968e6186adc47f73cecdd8e7e1bd6a21d60592",
+      "ms": 9529,
+      "halted": 0,
+      "lcdRevision": 421539,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pads": [
+        0,
+        0,
+        0,
+        0,
+        1056267,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1056267,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "classification": "PRODUCER ACTUAL3c41 EMULATOR; NOT INDEPENDENT R5 REVIEW; NOT d158/R5 execution",
+  "visual_validation": {
+    "01-break-loops": "BREAK PART, A NONE and B INVALID, no waveform; valid empty/unavailable fixture, not audible success",
+    "04-juno-oscillator": "JUNO A PART OSCILLATOR; WAVE33 SUB22 WIDTH50 LEVEL79",
+    "05-juno-envelope": "JUNO A PART ENVELOPE, neutral bars and values; no dedicated current glyph"
+  },
+  "excluded_attempt": "new-baseline named pages were not reached; those images are retained but excluded from equivalent state claims",
+  "limits": [
+    "No persistent flash write to package/disk by harness",
+    "No physical/device/native firmware build",
+    "Official upstream mapping is not byte-for-byte WASM rebuild lineage",
+    "Harness detents are not measured physical action counts",
+    "No audio fidelity/resource/preset equivalence acceptance"
+  ]
+}

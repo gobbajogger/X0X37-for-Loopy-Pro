@@ -1,0 +1,4195 @@
+{
+  "scope": "Read-only source/navigation inventory; no emulator, tests, builds, runtime edit, Git write, fresh acceptance review or aesthetic design.",
+  "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "source_tree_parent_supplied": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "rejected_proposal_commit": "a8986ac2d364bb59a38e068381e18ca068fe7c8d",
+  "proposal_local_input": {
+    "path": "rejected a898 walkthrough",
+    "bytes": 2313065,
+    "sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+    "identity_limit": "Parent-supplied a898 export location; this helper hashes local bytes and does not independently read back Git proposal blob."
+  },
+  "evidence_class": "SOURCE_INSPECTION_AND_PROPOSAL_DATA_AND_EXISTING_NATIVE_PNG_INSPECTION_NOT_EXECUTION",
+  "existing_native_png_inspection": {
+    "screen": "SND-CHI-FILTER-1",
+    "path": "local-evidence-cache",
+    "sha256": "3df5c3c44c49d54b0e36d08d5faa34e77538cbc1928e64174a34ec773f88cc3d",
+    "bytes_match_embedded_a898_HTML": true,
+    "observed": "240\u00d7240 existing proposed frame retains four horizontal K5\u20138 columns, cutoff/peak/ENV glyphs, unused K8 dash; one focused row replaces neighboring parameter-page overview. Existing asset viewed, no newly rendered image or current firmware capture."
+  },
+  "model_effort": "Not exposed to this helper; no effective model/effort claim.",
+  "gesture_count_convention": "Source-derived logical input gestures, not measured time or calibrated encoder detents. One unused tap=down+up; one complete hold/release=one gesture with release explicit in trace; one accepted K2 sign event=one page step. Input processes sign not magnitude for navigation. Known start states and page memory are mandatory.",
+  "native_layout": {
+    "panel": [
+      240,
+      240
+    ],
+    "header_y": [
+      0,
+      19
+    ],
+    "main_y": [
+      20,
+      157
+    ],
+    "lower_band_y": [
+      158,
+      239
+    ],
+    "V_PART_matrix": "Four rows \u00d7 four columns across main and lower bands; NOT a duplicated bottom selected row. Bank=page//4; row=page%4; each row49px high at relative y4+50*row, columns x4+59*k with width59; active row has KNOBS5\u20138 caption (sparse true columns). Footer relative y208 (global228).",
+    "ordinary_bottom": "Four spatial controls across x0..239; native lower strip y158..239 with caption/page dots, four value/glyph cells and existing footer.",
+    "source": {
+      "path": "firmware/src/app/ui.c",
+      "lines": "4694-4705",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4694",
+      "claim": "Native band geometry",
+      "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+    },
+    "matrix_source": {
+      "path": "firmware/src/app/ui.c",
+      "lines": "5742-5842",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5742",
+      "claim": "Matrix across source bands and navigation hints",
+      "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+    },
+    "bottom_source": {
+      "path": "firmware/src/app/ui.c",
+      "lines": "8321-8400",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8321",
+      "claim": "Part continuation and ordinary knob strip",
+      "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+    }
+  },
+  "controls": [
+    {
+      "physical": "K2",
+      "normal": "One accepted sign event moves one current page. V_PART drum/synth, V_MIX, V_FX wrap; other views clamp. Page state remembered per part/view, not per engine.",
+      "overrides": [
+        "Held step + no PATCH: probability/conditional chance, not page navigation.",
+        "PATCH held: tempo.",
+        "SCALE list: one selectable row, skip section headers."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4554-4578",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4554",
+        "claim": "Contextual K2 routing and safe browsing wrap/clamp",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "< / >",
+      "normal": "No menu/no clip/PATCH not held: fresh edge feeds one SELECT page move, same wrap/clamp as K2. No auto-repeat outside menu.",
+      "overrides": [
+        "Open list: change selected value, not selected row; repeat first400ms then80ms.",
+        "PATCH held: do nothing through arrows.",
+        "Clip no-menu: owned by clip controls."
+      ],
+      "source": {
+        "path": "firmware/src/app/smk_arrows.h",
+        "lines": "17-85",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smk_arrows.h#L17",
+        "claim": "Arrow source policy; routing integration must be matched to the actual current package",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "K3",
+      "normal": "Select adjacent part in source PART_ORDER; stops at ends. Rebuild engine-specific pages. On MIX selects corresponding part/kit mixer.",
+      "overrides": [
+        "SCALE list: change selected value.",
+        "V_SEQ held melodic step: velocity1\u2013127."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4579-4618",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4579",
+        "claim": "Algorithm part/list/velocity ownership",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "K4",
+      "normal": "Cue next/previous pattern for current part in PART/SEQ/GEN; all parts elsewhere, bounded0..31. Changes musical target, not page.",
+      "overrides": [
+        "V_PART synth SOUND page: requested preset selection; reserved CP1 boundary."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4619-4641",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4619",
+        "claim": "Contextual K4 pattern/preset route",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "K5\u2013K8",
+      "normal": "Four spatial page columns; no held step: sound/base or pattern ref. While playing, recording on writes motion; recording off holds existing motion for a pass.",
+      "overrides": [
+        "V_PART + eligible held step: p-lock for writable R_ENG belonging to current part.",
+        "V_SEQ held melodic step: NOTE/GATE/ACCENT/SLIDE.",
+        "BT held: clear the one motion lane, or one held step lock in lock scope.",
+        "NONE/unmapped/read-only status never acquires a function."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4642-4681",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4642",
+        "claim": "Four knob ownership order",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "motion_source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "2786-2838",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2786",
+        "claim": "Motion record/one-pass override/forget",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "lock_source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "2840-3010",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2840",
+        "claim": "Lock eligibility/write/clear/release",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "PARA",
+      "normal": "Unused press/release enters V_PART at remembered page; already on V_PART/no overlay cycles page modulo full page count on release.",
+      "overrides": [
+        "On pending SOUND source may cancel; reserved CP1.",
+        "Holding just this button opens existing help and consumes release; do not claim a hold is a page tap."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4061-4072",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4061",
+        "claim": "PARA source route",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "edge_source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4516-4529",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4516",
+        "claim": "Ordinary taps on release; transport on press",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "SCALE",
+      "normal": "Unused press/release opens all current view page refs as a list; deduplicates refs, includes MORE. K2 moves, K3 or arrows change, PATCH returns.",
+      "overrides": [
+        "In list SCALE executes action only; scalar value row requires no confirm.",
+        "Question SCALE confirms; outside scope of these parameter maps."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "1698-1733",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1698",
+        "claim": "Deep list composition, initial first row",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "input_source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4055-4060",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4055",
+        "claim": "List entry route",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "PATCH",
+      "normal": "Open parameter list: close list and return current page. Outside overlay, normally HOME then SONG. Not a universal one-tap HOME from every modal state.",
+      "overrides": [
+        "Held + K2: tempo; held + drum black key: mute.",
+        "Held + REC/PLAY: undo/redo.",
+        "Pending SOUND cancel remains source CP1."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4044-4054",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4044",
+        "claim": "PATCH contextual route",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "NOTE REPEAT",
+      "normal": "Unused release enters MIX; repeat releases advance five mixer pages modulo5. K2/arrow also cycle both directions.",
+      "overrides": [
+        "Held + melodic key: slide; do not translate the physical caption into a new invented repeat mode."
+      ],
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4089-4096",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4089",
+        "claim": "Mixer page-cycle route",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "physical": "FX",
+      "normal": "Unused release enters FX; repeat releases switch REVERB/DELAY. Existing K2/arrow reverse route remains.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "4082-4088",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4082",
+        "claim": "FX source route",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    }
+  ],
+  "engines": {
+    "CHICAGO": {
+      "source_parameter_pages": 7,
+      "total_pages_including_SOUND": 8,
+      "list_rows_including_read_only_status": 23,
+      "pages": [
+        {
+          "page_index": 0,
+          "page_number": 1,
+          "title": "OSCILLATOR",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 0,
+          "from_first_page_counterclockwise_K2_steps": 0,
+          "from_first_page_shortest_K2_steps": 0,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 0,
+              "label": "WAVE",
+              "editable": true,
+              "list_index_zero_based": 0
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 1,
+              "label": "GLIDE",
+              "editable": true,
+              "list_index_zero_based": 1
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 1,
+          "page_number": 2,
+          "title": "FILTER 1",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 2,
+          "from_first_page_clockwise_K2_steps": 1,
+          "from_first_page_counterclockwise_K2_steps": 7,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 2,
+              "label": "CUTOFF",
+              "editable": true,
+              "list_index_zero_based": 2
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 3,
+              "label": "PEAK",
+              "editable": true,
+              "list_index_zero_based": 3
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 4,
+              "label": "ENV",
+              "editable": true,
+              "list_index_zero_based": 4
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 2,
+          "page_number": 3,
+          "title": "FILTER 2",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 3,
+          "from_first_page_clockwise_K2_steps": 2,
+          "from_first_page_counterclockwise_K2_steps": 6,
+          "from_first_page_shortest_K2_steps": 2,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 5,
+              "label": "BITE",
+              "editable": true,
+              "list_index_zero_based": 5
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 6,
+              "label": "GNAW",
+              "editable": true,
+              "list_index_zero_based": 6
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 3,
+          "page_number": 4,
+          "title": "ENVELOPE",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 4,
+          "from_first_page_clockwise_K2_steps": 3,
+          "from_first_page_counterclockwise_K2_steps": 5,
+          "from_first_page_shortest_K2_steps": 3,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 7,
+              "label": "ATTACK",
+              "editable": true,
+              "list_index_zero_based": 7
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 8,
+              "label": "DECAY",
+              "editable": true,
+              "list_index_zero_based": 8
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 9,
+              "label": "SUSTAIN",
+              "editable": true,
+              "list_index_zero_based": 9
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 10,
+              "label": "RELEASE",
+              "editable": true,
+              "list_index_zero_based": 10
+            }
+          ]
+        },
+        {
+          "page_index": 4,
+          "page_number": 5,
+          "title": "AMPLIFIER",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 4,
+          "from_first_page_counterclockwise_K2_steps": 4,
+          "from_first_page_shortest_K2_steps": 4,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 11,
+              "label": "ENV/GATE",
+              "editable": true,
+              "list_index_zero_based": 11
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 12,
+              "label": "LEVEL",
+              "editable": true,
+              "list_index_zero_based": 12
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 5,
+          "page_number": 6,
+          "title": "ARPEGGIATOR",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 2,
+          "from_first_page_clockwise_K2_steps": 5,
+          "from_first_page_counterclockwise_K2_steps": 3,
+          "from_first_page_shortest_K2_steps": 3,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 13,
+              "label": "ON",
+              "editable": true,
+              "list_index_zero_based": 13
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 15,
+              "label": "RANGE",
+              "editable": true,
+              "list_index_zero_based": 14
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 14,
+              "label": "MODE",
+              "editable": true,
+              "list_index_zero_based": 15
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 16,
+              "label": "SPEED",
+              "editable": true,
+              "list_index_zero_based": 16
+            }
+          ]
+        },
+        {
+          "page_index": 6,
+          "page_number": 7,
+          "title": "EFFECT",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 3,
+          "from_first_page_clockwise_K2_steps": 6,
+          "from_first_page_counterclockwise_K2_steps": 2,
+          "from_first_page_shortest_K2_steps": 2,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 17,
+              "label": "TYPE",
+              "editable": true,
+              "list_index_zero_based": 17
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 18,
+              "label": "EDIT 1",
+              "editable": true,
+              "list_index_zero_based": 18
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 19,
+              "label": "EDIT 2",
+              "editable": true,
+              "list_index_zero_based": 19
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 7,
+          "page_number": 8,
+          "title": "SOUND",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 4,
+          "from_first_page_clockwise_K2_steps": 7,
+          "from_first_page_counterclockwise_K2_steps": 1,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "reference": "R_BENGINE",
+              "label": "ENGINE",
+              "editable": true,
+              "list_index_zero_based": 20
+            },
+            {
+              "physical_knob": "K6",
+              "reference": "R_BPRESET",
+              "label": "PRESET",
+              "editable": true,
+              "list_index_zero_based": 21
+            },
+            {
+              "physical_knob": "K7",
+              "reference": "R_BSTATUS",
+              "label": "STATUS",
+              "editable": false,
+              "list_index_zero_based": 22
+            },
+            {
+              "physical_knob": "K8",
+              "reference": "R_NONE",
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ],
+          "boundary": "Keep in current navigation topology. Pending-sound / Keep CP1 details remain reserved to incumbent; this map does not redesign or exercise them."
+        }
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui_original_controls.h",
+          "lines": "8-67",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L8",
+          "claim": "Exact per-engine page titles, sparse columns, original labels and parameter IDs",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1509-1526",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1509",
+          "claim": "Engine-specific rows plus trailing SOUND descriptor page",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "538-543",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L538",
+          "claim": "STATUS and runtime performance inputs are read only",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    "MIAMI": {
+      "source_parameter_pages": 5,
+      "total_pages_including_SOUND": 6,
+      "list_rows_including_read_only_status": 19,
+      "pages": [
+        {
+          "page_index": 0,
+          "page_number": 1,
+          "title": "CARRIER",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 0,
+          "from_first_page_counterclockwise_K2_steps": 0,
+          "from_first_page_shortest_K2_steps": 0,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 0,
+              "label": "WAVE",
+              "editable": true,
+              "list_index_zero_based": 0
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 1,
+              "label": "LEVEL",
+              "editable": true,
+              "list_index_zero_based": 1
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 2,
+              "label": "SUB",
+              "editable": true,
+              "list_index_zero_based": 2
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 3,
+              "label": "PITCH",
+              "editable": true,
+              "list_index_zero_based": 3
+            }
+          ]
+        },
+        {
+          "page_index": 1,
+          "page_number": 2,
+          "title": "XMOD",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 2,
+          "from_first_page_clockwise_K2_steps": 1,
+          "from_first_page_counterclockwise_K2_steps": 5,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 6,
+              "label": "WAVE",
+              "editable": true,
+              "list_index_zero_based": 4
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 5,
+              "label": "LEVEL",
+              "editable": true,
+              "list_index_zero_based": 5
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 7,
+              "label": "TUNE",
+              "editable": true,
+              "list_index_zero_based": 6
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 8,
+              "label": "DEPTH",
+              "editable": true,
+              "list_index_zero_based": 7
+            }
+          ]
+        },
+        {
+          "page_index": 2,
+          "page_number": 3,
+          "title": "FILTER",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 3,
+          "from_first_page_clockwise_K2_steps": 2,
+          "from_first_page_counterclockwise_K2_steps": 4,
+          "from_first_page_shortest_K2_steps": 2,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 9,
+              "label": "CUTOFF",
+              "editable": true,
+              "list_index_zero_based": 8
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 10,
+              "label": "CRUSH",
+              "editable": true,
+              "list_index_zero_based": 9
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 12,
+              "label": "WOBBLE",
+              "editable": true,
+              "list_index_zero_based": 10
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 3,
+          "page_number": 4,
+          "title": "WOBBLE",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 4,
+          "from_first_page_clockwise_K2_steps": 3,
+          "from_first_page_counterclockwise_K2_steps": 3,
+          "from_first_page_shortest_K2_steps": 3,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 11,
+              "label": "SHAPE",
+              "editable": true,
+              "list_index_zero_based": 11
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 13,
+              "label": "RATE",
+              "editable": true,
+              "list_index_zero_based": 12
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 4,
+          "page_number": 5,
+          "title": "OUTPUT",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 4,
+          "from_first_page_counterclockwise_K2_steps": 2,
+          "from_first_page_shortest_K2_steps": 2,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 4,
+              "label": "GLIDE",
+              "editable": true,
+              "list_index_zero_based": 13
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 15,
+              "label": "STEREO",
+              "editable": true,
+              "list_index_zero_based": 14
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 14,
+              "label": "OUTPUT",
+              "editable": true,
+              "list_index_zero_based": 15
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 5,
+          "page_number": 6,
+          "title": "SOUND",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 2,
+          "from_first_page_clockwise_K2_steps": 5,
+          "from_first_page_counterclockwise_K2_steps": 1,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "reference": "R_BENGINE",
+              "label": "ENGINE",
+              "editable": true,
+              "list_index_zero_based": 16
+            },
+            {
+              "physical_knob": "K6",
+              "reference": "R_BPRESET",
+              "label": "PRESET",
+              "editable": true,
+              "list_index_zero_based": 17
+            },
+            {
+              "physical_knob": "K7",
+              "reference": "R_BSTATUS",
+              "label": "STATUS",
+              "editable": false,
+              "list_index_zero_based": 18
+            },
+            {
+              "physical_knob": "K8",
+              "reference": "R_NONE",
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ],
+          "boundary": "Keep in current navigation topology. Pending-sound / Keep CP1 details remain reserved to incumbent; this map does not redesign or exercise them."
+        }
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui_original_controls.h",
+          "lines": "8-67",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L8",
+          "claim": "Exact per-engine page titles, sparse columns, original labels and parameter IDs",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1509-1526",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1509",
+          "claim": "Engine-specific rows plus trailing SOUND descriptor page",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "538-543",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L538",
+          "claim": "STATUS and runtime performance inputs are read only",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    "JUNO": {
+      "source_parameter_pages": 4,
+      "total_pages_including_SOUND": 5,
+      "list_rows_including_read_only_status": 19,
+      "pages": [
+        {
+          "page_index": 0,
+          "page_number": 1,
+          "title": "OSCILLATOR",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 0,
+          "from_first_page_counterclockwise_K2_steps": 0,
+          "from_first_page_shortest_K2_steps": 0,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 0,
+              "label": "WAVE",
+              "editable": true,
+              "list_index_zero_based": 0
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 1,
+              "label": "SUB",
+              "editable": true,
+              "list_index_zero_based": 1
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 12,
+              "label": "WIDTH",
+              "editable": true,
+              "list_index_zero_based": 2
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 15,
+              "label": "LEVEL",
+              "editable": true,
+              "list_index_zero_based": 3
+            }
+          ]
+        },
+        {
+          "page_index": 1,
+          "page_number": 2,
+          "title": "FILTER",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 2,
+          "from_first_page_clockwise_K2_steps": 1,
+          "from_first_page_counterclockwise_K2_steps": 4,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 2,
+              "label": "CUTOFF",
+              "editable": true,
+              "list_index_zero_based": 4
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 3,
+              "label": "RES",
+              "editable": true,
+              "list_index_zero_based": 5
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 4,
+              "label": "ENV",
+              "editable": true,
+              "list_index_zero_based": 6
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 9,
+              "label": "HPF",
+              "editable": true,
+              "list_index_zero_based": 7
+            }
+          ]
+        },
+        {
+          "page_index": 2,
+          "page_number": 3,
+          "title": "ENVELOPE",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 3,
+          "from_first_page_clockwise_K2_steps": 2,
+          "from_first_page_counterclockwise_K2_steps": 3,
+          "from_first_page_shortest_K2_steps": 2,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 5,
+              "label": "ATTACK",
+              "editable": true,
+              "list_index_zero_based": 8
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 6,
+              "label": "DECAY",
+              "editable": true,
+              "list_index_zero_based": 9
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 7,
+              "label": "SUSTAIN",
+              "editable": true,
+              "list_index_zero_based": 10
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 8,
+              "label": "RELEASE",
+              "editable": true,
+              "list_index_zero_based": 11
+            }
+          ]
+        },
+        {
+          "page_index": 3,
+          "page_number": 4,
+          "title": "LFO/CHORUS",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 4,
+          "from_first_page_clockwise_K2_steps": 3,
+          "from_first_page_counterclockwise_K2_steps": 2,
+          "from_first_page_shortest_K2_steps": 2,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 10,
+              "label": "LFO RATE",
+              "editable": true,
+              "list_index_zero_based": 12
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 11,
+              "label": "LFO DEPTH",
+              "editable": true,
+              "list_index_zero_based": 13
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 13,
+              "label": "CHO RATE",
+              "editable": true,
+              "list_index_zero_based": 14
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": 14,
+              "label": "CHORUS",
+              "editable": true,
+              "list_index_zero_based": 15
+            }
+          ]
+        },
+        {
+          "page_index": 4,
+          "page_number": 5,
+          "title": "SOUND",
+          "visible_matrix_bank": 1,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 4,
+          "from_first_page_counterclockwise_K2_steps": 1,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "reference": "R_BENGINE",
+              "label": "ENGINE",
+              "editable": true,
+              "list_index_zero_based": 16
+            },
+            {
+              "physical_knob": "K6",
+              "reference": "R_BPRESET",
+              "label": "PRESET",
+              "editable": true,
+              "list_index_zero_based": 17
+            },
+            {
+              "physical_knob": "K7",
+              "reference": "R_BSTATUS",
+              "label": "STATUS",
+              "editable": false,
+              "list_index_zero_based": 18
+            },
+            {
+              "physical_knob": "K8",
+              "reference": "R_NONE",
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ],
+          "boundary": "Keep in current navigation topology. Pending-sound / Keep CP1 details remain reserved to incumbent; this map does not redesign or exercise them."
+        }
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui_original_controls.h",
+          "lines": "8-67",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L8",
+          "claim": "Exact per-engine page titles, sparse columns, original labels and parameter IDs",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1509-1526",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1509",
+          "claim": "Engine-specific rows plus trailing SOUND descriptor page",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "538-543",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L538",
+          "claim": "STATUS and runtime performance inputs are read only",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    "DRONE": {
+      "source_parameter_pages": 2,
+      "total_pages_including_SOUND": 3,
+      "list_rows_including_read_only_status": 9,
+      "pages": [
+        {
+          "page_index": 0,
+          "page_number": 1,
+          "title": "STRING",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 1,
+          "from_first_page_clockwise_K2_steps": 0,
+          "from_first_page_counterclockwise_K2_steps": 0,
+          "from_first_page_shortest_K2_steps": 0,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 0,
+              "label": "REGISTER",
+              "editable": true,
+              "list_index_zero_based": 0
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 1,
+              "label": "BRIGHTNESS",
+              "editable": true,
+              "list_index_zero_based": 1
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 2,
+              "label": "FLUTTER",
+              "editable": true,
+              "list_index_zero_based": 2
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 1,
+          "page_number": 2,
+          "title": "ENVELOPE",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 2,
+          "from_first_page_clockwise_K2_steps": 1,
+          "from_first_page_counterclockwise_K2_steps": 2,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "parameter_id": 3,
+              "label": "ATTACK",
+              "editable": true,
+              "list_index_zero_based": 3
+            },
+            {
+              "physical_knob": "K6",
+              "parameter_id": 4,
+              "label": "RELEASE",
+              "editable": true,
+              "list_index_zero_based": 4
+            },
+            {
+              "physical_knob": "K7",
+              "parameter_id": 5,
+              "label": "LEVEL",
+              "editable": true,
+              "list_index_zero_based": 5
+            },
+            {
+              "physical_knob": "K8",
+              "parameter_id": null,
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ]
+        },
+        {
+          "page_index": 2,
+          "page_number": 3,
+          "title": "SOUND",
+          "visible_matrix_bank": 0,
+          "matrix_row_number": 3,
+          "from_first_page_clockwise_K2_steps": 2,
+          "from_first_page_counterclockwise_K2_steps": 1,
+          "from_first_page_shortest_K2_steps": 1,
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "reference": "R_BENGINE",
+              "label": "ENGINE",
+              "editable": true,
+              "list_index_zero_based": 6
+            },
+            {
+              "physical_knob": "K6",
+              "reference": "R_BPRESET",
+              "label": "PRESET",
+              "editable": true,
+              "list_index_zero_based": 7
+            },
+            {
+              "physical_knob": "K7",
+              "reference": "R_BSTATUS",
+              "label": "STATUS",
+              "editable": false,
+              "list_index_zero_based": 8
+            },
+            {
+              "physical_knob": "K8",
+              "reference": "R_NONE",
+              "label": null,
+              "editable": false,
+              "list_index_zero_based": null
+            }
+          ],
+          "boundary": "Keep in current navigation topology. Pending-sound / Keep CP1 details remain reserved to incumbent; this map does not redesign or exercise them."
+        }
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui_original_controls.h",
+          "lines": "8-67",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L8",
+          "claim": "Exact per-engine page titles, sparse columns, original labels and parameter IDs",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1509-1526",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1509",
+          "claim": "Engine-specific rows plus trailing SOUND descriptor page",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "538-543",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L538",
+          "claim": "STATUS and runtime performance inputs are read only",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    }
+  },
+  "drums": [
+    {
+      "engine": "909",
+      "voice_index": 0,
+      "source_voice_label": "BD",
+      "pages": [
+        {
+          "title": "BD",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Attack",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K8",
+              "label": "P.Dpth",
+              "parameter_id": 4
+            }
+          ]
+        },
+        {
+          "title": "BD",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Pitch",
+              "parameter_id": 5
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 1,
+      "source_voice_label": "SD",
+      "pages": [
+        {
+          "title": "SD",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Tone",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K8",
+              "label": "Snappy",
+              "parameter_id": 2
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 2,
+      "source_voice_label": "LT",
+      "pages": [
+        {
+          "title": "LT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Attack",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 3,
+      "source_voice_label": "MT",
+      "pages": [
+        {
+          "title": "MT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Attack",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 4,
+      "source_voice_label": "HT",
+      "pages": [
+        {
+          "title": "HT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Attack",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 5,
+      "source_voice_label": "RS",
+      "pages": [
+        {
+          "title": "RS",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 6,
+      "source_voice_label": "CP",
+      "pages": [
+        {
+          "title": "CP",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Tail",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 7,
+      "source_voice_label": "CH",
+      "pages": [
+        {
+          "title": "CH",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 8,
+      "source_voice_label": "OH",
+      "pages": [
+        {
+          "title": "OH",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 9,
+      "source_voice_label": "CR",
+      "pages": [
+        {
+          "title": "CR",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "909",
+      "voice_index": 10,
+      "source_voice_label": "RD",
+      "pages": [
+        {
+          "title": "RD",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 0
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum909.c",
+          "lines": "44-226",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum909.c#L44",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 0,
+      "source_voice_label": "BD",
+      "pages": [
+        {
+          "title": "BD",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Tone",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Attack",
+              "parameter_id": 4
+            },
+            {
+              "physical_knob": "K8",
+              "label": "Decay",
+              "parameter_id": 2
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 1,
+      "source_voice_label": "SD",
+      "pages": [
+        {
+          "title": "SD",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Tone",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 4
+            },
+            {
+              "physical_knob": "K8",
+              "label": "Snappy",
+              "parameter_id": 2
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 2,
+      "source_voice_label": "LT",
+      "pages": [
+        {
+          "title": "LT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Sound",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 3,
+      "source_voice_label": "MT",
+      "pages": [
+        {
+          "title": "MT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Sound",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 4,
+      "source_voice_label": "HT",
+      "pages": [
+        {
+          "title": "HT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Sound",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 5,
+      "source_voice_label": "RS",
+      "pages": [
+        {
+          "title": "RS",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Sound",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 6,
+      "source_voice_label": "CP",
+      "pages": [
+        {
+          "title": "CP",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Attack",
+              "parameter_id": 3
+            },
+            {
+              "physical_knob": "K7",
+              "label": "Sound",
+              "parameter_id": 4
+            },
+            {
+              "physical_knob": "K8",
+              "label": "Decay",
+              "parameter_id": 2
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 7,
+      "source_voice_label": "CB",
+      "pages": [
+        {
+          "title": "CB",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 8,
+      "source_voice_label": "CY",
+      "pages": [
+        {
+          "title": "CY",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 9,
+      "source_voice_label": "OH",
+      "pages": [
+        {
+          "title": "OH",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    },
+    {
+      "engine": "808",
+      "voice_index": 10,
+      "source_voice_label": "CH",
+      "pages": [
+        {
+          "title": "CH",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "Tune",
+              "parameter_id": 1
+            },
+            {
+              "physical_knob": "K6",
+              "label": "Decay",
+              "parameter_id": 2
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ]
+        },
+        {
+          "title": "KIT",
+          "cells": [
+            {
+              "physical_knob": "K5",
+              "label": "ACCENT",
+              "parameter_id": 1,
+              "voice": 11
+            },
+            {
+              "physical_knob": "K6",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K7",
+              "label": null,
+              "parameter_id": null
+            },
+            {
+              "physical_knob": "K8",
+              "label": null,
+              "parameter_id": null
+            }
+          ],
+          "note": "UI captions parameter1 ACCENT for both kits; 909 DSP descriptor1 is Veloc. Preserve source mapping; no semantic repair is inferred."
+        }
+      ],
+      "more_list_only": [
+        "Drive",
+        "Dist"
+      ],
+      "mixer_page_controls": [
+        "Level",
+        "Pan",
+        "Rev",
+        "Dly"
+      ],
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1378-1424",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1378",
+          "claim": "Stable rank and sound-versus-mix/MORE partition",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/dsp/drum808.c",
+          "lines": "1700-1925",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/drum808.c#L1700",
+          "claim": "Track-specific descriptor IDs/order",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "966-969",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L966",
+          "claim": "UI KIT parameter1 caption ACCENT",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "1547-1558",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1547",
+          "claim": "Drum track mixer contains Level/Pan/Rev/Dly",
+          "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+        }
+      ]
+    }
+  ],
+  "ordinary_lower_controls": [
+    {
+      "view": "V_HOME / V_GLO",
+      "title": "PERFORM",
+      "K5_K6_K7_K8": [
+        "TEMPO",
+        "SWING",
+        "FILTER",
+        "PUMP"
+      ],
+      "refs": [
+        "R_TEMPO",
+        "R_SWING",
+        "MST_DJF",
+        "MST_PUMP"
+      ]
+    },
+    {
+      "view": "V_SEQ drums",
+      "title": "SEQUENCE",
+      "K5_K6_K7_K8": [
+        "LENGTH",
+        "RATE",
+        null,
+        null
+      ]
+    },
+    {
+      "view": "V_SEQ synths",
+      "title": "SEQUENCE",
+      "K5_K6_K7_K8": [
+        "LENGTH",
+        "RATE",
+        "DIRECTION",
+        "TRANSP"
+      ]
+    },
+    {
+      "view": "V_SEQ synths",
+      "title": "PRESET",
+      "K5_K6_K7_K8": [
+        "PAT SOUND",
+        null,
+        null,
+        null
+      ],
+      "boundary": "Existing recall topology only; CP1 semantics stay reserved."
+    },
+    {
+      "view": "V_SEQ synths",
+      "title": "KEYS",
+      "K5_K6_K7_K8": [
+        "FREE PLAY",
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "view": "V_SEQ synths, held step",
+      "title": "HELD STEP",
+      "K5_K6_K7_K8": [
+        "NOTE",
+        "GATE",
+        "ACCENT",
+        "SLIDE"
+      ],
+      "K2": "CHANCE",
+      "K3": "VELOCITY"
+    },
+    {
+      "view": "V_PART BREAK",
+      "title": "LOOPS",
+      "K5_K6_K7_K8": [
+        "LOOP A",
+        "LOOP B",
+        "B CHANCE",
+        "PITCH"
+      ],
+      "scope": [
+        "pattern",
+        "pattern",
+        "pattern",
+        "global sound"
+      ],
+      "MORE": [
+        "LEVEL",
+        "A SLICES",
+        "B SLICES"
+      ]
+    },
+    {
+      "view": "V_SEQ BREAK",
+      "title": "SEQUENCE",
+      "K5_K6_K7_K8": [
+        "RATE",
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "view": "V_SEQ BREAK",
+      "title": "GROOVE",
+      "K5_K6_K7_K8": [
+        "CMPLX",
+        "ANCHOR",
+        "ROLL",
+        "FILL"
+      ]
+    },
+    {
+      "view": "V_SEQ BREAK",
+      "title": "RETRIG",
+      "K5_K6_K7_K8": [
+        "RTG2X",
+        "RTG3X",
+        "RTG4X",
+        "RTG8X"
+      ],
+      "MORE": [
+        "PHRASE",
+        "A LEN",
+        "B LEN"
+      ]
+    },
+    {
+      "view": "V_GEN synths",
+      "title": "GENERATE",
+      "K5_K6_K7_K8": [
+        "DENS",
+        "ACCENT",
+        "SLIDE",
+        "OCTS"
+      ]
+    },
+    {
+      "view": "V_GEN synths",
+      "title": "SCALE",
+      "K5_K6_K7_K8": [
+        "ROOT",
+        "SCALE",
+        "OCTAVE",
+        "MUTATE"
+      ]
+    },
+    {
+      "view": "V_FX",
+      "title": "REVERB",
+      "K5_K6_K7_K8": [
+        "DECAY",
+        "TONE",
+        null,
+        null
+      ]
+    },
+    {
+      "view": "V_FX",
+      "title": "DELAY",
+      "K5_K6_K7_K8": [
+        "TIME",
+        "FEEDBACK",
+        "TONE",
+        "TAPE"
+      ],
+      "MORE": [
+        "REV LOW CUT",
+        "REV RETURN",
+        "DLY LOW CUT",
+        "DLY RETURN",
+        "PING-PONG"
+      ]
+    },
+    {
+      "view": "V_MIX",
+      "title": "PARTS",
+      "K5_K6_K7_K8": [
+        "LEVEL",
+        "PAN",
+        "REV",
+        "DLY"
+      ]
+    },
+    {
+      "view": "V_MIX",
+      "title": "909 MIX / 808 MIX",
+      "K5_K6_K7_K8": [
+        "LEVEL",
+        "PAN",
+        "REV",
+        "DLY"
+      ]
+    },
+    {
+      "view": "V_MIX",
+      "title": "MASTER",
+      "K5_K6_K7_K8": [
+        "DRIVE",
+        "COMP",
+        "PUMP",
+        "FILTER"
+      ]
+    },
+    {
+      "view": "V_MIX",
+      "title": "WAVE",
+      "K5_K6_K7_K8": [
+        "DRIVE",
+        "COMP",
+        "PUMP",
+        "FILTER"
+      ],
+      "same_knobs_as_MASTER": true,
+      "main_area": "post-master waveform"
+    },
+    {
+      "view": "V_SONG",
+      "title": "BAR page1",
+      "K5_K6_K7_K8": [
+        "BAR",
+        "909",
+        "808",
+        "BREAK"
+      ]
+    },
+    {
+      "view": "V_SONG",
+      "title": "BAR page2",
+      "K5_K6_K7_K8": [
+        "BAR",
+        "BASS B actual engine",
+        "BASS A actual engine",
+        "REPEAT"
+      ]
+    }
+  ],
+  "lower_controls_source": {
+    "path": "firmware/src/app/ui.c",
+    "lines": "1459-1578",
+    "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1459",
+    "claim": "Complete page descriptors",
+    "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+  },
+  "glyphs": [
+    {
+      "area": "Chicago OSC WAVE",
+      "existing": "Original oscillator waveform cue; source state-derived, not a newly proposed glyph.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "6915-6969",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6915",
+        "claim": "Original Chicago/Miami waveform metadata and drawing",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "area": "Chicago FILTER1/2 and other mapped controls",
+      "existing": "Cutoff/peak lowpass, ENV knee, glide pitch ramp, bite/fold, levels, arp power/direction/clock, range stairs, effect identity; original numeric readouts remain.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7744-7960",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7744",
+        "claim": "Existing engine-specific qualitative glyphs",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "area": "Chicago ENVELOPE",
+      "existing": "All four original ADSR controls presented as one inline graph, whether active or not. Row is7/8/9/10 only; axes are source-law-normalized/illustrative, not an oscilloscope.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7368-7453",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7368",
+        "claim": "ADSR row admission and existing inline graph",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "area": "Miami CARRIER/XMOD/WOBBLE",
+      "existing": "Carrier/modulator/wobble waveform shapes plus SUB, pitch/tune, depth/crush, wobble rate, stereo source glyphs.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "6915-6946",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6915",
+        "claim": "Shape slots and Juno/Drone exclusion",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "other_source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7900-7960",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7900",
+        "claim": "Existing Miami control schematics",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "area": "Juno / Drone",
+      "existing": "Current V_PART uses these exact labels/value bars. wave_shape and original_wave_slot explicitly reject Juno/Drone; do not copy a Chicago/Miami glyph and call it actual. Chicago inline ADSR admission also excludes Juno.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "6915-6946",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6915",
+        "claim": "Engine-gated wave cue",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "other_source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7371-7377",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7371",
+        "claim": "Chicago-only ADSR graph",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "area": "909 /808 sound controls",
+      "existing": "Dedicated drum control schematics in part cells; names and original value/unit remain. Drum sound identities BD/SD are actual source labels, user asks proposal replace them with recognizable sound glyphs; this inventory supplies underlying mapping, not a glyph redesign.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7963-8188",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7963",
+        "claim": "Existing drum control glyph families",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      },
+      "other_source": {
+        "path": "firmware/src/app/engine.c",
+        "lines": "525-540",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L525",
+        "claim": "Actual per-kit voice identities and order",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    },
+    {
+      "area": "HOME / FX / MIX bottom controls",
+      "existing": "Dedicated tempo/swing, filter/pump, delay/reverb, compressor/drive and neutral value glyphs already exist; preserve useful four spatial values and map before adding status text.",
+      "source": {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7575-7742",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7575",
+        "claim": "Existing common-control glyph families",
+        "evidence_class": "SOURCE_INSPECTION_NOT_EXECUTION"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "P01",
+      "task": "Chicago first cutoff correction",
+      "start": "V_SEQ, Chicago assigned, REC off, V_PART remembered OSCILLATOR, no held input/modal",
+      "sequence": [
+        "PARA down/up",
+        "K2 one accepted + sign event",
+        "K5 slow one-step turn"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "result": "FILTER1, cutoff base edited. No note/step write from navigation."
+    },
+    {
+      "id": "P02",
+      "task": "Chicago EFFECT from OSCILLATOR",
+      "start": "V_PART Chicago OSCILLATOR page0, no held input/modal/pending request",
+      "sequence": [
+        "K2 - one accepted event: SOUND page7",
+        "K2 - one accepted event: EFFECT page6",
+        "K5 slow turn TYPE"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "alternative": "PARA six unused taps + K5 =7 gestures. Keep wrap, do not force forward-only exploration.",
+      "boundary": "Passing through SOUND performs no edit. CP1 SOUND details unexercised."
+    },
+    {
+      "id": "P03",
+      "task": "Juno CHORUS from OSCILLATOR",
+      "start": "V_PART Juno OSCILLATOR page0, no held input/modal/pending request",
+      "sequence": [
+        "K2 - to SOUND page4",
+        "K2 - to LFO/CHORUS page3",
+        "K8 slow one-step turn"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "alternative": "PARA three unused taps + K8 =4 gestures."
+    },
+    {
+      "id": "P04",
+      "task": "Drone release correction from STRING",
+      "start": "V_PART Drone STRING page0, no held input/modal",
+      "sequence": [
+        "K2 + to ENVELOPE page1",
+        "K6 slow one-step turn RELEASE"
+      ],
+      "count": {
+        "navigation_gestures": 1,
+        "value_gestures": 1,
+        "total_gestures": 2
+      }
+    },
+    {
+      "id": "P05",
+      "task": "Chicago cutoff through existing deep list",
+      "start": "V_PART Chicago any parameter page, no held input/modal",
+      "sequence": [
+        "SCALE unused down/up: first list row WAVE",
+        "K2 + to GLIDE",
+        "K2 + to CUTOFF",
+        "K3 slow turn, or > fresh press, changes value",
+        "PATCH unused tap returns parameter matrix"
+      ],
+      "count": {
+        "enter_exit_taps": 2,
+        "row_moves": 2,
+        "value_gestures": 1,
+        "total_gestures": 5
+      },
+      "note": "No new confirm tap for a scalar. Headers are skipped; list starts at first ref, not current page."
+    },
+    {
+      "id": "P06",
+      "task": "Step cutoff lock then return to base",
+      "start": "V_PART Chicago FILTER1 already selected; existing step05 in current pattern; REC off; stopped; no modal",
+      "sequence": [
+        "SEQ unused tap: V_SEQ",
+        "Hold W5=C4 or pad4 (GRID): step05",
+        "PARA unused tap while original step stays held: retained FILTER1",
+        "K5 slow turn: cutoff lock for step05",
+        "Release original step05: stored lock retained; stopped preview restored",
+        "K5 slow turn: base cutoff, step05 lock unchanged"
+      ],
+      "count": {
+        "navigation_taps": 2,
+        "step_hold_and_release_gestures": 1,
+        "value_gestures": 2,
+        "total_gestures": 5
+      },
+      "note": "One complete step hold/release is one gesture; trace preserves release explicitly. Two K5 value turns: lock and post-release base.",
+      "guardrails": [
+        "K2 while holding edits chance; it cannot navigate to FILTER1. Preselect desired sound page first.",
+        "While held in V_PART, SEQ refusal RELEASE STEP FIRST is existing behavior.",
+        "V_PART melodic keys normally play notes; initiating a fresh step hold there is not the SEQ step-inspection route."
+      ]
+    },
+    {
+      "id": "P07",
+      "task": "Clear only held-step cutoff lock",
+      "start": "Same known step05 and FILTER1 as P06; lock exists; REC off; no modal",
+      "sequence": [
+        "SEQ unused tap",
+        "Hold original W5/pad4 step05",
+        "PARA unused tap",
+        "Hold BT",
+        "K5 turn",
+        "Release BT and original step05"
+      ],
+      "count": {
+        "navigation_taps": 2,
+        "step_hold_gesture": 1,
+        "BT_hold_gesture": 1,
+        "value_gestures": 1,
+        "total_gestures": 5
+      },
+      "result": "Only cutoff lock at step05 cleared. Used BT release consumed; no extra save."
+    },
+    {
+      "id": "P08",
+      "task": "HOME pump while cue is pending",
+      "start": "V_HOME, O_NONE, ordinary firmware UI, cue pending, no held modifier",
+      "sequence": [
+        "K8 slow one-step turn PUMP"
+      ],
+      "count": {
+        "navigation_gestures": 0,
+        "value_gestures": 1,
+        "total_gestures": 1
+      },
+      "guardrails": [
+        "TEMPO/SWING/FILTER/PUMP stay visible and controllable while normal cue/WAIT status is shown.",
+        "Power/context additions do not silently remap K5\u2013K8."
+      ]
+    },
+    {
+      "id": "P09",
+      "task": "Master pump from first mixer page",
+      "start": "V_MIX PARTS page0, ordinary UI; no held modifier",
+      "sequence": [
+        "K2 - to WAVE page4",
+        "K2 - to MASTER page3",
+        "K7 slow turn PUMP"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "alternative": "Three NOTE REPEAT taps + K7 =4. WAVE alone exposes same pump with one reverse step +turn =2 if waveform view acceptable."
+    },
+    {
+      "id": "P10",
+      "task": "BREAK choose loopA then adjust groove",
+      "start": "V_PART BREAK LOOPS, O_NONE; known fixture, no held input",
+      "sequence": [
+        "K5 slow one-step turn LOOP A",
+        "SEQ unused tap: remembered SEQUENCE page0",
+        "K2 + to GROOVE page1",
+        "K7 slow turn ROLL"
+      ],
+      "count": {
+        "navigation_gestures": 2,
+        "value_gestures": 2,
+        "total_gestures": 4
+      },
+      "guardrails": [
+        "LOOP A/B/B CHANCE are pattern refs; PITCH is sound ref.",
+        "Do not substitute a diagnostic SOUNDING/HELD list for the four live page controls."
+      ]
+    },
+    {
+      "id": "P11",
+      "task": "Drum track decay edit without hidden step write",
+      "start": "V_SEQ 909, sound page remembered track first row, REC off, drum SD desired",
+      "sequence": [
+        "Press/release black2=G#3: select SD; stopped also auditions under source KEY SOUND",
+        "PARA unused tap",
+        "K7 slow turn DECAY"
+      ],
+      "count": {
+        "track_selection_gestures": 1,
+        "navigation_gestures": 1,
+        "value_gestures": 1,
+        "total_gestures": 3
+      },
+      "guardrails": [
+        "A step write is different from drum-track selection/audition.",
+        "SD DECAY is K7 after named-rank sorting, SNAPPY K8."
+      ]
+    }
+  ],
+  "a898_findings": [
+    {
+      "id": "L01",
+      "actual_strength": "Up to four source parameter pages and their sixteen cells are visible in the matrix bank, highlighted selected row mapped to K5\u20138.",
+      "a898_evidence": "SND engine parameter fixtures use one focused page with four horizontal parameter cells; tradeoff field explicitly acknowledges removing neighboring-page overview. Existing FILTER1 native PNG was personally viewed and retains cutoff/peak/ENV glyphs.",
+      "disposition": "Retain source overview matrix and sparse columns. Parameter discovery must not require visiting pages just to find their controls.",
+      "count_delta": "Known-target route may remain same; zero-action visual discovery of neighboring rows is lost in a898. No timed user-burden measurement exists."
+    },
+    {
+      "id": "L02",
+      "actual_strength": "K2/arrow reverse wrap, PARA forward cycle, SCALE complete deep list, HELP remain available together.",
+      "a898_evidence": "SND normal footer only K2 PAGE / K5\u20138 SOUND / PARA NEXT. SX-PAGES traces only forward K2 through editable sound pages; no SOUND, reverse, wrap, SCALE list or list return.",
+      "disposition": "Preserve all routes, include full page count and demonstrate reverse/wrap/list gestures. Do not replace with a new focused list.",
+      "count_delta": "Require0 new gestures for every retained route; proof currently missing rather than a proven runtime-count regression."
+    },
+    {
+      "id": "L03",
+      "actual_strength": "Full V_PART cycle has trailing SOUND: Chicago8/Miami6/Juno5/Drone3 pages, enabling reverse shortcuts.",
+      "a898_evidence": "a898 page_count values7/5/4/2 and SX-PAGES stop before SOUND. CP1 owns pending SOUND detail.",
+      "disposition": "Keep SOUND topology and neutral known-base navigation interface. Do not create reserved CP1 cases or mistake incomplete fixtures for a runtime deletion.",
+      "count_delta": "Chicago OSC\u2192EFFECT requires2 reverse steps including SOUND, not1 under a false7-page cycle. Juno OSC\u2192LFO/CHORUS requires2 reverse steps including SOUND."
+    },
+    {
+      "id": "L04",
+      "actual_strength": "Existing semantic control glyphs plus exact units in same spatial cells; empty refs are blank and inactive.",
+      "a898_evidence": "Viewed native FILTER1 preserves four spatial K5\u20138 columns, cutoff/peak/ENV control glyphs, exact displayed fixture values and an inactive dash. Its extra header/state/scope/page/footer text accompanies the single-page replacement. Do not claim those three glyphs were removed. Other source glyph families were not all visually inspected here; scalar fixture values are explicitly not measured source readouts.",
+      "disposition": "Credit preserved glyphs/spatial columns. Retain source overview, recognizable control glyphs, accurate values/units and sparse assignments; reduce duplicated status text without hiding target scope. New glyphs must aid recognition.",
+      "count_delta": "No speed gain demonstrated; physical value knob should stay one gesture."
+    },
+    {
+      "id": "L05",
+      "actual_strength": "HOME bottom PERFORM values remain visible with ordinary cue status. V_MIX MASTER/WAVE retain drive/comp/pump/filter.",
+      "a898_evidence": "LC-HOME-PAIR/LC-CUE/CMP-HOME-POWER already include performance[] and must receive credit. LC-CLOCK-WAIT/RUN instead use kind=list with HOME/O_NONE and omit performance[] and five-part lane context.",
+      "disposition": "Retain existing normal-use controls/context during cue and WAIT displays; signal WAIT within normal grammar rather than a replacement diagnostic list.",
+      "count_delta": "HOME pump remains0 navigation +1 value turn, including status. Do not require leaving an error screen to access an already available live control."
+    },
+    {
+      "id": "L06",
+      "actual_strength": "BREAK LOOPS/GROOVE/RETRIG and deep MORE controls remain in their actual knob positions while playing slices.",
+      "a898_evidence": "SND-BRK-GEN/LIVE/RETURN/RELEASE fixtures use SOUNDING/HELD/SOURCE diagnostic rows; do not show actual K5\u20138 LOOP A/B/B CHANCE/PITCH or GROOVE/RETRIG parameters.",
+      "disposition": "Keep normal BREAK page controls/loop picture and visible performance context. Supplement selected/sounding/held truth without making diagnostic prose the main instrument page.",
+      "count_delta": "Existing loop choice one K5 turn; fixed groove page access retained. Proposed diagnostic pages have no equivalent knob route demonstrated."
+    },
+    {
+      "id": "L07",
+      "actual_strength": "Source held-step scope changes K2 to chance; SEQ\u2192PARA carries held step; release restores stopped sound preview. V_PART melodic keys normally play sound.",
+      "a898_evidence": "SX-LOCK models clear lock with STEP05 hold while still in V_PART; no SEQ-entry action is stated. SND-CHI-BASE-EDIT also foregrounds BT save rather than source fast-route context.",
+      "disposition": "Use exact source step-acquisition sequence, retained sound-page memory and explicit original release; do not claim fresh V_PART piano key is a selected step.",
+      "count_delta": "Clear-lock source sequence includes SEQ then held step then PARA; modeled shortcut count cannot be accepted until executable route is defined."
+    }
+  ],
+  "constraints": [
+    "Preserve matrix overview, full engine-specific topology, sparse physical columns, current knob positions, useful ordinary lower strip and existing navigation/help.",
+    "When baseline is useful and no simpler task route is demonstrated, retain baseline treatment.",
+    "No extra page switch, menu open, confirmation, or loss of reverse/list route for retained tasks.",
+    "Every diagnostic/WAIT/live hold display must account for the active underlying knob references and content/context it displaces.",
+    "Do not claim current pixels from source or proposal pixels as firmware execution. Current exact candidate emulator LCD captures remain unavailable here.",
+    "Keep CP1 seven reserved cases/pending-sound/Keep producer ownership; retain neutral topology only. Settings unchanged. CP2/CP3 unresolved choices remain open."
+  ],
+  "not_run": [
+    "Current actual firmware/emulator execution",
+    "Historical emulator exercise by this helper",
+    "Audio/musical timing/physical controls",
+    "Rendering or screenshot capture",
+    "Human discoverability/speed trial",
+    "Proposal runtime pointer interactions"
+  ],
+  "retained_historical_limit": "Existing 79280e76 captures are historical0.0.25.1; this inventory does not relabel them as3c41 current execution."
+}

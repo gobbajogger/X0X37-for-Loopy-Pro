@@ -1,0 +1,96 @@
+{
+  "rule": "Retain current behavior when benefit cannot outweigh an insignificant practical tradeoff. No unmeasured speed/usability claim.",
+  "current_dynamic_labels": "Retained baseline, not R5 improvement",
+  "Juno_reconsideration": "Rejected numeric-value shrink/full-row substitution; retained large values, labels, bars and ADSR controls. New cues use only unoccupied row-heading gutter.",
+  "changes": [
+    {
+      "area": "drum",
+      "actual_current_retained": "11tracks plus accent,16columns, LENGTH/RATE, black-track selection, white/pad writing, PATCH+black mute and all useful lower controls.",
+      "proposal_change_or_reconsideration": "Instrument pictures replace BD/SD abbreviations; unmapped lower cells show selected instrument. Power moves consistently to the compact top status.",
+      "justification": "Recognize the intended sound without a new selection page or losing step context.",
+      "physical_route": "Known fresh empty909 SEQ: pads0/4/8/12, then SEQ PLAY. The delivered running comparison has the same four-kick pattern.",
+      "action_cost": "4 step taps +1 PLAY from initialized selected909; +1 track selection if unknown. Proposed navigation delta0.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Running phase and unspecified project cells are not synchronized. Picture recognition and audible outcome are not qualified; this is a visual/model proposal.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "drum-para",
+      "actual_current_retained": "909 Tune34, Attack10%, Decay1.0s, P.Dpth0%; sparse second row, KIT row, K5\u2013K8 and source drum-parameter glyph families.",
+      "proposal_change_or_reconsideration": "Instrument identity uses a recognizable glyph; top status is common. The R4 typed-domain/edit defect is repaired in the proposal.",
+      "justification": "Read the actual parameter and edit it directly. Repairing the old prototype is not a new firmware improvement.",
+      "physical_route": "From SEQ: PARA; K5 +4 raw units changes Tune34\u219238. Track SD then K7 +4 changes Decay340\u2192361ms.",
+      "action_cost": "PARA+turn from known SEQ/page=2 gestures; selecting a different track adds1. Delta0.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Drum SI engineering/readout laws are reused. The canvas does not simulate native live voice-envelope animation or physical knob acceleration.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "chicago",
+      "actual_current_retained": "Simultaneous groups, all sparse columns and SOUND/FX pages; existing full-row K5A/K6D/K7S/K8R labels and source ADSR layout; current engine/slot identity.",
+      "proposal_change_or_reconsideration": "The native one-cycle29\u00d719 source oscillator projector replaces the rejected prototype sketch. Top status is common; there is no new bespoke ADSR design.",
+      "justification": "Consistent scope/value/cue ownership without discarding useful current native vocabulary.",
+      "physical_route": "K2 or PARA selects a remembered row; K5\u2013K8 keep their columns; SCALE opens all parameters; PATCH returns.",
+      "action_cost": "Same source routing and page memory. No extra confirmation or page; delta0.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "WAVE is bound to visible factory0 with20 explicit edits, not an untouched factory or audio waveform. Chicago ADSR uses the source q fallback in this non-audio model; live compiled-VCA inputs/cursors are not fabricated.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "juno",
+      "actual_current_retained": "Existing large numeric readouts, labels, neutral bars, four columns, four neighboring groups plus SOUND,16 controls and remembered navigation.",
+      "proposal_change_or_reconsideration": "Shared wave/filter/ADSR/LFO/effect-family thumbnails use only the row-heading gutter. The earlier proposal that shrank values or replaced the whole Juno ADSR row is rejected. The compact top status stays consistent.",
+      "justification": "Additional visual context must not reduce the legibility of the values a musician edits.",
+      "physical_route": "PARA enters remembered PART; K2 or PARA changes rows; K5\u2013K8 edit fixed columns; fifth SOUND page remains.",
+      "action_cost": "All parameter access routes retained. Delta0; no timed/recognition benefit claimed.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Actual complete3c41 ENVELOPE is paired with the same proposed selected row and same values. The new small heading cues are extensions whose usefulness/recognition still require assessment. The earlier oscillator capture has an incomplete lower band and is excluded from equivalent-state presentation. No AudioKitJ6, audio or live-cursor fidelity claim.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "home",
+      "actual_current_retained": "16pattern tiles, five lanes, current actual engine labels, selected/sounding/queued identities, mute routes, TEMPO/SWING/FILTER/PUMP.",
+      "proposal_change_or_reconsideration": "Common compact status adds honest top power visibility. Pending LCD identity stays steady in STOP/WAIT; physical light policy remains separate. Dynamic engine labels are unchanged baseline.",
+      "justification": "Keep the audible idea and direct performance controls visible while giving consistent status.",
+      "physical_route": "HOME K5tempo/K6swing/K7filter/K8pump; pads cue patterns; black keys mute.",
+      "action_cost": "0 navigation +1 turn from HOME for each perform control. Delta0.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Per-part cue/mute collision details and physical clarity remain to be qualified. Prototype lane contents/phase are controlled; REC arm is not captured-take success.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "mix909",
+      "actual_current_retained": "11track strips, pan thumbs, four lower LEVEL/PAN/REV/DLY controls, native dB/pan units, kit hue and step layer.",
+      "proposal_change_or_reconsideration": "Instrument pictures and top status unify the display. Typed values share their source parameter owner; existing-hit deletion resolves on short release.",
+      "justification": "The visible destination and physical controls agree. R4 model repairs are not advertised as firmware feature additions.",
+      "physical_route": "From initial SEQ: NOTE REPEAT twice to909 MIX; black selects track; K5\u2013K8 edit; existing step held800ms then released remains.",
+      "action_cost": "Same source gestures; delta0. MIX holds do not acquire p-lock scope.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Static source levels only; live meters/audio and physical LED brightness are not fabricated. Current capture only verifies the selected kick level and visible layout, not every stored raw cell.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "break",
+      "actual_current_retained": "Eight visible slice slots, real waveform region,16step strip, A/B identity, count/page controls and every lower LOOP control/help.",
+      "proposal_change_or_reconsideration": "Common top status; current empty/unavailable fixture is truthful and contains no invented waveform.",
+      "justification": "A useful waveform and release context must remain when valid loop data exists; absence must not masquerade as a playable loop.",
+      "physical_route": "C/D adjust count; C#/D# page; hold step plus1\u20138 pins a slice;9REV/10JUNGLE/11STUT stay available.",
+      "action_cost": "No added page or confirmation. Source route counts depend on the exact phrase.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Captured BUILD_ONLY fixture has no available loop waveform: A NONE, B INVALID in controls. No audible BREAK success, valid-loop playback or release continuity is claimed. A populated equivalent fixture remains required.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    },
+    {
+      "area": "song",
+      "actual_current_retained": "11-bar overview, empty entry, per-part BAR controls, repeats, used-pattern dimness and direct all-part assignment.",
+      "proposal_change_or_reconsideration": "Common top status; empty Song no longer inherits the prototype bright HOME pattern. Existing dynamic lane labels remain baseline.",
+      "justification": "Keep live pattern use distinct from a real selected arrangement bar and durable Song.",
+      "physical_route": "HOME PATCH\u2192SONG; pad assigns all-part pattern and advances; K2 changes BAR control page; PATCH returns.",
+      "action_cost": "Entry1 +bar assignment1 +save request1 before readiness. Delta0.",
+      "removed_useful_functions": [],
+      "tradeoff_or_unknown": "Producer checks cover empty-Song usedP1 dim RGB[31,18,5], not physical brightness or complete durable arrangement. CP2/CP3 take/correction/replay remains open.",
+      "verification": "See scoped producer checks and current/proposal frame pins; independent R5 assessment pending"
+    }
+  ],
+  "remaining": "Coverage of retained functions is a source/design inventory, not proof that every model transaction or whole musical journey executes."
+}

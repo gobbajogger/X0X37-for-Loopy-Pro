@@ -1,0 +1,74 @@
+[
+  {
+    "id": "drum",
+    "native": "drum.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "juno",
+    "native": "juno.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "miami-native",
+    "native": "miami-native.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "sequence64",
+    "native": "sequence64.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "motion",
+    "native": "motion.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "copy",
+    "native": "copy.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "cue",
+    "native": "cue.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "song",
+    "native": "song.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "panic",
+    "native": "panic.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "clip",
+    "native": "clip.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "break",
+    "native": "break.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  },
+  {
+    "id": "mix909",
+    "native": "mix909.png",
+    "input_revision": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86",
+    "classification": "Unchanged R6 proposal pixels reused, not relabeled as R7 execution"
+  }
+]

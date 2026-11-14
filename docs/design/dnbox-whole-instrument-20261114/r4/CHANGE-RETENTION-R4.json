@@ -1,0 +1,77 @@
+{
+  "reviewed_predecessor": "96b4f43498a089b326e463097b2e9641458e4589",
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "rule": "Retain source behavior if improvement cannot outweigh insignificant actual-use tradeoffs. Counts are source-derived logical inputs, not measured time or full execution.",
+  "changes": [
+    {
+      "area": "Chicago envelope",
+      "current": "K5-8 show actual A/D/S/R and source-law curve; held/motion/base scope.",
+      "R3_defect": "Accepted edits changed state but static labels/curve remained.",
+      "R4": "Typed per-part engine/id q-values drive labels and schematic, with effective lock/motion/base priority.",
+      "access_delta": 0,
+      "proof": "Envelope K5 updates q and readout; Envelope changed region follows accepted edit; Held lock changes shown scope then release restores base",
+      "limits": "Controlled q fallback, not exact native factory/cache or live EG capture."
+    },
+    {
+      "area": "Parameter cues and Juno",
+      "current": "Meaningful Chicago/Miami cues; Juno has text/bars and continuous q controls in4fixed rows plusSOUND.",
+      "R3_defect": "Generic pictures and hardcoded50%; every WAVE frozen as enum.",
+      "R4": "Value-sensitive control-ID families;16new Juno qualitative glyphs from actual custom-Juno semantics and exact factory0 q-vector.",
+      "access_delta": 0,
+      "proof": "All16 Juno glyph-only regions respond at bounds; Juno WAVE remains continuous; domain clamp checks",
+      "limits": "New glyph recognition and AudioKitJ6/preset/audio fidelity are unproved. Source-program native waveform floats are not fully restored by this model."
+    },
+    {
+      "area": "Drum MIX",
+      "current": "11kit tracks; per-kit selected track, pan, level and sends; source-owned pads; visible-kit hue.",
+      "R3_defect": "Wrong5part layout, suppressed pads and track/page/write mismatch.",
+      "R4": "11strips, per-kit state, source fresh-project levels and gain units, kit target for controls/display/pads. Static levels dim; no live meter fabricated.",
+      "access_delta": 0,
+      "proof": "909 MIX retains four-kick pads; MIX track/write stay on visible kit;808 MIX owns data/hue with melodic selection;MIX held input does not acquire p-lock scope",
+      "limits": "Audition/audio not executed; live hit envelope not modeled. Actual captured remaining project cells not verified against fresh-project fixture."
+    },
+    {
+      "area": "MIX non-kit/FX lights",
+      "current": "PARTS/MASTER/WAVE andFX do not inherit stored drum pads; normal held input is a final source layer.",
+      "R3_defect": "Blanket suppression lost drumMIX; naive removal would light wrong views.",
+      "R4": "Explicit view/page owner; restores PART drum content and keeps non-kit exclusions, physical-input override separate from step edit owner.",
+      "access_delta": 0,
+      "proof": "PARTS/MASTER/WAVE/FX source-layer checks",
+      "limits": "Physical brightness and complete Loopy/division/calibration owners remain excluded."
+    },
+    {
+      "area": "Part/slot/page routes",
+      "current": "Display order[909,808,BREAK,B,A],canonicalIDs[0,1,4,3,2],clamped by sign; per-view+part or shared page memories.",
+      "R3_defect": "K3 wraps/clears memory; all headersA; HomeMiami mislabeledChicago.",
+      "R4": "Explicit source lane mapping, clamped sign traversal, separate page memories and dynamic slot/engine labels.",
+      "access_delta": 0,
+      "proof": "K3 endpoint/magnitude/memory; sharedFX/MIX memory;MiamiHome andBslotheader",
+      "limits": "CP1 asynchronous/pending sound changes are not simulated."
+    },
+    {
+      "area": "Drum identity",
+      "current": "Actual909/808 ordering, all11tracks+accent and16steps.",
+      "R3_defect": "Conga ranks identical;808tail positions also reused909symbols.",
+      "R4": "Distinct conga head widths/pitch ticks, correctcowbell/cymbal/hat order; full selected name.",
+      "access_delta": 0,
+      "proof": "Conga low/mid/high pictures distinct; native inspection",
+      "limits": "Actual recognizability/tradeoff benefit unmeasured."
+    },
+    {
+      "area": "Home/Song/bottom space",
+      "current": "Playing/dirty identity, pattern/part content,4PERFORM,Song neighbors and2BARpages.",
+      "R4": "Retained layout; dynamic lane names; actual-current versioned references.",
+      "access_delta": 0,
+      "proof": "Curated nativeframes and affected header/navigation checks",
+      "limits": "Complete pattern adoption,bar entry,recording/repeatedtakes/recovery not implemented by the proposal."
+    },
+    {
+      "area": "Drone scope",
+      "current": "3c41 still includes stablekind2/ID0x4f445231; Juno remainskind3/ID0x4f4a5531.",
+      "R4": "Owner defers new activeDrone design; no activeDrone fixture or inventedJuno conversion. Existing source facts retained separately.",
+      "proof": "Scope dependency and activefixture removal; existing firmware owner retains implementation.",
+      "limits": "Saved unavailable/fallback and CP1producer result must be consumed before dependent UI is frozen."
+    }
+  ],
+  "whole_scope": "39R22journeys/261routing rows remain visible in source inventory; no whole acceptance from frame or test counts."
+}

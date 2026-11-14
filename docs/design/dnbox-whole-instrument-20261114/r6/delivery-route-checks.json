@@ -1,0 +1,343 @@
+{
+  "classification": "Producer local-browser proposal delivery/input checks; no emulator, firmware, physical, audio, storage or independent acceptance",
+  "html_sha256": "bd6639d421c699755397fbe40f4426d666f0e5b6f2d5c1157fc65864e972e13d",
+  "renderer_sha256": "28c274f93a8f2e902e2aaf002e18996bfcb621d51c3f25d0f3e31de19699248f",
+  "checks": [
+    {
+      "name": "Normal stopped LOAD PLAY cancels and commands start",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Normal running LOAD PLAY cancels and commands stop",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip LOAD masks SCALE and scalar controls; no confirmation",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip PLAY is host request and leaves LOAD question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clip PATCH cancels LOAD question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "SEQ CHORD toggles shared accent and projects accent pads without changing hits",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Second CHORD gesture clears only shared accent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Drum MIX shared accent uses visible808 kit only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Drum PART CHORD pad still auditions without hidden hit or accent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Unsaved BT follows source frame-bit8",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Failed BT follows distinct source frame-bit2",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Queued BT stays on; source priority precedes failure",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Active Song PATCH follows bit8 outside HOME/SONG",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Central white-key held input projects to its pad even with LIGHTSoff",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Central white-key release clears only that held pad",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Published physical arrows preserve ordinary fast parameter navigation",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Ordinary arrow held-step route reaches source chance95",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PATCH-held arrows do not leak a parameter page edit",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All18 physical button positions are visible, unfinished routes explicitly disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native Song identity cue uses filled7x7 tiles, not hollow substitutes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Published DOM guide completes: 64",
+      "pass": true,
+      "detail": {
+        "progress": "6/6: Apply explicit model909 boundary \u00b7 Current gestures retained:3 OCTAVE presses; hold pad15+K2 turn; PARA+K5 turn; original release. Model boundary controls are fixture events, not extra firmware actions.",
+        "view": "SEQ"
+      }
+    },
+    {
+      "name": "Published DOM guide completes: motion",
+      "pass": true,
+      "detail": {
+        "progress": "6/6: Clear whole named lane; usedBT does not save \u00b7 Ready source route: REC+turn, later RECoff+turn; BT+assigned turn clears lane. No extra firmware page or mode.",
+        "view": "PART"
+      }
+    },
+    {
+      "name": "Published DOM guide completes: copy",
+      "pass": true,
+      "detail": {
+        "progress": "5/5: Start adopts it; browser has no audio \u00b7 BT+destination is2 presses; occupied confirm/cancel adds1, same as current. Empty destination remains immediate.",
+        "view": "HOME"
+      }
+    },
+    {
+      "name": "Published DOM guide completes: cue",
+      "pass": true,
+      "detail": {
+        "progress": "5/5: Two requests cancel before adoption \u00b7 Same K4 part route, HOME black mute and909 boundary; no new pad colours or confirmation.",
+        "view": "HOME"
+      }
+    },
+    {
+      "name": "Published DOM guide completes: record",
+      "pass": true,
+      "detail": {
+        "progress": "8/8: Release and replay repeated phrase \u00b7 REC, three note presses, two modifier+OCT tie/rest gestures; disarm. Correction remains holdstep3+OCT, release. No new take object or selected capture class.",
+        "view": "SEQ"
+      }
+    },
+    {
+      "name": "Published DOM guide completes: panic",
+      "pass": true,
+      "detail": {
+        "progress": "5/5: Release original fresh key \u00b7 FX+SEQ2 presses, both releases; fresh note1 press. No extra navigation.",
+        "view": "PART"
+      }
+    },
+    {
+      "name": "Browser captured pointer release outside pad preserves held hit and clears input",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Keyboard pad tap has one down/up and deletes existing hit",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Physical-key keyboard release clears its live owner",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reserved Settings component bytes remain exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 original task staged through bridge: USB AUDIO",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 task disposed without hidden live frame: USB AUDIO",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 original task staged through bridge: SAVE request",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 task disposed without hidden live frame: SAVE request",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 original task staged through bridge: Reset / cancel",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 task disposed without hidden live frame: Reset / cancel",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 original task staged through bridge: Long peer name",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 task disposed without hidden live frame: Long peer name",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 original task staged through bridge: Battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 task disposed without hidden live frame: Battery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 original task staged through bridge: Held local key",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R2 task disposed without hidden live frame: Held local key",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Leaving Settings destroys its browsing context",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Global routes to reserved Settings presentation",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Settings LOAD host bridge opens existing normal question",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Curated pair decodes at native240: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner model layout fits viewport 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Owner model layout fits viewport 768",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Affected DOM/model/composition routes have no browser exception",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Self-contained artifact uses no external network",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": 62,
+  "total": 62,
+  "limits": [
+    "Pointer capture qualified only in local Chromium; not physical firmware timing",
+    "No real iOS device opening",
+    "Reuses reserved Settings producer proof; tests only changed host composition",
+    "Whole instrument and host/peer/saved lifecycle remain incomplete"
+  ]
+}

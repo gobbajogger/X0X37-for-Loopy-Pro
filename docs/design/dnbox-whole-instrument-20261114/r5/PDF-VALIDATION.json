@@ -1,0 +1,140 @@
+{
+  "pdf_sha256": "413669b98ad852e08c0c197f26b034968a911c1fd72a129e3bec6002a9760f4a",
+  "pdf_version": "%PDF-1.4",
+  "pages": [
+    {
+      "page": 1,
+      "text_chars": 1338,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "04fb106bfe40d7f7cf616a4a21f66c05dd5ec81e4e8b1a2aae9d46f3d4408823"
+    },
+    {
+      "page": 2,
+      "text_chars": 1279,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "0b35be79346b1483bb48fa24b03985d86479443e6f6bcd645caadde9af57f0ef"
+    },
+    {
+      "page": 3,
+      "text_chars": 1394,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "c77866e2ba34a8786d8f9515e4e30f773df8a3363d58ad907af2003c46ef900f"
+    },
+    {
+      "page": 4,
+      "text_chars": 1577,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "22674c6f174843d5fbd0500aab17cbd8264d53f6b484b32cd297c14418a51802"
+    },
+    {
+      "page": 5,
+      "text_chars": 1300,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "d5c64731377540940b2ea276dd248557eaba255dc1937301b9c8dfedae696aaf"
+    },
+    {
+      "page": 6,
+      "text_chars": 1359,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "f5cf0bb44ffeb8e3f08e2746d3cab93594cbfc4bd72702c2fa9c803399192185"
+    },
+    {
+      "page": 7,
+      "text_chars": 1338,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "264476c6bc2b5757afc732c91ca353d39c85cc455d694b10b02499a3136bdd06"
+    },
+    {
+      "page": 8,
+      "text_chars": 1257,
+      "image_dims": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ],
+      "render_sha256": "9300fda55b54475fdb0601bb7cbeaa75e7429f61bb29938b9fbcabee93a7e76b"
+    },
+    {
+      "page": 9,
+      "text_chars": 2643,
+      "image_dims": [],
+      "render_sha256": "2a74d03a8159556f9f607cf894a5c4736d9fe6a241378b933303484b323c5d38"
+    },
+    {
+      "page": 10,
+      "text_chars": 2832,
+      "image_dims": [],
+      "render_sha256": "2aef86f606d4d4f019977f1663acf82d8542a75e7cd8c5eec1c71b69aaa0e97a"
+    }
+  ],
+  "iOS_device_open": "NOT_RUN",
+  "standard_parse_render": "PASS"
+}

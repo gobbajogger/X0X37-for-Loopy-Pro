@@ -1,0 +1,107 @@
+{
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "files": [
+    {
+      "path": "firmware/src/app/ui.c",
+      "bytes": 390311,
+      "git_blob_sha": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+      "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/main_fm1.c",
+      "bytes": 117039,
+      "git_blob_sha": "f47fb8780f7c1ff7b339426b56fe3de9baf368d5",
+      "sha256": "f9255b9630c0835a08198a77e5f9a26022127f88c5c327ed37a5167151df7d65",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/plat_fm1.c",
+      "bytes": 15628,
+      "git_blob_sha": "78f46798c2316d989b12bfe0d5e7d8140dd0033d",
+      "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/panel.c",
+      "bytes": 5538,
+      "git_blob_sha": "60ca44f92557d8682227cdfe5d1ccd1e5c1bac54",
+      "sha256": "bc8863de58fcec03c5e5b2caf184659b5216f30558f99b44e48764c87cf10c22",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/hal/smk_input.h",
+      "bytes": 31352,
+      "git_blob_sha": "46ac1cb1ec4d33e1618be8c6057625f48de6a39a",
+      "sha256": "054cfaebb766119d6ca41b6632bbae3e2ec6dbb1f1f11387eebec4ae6a7e98d9",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/hal/fm1_cc.h",
+      "bytes": 1139,
+      "git_blob_sha": "7243d70064bae9001e0eedd88565b84da76b6e69",
+      "sha256": "21aadf8620c2ac002d1d1931f18be29b0b3308a4d6d26a49452fe169d337e70a",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/lcd.c",
+      "bytes": 8279,
+      "git_blob_sha": "9d5381fb892f0503dd2cbab102b6b770a67454a7",
+      "sha256": "4532d6324e0a79ab05cf72e39260605e1027c01347fb243ce6c34dcb3e2a0ffc",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/gfx.c",
+      "bytes": 11955,
+      "git_blob_sha": "20c865191ef7a270271fc13a32b2bc9c80016c06",
+      "sha256": "c561f3cf12e6e4757a2185c21bf6cdf8a2a98303c63a3e6fc2162f9917cefd68",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/smk_apc40.h",
+      "bytes": 26972,
+      "git_blob_sha": "a762d789df1af1d4b5d05425fac866fd07ad3f0c",
+      "sha256": "5bd1df1652c4638a6019f22821b62ee150d90300fb19cb504f81136863962d47",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/smk_clip_colour.h",
+      "bytes": 1569,
+      "git_blob_sha": "bedac200e91a0eb8783a1d039403bb57230c6fbc",
+      "sha256": "b588b64a5305b077cb8b5e44e24131b03ab5a246086fe5382ee9ae291fc413fb",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/apc40_pad_owner.h",
+      "bytes": 2305,
+      "git_blob_sha": "32fcec5b945d7d3d96e5191a2c2f1e31d36ae356",
+      "sha256": "f5f4dd1ed43b60f61bbacb5024cccb6f40e55b937b47f01e589103f2b21d4844",
+      "matches_tree": true
+    },
+    {
+      "path": "SMK37.md",
+      "bytes": 5452,
+      "git_blob_sha": "0d5e9125f92c77c84c15dee1f04ea6617fd7458a",
+      "sha256": "be8288b2de8a5027436288df85544f75b6cde4b71562590a6fbcd75288bd266f",
+      "matches_tree": true
+    },
+    {
+      "path": "PAD_MAP.md",
+      "bytes": 7069,
+      "git_blob_sha": "dd2bcabdca7060826812132ab7a79b780c2279ca",
+      "sha256": "e12c8559344c5b63428bc514f59e183edb0ceddb363af0a426afaac628d4abb7",
+      "matches_tree": true
+    },
+    {
+      "path": "firmware/src/app/plat.h",
+      "bytes": 10595,
+      "git_blob_sha": "b57f2737c5090feac762286794c3f4b9fa1b28ae",
+      "sha256": "426e69bb62645a072f3a5f828aeb175fa9854ec9106cc014f8e22b96734019cd",
+      "matches_tree": true
+    }
+  ],
+  "retrieval": "Connected GitHub read tools, exact commit ref; existing frozen copies reused where already verified",
+  "execution": "SOURCE_INSPECTION_ONLY; firmware, host, emulator and physical tests NOT_RUN"
+}

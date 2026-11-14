@@ -1,0 +1,75 @@
+{
+  "reviewed_input": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+  "reviewed_tree": "9341f35c2e107e7b2237eec04d823616555750ad",
+  "input_manifest_sha256": "e957d6799ebde802d83d579b0fd218dc4bc19192c3cbabb13301849b5d2fcdbb",
+  "source_reader": "Sealed full report read through supported Dot cloud read_file; exact UTF-8 bytes independently SHA-256 verified locally",
+  "findings_received": [
+    {
+      "id": "R5-JUNO-VALUE-INK",
+      "actual_rgb": [
+        222,
+        230,
+        222
+      ],
+      "proposal_rgb": [
+        156,
+        170,
+        168
+      ],
+      "cause": "junoMatrix chooses sameactive-dependentinkforlabelsandvalues",
+      "correction": "Separatecurrentvalueink/weightfrominactive-labelhierarchy"
+    },
+    {
+      "id": "R5-SONG-MANUAL-WRITE",
+      "current": "pad0writesbar1allpartsandadvancesEND/bar2;BAR K5works",
+      "proposal": "padonlysetsqueued;Songbarcursor/scalarsunsupported",
+      "correction": "TypedactualSongauthoringreducerandrender/LCD/padstatecoupling"
+    },
+    {
+      "id": "R5-COVERAGE-GENERIC",
+      "finding": "All261rowsgetonegenericdisposition;inventorynotcompletedoverhaul",
+      "correction": "Specificsourceversusproposaldecisions,functions,workflows,currentcounts,definedevidenceanduncoveredstatus"
+    },
+    {
+      "id": "R5-SEQ-VIEW-IDENTITY",
+      "correction": "Restore explicit SEQ view caption and account for header space/legibility."
+    },
+    {
+      "id": "R5-SONG-IDENTITY-GLYPHS",
+      "correction": "Restore source BAR/pattern identity tile array and repeat pip grammar."
+    }
+  ],
+  "limits": "No frozenR5/source/runtime/Settings/CP1 edits; no new reviewer; currentCP2/3dependency preserved",
+  "R6_status": "FROZEN_FOR_EXISTING_AFFECTED_REVIEW; whole incomplete",
+  "report": {
+    "path": "continuation-evidence/r5-review/REVIEW.md",
+    "bytes": 8808,
+    "sha256": "e0412c26d535fee223e05a18254c4bdfbe14866b59ca3be8dad6b60070b8ecc1",
+    "output_manifest_sha256": "5c2831f19d98e6e68c2e6795105e3c5ee55d9820112ef6c67149a7542a1290f0"
+  },
+  "verdict": {
+    "owner_facing": "NOT_READY as full overhaul; useful bounded conservation/correction study",
+    "whole_design": "INCOMPLETE",
+    "model_runtime_fidelity": "PARTIAL"
+  },
+  "first_correction": {
+    "path": "proposal.js",
+    "change": "Juno inactive numeric value ink RGB222,230,222 separated from label hierarchy; font size/weight retained",
+    "verification": "19 scoped browser checks: Juno full ink, SEQ identity, Song authoring and native cues. Exact receipt included; no independent acceptance."
+  },
+  "concrete_continuation": [
+    "64-step window/chance/lock/release context",
+    "motion request/write/one-pass override/precise clear/capacity",
+    "five-source occupied copy and per-part partial consequences",
+    "independent cue/mute masks and STOP/WAIT intent",
+    "stopped phrase/correction/replay/repeated-entry data",
+    "scoped panic/release/fresh-note recovery",
+    "same-state native Miami/no-host Loopy and unchanged Settings R2 composition"
+  ],
+  "source_light_assist": {
+    "path": "evidence/R6-LIGHT-CONTRACT-DELTA.json",
+    "sha256": "221dbc2a7781953ba366ce707bd5a78e8f68cd0cf45f76620c165c9942440826",
+    "classification": "read-only source-contract assist, not independent proposal acceptance review",
+    "resolutions": "Source manifest materialized;18 visible button positions/2 disabled scopes declared; CHORD accent/BT/PATCH/central white-pad union implemented and affected browser checks recorded."
+  }
+}

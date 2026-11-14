@@ -1,0 +1,10 @@
+{
+  "html_sha256": "b5b2dca5898a7c71b4730364c7c8d4c800ca691ed3498260091d9583a24d86e3",
+  "renderer_sha256": "14d061b50e0c03ce9ae0c7802b549e58d3d9a75c5ec53ee182f6318a74bddb1f",
+  "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "source_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "parameter_map_sha256": "d9f79c5e061c80af9841b4f62828677a151c2c8363eb290346e633c856e306da",
+  "drum_map_sha256": "8e55394ef0d1f09ef79cf4e80ec4927c77345101dffd2ed5ebc82be2c9700e47",
+  "current_actual_captures": "NOT_RECEIVED",
+  "emulator": "Parent fresh3c41Elite/Pro report relayed; report/launchbytes notyetavailable here; no rerun"
+}

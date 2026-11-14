@@ -1,0 +1,15 @@
+# DnBOX R4 corrective proposal
+
+Frozen96b4 failed independent review for defects in its own model and pixels. This successor is a concrete correction input for the same reviewer; it is not whole-design acceptance or firmware implementation.
+
+Start with [the seven-page PDF](DnBOX-R4-workflow-comparison.pdf). Direct native PNGs: [drums](native/drum.png), [Chicago](native/chicago.png), [Juno](native/juno.png), [909MIX](native/mix909.png), [Home](native/home.png), [WAIT](native/wait.png), [Song](native/song-neighbors.png) and [808variants](native/808variant.png). PNGs are240×240. The PDF is standard and embeds native images; actual iOS-device opening is NOT_RUN.
+
+[The self-contained workbench](workbench.html) supports inspection fixtures and physical-control input models. Engine/parameter q-values now drive labels and diagrams. It preserves held-lock/motion/base priority, clamps continuous values, and leaves JunoWAVE continuous. Two kits own their own tracks,steps,lengths,playheads and mixer values. DrumMIX shows11tracks and retains source pad ownership/hue. K3 clamps by sign in the source display order and preserves per-view/part memory; headers and Home/Song follow real slot/engine identity. Conga ranks are distinct. Current-source fresh-project gain values/units are used, and static levels are dim rather than fabricated live meters.
+
+Current before captures are genuine existing Elite emulator LCDs for3c41ef4bedf9701f549ce2752b73306e2fab1eb8, with exact input/receipt identities. They are not historical79280 captures or R4 execution. Actual/proposed transport phase, unspecified project cells and rasterization are not synchronized. R4MIX uses source fresh-project defaults; selected kick−3.8dB matches the capture, but other captured raw cells are unverified. Juno glyphs are new proposed art; an actualJuno pair remains pending. Chicago diagrams are qualitative controlled source-law cues, not a full native factory/cache rebuild or live audio traces.
+
+See [the changed-function ledger](CHANGE-RETENTION-R4.json), [revised plan](REVISION-PLAN.md), model-checks.json, frame-manifest.json and ARTIFACT-MANIFEST.json. Source39journey/261row inventory remains separate. Only the scoped model checks are execution proof for this proposal; no claim that every scalar,list,bar-entry,controller,storage orrecording transaction works. No measured task speed or insignificant-tradeoff benefit is claimed.
+
+Settings,sevenCP1cases and shared decisions remain with incumbents. CP2 strategy precedesCP3 lifecycle. Comparator adoption,DF1,actual correction/repeat/recovery, resources and physical qualification remain open. ActiveDrone is deferred; stable engine IDs and savedDrone data must not be converted. The existing firmware owner supplies availability/fallback semantics. Current custom-Juno cues and8native presets do not establish AudioKitJ6/imported-preset/audio fidelity.
+
+No firmware build/edit,device operation,release ormerge. Library prepared-uploadHTTP401 was not retried. BarlowOFL notice is included. Earlier rejected artifacts remain in Git history and are not this correction.

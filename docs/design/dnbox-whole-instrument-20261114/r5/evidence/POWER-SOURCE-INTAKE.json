@@ -1,0 +1,33 @@
+{
+  "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+  "files": [
+    {
+      "path": "firmware/src/app/plat.h",
+      "bytes": 10595,
+      "sha256": "426e69bb62645a072f3a5f828aeb175fa9854ec9106cc014f8e22b96734019cd",
+      "git_blob_sha": "b57f2737c5090feac762286794c3f4b9fa1b28ae"
+    },
+    {
+      "path": "firmware/src/app/plat_fm1.c",
+      "bytes": 15628,
+      "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7",
+      "git_blob_sha": "78f46798c2316d989b12bfe0d5e7d8140dd0033d"
+    }
+  ],
+  "contract": {
+    "-1": "not read",
+    "0": "EMPTY",
+    "1": "1bar",
+    "2": "2bars",
+    "3": "FULL",
+    "4": "USB host power"
+  },
+  "adc_thresholds": [
+    531,
+    561,
+    591
+  ],
+  "percentage": "Not exposed/calibrated",
+  "charging": "No charger line; USB host means power, not charging",
+  "model_policy": "Same top-right211,4 26x11 rectangle on all owned pages; no percentage invented. Settings component-owner interface remains open."
+}

@@ -1,0 +1,159 @@
+{
+  "classification": "Exact actual current LCD source bindings, not R7 firmware execution",
+  "files": [
+    {
+      "file": "reference/elite-clip-wait-v1-01-no-host-waiting.png",
+      "sha256": "14f59e73ed64203e7ee14c3539249be9ef57c7c12a7d4d360d2bf13327702cbe",
+      "bytes": 7163,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-clip-wait-v1-02-clip-scale-page.png",
+      "sha256": "2e216fd315997cdfad1487362a9d04ea089230aa252b19ee14da0b570cfd6bdf",
+      "bytes": 9215,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-copy-v1-06-five-part-occupied-copy-question.png",
+      "sha256": "765e43474f1a5feb4773e32727998fb6d32795030edfac29f3cf97c505a92a63",
+      "bytes": 11846,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-default-A-v1-01-default-A-sound-native.png",
+      "sha256": "e3d4e10fdbe2262fab32323178dd38c6a98c7f563aaf4f5f871dc40870861c31",
+      "bytes": 13981,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-focused-04-mix-909.png",
+      "sha256": "38fda7434d6d339fa92beea88a07839fd654f2c1de256b5f9dc19c24a7781e95",
+      "bytes": 9091,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-generator-scale-native-v1-01-generate-default.png",
+      "sha256": "35f6b3782b5aa7f66b021b0a2cabde914f66c1a3239696ae54a634f5edd4bd21",
+      "bytes": 9621,
+      "source": "Current3c41 producer native SCALE/GENERATE capture",
+      "receipt_sha256": "f0b49f2c066778985f13edb8a3e698530260f8c6cbd4aa7b7076c577ca1378a4"
+    },
+    {
+      "file": "reference/elite-generator-scale-native-v1-02-scale-default.png",
+      "sha256": "6b3a9c26e3b732d288be025075fc6d77b04985914868e74942fc3536dba2f5de",
+      "bytes": 9802,
+      "source": "Current3c41 producer native SCALE/GENERATE capture",
+      "receipt_sha256": "f0b49f2c066778985f13edb8a3e698530260f8c6cbd4aa7b7076c577ca1378a4"
+    },
+    {
+      "file": "reference/elite-home-cues-v1-03-cues-and-mute-qualified.png",
+      "sha256": "bda4451bb474c1f5e453e921c7f3c73ebaf2619f8f93c504e26e5fa1a80b6fa9",
+      "bytes": 10535,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-01-known-phrase-GEN-before.png",
+      "sha256": "bdd0e141133c860751c1f9289773dd59b4fc723dd7a29c25a35892ad1cdb845c",
+      "bytes": 9559,
+      "source": "Current3c41 producer native capture",
+      "receipt_sha256": "565fc0da3a12b3ae409fae6a687fb146936ebd2e57648102851827e7f45f7650"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-03-held-step03-before-correction.png",
+      "sha256": "d36fa3060a0aa2c4a8fc837489757828036114ff29eb5b9bb9bd70cea41313b0",
+      "bytes": 9765,
+      "source": "Current3c41 producer native capture",
+      "receipt_sha256": "565fc0da3a12b3ae409fae6a687fb146936ebd2e57648102851827e7f45f7650"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-04-held-step03-octave-corrected.png",
+      "sha256": "47560df10967ff32bae8e0d4862550d83ce217692a0e68c9337811f00b536f22",
+      "bytes": 9955,
+      "source": "Current3c41 producer native capture",
+      "receipt_sha256": "565fc0da3a12b3ae409fae6a687fb146936ebd2e57648102851827e7f45f7650"
+    },
+    {
+      "file": "reference/elite-known-phrase-gen-v1-05-GEN-corrected-return.png",
+      "sha256": "d1b85b1ad71a0e90f75e49a3b63d338465b72891a9c0dcd05572b8b22ff5af63",
+      "bytes": 9841,
+      "source": "Current3c41 producer native capture",
+      "receipt_sha256": "565fc0da3a12b3ae409fae6a687fb146936ebd2e57648102851827e7f45f7650"
+    },
+    {
+      "file": "reference/elite-motion-v1-05-after-live-override-turn-source-readout.png",
+      "sha256": "0ab8da55c448cb5c14d3ac989831cb8e863e325fb50e565bfe23d5c63c1f10cf",
+      "bytes": 12239,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-musical2-03-running-grid.png",
+      "sha256": "7e8bca276b1de1a4260c91c84e73215188d76a0ae062070dde525c836c42c575",
+      "bytes": 10001,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-panic-v1-03-FX-SEQ-chord-request-both-held.png",
+      "sha256": "05b632414ca91535fa346f412b1e8c5b8eb4895fd52634f3c27a245e57ca2c93",
+      "bytes": 12075,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-qualified2-01-break-loops.png",
+      "sha256": "3b3b60b0dea8e3a93db197760848e375172e2f45b924426ef449621c2f59f555",
+      "bytes": 10932,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-qualified2-05-juno-envelope.png",
+      "sha256": "b52036a628ec2e21a8d82c09e3b619d2c80bd6eb153fac4c24384589bdde6d95",
+      "bytes": 15913,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-r6-record-modifiers-01-CHORD-recorded-accent.png",
+      "sha256": "4fb1eb9c42fb173c565d8ca59638353ec848f6d19b2aa7c561bebdf70ce96c8c",
+      "bytes": 8314,
+      "source": "Independent current3c41 R6 native capture, reused unchanged",
+      "manifest_sha256": "948d5a688ed6713d5a3839e06c821cd48ba8654c49fcdd270ea4d9fcd4abedc4"
+    },
+    {
+      "file": "reference/elite-r6-record-modifiers-02-NOTE-REPEAT-recorded-slide.png",
+      "sha256": "5005526e4794da5c45d26ffe6161ac44955681ecc7997e463f56028e684e9d2b",
+      "bytes": 8259,
+      "source": "Independent current3c41 R6 native capture, reused unchanged",
+      "manifest_sha256": "948d5a688ed6713d5a3839e06c821cd48ba8654c49fcdd270ea4d9fcd4abedc4"
+    },
+    {
+      "file": "reference/elite-sequence64-v3-08-pending-cue-retained.png",
+      "sha256": "28e20f5097725f5167c2285030b66ea8b1112bae023efa461aa5dee1e5c9e4e2",
+      "bytes": 9938,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-song-authoring-02-one-bar-assigned.png",
+      "sha256": "ea8e14bc66ebb6e0c04c89a4694d2fa41f89765fa90cc840599ade2c98d8595f",
+      "bytes": 10059,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    },
+    {
+      "file": "reference/elite-stopped-v2-10-step03-octave-corrected.png",
+      "sha256": "8cc9afabb513d0608103b441658c6e12294633e5090d6d40fc02892ea25949bf",
+      "bytes": 10050,
+      "source": "Exact frozen R6 current3c41 before capture",
+      "predecessor": "8eb1a6888562fcdb6c54fb7b7845f45a0de48e86"
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+{
+  "kind": "FOCUSED_CURRENT_SOURCE_REMAINING_JOURNEYS_NO_EXECUTION",
+  "source": {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+    "parent": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "ui_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+    "ui_sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+    "smc_blob": "8942c49681e9bd15f39b4cfd3745826ba58b4a16",
+    "smc_sha256": "e5707a2b0bcdff8d50d21597d27f708fc61d15da81fb765e01f2284e6cf32e1a",
+    "main_blob": "f47fb8780f7c1ff7b339426b56fe3de9baf368d5",
+    "main_sha256": "f9255b9630c0835a08198a77e5f9a26022127f88c5c327ed37a5167151df7d65",
+    "generator_blob": "fc4cb5363f12d05d1f5e0d4ab7f6e620820897ec",
+    "fx_map_blob": "39d151ee8973cd45b28ebdafff3ea0ef583087fb",
+    "clip_keys_blob": "d78a7dcd1b264acf87bad16912754dfe79f25bec",
+    "panic_blob": "709f7ba74523b3c3af1b58ca3972f8df7efa05da",
+    "sound_reset_blob": "cda8359fc60130b853ea4971bc480735fcf67d81",
+    "pattern_preset_blob": "0396235c0da545fdc3590e42ed8c97c2b84df8eb",
+    "verification": "Authenticated GitHub file identities; local matching retained blobs supply SHA256 where listed. No source reconstruction/build/execution.",
+    "relative_path_base": "firmware/src/app/ for app files including engine.c; firmware/src/seq/ for tb3po.c and sequencer.c"
+  },
+  "flows": [
+    {
+      "id": "W07-GENERATE",
+      "goal": "Create or mutate the current bass-slot line, inspect it and return to SEQ",
+      "route": [
+        "Select the intended bass slot by an accepted K3 direction event, verifying the native owner.",
+        "Unused ARP tap enters TB-3PO; another ARP tap cycles its two pages. K2/ordinary page arrows clamp at either end in V_GEN.",
+        "GENERATE: K5 density, K6 accent, K7 slide, K8 octave range. SCALE: K5 root, K6 scale, K7 base octave, K8 auto-mutate interval.",
+        "OCTAVE+ immediately generates NEW LINE; OCTAVE− immediately MUTATEs. SEQ returns to step view. PATCH+REC invokes existing Undo only when its admission/history permits."
+      ],
+      "consequence": [
+        "R_GEN controls except auto-mutate interval mark gen_stale; changing them prepares the next generation rather than rewriting the current line immediately.",
+        "NEW LINE resets all 64 step cells, including hidden cells beyond current length; generated velocity 0 resolves default 100. It generates only within active length and guarantees a note anchor if all generated gates are rests. UI clears all 64 chord and note-sound records.",
+        "MUTATE probabilistically changes only active-length steps and preserves an intentionally all-rest line. UI then clears all 64 chord records and note-sound entries whose cells are not NOTE. Manual mutate uses seed XOR wall time; visible stored seed alone does not reproduce the exact mutation history.",
+        "Length/rate/direction and unrelated motion are not claimed reset by these calls. Auto-mutate interval can mutate during playback at source traversal boundaries."
+      ],
+      "exact_limit": "The executable entry guard is bass-slot-based: is_303=part_is_303, with no current engine-kind check. Help/refusal text still names Chicago/Miami. This does not establish an arp capability or tested musical usefulness for Juno/archived Drone.",
+      "current_reuse": [
+        "Actual piano roll showing note height, ties, accents, slides, captured endpoints and locks.",
+        "Four live generator controls, existing source labels and parameter units.",
+        "Root/scale and SEED line; gen_stale star plus OCTAVE+: NEW LINE / OCTAVE−: MUTATE footer.",
+        "Existing NEW LINE seed / MUTATED header toast and ARP view LED."
+      ],
+      "unmodeled": [
+        "No inert preview, compare-original buffer, explicit Apply/Reject transaction or guaranteed whole-generation undo is implemented by this route.",
+        "R22 random-preview/adopt remains a future capability; no staging/memory choice is made.",
+        "Current broad REC/motion/external masks still apply; generator authoring is not a selected CP2 capture class.",
+        "Automatic mutation calls tb3po_mutate from sequencer traversal without this manual UI cleanup loop; no equivalence of chord/note-sound cleanup or musical result is asserted."
+      ],
+      "anchors": [
+        "ui.c344,1536–1542,773–786,4071–4079,4118–4142,6774–6777,6886–6891",
+        "tb3po.c79–113,115–153",
+        "sequencer.c609–615"
+      ],
+      "action_count": "From an eligible non-generator view: ARP + one OCTAVE action = 2 gestures. Already in generator: 1 OCTAVE action. Owner/page/config navigation is additional; accepted source events are not raw Gray-protocol cycles."
+    },
+    {
+      "id": "PRESET-BASIC",
+      "goal": "Find the actual engine-specific controls and assign a factory or pattern recall",
+      "route": [
+        "PARA enters the remembered native sound page. K2 wraps through that engine's full page cycle; the trailing SOUND page is part of the current topology.",
+        "On SOUND K5 edits ENGINE, K6 edits PRESET; K7 is STATUS and K8 is unmapped. K4 is preset selection only in this exact SOUND context; elsewhere it cues patterns.",
+        "SEQ has a separate PRESET page: K5 assigns this pattern's bass recall, OFF or a bounded one-based factory value for the selected/requested bank."
+      ],
+      "consequence": [
+        "Basic factory turns submit requests, not a universal inert browser or reversible audition. Native dynamic engine labels, existing ADSR/glyph pages and sparse columns already exist.",
+        "Per-pattern recall is stored in existing rsv[slot] byte. OFF makes no recall request. Invalid encodings remain invalid; numeric bounds come from original_sound_factories(kind), not stale comment counts.",
+        "pattern_sound_tick observes a cued/current pattern and its encoded value and requests recall once with that pattern gate. Actual completion/pending details remain with incumbent CP1."
+      ],
+      "current_reuse": [
+        "Complete native engine-specific page/glyph matrix.",
+        "SOUND ENGINE/PRESET/STATUS and sparse unmapped column.",
+        "SEQ PRESET page's OFF or bank-letter/one-based numeric recall value.",
+        "Current header part/engine/pattern and existing edited marker."
+      ],
+      "unmodeled": [
+        "Seven CP1 access/pending/Keep cases are excluded; no new status or fault-detail variant is produced.",
+        "No native Keep-slot destination, user-name browser, preset portability or universal audition/Cancel/return-to-original promise.",
+        "#931 preserves Drone archive identity while default DSP is disabled; do not invent a new current LCD engine label or say every recognized archive engine sounds."
+      ],
+      "anchors": [
+        "ui.c538–548,628–633,730–746,1048–1070,1266–1273,1480–1487,1509–1526,4610–4625,8753–8769",
+        "bass_pattern_preset.h16–39"
+      ],
+      "action_count": "PARA = 1 press to remembered sound page; K2 page turns depend on remembered topology. One admitted PRESET turn submits a request. No fixed request-completion count or timing guarantee."
+    },
+    {
+      "id": "SAVE-RECOVER",
+      "goal": "Preserve the live idea, distinguish request/result, or undo/reset only the intended sound",
+      "route": [
+        "Short unused BT release requests project save. To reach readiness from RUN/REC, stop and disarm, then release actual note/transfer/clip owners; quiet and availability checks remain source-owned.",
+        "BT hold plus destination white key/pad performs the existing all-five-part copy route; occupied destination asks. Used BT release does not also save.",
+        "PATCH+REC and PATCH+PLAY invoke current Undo/Redo admission; they are not guaranteed take objects.",
+        "SMC HOME held plus eligible part SELECT opens RESET SOUND. It is factory reset of that part's sound, not loading the last durable sound. Its normal confirmation/cancel belongs to existing modal policy."
+      ],
+      "consequence": [
+        "Source SAVED/UNSAVED/QUEUED/FAILED, SAVE AT STOP, REC OFF TO SAVE and SAVE WHEN QUIET already exist. Explicit save keeps the request until readiness; acknowledgment alone is not persistence.",
+        "Save failure leaves ui.dirty and sets save_failed. This is not a proof that every last durable object survives every write/power fault.",
+        "Copy takes each part from its actual current source slot and can report partial motion capacity; no audio snapshot or sample portability is implied.",
+        "RESET SOUND restores factory sound cells/tag with scoped history; preceding mixer edits are committed separately. Mixer level/pan/sends/mute remain. Readiness/undo capacity can refuse; current source can keep the question for retry.",
+        "After a project load is initiated by its reserved component, only a successful stage applies/reinitializes to 909 SEQ. Refusal/invalid stage keeps the existing project; this helper adds no Settings route."
+      ],
+      "current_reuse": [
+        "Existing save badge in header gap or fallback dot; BT's current steady/blink/off policy.",
+        "Existing BT help describing save/copy/motion scope, not a newly invented status-only hold.",
+        "Current exact destination/confirmation wording and result toast region.",
+        "RESET SOUND modal, exact part name and existing Undo result messages."
+      ],
+      "unmodeled": [
+        "No Settings redesign or seven CP1 transaction/result-case duplication.",
+        "No new atomicity/retry-generation/last-durable guarantee, power-loss proof, portable sample backup or device restore qualification.",
+        "CP2/CP3 strategy is not needed to describe this current save/copy/reset behavior, and is not selected here."
+      ],
+      "anchors": [
+        "ui.c281–303,1958–1971,2141–2218,2224–2296,2522–2589,2618–2625,3700–3716,4009–4034,8498–8499,8635–8712,8773–8819",
+        "smc_mixer.c2195–2204",
+        "sound_reset.h2–33"
+      ],
+      "action_count": "Unused BT tap/release = 1 save-request gesture. Copy = hold BT + destination press, plus occupied-destination confirmation when present. RESET SOUND admission needs HOME held + eligible part SELECT, followed by the actual question response."
+    },
+    {
+      "id": "W15-SMC",
+      "goal": "Keep a captured controller target, shape a held effect and return to the original page",
+      "route": [
+        "Physical SMC Pause Note 0x5D press while following captures targets immediately. Short press begun while locked peeks; a fresh locked hold ≥900 ms unlocks. MMC STOP remains transport.",
+        "Controller Page/knob banks and navigation remain source-owned; fader/knob targets can stay locked while buttons navigate.",
+        "On FX, each physical strip/button uses its current independent assignment. Hold one effect and use eligible arrow route to change that held assignment; ambiguous multiple holds consume arrows without remapping another target.",
+        "HOME held plus page-left/right selects ROOM/TIGHT/ECHO by source route. Current FX/navigation dual-role buttons may run FX while held; short taps can navigate.",
+        "BRK strip REC Note2 is momentary fill: request next 909 bar, show active only when fill_on&&fill_req, release or leavingFX ends it."
+      ],
+      "consequence": [
+        "Pause captures target descriptors and selection bank, not transport pause. Lock can refuse during transaction/perf/question/clip contexts.",
+        "Peek lasts 1200 ms and restores prior UI/cursors; a second peer retains its original targets. Pickup remains distinct from ACTIVE.",
+        "FX release uses the original held bus/page/assignment. New selected page or another peer does not license ending unrelated effects.",
+        "REC buttons still toggle broad ui.rec; no exclusive future capture class is implied."
+      ],
+      "current_reuse": [
+        "Existing eight physical strip grid: encoder above, fader at left, M/S/R/SELECT functions in fixed columns.",
+        "Actual Lock/knob/control glyphs, routed captions, scalar formatting and pickup marker.",
+        "Existing peek header: control/target/value on first line, ACTIVE or PICKUP direction on second, over the real page.",
+        "Existing held-FX lower card with FX+< > and previous/next glyphs.",
+        "Existing fill request/active glyph and eight-segment progress panel."
+      ],
+      "unmodeled": [
+        "Supported-build peer count is conditional; no universal two-peer promise or physical controller qualification.",
+        "No new controller-light colour, persistent overlay redesign or guarantee that changing FX page is inaudible.",
+        "Independent CP1 fault details and Settings remain excluded."
+      ],
+      "anchors": [
+        "smc_mixer.c732–786,1082–1178,1206–1233,1236–1443,1450–1508,1820–1847,1930–2079,2190–2272,2359–2459",
+        "smc_fx_map_tables.c8–46"
+      ],
+      "action_count": "Lock = 1 Pause press; peek = 1 short tap begun locked; unlock = 1 fresh locked hold ≥900 ms. Known held FX/fill = 1 press/release; navigation, peer selection and pickup are contextual."
+    },
+    {
+      "id": "W16-LOOPY",
+      "goal": "Enter host clip control, use the legal viewport and release exactly the original target",
+      "route": [
+        "KNOB BANK rising press toggles clip mode when its current gate permits. It is not a hold gesture.",
+        "Fresh occupied pad press sends its visible cell's note with pad velocity; original clip_pad_note owns note-off even after viewport movement.",
+        "OCTAVE−/+ moves the bounded local viewport. Outside a menu, < > belongs to Clip Keys field editing, not viewport paging.",
+        "SCALE/CHORD/ARP presses open/close their current Clip Keys pages; opening a page is separate from its ON field. NOTE REPEAT+ARP toggles latch.",
+        "PLAY/REC send clip transport notes. PATCH+REC/PLAY sends Loopy Undo/Redo notes over USB for user binding, before ordinary UI transport.",
+        "Exit releases owned clip pad/key notes and disables Clip Keys modes per current source."
+      ],
+      "consequence": [
+        "Sixteen physical pads view host APC cells; no off-viewport access or all-host-clips promise.",
+        "No host feedback and no Clip Keys page produces actual WAITING FOR LOOPY PRO / USB OR BLUETOOTH body.",
+        "Host palette/queued flags drive grid; visible viewport has white border and queued cells a dot. Local transport presses optimistically update local feedback, so a lamp does not prove host launch/recording.",
+        "Clip queued RGB can blink on accepted clock or 250 ms fallback; fallback is not measured host beat. No view-specific held RGB overlay is invented."
+      ],
+      "current_reuse": [
+        "LP mode chip and source clock indication.",
+        "Actual host wait body.",
+        "Existing complete clip grid, viewport white outlines, idle marks and queued dots.",
+        "Actual Clip Keys bottom 82 px: SCALE/CHORD/ARP/LATCH buttons, active-page underline, sounding logical-note keyboard, scale/chord/arp fields.",
+        "Actual Loopy Undo/Redo and PANIC toasts, with their exact scope."
+      ],
+      "unmodeled": [
+        "No host binding, launch/audio/recording success, feedback freshness or musical rejoin was executed here.",
+        "#930 clip-question affordance correction is separate source context; no Settings/modal lane is reauthored.",
+        "Current clip REC/PLAY protocol is not the proposed CP2/CP3 standalone capture lifecycle."
+      ],
+      "anchors": [
+        "main_fm1.c518–549,642–715,773–844,1637–1695,1732–1917,1931–1969,2098–2123,2150–2210",
+        "smk_clip_keys.h153–196"
+      ],
+      "action_count": "Enter/exit = 1 KNOB BANK rising press each; occupied visible launch/hold = 1 pad gesture; each legal OCTAVE viewport move = 1 press. Host acknowledgment/audio is not counted as completed."
+    },
+    {
+      "id": "W18-PANIC",
+      "goal": "Retire the correct notes, release the chord and play a fresh phrase",
+      "route": [
+        "Keyboard FX+SEQ chord requests instrument notes-off; both releases are consumed and both controls must be released before another panic can fire.",
+        "SMC BankL 0x2E+BankR 0x2F is panic only in explicit DAW mode with the hook enabled; USER and MMC are not that chord route.",
+        "In clip mode, unused NOTE REPEAT release runs ck_all_off, sends CC123 on the Clip Keys channel and shows PANIC. NOTE REPEAT+ARP is latch and consumes that standalone panic release.",
+        "Use PLAY/STOP separately when transport stop is desired. Fresh input after retirement must acquire its new owner."
+      ],
+      "consequence": [
+        "Keyboard/SMC helper requests notes-off and does not change transport. It does not guarantee global silence, FX-tail cutoff or an external-device reset.",
+        "Current keyboard/SMC chord path does not itself display a dedicated PANIC receipt. Do not relabel the clip PANIC toast as a current universal keyboard screen.",
+        "Clip all-off flushes queued Clip Keys HUMAN onsets before their matching offs; it is not a promise that no MIDI is emitted.",
+        "Inactive mode/held-member changes inhibit false rearming. Old releases cannot be treated as a new panic chord."
+      ],
+      "current_reuse": [
+        "Existing source header, current view and transport indication remain after consumed keyboard chord; this is evidence to retain, not a new status card.",
+        "Actual clip PANIC toast.",
+        "Existing Clip Keys sounding-note model and mode badges.",
+        "Existing bounded play/stop/record/lock glyph family can express current controller actions without inventing a new visual language."
+      ],
+      "unmodeled": [
+        "No physical or audio recovery test, global silence claim or new panic gesture.",
+        "No candidate dedicated keyboard-panic outcome view is presented as existing.",
+        "Future CP3 disarm/token policy is not inferred from this current notes-off route."
+      ],
+      "anchors": [
+        "ui.c4174–4195,4484–4494",
+        "panic_chord.h21–51",
+        "smc_mixer.c2299–2357",
+        "main_fm1.c1300–1309,1653–1672",
+        "engine.c886–917"
+      ],
+      "action_count": "Keyboard or admitted SMC panic = 2 physical button presses as one chord, then both releases to rearm. Fresh played note = 1 further gesture. Clip unused NOTE REPEAT release is its separate route."
+    }
+  ],
+  "default_fx_select": {
+    "class": "CURRENT DEFAULT/FALLBACK SELECT ASSIGNMENTS ONLY; actual per-button remaps remain routed by smcfx_strip",
+    "physical_columns": [
+      "909",
+      "808",
+      "BREAK",
+      "BASS B",
+      "BASS A",
+      "REVERB",
+      "DELAY",
+      "MASTER (grid header FLT)"
+    ],
+    "ROOM": [
+      "SHUF",
+      "SHUF",
+      "HPF",
+      "REV",
+      "LPF",
+      "TRNC",
+      "G16",
+      "STUT"
+    ],
+    "TIGHT": [
+      "DLY",
+      "REV",
+      "HPF",
+      "DLY",
+      "HPF",
+      "G16",
+      "STUT",
+      "TRNC"
+    ],
+    "ECHO": [
+      "DLY",
+      "REV",
+      "DLY",
+      "REV",
+      "REV",
+      "STUT",
+      "SHUF",
+      "G8"
+    ],
+    "physical_source": "smc_fx_bus maps strip 0..4 through part_at; SMCFX_PAGE is indexed by logicalengine bus. Do not copy logical table order directly into physical columns.",
+    "limits": "REC/SOLO/MUTE/SELECT buttons have independent assignments; this table is not a mapping of every button. BRK REC is the explicit fill exception."
+  },
+  "native_reuse_regions": [
+    {
+      "region": "Native screen strips",
+      "bounds": {
+        "header": [
+          0,
+          0,
+          240,
+          20
+        ],
+        "main": [
+          0,
+          20,
+          240,
+          138
+        ],
+        "lower": [
+          0,
+          158,
+          240,
+          82
+        ]
+      },
+      "status": "CURRENT SOURCE GEOMETRY",
+      "anchors": [
+        "ui.c4694–4705"
+      ]
+    },
+    {
+      "region": "Generator content and four controls",
+      "bounds": "Existing piano-roll body and lower knob strip; no new generic rows",
+      "signals": [
+        "Pitch height/ties/accent/slide/endpoint/lock notch",
+        "GENERATE/SCALE parameter pages",
+        "Root/scale/SEED and gen_stale/OCTAVE footer"
+      ],
+      "anchors": [
+        "ui.c1536–1542,5560–5668,6774–6777"
+      ]
+    },
+    {
+      "region": "Basic SOUND and pattern PRESET",
+      "bounds": "Existing native sound matrix / SEQ PRESET lower page",
+      "signals": [
+        "ENGINE/PRESET/STATUS with sparse column",
+        "One-based factory/edited marker",
+        "OFF or bank-letter pattern recall"
+      ],
+      "anchors": [
+        "ui.c1048–1070,1266–1273,1480–1487,1509–1526"
+      ]
+    },
+    {
+      "region": "Save and scoped recovery",
+      "bounds": "Existing header badge gap/fallback dot, toast, help/modal regions",
+      "signals": [
+        "SAVED/UNSAVED/QUEUED/FAILED",
+        "Exact current SAVE blocker text",
+        "Destination/part in existing copy/reset confirmation"
+      ],
+      "limits": "Transient messages can replace actual header identity; do not claim a new persistent identity treatment already exists.",
+      "anchors": [
+        "ui.c281–303,1958–1971,5350–5371,5452–5463,5498–5505"
+      ]
+    },
+    {
+      "region": "SMC physical map",
+      "bounds": "8 × 30 px columns over 138 px body",
+      "signals": [
+        "Real routed control label/value/arc",
+        "Physical pickup marker and target",
+        "Fixed function/caption cells"
+      ],
+      "anchors": [
+        "smc_mixer.c1082–1178"
+      ]
+    },
+    {
+      "region": "SMC peek / held-FX / fill",
+      "bounds": "20 px two-line peek header;82 px lower feedback area",
+      "signals": [
+        "ACTIVE/PICKUP direction",
+        "FX+< > held-target card",
+        "fill request versus actual 8-segment progress"
+      ],
+      "anchors": [
+        "smc_mixer.c1206–1233,1360–1443"
+      ]
+    },
+    {
+      "region": "Loopy grid and Clip Keys",
+      "bounds": "138px grid/wait/page body plus 82 px Clip Keys lower strip",
+      "signals": [
+        "LP chip",
+        "Host wait body",
+        "Host palette/viewport frame/queued dot",
+        "SCALE/CHORD/ARP/LATCH, active page underline and sounding-note keys"
+      ],
+      "anchors": [
+        "ui.c6842–6858",
+        "main_fm1.c642–715,1852–1917"
+      ]
+    },
+    {
+      "region": "Panic scope",
+      "bounds": "Existing retained musical context; clip uses existing header toast",
+      "signals": [
+        "Current transport/view persists",
+        "Clip PANIC text only in actual clip route"
+      ],
+      "limits": "No new universal panic screen or universal silence status is source-backed.",
+      "anchors": [
+        "ui.c4174–4195",
+        "main_fm1.c1669–1672"
+      ]
+    }
+  ],
+  "recording_context": {
+    "reported_by_parent": "stopped-v1 raw K3 count 3 landed BREAK and three replays were silent; preserved misroute. v2 raw count 4 reached Chicago B and parent reports three nonzero PCM replays, currently being inspected.",
+    "evidence_this_helper": "No v1/v2 runtime or PCM bytes consumed; no pitch/musical-success assessment here.",
+    "lesson": "One accepted source direction event is not one raw harness Gray-protocol cycle. Verify exact native owner; do not relabel failed recording attempt as success or infer firmware defect."
+  },
+  "current_vs_future": "These are current generator/request/save/connected-note/transport controls, not a chosen exclusive capture strategy. CP1→CP2→CP3 dependencies remain; no class/token/disarm policy is invented.",
+  "boundaries": [
+    "Settings component andall seven CP1 access/pending/Keep cases excluded.",
+    "No new reviewer/designer orsource/runtime/proposal writer.",
+    "No emulator, test, review rerun, build, instrument operation orpublication.",
+    "No whole-design acceptance. Existing dynamic labels, ADSR/glyphs, SMC overlay, clip grid and save feedback are current retained functions."
+  ],
+  "effective_model_effort": "NOT_EXPOSED",
+  "journey_mapping": {
+    "W07": "J39 generator",
+    "W15": "J17/J19 SMC follow, lock, peek and held effects",
+    "W16": "J18/J31 Loopy viewport and Clip Keys",
+    "W18": "J28/J15 scoped notes-off and recovery",
+    "supporting": "Basic factory/pattern presets and save/copy/undo/factory-reset consequences; reserved Settings/CP1 cases omitted"
+  }
+}

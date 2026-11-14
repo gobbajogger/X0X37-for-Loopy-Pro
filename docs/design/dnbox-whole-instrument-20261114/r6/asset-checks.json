@@ -1,0 +1,827 @@
+{
+  "classification": "Producer artifact/pixel/PDF verification, not independent musical or physical acceptance",
+  "renderer_sha256": "28c274f93a8f2e902e2aaf002e18996bfcb621d51c3f25d0f3e31de19699248f",
+  "html_sha256": "bd6639d421c699755397fbe40f4426d666f0e5b6f2d5c1157fc65864e972e13d",
+  "pdf_sha256": "5a490fed1b7bc73dda7d3798298d27b2661fd15ecfe227047f93d0a546c88da2",
+  "checks": [
+    {
+      "name": "Curated native inventory binds final exact renderer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native pair dimensions and embedded after bytes: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final HTML embeds exact before and after: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Final native file hash matches frame recipe: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: drum",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: juno",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-native",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: sequence64",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: motion",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: copy",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: cue",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: record",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: song",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: panic",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: clip",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: break",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: mix909",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page2.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page2.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page3.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page3.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page4.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page4.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page5.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page5.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page6.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page6.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page7.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page7.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: chicago-page8.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: chicago-page8.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-page2.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-page2.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-page3.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-page3.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-page4.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-page4.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-page5.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-page5.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: miami-page6.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: miami-page6.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: juno-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: juno-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: juno-page2.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: juno-page2.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: juno-page3.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: juno-page3.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: juno-page4.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: juno-page4.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: juno-page5.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: juno-page5.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: drum-para-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: drum-para-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: 808variant-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: 808variant-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: fx-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: fx-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: mix-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: mix-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: mix808-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: mix808-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: load-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: load-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Final native file hash matches frame recipe: wait-page1.png",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Native text stays within240x240: wait-page1.png",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Original body/lower pixels retained exactly: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Original body/lower pixels retained exactly: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Affected checks pass with exact input or declared unchanged-model reuse: review-correction-checks.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lossless verification inventory hashes: review-correction-checks.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Affected checks pass with exact input or declared unchanged-model reuse: musical-journey-checks.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lossless verification inventory hashes: musical-journey-checks.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Affected checks pass with exact input or declared unchanged-model reuse: delivery-route-checks.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Standard unencrypted15pagePDF parses",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 1",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: drum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 2",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: juno",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 3",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: miami-native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 4",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: sequence64",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 5",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: motion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 6",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: copy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 7",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: cue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 8",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 9",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: song",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 10",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: panic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 11",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: clip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 12",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: break",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 13",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF embeds both original native pixel arrays: mix909",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 14",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "PDF page renders and text stays inside page: 15",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": 141,
+  "total": 141,
+  "pdf_page_inspection": [
+    {
+      "page": 1,
+      "render_bytes": 82022,
+      "render_sha256": "bff08bb270b3ae189dbfc51855fc01712df7f7ea01ce94fcf5b52c014af467d5",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-01.png",
+      "extracted_text_characters": 1262
+    },
+    {
+      "page": 2,
+      "render_bytes": 97038,
+      "render_sha256": "5d450650736ce4bf2de6caa866665bba9ea4fee5eae6490a3dfc993ce45b30ef",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-02.png",
+      "extracted_text_characters": 1538
+    },
+    {
+      "page": 3,
+      "render_bytes": 72174,
+      "render_sha256": "66124c9b87d8fc3802bcb6dac7ea4920548738afb10eb4844b645582e6d78b9b",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-03.png",
+      "extracted_text_characters": 1438
+    },
+    {
+      "page": 4,
+      "render_bytes": 81587,
+      "render_sha256": "7e6fb7578af2d4e82aff22664c000e750860978682a107486aaed6a26dc84e85",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-04.png",
+      "extracted_text_characters": 1260
+    },
+    {
+      "page": 5,
+      "render_bytes": 77373,
+      "render_sha256": "e8d3e1fddb9e92ea5e9f5670aef928303b1433036d06f5f4cf8f30d41ed039c9",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-05.png",
+      "extracted_text_characters": 1349
+    },
+    {
+      "page": 6,
+      "render_bytes": 82227,
+      "render_sha256": "4b32d44da96bd504c98e543a766ce294724c98b11961d76fb971ae0420226fb0",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-06.png",
+      "extracted_text_characters": 1373
+    },
+    {
+      "page": 7,
+      "render_bytes": 76643,
+      "render_sha256": "2b482cb5f94691db0917a0b667de4c1190bb9408d2e97ed13d38b06f64dee91d",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-07.png",
+      "extracted_text_characters": 1343
+    },
+    {
+      "page": 8,
+      "render_bytes": 75084,
+      "render_sha256": "bbd985b479b730f83a3a716d656b9f7f247d3b2c73026478cdf777172a7a8ea2",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-08.png",
+      "extracted_text_characters": 1398
+    },
+    {
+      "page": 9,
+      "render_bytes": 70115,
+      "render_sha256": "317bc3bfe4bd0b7daaf523ea1b681e06166bcfad4124277c0aac50326fc4805e",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-09.png",
+      "extracted_text_characters": 1243
+    },
+    {
+      "page": 10,
+      "render_bytes": 76548,
+      "render_sha256": "5d34e545a662a241023e7135cade69a9a399e0782c90e65ebb88c7e48cac20c6",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-10.png",
+      "extracted_text_characters": 1297
+    },
+    {
+      "page": 11,
+      "render_bytes": 60071,
+      "render_sha256": "fb8e19f0dd025f24bda8281b478fb8e41d19ac6fd018ab47af10b8aac502dc92",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-11.png",
+      "extracted_text_characters": 1313
+    },
+    {
+      "page": 12,
+      "render_bytes": 75396,
+      "render_sha256": "f44b6e5d254d21dddd535c96c856c353434d7a449aa17ea018f4312913828376",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-12.png",
+      "extracted_text_characters": 1303
+    },
+    {
+      "page": 13,
+      "render_bytes": 73537,
+      "render_sha256": "1df8b18ef12c2955b65edb8e71cd143e553efa034db4e54cdad3255b3905305f",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-13.png",
+      "extracted_text_characters": 1324
+    },
+    {
+      "page": 14,
+      "render_bytes": 72437,
+      "render_sha256": "00e3a99c430d8fd413b3adf29c45ef97e9af01cf9b71512154befc2aeff3d2fc",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-14.png",
+      "extracted_text_characters": 2503
+    },
+    {
+      "page": 15,
+      "render_bytes": 64759,
+      "render_sha256": "b92c05706e6ae7e86d16dfc1bd6b7b0aec37dd2ea54c594b1d6997a64667139e",
+      "local_inspection_file": "/workspace/dnbox-whole-design/continuation-evidence/r6-pdf-inspection/page-15.png",
+      "extracted_text_characters": 2290
+    }
+  ],
+  "limits": [
+    "No actual iOS device run; standard PDF parsed and all pages rasterized",
+    "Native raster and browser colors are not physical display evidence",
+    "This inventory does not complete the whole design"
+  ]
+}

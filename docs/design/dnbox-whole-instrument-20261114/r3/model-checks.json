@@ -1,0 +1,174 @@
+{
+  "input_html_sha256": "b5b2dca5898a7c71b4730364c7c8d4c800ca691ed3498260091d9583a24d86e3",
+  "scope": "R3 model topology/held-lock scope/bottom-control invariants, not firmware or current emulator",
+  "checks": [
+    {
+      "name": "chicago reverse wrap includes SOUND",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chicago PARA wraps to first row",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chicago SCALE opens full deep list",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chicago PATCH restores matrix",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "miami reverse wrap includes SOUND",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "miami PARA wraps to first row",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "miami SCALE opens full deep list",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "miami PATCH restores matrix",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "juno reverse wrap includes SOUND",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "juno PARA wraps to first row",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "juno SCALE opens full deep list",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "juno PATCH restores matrix",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "drone reverse wrap includes SOUND",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "drone PARA wraps to first row",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "drone SCALE opens full deep list",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "drone PATCH restores matrix",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Held step cutoff lock leaves base unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Release restores base scope without clearing step lock",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Unmapped drum K7 is unchanged and clean",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Source out-of-length hidden write preserved",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WAIT retains direct Home pump input",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WAIT keeps all four performance labels",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stopped kick pads reflect only four stored hits",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stored-hit playhead inverts pad4 off",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Held input overrides playhead inversion",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "LIGHTS off retains held-input source layer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Mute does not erase selected-track pad content",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Stopped REC remains separate from PLAY",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Home cue pad retains frame8 layer independently of WAIT",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WAIT PLAY uses separate frame32 snapshot",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All native text inside240square",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No external requests",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "requests": [],
+  "acceptance": "NOT ACCEPTED; parent fresh-review route and current capture intake pending"
+}

@@ -1,0 +1,80 @@
+{
+  "classification": "R6 proposed changes and retained access; not zero-loss or whole acceptance",
+  "changes": [
+    {
+      "area": "Header",
+      "existing": "Dynamic engine/slot, explicitSEQ, current/queued position, clock/transport/REC/dirty, PART page-bank dots",
+      "proposal": "Title14px, tempo16px, native9x9 identity; fixed26x11 top power; page-bank dots moved to86/92",
+      "displacement": "Header positions change; long unknown identities and independently owned SMC/Settings headers remain unqualified",
+      "actions_delta": 0
+    },
+    {
+      "area": "64step drum lower half",
+      "existing": "K5LENGTH/K6RATE;K7/K8 unmapped; conditional native header range",
+      "proposal": "Persistent absolute range plus selected instrument; held chance replaces only new illustration",
+      "displacement": "New proposed illustration shrinks3x to2x; no native control replaced. Physical picture recognition unqualified",
+      "actions_delta": 0
+    },
+    {
+      "area": "Engine matrices",
+      "existing": "Four50px groups, sparse columns, nativeADSR/Juno bars and bright values",
+      "proposal": "Remove unproved heading thumbnails; selected-row context only; existing2x2 lane/lock marks",
+      "displacement": "Context cue uses unused selected-row gutter; exact native/private compiled glyph laws separately bounded",
+      "actions_delta": 0
+    },
+    {
+      "area": "Home",
+      "existing": "Eight bins/fiveparts, current lefttick,909cueframe,chain,playheads,mutes,performcontrols",
+      "proposal": "Right2px per-part pending arrows; name baseline1px queued-mute dash",
+      "displacement": "No content bin/currenttick replaced. New tiny marks require recognition assessment; fresh actual mute policyOFF",
+      "actions_delta": 0
+    },
+    {
+      "area": "Copy question",
+      "existing": "PASTEOVER,IT HAS NOTES,SCALE YES/PATCH NO,normalPLAYcancel",
+      "proposal": "Five compact13px rows in existing body; source warning/full-size confirmation retained",
+      "displacement": "Modal uses more of its body; source empty/motion-only destination still immediate. No new confirmation",
+      "actions_delta": 0
+    },
+    {
+      "area": "Stopped recording",
+      "existing": "WRITEcursor,STEP/note/V100,direct lower controls",
+      "proposal": "REWRITE1\u2013LEN in page-heading right side on stoppedREC",
+      "displacement": "Only unused heading gutter; sourcepage title/controls retained. Running/poly/durability open",
+      "actions_delta": 0
+    },
+    {
+      "area": "Keyboard panic",
+      "existing": "FX+SEQ,originalview/transport,release consumption",
+      "proposal": "1300ms scoped acknowledgement in existing footer",
+      "displacement": "Footer hint temporarily covered,then restored; no navigation or new lamp. Native source had no dedicated keyboardtoast",
+      "actions_delta": 0
+    },
+    {
+      "area": "Loopy nohost",
+      "existing": "LP,INT/EXT,tempo/metro/REC/save;waitingbody;all82pxlowerClipKeys",
+      "proposal": "Shared top power; exact native body/lower pixels reused",
+      "displacement": "Header fields repacked; genericLCDclock not host acknowledgement. Native scalar edits unmodeled",
+      "actions_delta": 0
+    },
+    {
+      "area": "SettingsR2",
+      "existing": "Owned original component and six curated pairs",
+      "proposal": "Host navigation/lifecycle composition only",
+      "displacement": "Component bytes/pixels unchanged; commonheader adoption remains owner dependency",
+      "actions_delta": 0
+    }
+  ],
+  "count_convention": "Logical source gestures. Debug modelstep/boundary injections are not proposed hardware actions. Raw emulator Gray cycles are not calibrated detents.",
+  "unproven": "No blanket insignificance claim; native inspection and same incumbent independent review required. Physical glare/timing/recognition/audio acceptance separate.",
+  "physical_control_scope": {
+    "total_buttons_visible": 18,
+    "explicitly_disabled": [
+      "ARP generator",
+      "FADER BANK"
+    ],
+    "arrows": "Ordinary single press source route retained, no extra action; repeat/held-FX/connected arbitration unqualified",
+    "keys": "37 input positions; central white aliases project to pads, no keybed LEDs",
+    "lights": "Source inventory separate from partial browser projection; see led-feedback-map.json/R6_projection_scope"
+  }
+}

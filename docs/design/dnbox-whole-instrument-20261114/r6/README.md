@@ -1,0 +1,19 @@
+# DnBOX R6 musical workflow proposals
+
+Open **DnBOX-R6-musical-workflows.pdf** and the directly viewable **native/** PNGs for the curated actual-current/proposed comparisons. **workbench.html** is the self-contained interaction study, with six guided musical scripts and the unchanged Settings R2 component. It is not the sole iOS-facing delivery.
+
+R6 is a concrete continuation, **not a completed whole-overhaul acceptance or runtime implementation**. R5`78f861af` remains reviewed history: conservation/correction study, incomplete whole design, partial fidelity. R6 restores the reported Juno/SEQ/Song cues and truthful Song authoring, then adds connected64-step, motion, five-part-copy, cue/mute, phrase/correction/repeat and scoped-panic journeys. Native strengths and fast routes are retained; prototype repairs are not new firmware benefits.
+
+`WHOLE-INSTRUMENT-DESIGN.md` gives the complete design/status map. `DISPLACEMENT-AND-ACCESS.json` accounts for relocated information, added marks, actual gesture counts and unresolved tradeoffs. `WHOLE-FUNCTION-CROSSWALK.json` replaces the old generic coverage disposition with261 exact per-requirement intakes and39 journey links. No count is acceptance.
+
+Actual before captures executed current3c41 BUILD_ONLY Elite; exact package`62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2`, WASM`4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14`, worklet`d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c`. Accepted d158 has identical relevant UI/control sources; it was not executed here. Unchanged Pro proof is reused. Historical79280/25.x and Settings R2 historical pairs remain separately labeled. No R6 firmware exists in this packet.
+
+`evidence/CURRENT-CAPTURE-INTAKE.json` and the Miami addendum bind actual source/harness/plan/LCD/PCM identities. Failed/misrouted raw-input attempts are retained and excluded from the intended claims. Actual G4 upper/G3 lower pixels remain disclosed. Source-generated Miami display/wave outputs and bounded Chicago WAVE drawings contain rendered UI geometry/text, not protected raw factory/native fields or audio backends.
+
+Miami's static native-factory comparison preserves the actual body/lower pixels. The interactive Miami editor is a separately authored known-q fixture using source lookup text/waves; it does not execute hidden untouched-factory bindings. Loopy no-host comparison also reuses original native body/lower pixels. Its menu scalar/host operations and SMC peer operation remain unfinished. Good native Juno values/bars and Chicago ADSR are preserved; unproved decorative heading thumbnails are withdrawn.
+
+New producer browser checks are separately scoped. Compact receipts reference lossless **verification/** gzip inventories; complete frame/test states are retained without owner-facing contact sheets. They are proposal/model evidence, not firmware, device or independent review. `ARTIFACT-MANIFEST.json` pins all delivered files. Source/analytical evidence, producer checks, current emulator execution and independent review remain distinct.
+
+Rebuild with `python3 assemble.py`, `python3 render_curated.py`, then `python3 assemble.py` to embed the generated proposal images. `python3 build_owner_pdf.py` builds the standard PDF. The focused check scripts require Playwright/local Chromium and execute this proposal only. No private firmware, SDK, numeric headers or toolchain is required to inspect the supplied artifact.
+
+Settings original component/pixels remain unchanged and component-owned. CP1 seven cases, CP2→CP3, comparator adoption and DF1 stay open. The same incumbent reviewer is the next affected reader through parent01a1af1b; no second reviewer is created. `NEXT-INPUT-INTERFACES.md` names concrete remaining work and result routes. No firmware edits/builds, physical operations, release or merge. The old Library HTTP401 was not retried; Git delivery uses separate owner authorization.

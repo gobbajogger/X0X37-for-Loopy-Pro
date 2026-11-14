@@ -1,0 +1,172 @@
+[
+  {
+    "path": "elite-new-baseline-00-boot.png",
+    "bytes": 8646,
+    "sha256": "0cdafc9ede5bf55d6bc0fed2fb74a8f791204dfe5b106ef8d1eb5096656cd660"
+  },
+  {
+    "path": "elite-qualified2-01-break-loops.rgb565",
+    "bytes": 115200,
+    "sha256": "bfc53ab0b2eb76ce005dba92c1b4f852db64c2b036fea978f68d6c4c44f20311"
+  },
+  {
+    "path": "elite-qualified2-04-juno-oscillator.rgb565",
+    "bytes": 115200,
+    "sha256": "16a15223526897c3a2b38f55e24e0d0072388464eba27b7c91184d966a9cdfe6"
+  },
+  {
+    "path": "elite-qualified2.json",
+    "bytes": 45931,
+    "sha256": "dca8c2fce368fa89416d7f4266924f539534edb35084e2c21e07a5ad783a2ff5"
+  },
+  {
+    "path": "elite-qualified2-00-boot.png",
+    "bytes": 8646,
+    "sha256": "0cdafc9ede5bf55d6bc0fed2fb74a8f791204dfe5b106ef8d1eb5096656cd660"
+  },
+  {
+    "path": "elite-new-baseline-03-break-groove.png",
+    "bytes": 8899,
+    "sha256": "37a285eaab1539ece5b4cc0df3a548e1d0531ed1e6b4f5e84e40f20ec991daad"
+  },
+  {
+    "path": "elite-new-baseline-zz-released.rgb565",
+    "bytes": 115200,
+    "sha256": "f5d6988ff52548807ecfb826eceeabbeaf7f3963209e0504a53204aa8a61ad43"
+  },
+  {
+    "path": "elite-new-baseline-03-break-groove.rgb565",
+    "bytes": 115200,
+    "sha256": "7197b9b95e317bf47190eabf3d9ec3e4bc43faf4e5d51a965f9dae40b6c9bf08"
+  },
+  {
+    "path": "ATTEMPT-1-LIMIT.md",
+    "bytes": 314,
+    "sha256": "1d55e6da42725aba6fc3e6e6d09ba992f89012eb9a3126b44383266a6d28685c"
+  },
+  {
+    "path": "elite-new-baseline-01-break-loops.png",
+    "bytes": 7289,
+    "sha256": "2bd906fa8b64e4f9317be904f5bba3ea80680aff993d975b8f72c2300c7eec51"
+  },
+  {
+    "path": "elite-qualified2-03-break-groove.png",
+    "bytes": 11302,
+    "sha256": "fb03832d219e96749ca16b0f5d40e2a1f324435f6694645b2dc1687a65338f23"
+  },
+  {
+    "path": "elite-new-baseline-05-juno-envelope.rgb565",
+    "bytes": 115200,
+    "sha256": "1eba622e35bb20c87eb050d5153213335d5ec956a3d42e1ed4ce2c4742829d25"
+  },
+  {
+    "path": "elite-qualified2-05-juno-envelope.png",
+    "bytes": 15913,
+    "sha256": "b52036a628ec2e21a8d82c09e3b619d2c80bd6eb153fac4c24384589bdde6d95"
+  },
+  {
+    "path": "elite-qualified2-01-break-loops.png",
+    "bytes": 10932,
+    "sha256": "3b3b60b0dea8e3a93db197760848e375172e2f45b924426ef449621c2f59f555"
+  },
+  {
+    "path": "exercise-current.cjs",
+    "bytes": 4841,
+    "sha256": "0fb431c8dc5ad45b01a3ce090348063340fe2918cb8e5883b40df68de363aa4a"
+  },
+  {
+    "path": "elite-qualified2-04-juno-oscillator.png",
+    "bytes": 12439,
+    "sha256": "12481829859cf471aae9b5aef22f0b784f12c881f7a05edb9f3b926b0e989027"
+  },
+  {
+    "path": "elite-qualified2-zz-released.png",
+    "bytes": 15863,
+    "sha256": "f0b69711b3f12d90686d301b3c7a7288cba72f6bc618f6e1515b465519cb25aa"
+  },
+  {
+    "path": "elite-new-baseline-01-break-loops.rgb565",
+    "bytes": 115200,
+    "sha256": "9c3db2eee36bc37e507d8cf25b258d950c2a8e99c0274ba45878e48028b51047"
+  },
+  {
+    "path": "elite-qualified2-zz-released.rgb565",
+    "bytes": 115200,
+    "sha256": "865a111a868ac77887671bcafd968e6186adc47f73cecdd8e7e1bd6a21d60592"
+  },
+  {
+    "path": "elite-new-baseline-zz-released.png",
+    "bytes": 12114,
+    "sha256": "2d668257454c6d7f6ce6d40d672a8e35ceeb3f5f454d4dcd944411533410d0f4"
+  },
+  {
+    "path": "elite-qualified2-02-break-sequence.png",
+    "bytes": 9859,
+    "sha256": "b5d1a4e1ca347f2cedafa9bcc7200ff23784b8bb2465cc86fc16143e6bd1b30d"
+  },
+  {
+    "path": "elite-new-baseline-00-boot.rgb565",
+    "bytes": 115200,
+    "sha256": "b3b9109427b09fc4ef66ee6389eb43e0bcb0c391c9e5522ac4c620f02d2cc4f3"
+  },
+  {
+    "path": "elite-qualified2-05-juno-envelope.rgb565",
+    "bytes": 115200,
+    "sha256": "8c3a8e46c50da49f48342795bec5e50da1bad4a6e5855113c0f4d574a314701e"
+  },
+  {
+    "path": "elite-qualified2-03-break-groove.rgb565",
+    "bytes": 115200,
+    "sha256": "9cfa1034869a212b40890dadc38b659a8b87be5923bbbabfcf96faff4ac81ae6"
+  },
+  {
+    "path": "elite-new-baseline-02-break-sequence.png",
+    "bytes": 8899,
+    "sha256": "37a285eaab1539ece5b4cc0df3a548e1d0531ed1e6b4f5e84e40f20ec991daad"
+  },
+  {
+    "path": "elite-new-baseline-05-juno-envelope.png",
+    "bytes": 12195,
+    "sha256": "1c4f042a96f276b4d6739b48bcaf9086379813d09e2b17bb133ea09b439e00e1"
+  },
+  {
+    "path": "elite-new-baseline-02-break-sequence.rgb565",
+    "bytes": 115200,
+    "sha256": "7197b9b95e317bf47190eabf3d9ec3e4bc43faf4e5d51a965f9dae40b6c9bf08"
+  },
+  {
+    "path": "elite-new-baseline-04-juno-oscillator.png",
+    "bytes": 12034,
+    "sha256": "1a62a5cbbb316b78338b3be067bad467a71bea649f24d960534bfe0476f233b7"
+  },
+  {
+    "path": "elite-new-baseline-04-juno-oscillator.rgb565",
+    "bytes": 115200,
+    "sha256": "2d77d9a47564cca6934080adccccb2ebfe566cfee74a8c88a43b0f087cc9103d"
+  },
+  {
+    "path": "qualified2-plan.json",
+    "bytes": 564,
+    "sha256": "c827a57f9581752a2ad98af9d13f372462e55de449db0c2b932ac5d7e5e20482"
+  },
+  {
+    "path": "elite-qualified2-02-break-sequence.rgb565",
+    "bytes": 115200,
+    "sha256": "659f23b4d381f862894c64299f7d7786d6af9312fc626a84be6bbadbaf9ef733"
+  },
+  {
+    "path": "elite-qualified2-00-boot.rgb565",
+    "bytes": 115200,
+    "sha256": "b3b9109427b09fc4ef66ee6389eb43e0bcb0c391c9e5522ac4c620f02d2cc4f3"
+  },
+  {
+    "path": "new-baseline-plan.json",
+    "bytes": 552,
+    "sha256": "676caa1a56ba5994e66bdea754d3334a5c2a9a27fc838d2ccd5a43e0ef924c5f"
+  },
+  {
+    "path": "elite-new-baseline.json",
+    "bytes": 37126,
+    "sha256": "2660b0a44f6b7de524fad5f7bfce91a2b439770993316b788953e3bc6de48155"
+  }
+]

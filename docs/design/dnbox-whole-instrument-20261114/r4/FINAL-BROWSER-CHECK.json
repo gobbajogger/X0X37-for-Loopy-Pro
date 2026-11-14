@@ -1,0 +1,61 @@
+{
+  "input_html_sha256": "34448892bbb370aaef057d140cd890230e06ba1d7f6821d82d4d13e646fabc6b",
+  "scope": "Final delivered HTML actual button/dropdown and native/static image validation; no firmware",
+  "checks": [
+    {
+      "name": "Four explicit current reference comparisons",
+      "pass": true
+    },
+    {
+      "name": "No active Drone fixture offered",
+      "pass": true
+    },
+    {
+      "name": "Actual HTML button edits continuous Juno WAVE",
+      "pass": true
+    },
+    {
+      "name": "Actual HTML MIX controls retain kit/page and write",
+      "pass": true
+    },
+    {
+      "name": "MIX view button exposes lit feedback",
+      "pass": true
+    },
+    {
+      "name": "drum final HTML matches native file",
+      "pass": true
+    },
+    {
+      "name": "chicago final HTML matches native file",
+      "pass": true
+    },
+    {
+      "name": "juno final HTML matches native file",
+      "pass": true
+    },
+    {
+      "name": "home final HTML matches native file",
+      "pass": true
+    },
+    {
+      "name": "wait final HTML matches native file",
+      "pass": true
+    },
+    {
+      "name": "mix909 final HTML matches native file",
+      "pass": true
+    },
+    {
+      "name": "No final page errors",
+      "pass": true
+    },
+    {
+      "name": "No final external requests",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "requests": [],
+  "independent_review": "PENDING same reviewer"
+}

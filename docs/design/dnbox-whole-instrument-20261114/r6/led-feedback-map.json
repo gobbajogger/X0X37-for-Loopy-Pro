@@ -1,0 +1,1518 @@
+{
+  "identity": {
+    "purpose": "Current-source LED inventory, with explicit partial R6 browser projection coverage; not acceptance",
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "current_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "current_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+    "source_manifest": "evidence/LED-SOURCE-INTAKE.json",
+    "classification": "SOURCE_INVENTORY_WITH_R6_SCOPE_ADDENDUM",
+    "execution": {
+      "firmware": "NOT_RUN",
+      "host_tests": "NOT_RUN",
+      "emulator": "NOT_RUN",
+      "physical_hardware": "NOT_RUN",
+      "audio": "NOT_RUN"
+    },
+    "historical_source": "79280e763341d03ba43266d3e25dad66f12de860 captures remain historical and are not evidence of current execution",
+    "original_source_ledger_sha256": "fc126b3912465494d8c48fcdd29a483af168b4af5dfe209a4dd9f28f64e96496"
+  },
+  "hardware_and_gates": {
+    "pad_count": 16,
+    "pad_hardware": "RGB pad LEDs; source uses a 16-position WS2812-class chain",
+    "keybed": "The 37 physical keys have no LEDs. Logical note-key bitmasks are not physical keybed lights.",
+    "buttons": "18 button positions, 19 LED channels in the HAL table. Button LEDs are binary on/off in the SMK platform; no dim/glow layer.",
+    "models": "BOARD_SMK37 selects this shared path. Source identifies Pro, Elite and MKE-P37 as the same keyboard wiring under different package identities. This is a source statement, not a physical compatibility test by this helper.",
+    "model_identity_gate": "SMK_MODEL changes reported model identity; default is SMK-37 Pro. No separate Elite LED branch appears in these inspected paths.",
+    "default_mapping": "Logical B_* roles map through panel.btn, which can be retaught by hardware calibration. Physical captions and fixed bank-button IDs remain distinct.",
+    "play_color": "HAL channel 16 is PLAY green and channel 18 is PLAY red. Current SMK plat_play_red is a no-op, and plat_leds leaves channel 18 zero. REC has its own red LED at physical button 17; do not borrow the FM-1 red-PLAY behavior.",
+    "sources": [
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "51-56",
+        "claim": "37 keys, 18 buttons and 19 LED channels",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L51"
+      },
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "86-90",
+        "claim": "PLAY green/red and REC red channel table",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L86"
+      },
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "682-686",
+        "claim": "No SMK note-key LEDs",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L682"
+      },
+      {
+        "path": "firmware/src/app/plat_fm1.c",
+        "lines": "157-178",
+        "claim": "SMK button path, white-key pad picture and no keybed LEDs",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L157"
+      },
+      {
+        "path": "firmware/hal/fm1_cc.h",
+        "lines": "13-22",
+        "claim": "Board/model identity gates",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/fm1_cc.h#L13"
+      },
+      {
+        "path": "SMK37.md",
+        "lines": "20-29",
+        "claim": "Supported model identities; source's same-hardware claim",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/SMK37.md#L20"
+      },
+      {
+        "path": "firmware/src/lcd.c",
+        "lines": "182-196",
+        "claim": "16 RGB pad chain and physical slot table",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/lcd.c#L182"
+      }
+    ]
+  },
+  "logical_to_physical": {
+    "masks": {
+      "b": "Logical button roles to illuminate",
+      "k": "Logical note-key positions at bright level",
+      "d": "Logical note-key positions at dim level",
+      "ui_keys": "Current combined logical notes from inner keybed keys and pads"
+    },
+    "projection": "SMK stores k and d, but smk_pads iterates only the sixteen WHITE_NOTE entries. BLACK_KEY bits never reach RGB pads or nonexistent keybed LEDs. Track selection, track mute and part mute identity therefore stay on the LCD.",
+    "held_input": "fm1_in.notes combines keybed knotes and pad pnotes. In the normal UI, k |= ui.keys occurs after content/playhead construction. A held white key or mapped pad becomes bright even if its content bit is off or LIGHTS is OFF, except the division-pad owner replaces the masks afterward.",
+    "brightness_priority": "First build view masks; then OR held ui.keys into k; then an eligible division owner may replace k and d; pass d & ~k to plat_keys_dim; in smk_pads bright wins over dim, then off.",
+    "physical_pad_map": [
+      {
+        "hardware_pad": 0,
+        "physical_row": "top",
+        "column_1_based": 1,
+        "logical_white_index": 0,
+        "logical_note_bit": 0,
+        "logical_inner_white_note": "F3",
+        "grid_step_on_page_1": 1,
+        "grid_step_formula": "page_index * 16 + 1",
+        "home_pattern_formula": "pattern_bank * 16 + 1",
+        "led_chain_slot": 0
+      },
+      {
+        "hardware_pad": 1,
+        "physical_row": "top",
+        "column_1_based": 2,
+        "logical_white_index": 1,
+        "logical_note_bit": 2,
+        "logical_inner_white_note": "G3",
+        "grid_step_on_page_1": 2,
+        "grid_step_formula": "page_index * 16 + 2",
+        "home_pattern_formula": "pattern_bank * 16 + 2",
+        "led_chain_slot": 15
+      },
+      {
+        "hardware_pad": 2,
+        "physical_row": "top",
+        "column_1_based": 3,
+        "logical_white_index": 2,
+        "logical_note_bit": 4,
+        "logical_inner_white_note": "A3",
+        "grid_step_on_page_1": 3,
+        "grid_step_formula": "page_index * 16 + 3",
+        "home_pattern_formula": "pattern_bank * 16 + 3",
+        "led_chain_slot": 14
+      },
+      {
+        "hardware_pad": 3,
+        "physical_row": "top",
+        "column_1_based": 4,
+        "logical_white_index": 3,
+        "logical_note_bit": 6,
+        "logical_inner_white_note": "B3",
+        "grid_step_on_page_1": 4,
+        "grid_step_formula": "page_index * 16 + 4",
+        "home_pattern_formula": "pattern_bank * 16 + 4",
+        "led_chain_slot": 13
+      },
+      {
+        "hardware_pad": 4,
+        "physical_row": "top",
+        "column_1_based": 5,
+        "logical_white_index": 4,
+        "logical_note_bit": 7,
+        "logical_inner_white_note": "C4",
+        "grid_step_on_page_1": 5,
+        "grid_step_formula": "page_index * 16 + 5",
+        "home_pattern_formula": "pattern_bank * 16 + 5",
+        "led_chain_slot": 12
+      },
+      {
+        "hardware_pad": 5,
+        "physical_row": "top",
+        "column_1_based": 6,
+        "logical_white_index": 5,
+        "logical_note_bit": 9,
+        "logical_inner_white_note": "D4",
+        "grid_step_on_page_1": 6,
+        "grid_step_formula": "page_index * 16 + 6",
+        "home_pattern_formula": "pattern_bank * 16 + 6",
+        "led_chain_slot": 11
+      },
+      {
+        "hardware_pad": 6,
+        "physical_row": "top",
+        "column_1_based": 7,
+        "logical_white_index": 6,
+        "logical_note_bit": 11,
+        "logical_inner_white_note": "E4",
+        "grid_step_on_page_1": 7,
+        "grid_step_formula": "page_index * 16 + 7",
+        "home_pattern_formula": "pattern_bank * 16 + 7",
+        "led_chain_slot": 10
+      },
+      {
+        "hardware_pad": 7,
+        "physical_row": "top",
+        "column_1_based": 8,
+        "logical_white_index": 7,
+        "logical_note_bit": 12,
+        "logical_inner_white_note": "F4",
+        "grid_step_on_page_1": 8,
+        "grid_step_formula": "page_index * 16 + 8",
+        "home_pattern_formula": "pattern_bank * 16 + 8",
+        "led_chain_slot": 9
+      },
+      {
+        "hardware_pad": 8,
+        "physical_row": "bottom",
+        "column_1_based": 1,
+        "logical_white_index": 8,
+        "logical_note_bit": 14,
+        "logical_inner_white_note": "G4",
+        "grid_step_on_page_1": 9,
+        "grid_step_formula": "page_index * 16 + 9",
+        "home_pattern_formula": "pattern_bank * 16 + 9",
+        "led_chain_slot": 1
+      },
+      {
+        "hardware_pad": 9,
+        "physical_row": "bottom",
+        "column_1_based": 2,
+        "logical_white_index": 9,
+        "logical_note_bit": 16,
+        "logical_inner_white_note": "A4",
+        "grid_step_on_page_1": 10,
+        "grid_step_formula": "page_index * 16 + 10",
+        "home_pattern_formula": "pattern_bank * 16 + 10",
+        "led_chain_slot": 2
+      },
+      {
+        "hardware_pad": 10,
+        "physical_row": "bottom",
+        "column_1_based": 3,
+        "logical_white_index": 10,
+        "logical_note_bit": 18,
+        "logical_inner_white_note": "B4",
+        "grid_step_on_page_1": 11,
+        "grid_step_formula": "page_index * 16 + 11",
+        "home_pattern_formula": "pattern_bank * 16 + 11",
+        "led_chain_slot": 3
+      },
+      {
+        "hardware_pad": 11,
+        "physical_row": "bottom",
+        "column_1_based": 4,
+        "logical_white_index": 11,
+        "logical_note_bit": 19,
+        "logical_inner_white_note": "C5",
+        "grid_step_on_page_1": 12,
+        "grid_step_formula": "page_index * 16 + 12",
+        "home_pattern_formula": "pattern_bank * 16 + 12",
+        "led_chain_slot": 4
+      },
+      {
+        "hardware_pad": 12,
+        "physical_row": "bottom",
+        "column_1_based": 5,
+        "logical_white_index": 12,
+        "logical_note_bit": 21,
+        "logical_inner_white_note": "D5",
+        "grid_step_on_page_1": 13,
+        "grid_step_formula": "page_index * 16 + 13",
+        "home_pattern_formula": "pattern_bank * 16 + 13",
+        "led_chain_slot": 5
+      },
+      {
+        "hardware_pad": 13,
+        "physical_row": "bottom",
+        "column_1_based": 6,
+        "logical_white_index": 13,
+        "logical_note_bit": 23,
+        "logical_inner_white_note": "E5",
+        "grid_step_on_page_1": 14,
+        "grid_step_formula": "page_index * 16 + 14",
+        "home_pattern_formula": "pattern_bank * 16 + 14",
+        "led_chain_slot": 6
+      },
+      {
+        "hardware_pad": 14,
+        "physical_row": "bottom",
+        "column_1_based": 7,
+        "logical_white_index": 14,
+        "logical_note_bit": 24,
+        "logical_inner_white_note": "F5",
+        "grid_step_on_page_1": 15,
+        "grid_step_formula": "page_index * 16 + 15",
+        "home_pattern_formula": "pattern_bank * 16 + 15",
+        "led_chain_slot": 7
+      },
+      {
+        "hardware_pad": 15,
+        "physical_row": "bottom",
+        "column_1_based": 8,
+        "logical_white_index": 15,
+        "logical_note_bit": 26,
+        "logical_inner_white_note": "G5",
+        "grid_step_on_page_1": 16,
+        "grid_step_formula": "page_index * 16 + 16",
+        "home_pattern_formula": "pattern_bank * 16 + 16",
+        "led_chain_slot": 8
+      }
+    ],
+    "grid_gate": "Home, Song, drum MIX, PATCH/BT modifiers and ordinary drum contexts use direct GRID mapping. A melodic REC keyboard uses the non-grid row swap unless another direct-grid owner applies. Clip mode has its own vertical flip on top of direct GRID.",
+    "sources": [
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "99-104",
+        "claim": "White-note table and direct/non-grid mapping",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L99"
+      },
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "329-342",
+        "claim": "Inner-key knotes combine with pnotes",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L329"
+      },
+      {
+        "path": "firmware/hal/smk_input.h",
+        "lines": "482-507",
+        "claim": "Pad note owner and combined note mask",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L482"
+      },
+      {
+        "path": "firmware/src/app/plat_fm1.c",
+        "lines": "48-48",
+        "claim": "plat_keys exposes the combined logical note mask",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L48"
+      },
+      {
+        "path": "firmware/src/app/plat_fm1.c",
+        "lines": "157-178",
+        "claim": "Only logical key picture is stored for pads",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L157"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "845-879",
+        "claim": "White positions become physical RGB pads",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L845"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "1991-2000",
+        "claim": "Direct GRID ownership",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1991"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "8572-8583",
+        "claim": "Held input and brightness priority",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+      },
+      {
+        "path": "firmware/src/lcd.c",
+        "lines": "194-205",
+        "claim": "Physical pad to chain mapping",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/lcd.c#L194"
+      }
+    ]
+  },
+  "normal_rgb_policy": {
+    "hue": "All normal pads use the currently selected part's PART_COL color. Drum MIX uses its visible kit's color. Home pattern pads still share the selected part's hue; they do not use one color per contained part.",
+    "brightness": "RGB565 is decoded to 8-bit channels. Bright sends each channel >> 1; dim sends >> 3; off sends zero. These are byte-level arithmetic values, not measured luminance.",
+    "meaning_limits": "Normal bright/dim/off and blink/inversion provide meanings. REC, WAIT, mute, held-step and pending cue do not each get a separate normal pad color.",
+    "theme": "LIGHT selects the second PART_COLOURS row. Other current palette choices use the first row.",
+    "computed_color_table": [
+      {
+        "theme": "GREEN / AMBER / CYAN / RED / MONO",
+        "parts": [
+          {
+            "part": "909",
+            "source_rgb_before_RGB565": [
+              255,
+              150,
+              40
+            ],
+            "decoded_rgb": [
+              255,
+              149,
+              41
+            ],
+            "bright_pwm_bytes": [
+              127,
+              74,
+              20
+            ],
+            "dim_pwm_bytes": [
+              31,
+              18,
+              5
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "808",
+            "source_rgb_before_RGB565": [
+              255,
+              72,
+              64
+            ],
+            "decoded_rgb": [
+              255,
+              72,
+              65
+            ],
+            "bright_pwm_bytes": [
+              127,
+              36,
+              32
+            ],
+            "dim_pwm_bytes": [
+              31,
+              9,
+              8
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "Bass A slot",
+            "source_rgb_before_RGB565": [
+              130,
+              240,
+              90
+            ],
+            "decoded_rgb": [
+              131,
+              242,
+              90
+            ],
+            "bright_pwm_bytes": [
+              65,
+              121,
+              45
+            ],
+            "dim_pwm_bytes": [
+              16,
+              30,
+              11
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "Bass B slot",
+            "source_rgb_before_RGB565": [
+              70,
+              205,
+              255
+            ],
+            "decoded_rgb": [
+              65,
+              206,
+              255
+            ],
+            "bright_pwm_bytes": [
+              32,
+              103,
+              127
+            ],
+            "dim_pwm_bytes": [
+              8,
+              25,
+              31
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "BREAK",
+            "source_rgb_before_RGB565": [
+              214,
+              120,
+              255
+            ],
+            "decoded_rgb": [
+              213,
+              121,
+              255
+            ],
+            "bright_pwm_bytes": [
+              106,
+              60,
+              127
+            ],
+            "dim_pwm_bytes": [
+              26,
+              15,
+              31
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "LIGHT",
+        "parts": [
+          {
+            "part": "909",
+            "source_rgb_before_RGB565": [
+              139,
+              69,
+              0
+            ],
+            "decoded_rgb": [
+              139,
+              68,
+              0
+            ],
+            "bright_pwm_bytes": [
+              69,
+              34,
+              0
+            ],
+            "dim_pwm_bytes": [
+              17,
+              8,
+              0
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "808",
+            "source_rgb_before_RGB565": [
+              172,
+              35,
+              29
+            ],
+            "decoded_rgb": [
+              172,
+              32,
+              24
+            ],
+            "bright_pwm_bytes": [
+              86,
+              16,
+              12
+            ],
+            "dim_pwm_bytes": [
+              21,
+              4,
+              3
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "Bass A slot",
+            "source_rgb_before_RGB565": [
+              40,
+              104,
+              30
+            ],
+            "decoded_rgb": [
+              41,
+              105,
+              24
+            ],
+            "bright_pwm_bytes": [
+              20,
+              52,
+              12
+            ],
+            "dim_pwm_bytes": [
+              5,
+              13,
+              3
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "Bass B slot",
+            "source_rgb_before_RGB565": [
+              0,
+              96,
+              132
+            ],
+            "decoded_rgb": [
+              0,
+              97,
+              131
+            ],
+            "bright_pwm_bytes": [
+              0,
+              48,
+              65
+            ],
+            "dim_pwm_bytes": [
+              0,
+              12,
+              16
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "part": "BREAK",
+            "source_rgb_before_RGB565": [
+              117,
+              49,
+              148
+            ],
+            "decoded_rgb": [
+              115,
+              48,
+              148
+            ],
+            "bright_pwm_bytes": [
+              57,
+              24,
+              74
+            ],
+            "dim_pwm_bytes": [
+              14,
+              6,
+              18
+            ],
+            "off_pwm_bytes": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "89-100",
+        "claim": "Part colors and fixed part identities",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L89"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "868-879",
+        "claim": "Part hue and half/eighth channel levels",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L868"
+      },
+      {
+        "path": "firmware/src/gfx.c",
+        "lines": "30-30",
+        "claim": "RGB565 quantization",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/gfx.c#L30"
+      },
+      {
+        "path": "firmware/src/gfx.c",
+        "lines": "59-65",
+        "claim": "LIGHT palette chooses the alternate part-color row",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/gfx.c#L59"
+      }
+    ]
+  },
+  "normal_pad_states": [
+    {
+      "context": "909 / 808 drum views",
+      "content": "Selected track's stored hit bits on the current 16-step page; only steps below pattern length light from content.",
+      "accent_modifier": "While CHORD is held, pads show shared kit accent bits instead of selected-track hits.",
+      "playhead": "When seq.playing, the playhead step inverts its content light. A stored hit goes dark at its playhead; an empty step goes bright. This is not an additive white or second-color playhead.",
+      "selection": "Selecting another track changes which pattern the same sixteen pads display. There is no separate selected-track physical light.",
+      "mute": "Pad hit display does not check track mute or part mute. A muted selected track's stored hits remain displayed; mute is communicated on the LCD, not by dimming its entire pad pattern.",
+      "held": "Held white input is ORed after inversion and forces the corresponding normal pad bright. There is no unique held-step color or lock-accepted LED.",
+      "scope_limit": "The drum path applies after Home/MIX precedence, even when another overlay is present. It is not gated to V_SEQ alone.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8445-8457",
+          "claim": "Selected hit/accent bits and playhead inversion",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8445"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8532-8544",
+          "claim": "Drum branch and logical black selection/mute masks",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8532"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8572-8583",
+          "claim": "Held input override",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+        }
+      ]
+    },
+    {
+      "context": "Home",
+      "content": "Any pattern_used in the visible 16-pattern bank is dim.",
+      "current": "The current pattern for PART_909 is bright if in the visible bank, even when empty. This pad anchor is PART_909, not ui.part.",
+      "queued": "An in-bank PART_909 cue is ORed bright on ui.frame bit 8. An occupied queued pattern alternates dim/bright; an empty queued pattern alternates off/bright. If it is already bright for another reason, no separate blink is guaranteed.",
+      "partial_cue_limit": "A cue only for another part has no separate Home pattern-pad marker in this code.",
+      "mute_limit": "Part mute bits are put on logical BLACK_KEY positions, which have no physical SMK LED projection. LCD lanes carry the part mute identity.",
+      "stop_wait_limit": "The Home cue-light condition does not check seq.playing. If a cue exists while stopped or waiting, its source-defined blink is still eligible. Any proposed static STOP/WAIT cue treatment is a change to record explicitly, not an existing-LED claim.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8500-8520",
+          "claim": "Home content/current/cue and logical part-mute masks",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6022-6022",
+          "claim": "LCD cue frame uses a separate frame bit",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6022"
+        }
+      ]
+    },
+    {
+      "context": "Song",
+      "content": "Visible-bank patterns with content are dim.",
+      "current": "The selected valid Song bar's PART_909 pattern is bright. There is no cue blink branch for Song.",
+      "mute_limit": "Per-bar part mutes use logical black bits; on SMK their physical indication remains LCD-only.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8501-8520",
+          "claim": "Song pattern and per-bar masks",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8501"
+        }
+      ]
+    },
+    {
+      "context": "Drum MIX",
+      "content": "Selected voice step/accent lights come from the visible drum kit via drum_step_lights(dm), independent of another selected ui.part.",
+      "selection_and_mute": "Selected mixer channel bright/blinking-muted and other channels dim are logical BLACK_KEY masks, not separate physical SMK track LEDs.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8521-8532",
+          "claim": "Drum MIX mask ownership",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8521"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "868-875",
+          "claim": "Visible kit determines physical pad hue",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L868"
+        }
+      ]
+    },
+    {
+      "context": "MIX PARTS; MIX MASTER/WAVE; FX",
+      "content": "PARTS builds logical black channel-selection/mute masks. MASTER/WAVE/FX build no content-selection key picture.",
+      "physical_limit": "On the SMK those black masks have no physical projection. Normal held white input can still force a pad bright afterward; that does not mean the view accepted a musical edit.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8521-8533",
+          "claim": "Mix/FX selection mask branches",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8521"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8572-8583",
+          "claim": "Held input remains a later layer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+        }
+      ]
+    },
+    {
+      "context": "Melodic sequence, keyboard not active",
+      "content": "G_NOTE steps are bright; G_TIE steps dim; rests off. Playhead inverts the note on/off state. A held white input still wins later.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8543-8554",
+          "claim": "Melodic note/tie and playhead masks",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8543"
+        }
+      ]
+    },
+    {
+      "context": "Melodic keyboard",
+      "content": "Logical C positions are dim reference marks; held logical white input becomes bright. They are physical pads, not illuminated piano keys.",
+      "mapping": "With REC on, normal non-grid mapping places low notes on the bottom pad row.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8555-8558",
+          "claim": "C reference masks",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8555"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "1991-2000",
+          "claim": "Non-grid REC keyboard exception",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1991"
+        },
+        {
+          "path": "firmware/hal/smk_input.h",
+          "lines": "99-104",
+          "claim": "Row swap",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L99"
+        }
+      ]
+    },
+    {
+      "context": "BREAK",
+      "content": "Its sixteen stored step bits are bright; playhead inverts the current step. Slice availability is placed on eight logical black bits, not separate physical slice lights.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8559-8570",
+          "claim": "BREAK step/playhead and logical slice masks",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8559"
+        }
+      ]
+    },
+    {
+      "context": "LIGHTS OFF / ON / KEYS",
+      "content": "OFF skips stored-content/cue/reference masks. Held normal white input is still added later; button LEDs remain active.",
+      "smk_difference": "ON requests glow and KEYS does not, but plat_glow is a no-op on the SMK. Thus the FM-1 button-glow distinction is not present in this physical path.",
+      "overrides": "Clip RGB and development pad-calibration output bypass this normal content policy. Division-owner output is fully dark when LIGHTS is OFF.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "452-457",
+          "claim": "LIGHTS enumeration",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L452"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8500-8500",
+          "claim": "Content-mask gate",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8572-8583",
+          "claim": "Held-input layer and glow call",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+        },
+        {
+          "path": "firmware/src/app/plat_fm1.c",
+          "lines": "157-178",
+          "claim": "No SMK glow layer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L157"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "845-879",
+          "claim": "Clip versus normal output",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L845"
+        }
+      ]
+    }
+  ],
+  "button_leds": [
+    {
+      "caption": "SEQ PLAY",
+      "physical_id": 16,
+      "channel": "green",
+      "logical": "B_PLAY",
+      "standalone": "If seq_clock_waiting is true: ui.frame bit 32. Otherwise on only when seq.playing and 909 drum step modulo 4 equals zero.",
+      "clip": "Replaced by clip feedback state. PLAY stays off when stopped feedback is false; when true it is steady without live clock, or on for the first 6 of every 24 clock ticks.",
+      "priority": "Clip feedback overrides both standalone WAIT and standalone beat state. It does not use the REC red-PLAY request.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8467-8480",
+          "claim": "WAIT/beat then clip replacement",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8467"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "539-549",
+          "claim": "Clock-live clip PLAY state",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L539"
+        },
+        {
+          "path": "firmware/src/app/smk_apc40.h",
+          "lines": "421-430",
+          "claim": "Clip PLAY quarter-beat behavior",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smk_apc40.h#L421"
+        }
+      ]
+    },
+    {
+      "caption": "SEQ REC",
+      "physical_id": 17,
+      "channel": "own red LED",
+      "logical": "B_REC",
+      "standalone": "On whenever ui.rec is true; this is armed state, not evidence that a hit or take was stored.",
+      "clip": "Replaced by apc_record_feedback. A local clip press optimistically toggles that feedback; later host feedback can replace it.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8469-8480",
+          "claim": "Record then clip override",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8469"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "804-835",
+          "claim": "Local optimistic clip transport state",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L804"
+        },
+        {
+          "path": "firmware/hal/smk_input.h",
+          "lines": "86-90",
+          "claim": "REC red channel",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L86"
+        }
+      ]
+    },
+    {
+      "caption": "PATCH",
+      "physical_id": 12,
+      "logical": "B_HOME",
+      "state": "On in HOME or SONG; also on during ui.frame bit 8 when seq.song_on is true in another view.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8480-8481",
+          "claim": "Home/Song mode and song blink",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8480"
+        }
+      ]
+    },
+    {
+      "caption": "SEQ",
+      "physical_id": 15,
+      "logical": "B_SEQ",
+      "state": "On in V_SEQ; not a separate running light.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8482-8483",
+          "claim": "SEQ view flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8482"
+        }
+      ]
+    },
+    {
+      "caption": "PARA",
+      "physical_id": 13,
+      "logical": "B_EDIT",
+      "state": "On in V_PART.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8484-8485",
+          "claim": "Sound view flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8484"
+        }
+      ]
+    },
+    {
+      "caption": "ARP",
+      "physical_id": 6,
+      "logical": "B_ARP",
+      "state": "On in V_GEN.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8486-8487",
+          "claim": "Generator view flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8486"
+        }
+      ]
+    },
+    {
+      "caption": "FX",
+      "physical_id": 14,
+      "logical": "B_FX",
+      "state": "On in V_FX.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8488-8489",
+          "claim": "FX view flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8488"
+        }
+      ]
+    },
+    {
+      "caption": "NOTE REPEAT",
+      "physical_id": 7,
+      "logical": "B_LFO",
+      "state": "On in V_MIX; it identifies the mixer role under the immutable physical caption.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8490-8491",
+          "claim": "Mixer view flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8490"
+        }
+      ]
+    },
+    {
+      "caption": "GLOBE",
+      "physical_id": 10,
+      "logical": "B_GLO",
+      "state": "On in V_GLO.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8492-8493",
+          "claim": "Global view flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8492"
+        }
+      ]
+    },
+    {
+      "caption": "SCALE",
+      "physical_id": 8,
+      "logical": "B_SEL",
+      "state": "On whenever ui.overlay != O_NONE, including list/question. This is modal/list status, not proof that a value changed.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8494-8495",
+          "claim": "Overlay flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8494"
+        }
+      ]
+    },
+    {
+      "caption": "OCTAVE+",
+      "physical_id": 5,
+      "logical": "B_OCTUP",
+      "state": "On when the visible Home/Song bank is nonzero, or when ui.spage is nonzero in other views. It does not encode which of pages 2\u20134 is selected.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8496-8497",
+          "claim": "Bank/page nonzero flag",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8496"
+        }
+      ]
+    },
+    {
+      "caption": "BT",
+      "physical_id": 11,
+      "logical": "B_SAVE",
+      "state": "SAVE_QUEUED stays on. SAVE_FAILED uses ui.frame bit 2. SAVE_UNSAVED uses ui.frame bit 8. Other states leave it off.",
+      "priority": "Queued state is tested first; failed state chooses the faster frame bit before unsaved state is considered.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8498-8499",
+          "claim": "Save-state LED expression",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8498"
+        }
+      ]
+    },
+    {
+      "caption": "FADER BANK",
+      "physical_id": 1,
+      "logical": "Fixed SMK_BTN_FADER_BANK outside the taught panel roles",
+      "state": "On when smk_fbank != 0, identifying bank B.",
+      "sources": [
+        {
+          "path": "firmware/src/app/plat_fm1.c",
+          "lines": "168-178",
+          "claim": "Fixed bank LED override",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L168"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "891-916",
+          "claim": "Fader bank toggle and target context",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L891"
+        }
+      ]
+    },
+    {
+      "caption": "KNOB BANK",
+      "physical_id": 0,
+      "state": "No current on-state is assigned by SMK plat_leds; its entry remains zero. Do not invent a clip-mode lamp here.",
+      "sources": [
+        {
+          "path": "firmware/src/app/plat_fm1.c",
+          "lines": "168-178",
+          "claim": "Zero-initialized LED array plus only FADER BANK override",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L168"
+        }
+      ]
+    },
+    {
+      "caption": "<",
+      "physical_id": 2,
+      "state": "No current on-state assigned by the default panel LED path.",
+      "sources": [
+        {
+          "path": "firmware/src/app/plat_fm1.c",
+          "lines": "168-178",
+          "claim": "Only mapped logical roles plus FADER BANK are written",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L168"
+        }
+      ]
+    },
+    {
+      "caption": ">",
+      "physical_id": 3,
+      "state": "No current on-state assigned by the default panel LED path.",
+      "sources": [
+        {
+          "path": "firmware/src/app/plat_fm1.c",
+          "lines": "168-178",
+          "claim": "Only mapped logical roles plus FADER BANK are written",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L168"
+        }
+      ]
+    },
+    {
+      "caption": "OCTAVE\u2212",
+      "physical_id": 4,
+      "logical": "B_OCTDN",
+      "state": "No bit is set for B_OCTDN in the inspected leds() function.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8459-8583",
+          "claim": "Complete logical LED producer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8459"
+        }
+      ]
+    },
+    {
+      "caption": "CHORD",
+      "physical_id": 9,
+      "logical": "B_ENV",
+      "state": "No bit is set for B_ENV in the inspected leds() function. Holding CHORD changes displayed pad accent content, but does not assign a dedicated CHORD lamp state.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8445-8455",
+          "claim": "Accent-mask modifier",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8445"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8459-8583",
+          "claim": "Complete logical LED producer",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8459"
+        }
+      ]
+    },
+    {
+      "caption": "PLAY red channel",
+      "physical_id": 18,
+      "state": "Available in HAL table but unused by current SMK platform output. The zero-initialized array leaves it off.",
+      "sources": [
+        {
+          "path": "firmware/hal/smk_input.h",
+          "lines": "86-90",
+          "claim": "Red channel exists",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L86"
+        },
+        {
+          "path": "firmware/src/app/plat_fm1.c",
+          "lines": "165-178",
+          "claim": "No-op red request and default-zero channel",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L165"
+        }
+      ]
+    }
+  ],
+  "phase_and_owner_priority": {
+    "frame_phases": [
+      {
+        "mask": "ui.frame & 2u",
+        "half_cycle_frames": 2,
+        "full_cycle_frames": 4,
+        "uses": [
+          "BT save failure"
+        ],
+        "clock": "UI frame counter, not musical clock"
+      },
+      {
+        "mask": "ui.frame & 8u",
+        "half_cycle_frames": 8,
+        "full_cycle_frames": 16,
+        "uses": [
+          "Home cue pad bright layer",
+          "Logical selected-muted track blink",
+          "Logical Song-active PATCH blink",
+          "BT unsaved"
+        ],
+        "clock": "UI frame counter; selected-muted black-key masks are not physical SMK lights"
+      },
+      {
+        "mask": "ui.frame & 16u",
+        "half_cycle_frames": 16,
+        "full_cycle_frames": 32,
+        "uses": [
+          "LCD Home pending cue outline"
+        ],
+        "clock": "LCD frame phase; not the same phase as the physical Home cue pad"
+      },
+      {
+        "mask": "ui.frame & 32u",
+        "half_cycle_frames": 32,
+        "full_cycle_frames": 64,
+        "uses": [
+          "Standalone PLAY when waiting for external clock"
+        ],
+        "clock": "UI frame counter; overrides standalone play-step expression"
+      }
+    ],
+    "timing_limit": "Main loop schedules display frames when at least 16 ms elapsed. The above frame periods are exact source counts; wall-clock rates, duty cycle on hardware and perceptual distinction were not measured. project_busy returns before leds() and ui.frame++, so prior output can remain while the header reports transfer state.",
+    "normal_pad_priority": [
+      "View content masks",
+      "Playhead inverts the current step's on/off state",
+      "Held ui.keys ORs into bright k",
+      "Eligible division-pad owner replaces k and d",
+      "Dim is masked by ~k",
+      "Physical bright > dim > off"
+    ],
+    "pad_mode_priority": [
+      "If development pad calibration owns smk_frame, its output runs and normal smk_pads is skipped",
+      "Otherwise clip mode owns all sixteen pad RGB values and ignores normal k/d masks",
+      "Otherwise normal selected-part k/d policy applies"
+    ],
+    "clip_timing": "Queued clip channels 11\u201315, or an inferred queued flag, blink first half of each accepted 24-tick beat. Without a live valid clock, main_fm1 uses 250 ms on / 250 ms off. Nonqueued cells stay steady. PLAY uses a separate 6/24 tick pulse.",
+    "sources": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "8462-8500",
+        "claim": "Frame bits and button priorities",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8462"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "8572-8583",
+        "claim": "Normal mask priority",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "8823-8835",
+        "claim": "Busy frame returns before LED stage",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8823"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "8897-8898",
+        "claim": "LED stage then frame increment",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8897"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "2564-2584",
+        "claim": "At-most display schedule and follow-up SMK frame",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L2564"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "2136-2147",
+        "claim": "Busy/calibration early returns",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L2136"
+      },
+      {
+        "path": "firmware/src/app/main_fm1.c",
+        "lines": "518-531",
+        "claim": "Queued clip blink source and fallback",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L518"
+      }
+    ]
+  },
+  "special_pad_owners": [
+    {
+      "owner": "Clip / Loopy",
+      "physical_meaning": "Each physical pad is the current viewport's vertically flipped APC cell. Its velocity indexes APC40_PAD_OWNER. Velocity zero goes dark. Occupied color is host-derived; press does not prove host launch or recording.",
+      "brightness": "Ordinary occupied shades send level / 2. With SMK_CLIP_IDLE_PAD_LIFT enabled, selected idle shades 7, 11 \u2026 59 send full table level. Queued brightness multiplies by 255 or 0.",
+      "held_limit": "The held clip event remembers its original note for release, but pad RGB follows the currently visible viewport and host feedback. Do not invent a separate held-cell RGB overlay.",
+      "sources": [
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "845-865",
+          "claim": "Host palette and viewport mapping own pad RGB",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L845"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "2174-2197",
+          "claim": "Press-time note and matching release",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L2174"
+        },
+        {
+          "path": "firmware/src/app/smk_apc40.h",
+          "lines": "587-600",
+          "claim": "Vertical row flip",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smk_apc40.h#L587"
+        },
+        {
+          "path": "firmware/src/app/smk_clip_colour.h",
+          "lines": "13-34",
+          "claim": "Idle-shade lift and channel scaling",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smk_clip_colour.h#L13"
+        },
+        {
+          "path": "firmware/src/app/apc40_pad_owner.h",
+          "lines": "1-10",
+          "claim": "Palette provenance; retained source calibration evidence only",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/apc40_pad_owner.h#L1"
+        }
+      ]
+    },
+    {
+      "owner": "Miami Free Play rate/shape pads",
+      "gates": "BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH, plus actual eligible owner. REC off, Miami Free Play in SEQ/PARA; no question, project transfer, clip mode, SMC popup or pad calibration; PATCH/BT modifiers suspend ownership.",
+      "physical_meaning": "Pads 0\u20137 select rate; pads 8\u201311 select shape; pads 12\u201315 are empty/dark. Available first twelve dim, chosen rate and shape bright when LIGHTS is enabled.",
+      "priority": "The owner replaces both k and d after held-input OR, avoiding fake keybed-note feedback. This is a build-gated route, not a universal drum-pad behavior.",
+      "sources": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "4200-4269",
+          "claim": "Owner gate and rate/shape controls",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4200"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "8573-8580",
+          "claim": "Owner-specific LED mask replacement",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8573"
+        }
+      ]
+    },
+    {
+      "owner": "Development pad calibration",
+      "gates": "X0X_DEV_PADCAL only; source explicitly excludes this page in release builds.",
+      "physical_meaning": "Calibration colors use half-level bytes. Orientation mode lights only its selected first position white. This is a separate diagnostic display, not a live music-state color language.",
+      "sources": [
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "212-218",
+          "claim": "Development-only allocation",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L212"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "2084-2093",
+          "claim": "Calibration/orientation RGB output",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L2084"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "lines": "2140-2146",
+          "claim": "Calibration takes pad owner",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L2140"
+        }
+      ]
+    }
+  ],
+  "coordinated_examples": [
+    {
+      "id": "DRUM-FOUR-KICKS-STOPPED",
+      "preconditions": "909 SEQ, kick selected, steps 1/5/9/13 stored, page 1, stopped, REC off, LIGHTS enabled, no held input",
+      "lcd": "All track rows stay visible; selected kick row carries its four hits. Length/rate strip remains visible.",
+      "pads": "Hardware 0, 4, 8, 12 bright in 909 hue. Other pads dark.",
+      "buttons": "SEQ on; PLAY and REC off; other state-dependent buttons follow their separate roles.",
+      "retention": "Preserve the direct connection between visible selected row, sixteen pads and physical SEQ context."
+    },
+    {
+      "id": "DRUM-PLAYHEAD-AND-HOLD",
+      "preconditions": "Same pattern; playing; current step is 5",
+      "lcd": "Step 5 is the playhead; source draws its existing hit/playhead treatment.",
+      "pads": "Pad 4 inverts off because step 5 already has a hit. If pad 4 is held, held-input priority makes it bright instead. An empty playhead step would invert bright.",
+      "buttons": "PLAY is on at step index 4 because 4 % 4 == 0. REC is independent.",
+      "retention": "Keep the existing inversion/held-input behavior honest; no separate source held-step or playhead color is available."
+    },
+    {
+      "id": "HOME-CURRENT-QUEUED-CONTENT",
+      "preconditions": "Home bank 1; PART_909 current P01; cue P02; P02 has content; neither pad held; LIGHTS enabled",
+      "lcd": "Pattern content tiles and five lanes remain; pending cue outline uses frame bit 16.",
+      "pads": "P01 pad 0 stays bright. P02 pad 1 alternates dim/bright on frame bit 8. Other occupied patterns dim; empty patterns off.",
+      "buttons": "PATCH on. PLAY and REC show transport/armed state independently.",
+      "retention": "Preserve content versus current versus cue distinction; do not claim the LCD and pad use an identical blink phase."
+    },
+    {
+      "id": "DRUM-TRACK-MUTED",
+      "preconditions": "Selected snare muted in a drum view, with stored snare hits",
+      "lcd": "Source draws selected/muted track treatment and provides PATCH + black mute route.",
+      "pads": "Continue showing selected snare step data. Track mute does not change their hue or suppress all hit lights.",
+      "buttons": "No dedicated selected/muted-track button light. The source's black-key blink has no physical SMK projection.",
+      "retention": "Do not promise mute confirmation from a nonexistent keybed LED or invent a current pad mute color."
+    },
+    {
+      "id": "REC-ARMED-STOPPED",
+      "preconditions": "Standalone stopped; ui.rec true",
+      "lcd": "REC state remains in the instrument context.",
+      "pads": "Step or held-input meanings remain; REC does not recolor normal pads.",
+      "buttons": "SEQ REC red on. SEQ PLAY off; its red channel stays unused.",
+      "retention": "Record arming is not a stored-take acknowledgement."
+    },
+    {
+      "id": "CLOCK-WAIT-WITH-PENDING-CUE",
+      "preconditions": "Standalone clock-wait predicate true; Home cue exists; LIGHTS enabled",
+      "lcd": "WAIT context and pending cue are separate retained source states. Current cue outline remains eligible for frame-based blinking.",
+      "pads": "Home cue layer remains eligible on frame bit 8. Step display, if shown in another view, uses current eng_step; no timer-generated moving playhead is added by leds().",
+      "buttons": "PLAY uses frame bit 32 in preference to its normal step pulse. REC remains independently armed or off.",
+      "retention": "Any R3 static STOP/WAIT pending-cue treatment needs an explicit change disposition. This helper does not decide it or call the baseline a runtime defect."
+    },
+    {
+      "id": "LIGHTS-OFF-HELD-PAD",
+      "preconditions": "Normal drum path; LIGHTS OFF; no division/clip/calibration owner",
+      "lcd": "Instrument controls and content remain available.",
+      "pads": "Unheld stored content is dark, but a currently held mapped white input remains bright from the final ui.keys layer.",
+      "buttons": "Mode, REC, WAIT and save status remain active; OFF is not a universal physical blackout.",
+      "retention": "Describe the current setting accurately; do not silently broaden it in a visual-only revision."
+    },
+    {
+      "id": "CLIP-QUEUED-AND-TRANSPORT",
+      "preconditions": "Clip mode; host supplies occupied and queued APC feedback",
+      "lcd": "Current clip viewport and host state remain authoritative for clip identity.",
+      "pads": "Host palette supplies cell colors. Queued cells blink with accepted clock or its documented fallback. Held launch release still belongs to the press-time note even after viewport movement.",
+      "buttons": "PLAY/REC use clip feedback, including the source's optimistic press toggle until host feedback replaces it.",
+      "retention": "A press or local lamp toggle is not proof of host launch, recording or durable capture."
+    }
+  ],
+  "preservation_constraints": [
+    "Keep useful current normal pad scopes: selected-track steps, shared accent under CHORD, Home pattern content/current/cue, and direct GRID placement.",
+    "Keep independent mode, transport, record-armed, save and bank button roles; do not overload a normal part hue as recording or mute acceptance.",
+    "Never draw or describe physical piano-key lights on Pro/Elite. Logical black-key feedback is LCD-only on this platform.",
+    "Treat the existing step playhead as inversion, held input as the same bright level, and mute as a separate LCD fact; any richer replacement is a new proposal requiring affected validation.",
+    "Retain exact model/build gates and clip/calibration/division owners; do not import FM-1 glow or red-PLAY behavior.",
+    "No current hardware color recognition, visibility, blink discrimination, tactile or audio success is established by this source inventory."
+  ],
+  "R6_projection_scope": {
+    "normal_model": "Stored selected-track/shared-accent patterns, playhead inversion, used/current/cue masks, tie/keyboard anchors, source WHITE-key/pad held-input union (also LIGHTS OFF); Miami division owner overrides normal note lights. No physical keybed LEDs.",
+    "shared_accent": "CHORD+white in SEQ/drum MIX toggles shared accent on down, consumes CHORD and does not alter voice hits. Fresh PART pad remains audition-only. Source ui.c3255-3283,3782-3805,8445-8456.",
+    "button_model": "18 physical positions visible. ARP and FADER BANK routes remain disabled/unmodeled. Ordinary arrows implement single-edge navigation/list edit; repeat timing/simultaneous arrows/held-FX and connected owners unqualified. Normal mode/PLAY/REC/SCALE/OCTAVE+ plus Song PATCH bit8 and BT queued/failed-bit2/unsaved-bit8 modeled.",
+    "state_limits": "Queued/failed save flags are explicit inspection fixtures, not a storage request/result lifecycle. Clip pads/transport feedback remain unmodeled, not generic local-clock lamps. Settings owns its separate component lamps. Project-busy freeze/latency and platform calibration are not exercised.",
+    "source_phase": "Source bit2/8/16/32 predicates are frame snapshots, not measured Hz or a timer. Current actual captures provide separate bounded pad/button observations.",
+    "recognition_limits": "Browser RGB, binary outlines and native LCD are not measured device brightness, glare or tactile evidence. No new mute/REC/held hue invented.",
+    "known_remaining": "Full all37 outer input projection/timing, SMC and Clip host ownership, development calibration, peer/fader banks and device tests not complete."
+  }
+}
