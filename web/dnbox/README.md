@@ -142,11 +142,22 @@ real note/pad actions, both model identifiers, sustained note release,
 sequencer/play/reset/flash persistence, first-sound time, input turnaround
 p50/p95, `AudioContext.baseLatency`/`outputLatency` where exposed,
 quantum duration vs `128/44100 = 2.90 ms`, audio `short` counters,
-realtime drift and memory. Repeat with a heavy Chicago/Juno/BREAK/909
-scene only once it can be reproduced with audible BREAK in **that** image;
-do not infer native hardware acceptance. No mobile/Safari PASS without
-own observations. If Pro stays ~0.9×, report the breakup openly and
-profile the actual worklet/JIT without changing sound.
+realtime drift and memory. Repeat with a reproducible heavy **0.0.25.1**
+scene using Miami in BASS A, Chicago in BASS B, BREAK and 909 (808 may
+also be active). These parts and default synth assignments are defined in
+the pinned firmware source:
+[part IDs](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/79280e763341d03ba43266d3e25dad66f12de860/firmware/src/app/engine.h#L30),
+[part names](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/79280e763341d03ba43266d3e25dad66f12de860/firmware/src/app/engine.c#L270)
+and [factory synth defaults](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/79280e763341d03ba43266d3e25dad66f12de860/firmware/src/app/engine.c#L772).
+Record the exact pattern, presets, note/step events, tempo, mix/FX and
+BREAK sample identity, and verify audible BREAK in **that** image before
+using the scene for qualification. This is a qualification requirement,
+not an executed browser result. Juno is outside this pinned 0.0.25.1
+catalog; any future 0.0.26/Juno fixture requires separate admission and
+exact source, model, package hash and scene pins. Do not infer native
+hardware acceptance. No mobile/Safari PASS without own observations.
+If Pro stays ~0.9×, report the breakup openly and profile the actual
+worklet/JIT without changing sound.
 
 ## Website integration contract (for #890, not a takeover)
 
