@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "task": "ROADMAP #120 observation adapter qualification",
+  "as_of_utc": "2026-11-14T06:24:27Z",
+  "branch": "chat/feature-intake-observer-20261114",
+  "base": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "baseline": {
+    "coordination_commit": "4a35a6cdaa0f112db6b3f577542138afd170c20d",
+    "helper_blob": "bea2ffb2abe39065c8eaf61cbaa6562afd6e33e8",
+    "test_blob": "7a8aa10750ddf0d9f10d7a314817c1c10570011e",
+    "contract_blob": "6f5a981b649800e219f08218188d4551d6fb97a9",
+    "helper_tests": 26,
+    "historical_pr": 184,
+    "historical_head": "efa57425600a23d88efde6152c977542883da4a7",
+    "historical_contract_blob": "6efb9f1f1cb340fe0190fa8bbc09b929cdb70a03",
+    "historical_tests": 25
+  },
+  "source": {
+    "adapter_sha256": "49b4b905954c5219c2c21bec1107be9b290ba79eee2a98ccb4b78d74df316c3e",
+    "adapter_tests_sha256": "c00c2aa62cce799644aba251ad7bc55ff21b88f9e189d251143d4022b2d9c3a1"
+  },
+  "verification": [
+    {
+      "command": "python3 tests/github_observation_test.py",
+      "result": "PASS",
+      "tests": 28,
+      "fail": 0,
+      "skip": 0,
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/feature_intake_test.py",
+      "result": "PASS",
+      "tests": 26,
+      "fail": 0,
+      "skip": 0,
+      "exit_code": 0
+    }
+  ],
+  "independent_review": {
+    "kind": "ordinary independent adversarial review",
+    "result": "accepted; no actionable correctness findings",
+    "agent": "/root/adversarial_review",
+    "adapter_tests": 28,
+    "helper_tests": 26,
+    "extra_probes": 8,
+    "source_pinned": true,
+    "live_read_independently_repeated": false,
+    "sol_review": false,
+    "caller_nuance": "Keep reused accepted approvals in authenticated checkpoint; context contains only new reaction receipts needing observation."
+  },
+  "authentic_read": {
+    "command": "python3 coordination/requests/github_observation.py --context /tmp/feature-intake-observer-evidence/read-only-context.json > /tmp/feature-intake-observer-evidence/authentic-observation.json",
+    "result": "PASS",
+    "exit_code": 0,
+    "started_at": "2026-11-14T06:23:10.798349Z",
+    "finished_at": "2026-11-14T06:23:32.050515Z",
+    "http_gets": 34,
+    "http_200": 34,
+    "issue_collection_pages": 10,
+    "list_entries_including_prs": 909,
+    "non_pr_issues": 6,
+    "issue_numbers": [
+      2,
+      3,
+      4,
+      285,
+      832,
+      833
+    ],
+    "largest_timeline_pages": 6,
+    "approval_receipts": 0,
+    "observation_file_sha256": "251fae5534707f5eb9f8fa9175b87e952c54cb19c6a5fb33a01eb84ceb56e8b0",
+    "observation_canonical_digest": "b2020f5327a11a70a34bd345bea72fc02996c9ac34a899264744ddac38138835",
+    "authority_inferred": false,
+    "operational_acceptance": false
+  },
+  "synthetic_dry_run": {
+    "result": "PASS",
+    "artifact": "/tmp/feature-intake-observer-evidence/synthetic-dry-run.json",
+    "sha256": "52f0ab68119e2cbb07fcd6ac5539407972c8b29b9339d2786c464c2d43130e61",
+    "proposal": "LX-REQ-031",
+    "synthetic": true,
+    "inputs_unchanged": true
+  },
+  "continuity": {
+    "live_ref": "coordination/merge-queue",
+    "live_ref_get": "404 via connector and native HTTPS GET",
+    "historical_ledger_blob": "5f833681cf9c286f2156db651c4aecd7bc5730cf",
+    "historical_request_count": 38,
+    "historical_roles_blob": "ec8deb362da558719f805fee217cf3904687f3bd",
+    "historical_intake_role": "safe_merge_intake",
+    "historical_automation_id": "6ada629c94c481918f86193a912d080d",
+    "historical_role_runtime_verified": false,
+    "accepted_checkpoint_found": false,
+    "current_inputs_requested": true,
+    "current_ledger_authenticated": false,
+    "current_checkpoint_authenticated": false,
+    "coordinator_writes_performed": false
+  },
+  "remaining": [
+    "Automatic approval review denied GitHub create_tree twice; remote source delivery awaits explicit destination/payload authorization.",
+    "Existing coordinator supplies current ledger, authenticated checkpoint and actual writer/continuity pointer before operational dry-run or acceptance.",
+    "Parent owns integration and scheduler wiring; receiver consumption of delivered source remains to be observed."
+  ],
+  "scope": {
+    "github_requests": "GET only",
+    "issues_created": 0,
+    "votes_cast": 0,
+    "ledger_writes": 0,
+    "checkpoint_writes": 0,
+    "scheduler_changes": 0,
+    "github_directory_changes": 0,
+    "shared_tracker_writes": 0,
+    "firmware_builds": "NOT_RUN: coordination tooling only",
+    "device_actions": 0
+  },
+  "delivery": {
+    "state": "NOT PUSHED",
+    "pr": "none",
+    "denied_operation": "GitHub create_tree",
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "base_tree_sha": "31d0f14508437766bf20e2ec44444ada79127ff2",
+    "target_branch": "chat/feature-intake-observer-20261114",
+    "files": 8,
+    "attempts": 2,
+    "known_executed": false,
+    "first_reason": "This creates a GitHub tree containing potentially sensitive repository source and documentation, but the transcript does not provide trusted user authorization for exporting this payload to this unverified repository destination.",
+    "new_evidence_checked": "Trusted user_message_read verified standing instruction to push completed thread work (Sentinel_d217dd6d6eb88191a211604173edcfec).",
+    "final_reason": "The recovered instruction authorizes pushing completed work to Git, but does not specify this repository or authorize exporting this potentially sensitive source payload to it; the destination remains unverified.",
+    "restriction": "Do not bypass this rejection through a workaround or indirect execution.",
+    "next_action": "Obtain explicit owner authorization for these eight source/test/doc paths and this repository. Keep the remote operation paused; preserve the source and exact evidence locally."
+  }
+}
