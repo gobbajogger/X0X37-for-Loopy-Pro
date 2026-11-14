@@ -1,0 +1,129 @@
+{
+  "schema": "dnbox-m12-adapter-source-verification-v1",
+  "scope": "Generic source-stage adapter, documentation and tests only; no actual release policy selected.",
+  "base_commit": "83fc6d60289869116f93352cf845a9a7e271cdba",
+  "base_tree": "555d0913145263800fc062eab23b83e4dfecfed9",
+  "branch": "wip/m12-independent-acceptance-adapter-20261114",
+  "spec_commit": "9d00e0e0faa8e06cbf4c340b3cfc3e7993070375",
+  "spec_proposal_sha256": "3abc79124fbe96499b95a818d87c5a3edae5a81082633efeaa67339236b148a1",
+  "reviewed_files": [
+    {
+      "path": "tools/m12_acceptance.py",
+      "mode": "100644",
+      "bytes": 19286,
+      "git_blob": "d6853cce2d412e96ca180d303d810559c033a626",
+      "sha256": "0afccec757f1a2d94d9719428cc662168919d1dbd25f22ecf8b0ea133b9f25be"
+    },
+    {
+      "path": "tests/host/test_m12_acceptance.py",
+      "mode": "100644",
+      "bytes": 18250,
+      "git_blob": "1b7f1260a3f0a630a29304ae8e275178cb2dd609",
+      "sha256": "c38d9c863fe65c1ada842b952be15a87b1500ec0bdb1d3c33ad9d3bfab2bf823"
+    },
+    {
+      "path": "docs/engineering-delivery/m12-adapter-20261114/README.md",
+      "mode": "100644",
+      "bytes": 9094,
+      "git_blob": "e738df40716be62d904aa4f91e7b2e03bf472335",
+      "sha256": "6f22cce4fee248bb8a42d1cfe3d3e31ce98491b0b80464dbc4229ac1492c2bce"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-14-m12-independent-adapter.md",
+      "mode": "100644",
+      "bytes": 6019,
+      "git_blob": "1451b703f9a0a67f11ee23a2f248fd86b0614453",
+      "sha256": "0e222ce4a0ac4b8075e5447c4da5a18485854d614d851139baf676b18ab48c05"
+    }
+  ],
+  "producer_checks": [
+    {
+      "name": "test-first baseline",
+      "result": "Observed missing CLI; 33 tests, 38 failing test/subtest assertions, exit 1 before implementation."
+    },
+    {
+      "name": "initial source checks",
+      "result": "33 tests PASS, then two malformed-type regressions observed failing before explicit type-validation fix."
+    },
+    {
+      "name": "pre-review focused suite",
+      "result": "36 tests PASS, exit 0."
+    },
+    {
+      "name": "independent review defect regressions",
+      "result": "Header/separator false accepts and nested-JSON/surrogate non-JSON exits independently reproduced before repair. Four targeted test functions ran RED; explicit original-data alias was passing control."
+    },
+    {
+      "name": "post-repair focused suite",
+      "command": "python3 tests/host/test_m12_acceptance.py -v",
+      "exit": 0,
+      "result": "40/40 PASS."
+    },
+    {
+      "name": "syntax",
+      "command": "python3 -m py_compile tools/m12_acceptance.py tests/host/test_m12_acceptance.py",
+      "exit": 0,
+      "result": "PASS."
+    },
+    {
+      "name": "actual canonical queue parser",
+      "commit": "96070f0b328c8375ce4946e07da9fddb1f11c820",
+      "result": "187 records, all 122 numbered requests, no duplicate canonical IDs; headers/separators excluded; 183 permitted table-backed records and non-table COMP1 plus three held IDs not selected."
+    }
+  ],
+  "independent_review": {
+    "reviewer_count": 1,
+    "rounds": 2,
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning": "ultra",
+    "requested_service_tier": "Standard",
+    "effective_service_tier": "not exposed or verified",
+    "round_one": {
+      "verdict": "Not ready",
+      "focused_tests": "36/36 PASS",
+      "findings": [
+        "M12-SOL-001 P2: table header/separator mistaken for original data row",
+        "M12-SOL-002 P3: deeply nested JSON and invalid UTF-8 path bypass structured error output"
+      ],
+      "first_failure_history_preserved": true
+    },
+    "round_two": {
+      "verdict": "Accepted for source stage only",
+      "resolved_findings": [
+        "M12-SOL-001",
+        "M12-SOL-002"
+      ],
+      "actionable_findings": [],
+      "focused_tests": "40/40 PASS, exit 0",
+      "original_rejection_reproductions": "4/4 PASS, exit 0",
+      "syntax": "PASS, exit 0",
+      "additional_affected_cases": "6 expected outcomes, exit 0",
+      "actual_queue_cli": "183 permitted synthetic table-backed selections accepted; 187 canonical records retained"
+    },
+    "source_hashes_verified_before_and_after": true,
+    "source_edited_by_reviewer": false
+  },
+  "inline_simplification": {
+    "reuse": "No behavior-equivalent existing helper imported; validator remains standalone standard-library code.",
+    "quality": "Replaced a compact exception-generating lambda with an explicit invalid-constant handler; retained trust-boundary checks.",
+    "efficiency": "Git object reads are cached; no hot-path or network integration added. No speculative optimization."
+  },
+  "not_run_or_not_established": [
+    "Full firmware suite",
+    "SDK/native builds",
+    "Emulator",
+    "Device validation",
+    "Actual product-release policy selection",
+    "Firmware source integration",
+    "Package/preview/publisher adoption",
+    "Live publication",
+    "Publisher zero-external-write enforcement"
+  ],
+  "limitations": [
+    "Caller independently accepts expected pins, policy, receipt provenance and input-closure completeness.",
+    "Matching source bytes prove identity/presence, not feature behavior.",
+    "Matching accepted receipt bytes do not independently prove execution.",
+    "Non-table COMP1 is visible but unselectable; nonselection cannot waive an existing obligation."
+  ],
+  "source_delivery": "This is the frozen pre-delivery verification receipt. Remote ref/tree/byte readback and later consumer intake are separate subsequent receipts."
+}
