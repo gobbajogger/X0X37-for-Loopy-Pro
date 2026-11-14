@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base_commit": "a0c8698f724e28ec6275307525933c195817b3c5",
+  "base_tree": "e58592f678c804798aa2250da84f815520731ca5",
+  "dependencies": [
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/lib/dr_wav/dr_wav.h",
+      "bytes": 129191,
+      "sha256": "0189f571847dd300c4749830f66c21003ab1d5ee17f0c64ab56659c3c5351ed2",
+      "git_blob_sha": "196da203ec4f48f40d2616eff155d28935ab77f4"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/port.c",
+      "bytes": 1163,
+      "sha256": "2a0451a80fd74ab52805114609bb937df662492858f5768c120da8af7af1a490",
+      "git_blob_sha": "0fa9ff4f18aab7932e5c9feb89f5dd6ae96ccccf"
+    },
+    {
+      "path": "../audiokit-4.9.2/AudioKit/Core/Soundpipe/soundpipe.h",
+      "bytes": 51563,
+      "sha256": "f3a87027492c30d73c5d87d964010f3042220dbcd436556c0b47c82119781386",
+      "git_blob_sha": "aa1bc2123ac0d4b53ee11b744323a381252cad91"
+    },
+    {
+      "path": "../notices/AudioKit-4.9.2-MIT.txt",
+      "bytes": 1085,
+      "sha256": "b9aad96b49e7afcadb3f351b733de24577924b3ba48c82a3e07393d8b9f96c5e",
+      "git_blob_sha": "e99249a865bfbacdeeda22e965268a42ff638913"
+    },
+    {
+      "path": "../notices/SynthOne-MIT.txt",
+      "bytes": 1075,
+      "sha256": "71ac2b8af8849096ba2d0f3510972b8384204f17517e773bfa52fc755fb0fc49",
+      "git_blob_sha": "be8551b835e760f321887b531d2f09d8ffa05c5a"
+    },
+    {
+      "path": "../public-source-manifest.json",
+      "bytes": 280554,
+      "sha256": "86032f0fbae4fade0247766d720eeb03e8527a0ecb5d32b50f6b2c180da253cc",
+      "git_blob_sha": "53aaac394a270270d86c7b9b2f5b8cf53f0e51ad"
+    },
+    {
+      "path": "../smoothing-cache-oracle/parameter_flags.h",
+      "bytes": 456,
+      "sha256": "998e5326c5ead9c6ddcb4b3be2ed6539dbbcfb4f5095d58636dcd50224904dc7",
+      "git_blob_sha": "2afe756f4e1fd3487d93f53cf91a4c2f8fc7d17e"
+    }
+  ],
+  "project_inputs": [
+    {
+      "path": "parameter_ports.cpp",
+      "bytes": 5199,
+      "sha256": "bdf3ee420d61211849afbdd5de5cb4fe4b027922275b8d8cd9cf828bd21fc86c",
+      "git_blob_sha": "29698ec4580d0d2c4c122a0b1c1ad47027372a86"
+    },
+    {
+      "path": "parameter_ports.hpp",
+      "bytes": 1836,
+      "sha256": "b533cc60b93da7df64aca34be3f382ff0191ffd2c4f6db6275bffcd06c665f61",
+      "git_blob_sha": "d307908a020c077bf0cd7ad028c2f3c12b5e4d7f"
+    },
+    {
+      "path": "generated/parameter_map.cpp",
+      "bytes": 845,
+      "sha256": "71b50fadd233d7092abec38be6ce92353a734c578ce68f2a0e3ac1f23bc67cae",
+      "git_blob_sha": "1312747108e715edf9abf5daec207776995660cb"
+    },
+    {
+      "path": "generated/parameter_map.hpp",
+      "bytes": 445,
+      "sha256": "c7bc2f49818d4f0c202b6b1c79ea7552f8a70476ff388889636908f7421ca11e",
+      "git_blob_sha": "d0e4de5389b2f55e6cdf4a4e39be5d4445dc8d33"
+    },
+    {
+      "path": "tests/ports_test.cpp",
+      "bytes": 13709,
+      "sha256": "6c02b2be8d2159326c1a2a6723c529c9dbd0b4309cbca664c3c7f0c3a0c70e92",
+      "git_blob_sha": "2a761696d9047bdc9c0435017263781893c53f85"
+    },
+    {
+      "path": "tests/projection_smoke.cpp",
+      "bytes": 2676,
+      "sha256": "5abbbee72d641d2231c2af1fac2a537efba468bf760984e4b06c99885e0eb4bc",
+      "git_blob_sha": "2a0741e9a73875e518b7d96da1e78bc020a4bc6d"
+    },
+    {
+      "path": "generate_metadata.py",
+      "bytes": 4227,
+      "sha256": "60ab6d1ce93c71699f0fddfd473beea5022451f927a36aab5badfca3e0f4439d",
+      "git_blob_sha": "13f2e00c707d4ef3fe45e4d786252d83ac0c479c"
+    }
+  ],
+  "project_allowlist": [
+    ".gitignore",
+    "DEPENDENCIES.json",
+    "README.md",
+    "generate_metadata.py",
+    "generated/parameter_map.cpp",
+    "generated/parameter_map.hpp",
+    "mutation_checks.py",
+    "parameter_ports.cpp",
+    "parameter_ports.hpp",
+    "run.sh",
+    "tests/ports_test.cpp",
+    "tests/projection_smoke.cpp",
+    "tests/test_inputs.py",
+    "verify_inputs.py"
+  ]
+}
