@@ -210,13 +210,13 @@ New/resumed threads and subagents use only Sol 6.1 or Astra where selectable; re
 
 ## M12
 
-**Current disposition:** Root reports M12 exporter recorded inProgress but unresponsive; its branch remains 94197fc8 source-only. Actual liveness/intake unknown; Library packet is not remote Git delivery. Browser-contract export is separately verified under #52/#104 and does not resolve M12.
+**Current disposition:** Standalone acceptance-adapter source stage is preserved in draft #926 at `0e2b7b78d223e10af1e9172db6dee657a8d590cb`, independently reviewed and remotely verified. This supersedes the stale claim that M12 has only a source-only `94197fc8` preservation branch. Actual product policy, non-table COMP1 selection and package/preview/publisher enforcement remain unadopted or unestablished; M12 is not complete.
 
 **Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
 
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
+**Exact input/evidence:** [#926 source-only adapter](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/926), head `0e2b7b78d223e10af1e9172db6dee657a8d590cb`, tree `9b8309eff6f3c52d8b820989de30f2498fd92987`; its public review records 40/40 focused tests and the non-table COMP1 limitation. These are scoped adapter checks, not product-release acceptance.
 
-**Next action:** Reconcile exporter admission/ownership and exact retained packet before one bounded successor; verify remote head and relevant bytes after export. Continue independent authorized work.
+**Next action:** Retain the existing firmware release-readiness owner for policy disposition and the existing isolated COMP1 identity-extension plan; reconcile current ownership before continuing that plan. Authenticate actual policy/receipt closure and prove rejection at each real downstream boundary before adoption. Do not waive COMP1, reuse synthetic selections as product acceptance, export private crosswalk/intake metadata, or retry refused payloads.
 
 **Preserved source section:** 0.0.25 owner requests (trimmed; evidence in the 2026-11-12 commits)
 
@@ -262,15 +262,15 @@ New/resumed threads and subagents use only Sol 6.1 or Astra where selectable; re
 
 ## U1
 
-**Live Git read (2026-11-14 14:19 UTC):** [PR #921](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921), head `c416a45f9bdab5be43a78e92fc82d92e4851e4db`, tree `510f4da23f59a9ed54347ecfe33173f4a5b0bda0`, branch `design/dnbox-whole-instrument-20261114`, open, draft, unmerged. Four design-only files; no runtime implementation or whole-design acceptance. Historical #891 and its source row remain preserved below. A Git state is not worker liveness.
+**Historical Git read (2026-11-14 14:19 UTC):** [PR #921](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921), head `c416a45f9bdab5be43a78e92fc82d92e4851e4db`, tree `510f4da23f59a9ed54347ecfe33173f4a5b0bda0`, branch `design/dnbox-whole-instrument-20261114`, open, draft, unmerged. Four design-only files; no runtime implementation or whole-design acceptance. Historical #891 and its source row remain preserved below. A Git state is not worker liveness.
 
-**Current disposition:** Bounded mockups were authorized after R22. Whole-instrument design source is delivered in #921; scoped review is not whole-design acceptance. CP1 external cases, CP2 capture strategy, dependent CP3 lifecycle, Settings visual integration, comparator and DF1 remain open. Runtime implementation still requires design approval.
+**Current disposition:** Frozen R3 design #921 `96b4f43498a089b326e463097b2e9641458e4589` has independent review findings requiring correction. The reviewer exercised its pinned `3c41ef4b` Elite/Pro packages and separately tested the R3 reducer as MODEL_ONLY; browser proposal interaction was NOT_RUN. The incumbent designer is correcting a separate R4 successor. No whole-design acceptance or firmware implementation approval follows.
 
 **Owner:** Existing whole-instrument design owner retains design integration; the incumbent whole-firmware program owner retains downstream source integration. Dot coordinates this receipt, not a second designer or firmware writer.
 
-**Exact input/evidence:** #921's four files preserve the walkthrough, README, export manifest and scoped independent review; source baseline `94197fc839b00aff47b98ca02f3c6396e4a6eabf`, export HTML SHA-256 `da9fc7e193ddc138e68675d99621dd12fb878108915b1946772bfdb1007d3418`. Settings R2 SHA-256 `3ba167e0b01c21e08a14eb84d87d2c3b074d46b16b8960319e81c66aabaabc9d` was separately verified by the design owner; it is a supplement, not visually merged into #921. Existing 152 affected and 103 browser-state checks are reused producer evidence, not new runs. Firmware owner was already sent the exact design source; actual first use remained NOT_OBSERVED at 14:19 UTC.
+**Exact input/evidence:** [R3 review receipt](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921#issuecomment-6880696356), design `96b4f43498a089b326e463097b2e9641458e4589`, tree `d72d27822f95a70fc113cf07c56009b55aadb472`; report SHA-256 `706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865`. [Earlier composition intake](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921#issuecomment-6879770381) establishes Settings R2/LOAD composition at `a8986ac2d364bb59a38e068381e18ca068fe7c8d`, not acceptance of later R3.
 
-**Next action:** Existing design owner resolves the open CP1–CP3, comparator/DF1 and Settings visual/LOAD footer dependencies, explicitly retaining normal start/stop consequences and the clip-mode exception. Reconcile uncertain CP1 admission before any replacement. Existing firmware owner binds #921 to the same integration crosswalk and records actual first use; do not repeat the already sent steer, old tests or plan-approval wait. Independent reviewers exercise available emulator and state limits before design acceptance; runtime/native/device qualification stays separate.
+**Next action:** The incumbent designer corrects the full R3 review findings in the proposal, including stale envelope feedback, wrong drum MIX/pad context, substituted or missing glyphs, navigation/page-memory and Miami/B-slot identity. Freeze R4 for affected recheck by the same independent reviewer before presenting it as source-faithful. Preserve reserved CP1 ownership, CP2 before CP3, comparator/DF1 and runtime/native/device gates; no duplicate designer or reviewer.
 
 **Preserved source section:** Later owner requests (2026-11-13)
 

@@ -6,15 +6,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 **Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
 
-**Live Git read (2026-11-14 11:20 UTC):** [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890), head `34c321466ca3ccb5b7f125c3513cebf4ec76640c`, branch `website-ux/v2-preview`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
+**Historical Git read (2026-11-14 11:20 UTC):** [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890), head `34c321466ca3ccb5b7f125c3513cebf4ec76640c`, branch `website-ux/v2-preview`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Ongoing web-product integration. Resumed owner acknowledged accepted candidate manifest a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f; producer reports 87 route/viewport and 21 journey checks plus Pattern 5/mixed-part continuity. Git preservation, final packet, component integration and publisher intake remain pending in the observed receipt; not deployed website completion.
+**Current disposition:** The joined V4 source/launcher is delivered in draft #923 at `df04da993c13e55b98254c2300765f190f1649fd`; its public source record distinguishes prior independent qualification from deployment. The existing web owner is now implementing the owner-requested source-derived HTML firmware teaching interaction after independent design review. This changed interaction is not yet a qualified result or a deployed site.
 
 **Owner:** Web product owner 6af84ba2-9170-8191-9dbd-e5cc8450b0f4; original V3 producer 6af84177-2584-8191-a4a2-651f4a4750dc is historical, not current shared writer. Component suppliers and sole publisher retain scopes.
 
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
+**Exact input/evidence:** [#923 source/launcher](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/923), head `df04da993c13e55b98254c2300765f190f1649fd`; the new HTML reference is firmware `79280e763341d03ba43266d3e25dad66f12de860` (displayed/requested as 0.0.25.1). Earlier V3 receipts below remain dated evidence, not acceptance of the changed interaction.
 
-**Next action:** Preserve accepted exact candidate, consume manual a19da721c25ab2323bb818851ab4d92e8ca3aa15 and other component outputs, verify integration and permitted publisher intake. Do not repeat unchanged checks or retry denied publication. Receipt msg_03832422de20bbd8016af8611466cc87d1bc515a74b76c9d81 confirms resumed candidate acknowledgment; the manual delegation alone is not consumption.
+**Next action:** Keep the accepted joined inputs fixed, finish the source-derived HTML interaction against exact 0.0.25.1 firmware screens, glyphs and control behavior, then independently validate the changed candidate. Unknown screens must remain unclassified rather than acquire guessed labels. Preserve version identity and actual export/deployment refusals; do not repeat unchanged launcher/component checks.
 
 **Consumed input:** V3 archive SHA-256 `9ce98216ab67fdc226e56bc7b7bf31a7634162a077dfa63f68fb3f953559b241`; Library ID `libfile_fde3_f-5f36010bb1b88191861379c30c3fa9a8_2021479872048191acbfdca1f870a539`. This receipt is actual input consumption, not completion; retrieve via Library and verify identity before reuse.
 
@@ -30,15 +30,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 **Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
 
-**Live Git read (2026-11-14 11:20 UTC):** [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890), head `34c321466ca3ccb5b7f125c3513cebf4ec76640c`, branch `website-ux/v2-preview`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
+**Historical Git read (2026-11-14 11:20 UTC):** [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890), head `34c321466ca3ccb5b7f125c3513cebf4ec76640c`, branch `website-ux/v2-preview`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Same current web-product owner and accepted candidate as W1; accurate hardware depiction and versioned simulator/device distinctions remain required. Broad image/hardware fidelity is not independently established by this queue update.
+**Current disposition:** The existing web owner has consumed the exact 0.0.25.1 `ui.c`, pictogram bitmasks and renderer definitions for the source-derived HTML interaction. This is substantive source intake and implementation in progress, not established 1:1 visual/behavioral fidelity or physical-device validation.
 
 **Owner:** Web product owner 6af84ba2-9170-8191-9dbd-e5cc8450b0f4; retain component owners and sole publisher, no second website writer.
 
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
+**Exact input/evidence:** [#923 source/launcher](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/923), head `df04da993c13e55b98254c2300765f190f1649fd`; the new HTML reference is firmware `79280e763341d03ba43266d3e25dad66f12de860` (displayed/requested as 0.0.25.1). Earlier V3 receipts below remain dated evidence, not acceptance of the changed interaction.
 
-**Next action:** Verify hardware depiction and source-grounded physical-control feedback in the actual integrated candidate. Reuse W1 exact-candidate proof where applicable; do not infer device validation from host images.
+**Next action:** Compare the actual reconstructed HTML states and physical-control responses with the pinned firmware/emulator LCD, including header, grid, cells and value regions. Preserve native glyphs, geometry and values; classify uncovered views honestly. Reuse only unchanged prior component proof.
 
 **Consumed input:** V3 archive SHA-256 `9ce98216ab67fdc226e56bc7b7bf31a7634162a077dfa63f68fb3f953559b241`; Library ID `libfile_fde3_f-5f36010bb1b88191861379c30c3fa9a8_2021479872048191acbfdca1f870a539`. This receipt is actual input consumption, not completion; retrieve via Library and verify identity before reuse.
 
