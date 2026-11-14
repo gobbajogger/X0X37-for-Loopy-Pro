@@ -404,7 +404,8 @@ static void test_factory_stable(void)
     if (ORIGINAL_JUNO_FACTORIES == 8u) {
         uint32_t full = factory_table_crc(8u);
         printf("expanded_factory_table_crc=0x%08x\n", full);
-        expect(full == 0xf4c1b51eu, "expanded factory table hash pinned");
+        /* Reviewed #918 Level44/55 bank; legacy prefix pin remains unchanged. */
+        expect(full == 0x42888dafu, "expanded factory table hash pinned");
     }
     expect(preset_record_factory_count(PRESET_ENGINE_JUNO) == ORIGINAL_JUNO_FACTORIES,
            "juno origin max matches bank");
