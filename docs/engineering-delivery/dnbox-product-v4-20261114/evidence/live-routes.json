@@ -1,0 +1,38 @@
+[
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/previews/dnbox-v3-20261114/index.html",
+    "status": 200,
+    "bytes": 1672,
+    "sha256": "cb045076fdce6f00966b991924b848dc1ed1b4e09ab9cb6237cbdbda7e909731"
+  },
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+    "status": 200,
+    "bytes": 628755,
+    "sha256": "9f0726ae387a0773e95601ad0ff77560982acdbf180c6c8545deeff7cf07a669"
+  },
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/",
+    "status": 200,
+    "bytes": 116832,
+    "sha256": "4857537fd74f7d8875ec3be340a210d5a4a0c49e82de95cf2f1f06efb49de0be"
+  },
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/",
+    "status": 200,
+    "bytes": 93530,
+    "sha256": "574f8cf39dbf0270c75fa0f9ba0b8a8f623ba17142e539d6b718a552adb4b44a"
+  },
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/dnbox/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/emulator/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/presets/",
+    "error": "HTTP Error 404: Not Found"
+  }
+]

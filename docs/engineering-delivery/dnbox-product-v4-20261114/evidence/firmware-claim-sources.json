@@ -1,0 +1,41 @@
+{
+  "source": "79280e763341d03ba43266d3e25dad66f12de860",
+  "version": "0.0.25.1",
+  "sources": [
+    {
+      "path": "firmware/src/seq/pattern.h",
+      "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191",
+      "git_blob": "9810f8977dccb726e09d34666657f1e01bf83b1e"
+    },
+    {
+      "path": "firmware/src/seq/motion.h",
+      "sha256": "1eac93af3698769b22a5141e32431bfc46e7926c344dbcc2ac328f66d0f6b4f4",
+      "git_blob": "fcb39561683aa7531fdeeef5d78ae6e0d194425d"
+    },
+    {
+      "path": "firmware/src/app/engine.c",
+      "sha256": "3820540229ba2b88230d9a1f0cf3e1dd46eededc2a3f92fbdfb42fc16c2f33e5",
+      "git_blob": "db4725963b3ec12b6e494c1d9a084bb8a9132f0f"
+    },
+    {
+      "path": "firmware/src/app/engine.h",
+      "sha256": "727fe78871423a6c203d396530081e63f68a28b2a771a6a27cc9bf91f0912613",
+      "git_blob": "03aae7cf5ff9f2f4da0b710db55e78b8dd193c77"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "sha256": "61c2e8211ddd15b11d2aae383f1b748e17a06426291242d6e7c0309694a34fd5",
+      "git_blob": "9c435dc3475d6b8d6d1cfe109453995002f67055"
+    }
+  ],
+  "claims": {
+    "five parts": "engine.h PART_909/PART_808/PART_303A/PART_303B/PART_BRK; ui.c engine-aware displayed names",
+    "32 patterns / up to 64 drum and bass steps": "pattern.h NPAT/NSTEPS; BREAK uses 16-step bar",
+    "part length/rate/direction": "pattern.h bpart_t/dpart_t; ui.c SEQ_P",
+    "step probability / parameter locks": "engine.h T_PROB; ui.c control help STEP + SELECT: CHANCE, HOLD A STEP + KNOB: P-LOCK",
+    "recorded knob motion": "motion.h lane_t and motion_req_rec; ui.c REC help",
+    "BREAK slices/generator": "pattern.h brkpart_t slice,slot_a,slot_b,BRK_*",
+    "song arrangement / part mute": "ui.c V_HOME/V_SONG and song/set/mute paths",
+    "mod wheel": "engine.c comment+implementation Chicago cutoff, Miami wobble depth"
+  }
+}

@@ -1,0 +1,490 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "route": "home",
+      "title": "DnBOX — Standalone groovebox firmware for SMK-37",
+      "h1": "A whole track.\nUnder your hands.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "install",
+      "title": "DnBOX — Installation guide",
+      "h1": "Make your SMK-37 a DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "try",
+      "title": "DnBOX — Browser emulator",
+      "h1": "Real firmware. Browser timing still in progress.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "files",
+      "title": "DnBOX — Your music",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "companion",
+      "title": "DnBOX — Hardware MIDI companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "demo",
+      "title": "DnBOX — Try DnBOX",
+      "h1": "A few ways\ninto the groove.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "learn",
+      "title": "DnBOX — First beat",
+      "h1": "A kick on\nevery beat.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "learn/beat",
+      "title": "DnBOX — First beat",
+      "h1": "Four places.\nOne pulse.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "learn/save",
+      "title": "DnBOX — First beat",
+      "h1": "This one’s\nworth keeping.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "setups",
+      "title": "DnBOX — Setups",
+      "h1": "Where will you play?",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "help/recover",
+      "title": "DnBOX — Help",
+      "h1": "Find your next recovery step.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 1440,
+      "route": "sources",
+      "title": "DnBOX — About this preview",
+      "h1": "Exact examples. Clear boundaries.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "home",
+      "title": "DnBOX — Standalone groovebox firmware for SMK-37",
+      "h1": "A whole track.\nUnder your hands.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "install",
+      "title": "DnBOX — Installation guide",
+      "h1": "Make your SMK-37 a DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "try",
+      "title": "DnBOX — Browser emulator",
+      "h1": "Real firmware. Browser timing still in progress.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "files",
+      "title": "DnBOX — Your music",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "companion",
+      "title": "DnBOX — Hardware MIDI companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "demo",
+      "title": "DnBOX — Try DnBOX",
+      "h1": "A few ways\ninto the groove.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "learn",
+      "title": "DnBOX — First beat",
+      "h1": "A kick on\nevery beat.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "learn/beat",
+      "title": "DnBOX — First beat",
+      "h1": "Four places.\nOne pulse.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "learn/save",
+      "title": "DnBOX — First beat",
+      "h1": "This one’s\nworth keeping.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "setups",
+      "title": "DnBOX — Setups",
+      "h1": "Where will you play?",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "help/recover",
+      "title": "DnBOX — Help",
+      "h1": "Find your next recovery step.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 768,
+      "route": "sources",
+      "title": "DnBOX — About this preview",
+      "h1": "Exact examples. Clear boundaries.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "home",
+      "title": "DnBOX — Standalone groovebox firmware for SMK-37",
+      "h1": "A whole track.\nUnder your hands.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "install",
+      "title": "DnBOX — Installation guide",
+      "h1": "Make your SMK-37 a DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "try",
+      "title": "DnBOX — Browser emulator",
+      "h1": "Real firmware. Browser timing still in progress.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "files",
+      "title": "DnBOX — Your music",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "companion",
+      "title": "DnBOX — Hardware MIDI companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "demo",
+      "title": "DnBOX — Try DnBOX",
+      "h1": "A few ways\ninto the groove.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "learn",
+      "title": "DnBOX — First beat",
+      "h1": "A kick on\nevery beat.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "learn/beat",
+      "title": "DnBOX — First beat",
+      "h1": "Four places.\nOne pulse.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "learn/save",
+      "title": "DnBOX — First beat",
+      "h1": "This one’s\nworth keeping.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "setups",
+      "title": "DnBOX — Setups",
+      "h1": "Where will you play?",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "help/recover",
+      "title": "DnBOX — Help",
+      "h1": "Find your next recovery step.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 390,
+      "route": "sources",
+      "title": "DnBOX — About this preview",
+      "h1": "Exact examples. Clear boundaries.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "home",
+      "title": "DnBOX — Standalone groovebox firmware for SMK-37",
+      "h1": "A whole track.\nUnder your hands.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "install",
+      "title": "DnBOX — Installation guide",
+      "h1": "Make your SMK-37 a DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "try",
+      "title": "DnBOX — Browser emulator",
+      "h1": "Real firmware. Browser timing still in progress.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "files",
+      "title": "DnBOX — Your music",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "companion",
+      "title": "DnBOX — Hardware MIDI companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "demo",
+      "title": "DnBOX — Try DnBOX",
+      "h1": "A few ways\ninto the groove.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "learn",
+      "title": "DnBOX — First beat",
+      "h1": "A kick on\nevery beat.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "learn/beat",
+      "title": "DnBOX — First beat",
+      "h1": "Four places.\nOne pulse.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "learn/save",
+      "title": "DnBOX — First beat",
+      "h1": "This one’s\nworth keeping.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "setups",
+      "title": "DnBOX — Setups",
+      "h1": "Where will you play?",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "help/recover",
+      "title": "DnBOX — Help",
+      "h1": "Find your next recovery step.",
+      "overflow": false,
+      "missing": []
+    },
+    {
+      "width": 320,
+      "route": "sources",
+      "title": "DnBOX — About this preview",
+      "h1": "Exact examples. Clear boundaries.",
+      "overflow": false,
+      "missing": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "Product names replacement firmware and exact hardware",
+      "pass": true
+    },
+    {
+      "name": "Direct install CTA",
+      "pass": true
+    },
+    {
+      "name": "Mobile essential navigation visible",
+      "pass": true
+    },
+    {
+      "name": "Nav The instrument",
+      "pass": true
+    },
+    {
+      "name": "Nav Emulator",
+      "pass": true
+    },
+    {
+      "name": "Nav Your music",
+      "pass": true
+    },
+    {
+      "name": "Nav Hardware MIDI",
+      "pass": true
+    },
+    {
+      "name": "Nav Guide",
+      "pass": true
+    },
+    {
+      "name": "Nav Install firmware",
+      "pass": true
+    },
+    {
+      "name": "Music nav opens real tool hub",
+      "pass": true
+    },
+    {
+      "name": "Menu closes on route",
+      "pass": true
+    },
+    {
+      "name": "Recording starts paused",
+      "pass": true
+    },
+    {
+      "name": "Explicit recorded playback advances",
+      "pass": true
+    },
+    {
+      "name": "Menu pauses recorded session",
+      "pass": true
+    },
+    {
+      "name": "Escape restores mobile menu focus",
+      "pass": true
+    },
+    {
+      "name": "Trial absence clearly stated",
+      "pass": true
+    },
+    {
+      "name": "No fake start instrument",
+      "pass": true
+    },
+    {
+      "name": "Actual projects URL",
+      "pass": true
+    },
+    {
+      "name": "Actual sample URL",
+      "pass": true
+    },
+    {
+      "name": "Presets no published route, no device save",
+      "pass": true
+    },
+    {
+      "name": "Companion distinct planned editing",
+      "pass": true
+    },
+    {
+      "name": "No fake connection",
+      "pass": true
+    },
+    {
+      "name": "Retained guide works",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "destinations": [
+    {
+      "status": "LIVE_BROWSER_NOT_RUN",
+      "reason": "ERR_CERT_AUTHORITY_INVALID; verified HTTPS byte receipts separate; no TLS bypass"
+    }
+  ],
+  "environment": "Headless Chromium; no physical device; no MIDI permission or write requested"
+}
