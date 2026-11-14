@@ -1,0 +1,175 @@
+{
+  "scope": "controller source, shared ABI, package/model/locked configuration unchanged since already-built baseline 94197fc8",
+  "entries": [
+    {
+      "path": "ble/ctl/.gitignore",
+      "blob": "9e016dcc9a0117c3248fec6c6008f4a2d80589bc",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/build_ctl.sh",
+      "blob": "72739d02157c3bcd00823486601f32e17c793ffd",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/build_in_container.sh",
+      "blob": "2f8f3cd803dd84c6c2b2f741dd17a25e5abae520",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/ctl.ld",
+      "blob": "5fa86110e36532f15b3ad8521d348c49b2bc180c",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/fetch_sdk.sh",
+      "blob": "739e1581b0fe933a571612372040d23b0d07325f",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/gen_rf_tables.py",
+      "blob": "0c35ff7b03f2b4ff2ad7f9d0ea88dc42f794d9a9",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/mkimage.py",
+      "blob": "6a3ca63844961e690dc1cc4d0a57bd5420223236",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/config.c",
+      "blob": "e36dd8e4872ea75616634f4bdf9baa5bc7d5a3c5",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_heap.c",
+      "blob": "da63514fd9f42af90834e8e00b164fc0d085c0b6",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_main.c",
+      "blob": "934a8241eb374033b1db69e56ad52cfec2040980",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_os.c",
+      "blob": "1128dba7448ed0adbb8d936caf276a113ddbdcdd",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_platform.c",
+      "blob": "14f2166c622873959223953abb76232e0d7384b3",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_port.c",
+      "blob": "a7cc5b5f4e3e83507b2d5f1b8280e94d3ff9e0ca",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_port.h",
+      "blob": "9facdbfa2589f29e875096d05fb80698a3d7cb9d",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_port_asm.S",
+      "blob": "4af9dadbc2908db4013e9bb70f2f6ff1ede978d1",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_syscfg.c",
+      "blob": "4b730b0384029f3f19fe3a1acdeb373b26409535",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/ctl_timer.c",
+      "blob": "b0e8cd26524ecfa4f1e653908ae36b075a510c75",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "ble/ctl/src/log_tags.c",
+      "blob": "b153ac35792f761aa76769717940ddef4272b03a",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/hal/x0x_ble_abi.h",
+      "blob": "8716949b32a1bb11fb3bf5f338f0265dffae9de9",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_glue.h",
+      "blob": "06206564355daab08f98ebdf9a52d1cfe7a8a069",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_central.c",
+      "blob": "5b7cba0f488fb93e6661762ca6060487f52ff823",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_central.h",
+      "blob": "1dff7509fb87e3ca36284b6764ad5b31e8c653b0",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_host.c",
+      "blob": "7adf849a28f328f2696004ac7f7eefd637c18fca",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_host.h",
+      "blob": "92428ab600853c7a30cc3b88bb3ec75044a9bcb0",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_uuid.h",
+      "blob": "c2a3faab2c5e7af18b5271be5220c3a1835ec853",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "firmware/src/ble/ble_role.h",
+      "blob": "0c8ee5f6eaa89a20f4dce26e4c2252515a3baeb0",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/add_ctl.py",
+      "blob": "67351363f7fc2336f24e449be2d05b3a9cfed78f",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/check_locked_settings.py",
+      "blob": "f1ac9fe3f1535c01cfd37016e158472740a1bc8d",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/firmware_build_labels.py",
+      "blob": "32fa131cbce901d3844bbba3a5b833fae3139190",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/fm1pkg_make.py",
+      "blob": "91da73ca63594ce75406d0eb616174397a321e55",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/locked_settings.json",
+      "blob": "6682f65776ef4703a456b2a99611b15d3994df1c",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/package_nightly.py",
+      "blob": "5f5fdb9c6cbccc8d7715c15c0c16cb9dcf10cca2",
+      "unchanged_since_941": true
+    },
+    {
+      "path": "tools/release_alloc.py",
+      "blob": "3926f1d409c8ae41e3d2e969d3a8a0e812505fc2",
+      "unchanged_since_941": true
+    }
+  ],
+  "all_unchanged": true,
+  "output_reuse": "a334208b owner-pinned output reused byte-for-byte; strict header/hash/ABI and package pairing validated",
+  "native_controller_compile": "NOT_RUN",
+  "current_source_reproducibility_of_a334": "NOT_REESTABLISHED",
+  "limitation": "Historical build025 receipt reports another source-built controller aafb4542 (61088 B), while a334208b (61552 B) was recovered from the prior public package. Do not label a334 as freshly rebuilt or establish its complete original native build lineage from this run."
+}

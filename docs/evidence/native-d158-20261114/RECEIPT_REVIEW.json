@@ -1,0 +1,250 @@
+{
+  "scope": "Independent frozen native receipt/artifact consistency review only; no builds, firmware suites, device or publication action",
+  "candidate": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+  "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+  "checkpoint_sha256": "91289548b616fa9ddb49b34df96c7436d1c350993c05461d0e1782e9f19d0ae2",
+  "checks": [
+    {
+      "check": "frozen checkpoint SHA256",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "candidate ref commit tree parent pins",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "all source bytes/modes and independent Git tree",
+      "pass": true,
+      "detail": {
+        "blobs": 5412,
+        "errors": []
+      }
+    },
+    {
+      "check": "recorded before/after source equals actual",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "13 changed paths plus 5399 verified baseline blobs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "recorded shared inputs unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "all consumed SDK boot/config pins match exact source",
+      "pass": true,
+      "detail": {
+        "tag": "AC79NN_SDK_V1.2.14_2026-10-13",
+        "count": 3
+      }
+    },
+    {
+      "check": "entire 643-file toolchain byte/mode/link closure",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "check": "toolchain manifest hash and compiler pin",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "all eleven artifact sizes/hashes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "controller source input and retained local bytes exact a334",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite actual command timing exit and log metrics",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite resource arithmetic and exact prior saving",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite local app ELF loader identities",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite ELF confirms static RAM and pool",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite artifact app equals load image reconstructed from ELF",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite raw decoded model and exact app",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite raw payload CRCs and exact OTA",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite raw controller block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite complete decoded model and exact app",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite complete payload CRCs and exact OTA",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite complete controller block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite complete package CRC32 SHA256 and version",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite recorded checks authentic logs and expected exits",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "elite negative evidence remains actual expected refusals",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro actual command timing exit and log metrics",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro resource arithmetic and exact prior saving",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro local app ELF loader identities",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro ELF confirms static RAM and pool",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro artifact app equals load image reconstructed from ELF",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro raw decoded model and exact app",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro raw payload CRCs and exact OTA",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro raw controller block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro complete decoded model and exact app",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro complete payload CRCs and exact OTA",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro complete controller block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro complete package CRC32 SHA256 and version",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro recorded checks authentic logs and expected exits",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "pro negative evidence remains actual expected refusals",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "aggregate native/package/source verification exits",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "stage scope honest and no broad acceptance claim",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "check_count": 41,
+  "findings": [],
+  "result": "ACCEPT_SCOPED_NATIVE_RESOURCE_PACKAGE_EVIDENCE",
+  "metrics": {
+    "elite": {
+      "app_bytes": 543860,
+      "flash_free": 8812,
+      "flash_margin_above_floor": 620,
+      "pool_free": 8340,
+      "pool_margin_above_floor": 148,
+      "static_ram_free": 2768,
+      "saving_from_3c41": 2800
+    },
+    "pro": {
+      "app_bytes": 543848,
+      "flash_free": 8824,
+      "flash_margin_above_floor": 632,
+      "pool_free": 8340,
+      "pool_margin_above_floor": 148,
+      "static_ram_free": 2768,
+      "saving_from_3c41": 2800
+    }
+  },
+  "remaining": [
+    "idle fixture FAIL remains unresolved",
+    "required host Clang NOT_RUN",
+    "final idle-runner correction link-only proof, not another execution PASS",
+    "full-suite/performance/emulator/device acceptance remains open",
+    "a334 controller reused; complete original build lineage not reestablished",
+    "source integration, publication, owner availability and hardware gates unchanged"
+  ]
+}

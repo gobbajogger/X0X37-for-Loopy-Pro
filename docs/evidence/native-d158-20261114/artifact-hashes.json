@@ -1,0 +1,57 @@
+[
+  {
+    "path": "artifacts/DnBOX-0.0.26-BUILD_ONLY-d1584441-elite.fwsc",
+    "bytes": 651732,
+    "sha256": "fcc34f810ecc9e0b0254874585c872adba57f2ee378ac52b96b0cfa0a44f5336"
+  },
+  {
+    "path": "artifacts/DnBOX-0.0.26-BUILD_ONLY-d1584441-pro.fwsc",
+    "bytes": 651730,
+    "sha256": "71ea59d19ff4ab7789e048c0fbaf18e27ea37848dd0920ad36db41a0a30a5865"
+  },
+  {
+    "path": "artifacts/ctl-a334208b.img",
+    "bytes": 61552,
+    "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984"
+  },
+  {
+    "path": "artifacts/elite/app-only.fwsc",
+    "bytes": 651732,
+    "sha256": "f3e2c9032d77013bbcc370a046072d0092a27c5d8a28b5ae9ba3c5a6c85a11d0"
+  },
+  {
+    "path": "artifacts/elite/ota.bin",
+    "bytes": 7616,
+    "sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03"
+  },
+  {
+    "path": "artifacts/elite/x0x.bin",
+    "bytes": 543860,
+    "sha256": "fcb96a6c2410d90e0948168dbeca3863e996fadc7200272ee5db0ff5bee72239"
+  },
+  {
+    "path": "artifacts/elite/x0x.elf",
+    "bytes": 629908,
+    "sha256": "89547804559f8d30f5277e7bc2839fd02199e21c19331a6855e14da7021a656f"
+  },
+  {
+    "path": "artifacts/pro/app-only.fwsc",
+    "bytes": 651730,
+    "sha256": "f6c9a2f636cccff3bca0775d3df665bf2d800a3044c6ce88b93b105e7788a388"
+  },
+  {
+    "path": "artifacts/pro/ota.bin",
+    "bytes": 7614,
+    "sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5"
+  },
+  {
+    "path": "artifacts/pro/x0x.bin",
+    "bytes": 543848,
+    "sha256": "8d609357707595ef6c3f97bdb62b493e81c829ca756d55c6d7e2ff183a47a29b"
+  },
+  {
+    "path": "artifacts/pro/x0x.elf",
+    "bytes": 629900,
+    "sha256": "c67b3c162f3d5491cada0039c4825b4848320ac75d8566f6ad1ed039ec3397e7"
+  }
+]

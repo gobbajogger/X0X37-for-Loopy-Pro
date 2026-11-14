@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "scope": "Historical exact-source native BUILD_ONLY resource/package evidence. Not full firmware qualification or publication.",
+  "derivation": "Portable technical extraction from the frozen native checkpoint; not the original checkpoint or raw command logs.",
+  "original_checkpoint_sha256": "91289548b616fa9ddb49b34df96c7436d1c350993c05461d0e1782e9f19d0ae2",
+  "original_independent_review_sha256": "39c8f14f0f21bd7e0f7d42f2b9409c79595568ea49c0f845179a64fe9abfc82f",
+  "source": {
+    "source_head": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "source_tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+    "source_parent": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "source_branch_verified_at_intake": "chat/whole-instrument-opt-composition-20261114",
+    "remote_source_closure": "PASS",
+    "tracked_blobs_verified_before_and_after": 5412,
+    "changed_new_blobs_fetched_through_GitHub": 13,
+    "baseline_generated_or_untracked_source_reused": false,
+    "required_private_untracked_application_source": "NONE (full tracked tree compiled successfully)",
+    "source_and_shared_inputs_unchanged_after_build": true
+  },
+  "build_configuration": {
+    "sdk_tag": "AC79NN_SDK_V1.2.14_2026-10-13",
+    "board": "smk37",
+    "X0X_DEV_PADCAL": 0,
+    "nightly_display_version": "0.0.26",
+    "compiler_identity": {
+      "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+      "compiler_version": "clang version 4.0.1 () ()",
+      "sdk_pins_sha256": {
+        "cpu/wl82/tools/uboot.boot": "64ccc63e4df3238046fadb200f1b134311d8fe6ec6e3ccb8c8b81379231b867e",
+        "cpu/wl82/tools/cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+        "cpu/wl82/tools/cfg/eq_cfg_hw.bin": "179ac9f4501d2cf8c3bdbc06fcda1e46228b7ace7e339342c767bb6568de57d8"
+      }
+    },
+    "toolchain_manifest_sha256": "a86bcdae839881c887a070267a46c4bde0aa941a297d211610e4784e96adca23"
+  },
+  "controller": {
+    "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+    "bytes": 61552,
+    "validation": null,
+    "reuse": "exact owner-pinned immutable output; NOT a fresh controller compile"
+  },
+  "models": {
+    "elite": {
+      "native_compile": "PASS",
+      "native_build_exit": 0,
+      "native_builtin_checks": "PASS (script enforces overlap/pool/RAM, not the separately required 8192-byte flash reserve)",
+      "app_bytes": 543860,
+      "code_area_bytes": 552672,
+      "flash_free_bytes": 8812,
+      "flash_floor_bytes": 8192,
+      "flash_floor": "PASS",
+      "flash_floor_shortfall_bytes": 0,
+      "static_ram_used_bytes": 95536,
+      "static_ram_limit_bytes": 98304,
+      "static_ram_free_bytes": 2768,
+      "static_ram_capacity": "PASS",
+      "pool_used_bytes": 335724,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8340,
+      "pool_floor_bytes": 8192,
+      "pool_floor": "PASS",
+      "strict_model_controller_package": "PASS",
+      "wrong_model_refusal": "PASS",
+      "wrong_controller_pin_refusal": "PASS",
+      "corruption_and_truncation_refusals": "PASS",
+      "native_bootguard_ELF_check": "PASS",
+      "package": {
+        "controller": {
+          "abi": 2,
+          "block_crc32": "297cc0a4",
+          "block_size": 65536,
+          "bundled": true,
+          "crc32": "564a8f55",
+          "flash_offset": 569344,
+          "header_version": 2,
+          "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+          "size": 61552,
+          "strategy": "bundled"
+        },
+        "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+        "controller_size": 61552,
+        "controller_strategy": "bundled",
+        "firmware_version": "0.0.26",
+        "model": "elite",
+        "product": "SMK-37 Elite_900",
+        "release_display": "0.0.26_openbeta",
+        "schema": "x0x37-bundled-controller-v1",
+        "sha256": "fcc34f810ecc9e0b0254874585c872adba57f2ee378ac52b96b0cfa0a44f5336",
+        "size": 651732
+      },
+      "package_crc32": "b7002330",
+      "app_sha256": "fcb96a6c2410d90e0948168dbeca3863e996fadc7200272ee5db0ff5bee72239",
+      "ELF_sha256": "89547804559f8d30f5277e7bc2839fd02199e21c19331a6855e14da7021a656f",
+      "loader_sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03",
+      "started": "2026-11-14T15:53:08Z",
+      "finished": "2026-11-14T15:53:19Z"
+    },
+    "pro": {
+      "native_compile": "PASS",
+      "native_build_exit": 0,
+      "native_builtin_checks": "PASS (script enforces overlap/pool/RAM, not the separately required 8192-byte flash reserve)",
+      "app_bytes": 543848,
+      "code_area_bytes": 552672,
+      "flash_free_bytes": 8824,
+      "flash_floor_bytes": 8192,
+      "flash_floor": "PASS",
+      "flash_floor_shortfall_bytes": 0,
+      "static_ram_used_bytes": 95536,
+      "static_ram_limit_bytes": 98304,
+      "static_ram_free_bytes": 2768,
+      "static_ram_capacity": "PASS",
+      "pool_used_bytes": 335724,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8340,
+      "pool_floor_bytes": 8192,
+      "pool_floor": "PASS",
+      "strict_model_controller_package": "PASS",
+      "wrong_model_refusal": "PASS",
+      "wrong_controller_pin_refusal": "PASS",
+      "corruption_and_truncation_refusals": "PASS",
+      "native_bootguard_ELF_check": "PASS",
+      "package": {
+        "controller": {
+          "abi": 2,
+          "block_crc32": "297cc0a4",
+          "block_size": 65536,
+          "bundled": true,
+          "crc32": "564a8f55",
+          "flash_offset": 569344,
+          "header_version": 2,
+          "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+          "size": 61552,
+          "strategy": "bundled"
+        },
+        "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+        "controller_size": 61552,
+        "controller_strategy": "bundled",
+        "firmware_version": "0.0.26",
+        "model": "pro",
+        "product": "SMK-37 Pro_900",
+        "release_display": "0.0.26_openbeta",
+        "schema": "x0x37-bundled-controller-v1",
+        "sha256": "71ea59d19ff4ab7789e048c0fbaf18e27ea37848dd0920ad36db41a0a30a5865",
+        "size": 651730
+      },
+      "package_crc32": "8218b3bb",
+      "app_sha256": "8d609357707595ef6c3f97bdb62b493e81c829ca756d55c6d7e2ff183a47a29b",
+      "ELF_sha256": "c67b3c162f3d5491cada0039c4825b4848320ac75d8566f6ad1ed039ec3397e7",
+      "loader_sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5",
+      "started": "2026-11-14T15:53:19Z",
+      "finished": "2026-11-14T15:53:30Z"
+    }
+  },
+  "independent_native_receipt_review": {
+    "result": "ACCEPT_SCOPED_NATIVE_RESOURCE_PACKAGE_EVIDENCE",
+    "check_count": 41,
+    "findings": [],
+    "scope": "Independent frozen native receipt/artifact consistency review only; no builds, firmware suites, device or publication action"
+  },
+  "remaining": [
+    "idle fixture FAIL remains unresolved",
+    "required host Clang NOT_RUN",
+    "final idle-runner correction link-only proof, not another execution PASS",
+    "full-suite/performance/emulator/device acceptance remains open",
+    "a334 controller reused; complete original build lineage not reestablished",
+    "source integration, publication, owner availability and hardware gates unchanged"
+  ],
+  "evidence_states": {
+    "fresh_controller_build": "NOT_RUN; exact required controller reused",
+    "full_host_suite": "NOT_RUN (prior accepted source/host evidence reused; not a fresh full-suite claim)",
+    "performance_emu360": "NOT_RUN",
+    "device": "NOT_TESTED",
+    "publication": "NOT_DONE",
+    "source_or_remote_ref_mutations": "NONE"
+  },
+  "archive_limits": [
+    "Raw build logs, original operational checkpoint, source checkout, SDK/toolchain and binary artifacts are not included. Artifact names/hashes are identifiers only.",
+    "This archive does not independently rerun builds, tests or device checks. Original native observations and independent review are prior evidence.",
+    "The original checkpoint still records BUILD_SUCCEEDED_UNREVIEWED and independent_QA PENDING. The later exact-checkpoint independent review is retained separately; the original was not rewritten.",
+    "Firmware integration, broad performance/full-suite qualification, owner availability, release and hardware gates remain separate."
+  ]
+}

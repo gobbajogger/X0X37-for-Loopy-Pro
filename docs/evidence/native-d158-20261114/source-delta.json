@@ -1,0 +1,93 @@
+[
+  {
+    "path": "experiments/original_synth/chicago_drive.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "0f0aecc3401174540886fb3d1662f8f715a07cb2",
+    "size": 5296
+  },
+  {
+    "path": "experiments/original_synth/chicago_modulation.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "93151596db18a507737cbd9cb334df3d44d6a318",
+    "size": 17773
+  },
+  {
+    "path": "experiments/wobble/miami_decimator_adapter.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "46dfd89403cb744e82962f117764be8867160e35",
+    "size": 2879
+  },
+  {
+    "path": "firmware/src/dsp/ima_adpcm.h",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "a461bc1accca4a23a3899915a8d4003f2300c1e0",
+    "size": 2273
+  },
+  {
+    "path": "firmware/src/dsp/original_chicago_backend.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "5848a852fa5d1e39b5f86b0d005e494e620ff14e",
+    "size": 25414
+  },
+  {
+    "path": "firmware/src/dsp/original_miami_backend.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "4ac3728bcad2f6f75f04c75dd2e680e27a57bd09",
+    "size": 29042
+  },
+  {
+    "path": "tests/host/breaks_reverse_seek_perf_test.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "224c5250607cff7f0932d2933d0407ad75b818f0",
+    "size": 8757
+  },
+  {
+    "path": "tests/host/ima_decode_perf_test.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "1283677d67304447980ae2bc7d73d812f39dade1",
+    "size": 6600
+  },
+  {
+    "path": "tests/host/ima_delta_lut_exact_test.c",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "eb8146a26b060faf06bfc6017997988277ed5d09",
+    "size": 3968
+  },
+  {
+    "path": "tests/host/miami_cpu_test.py",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "36c0a50a75f1747d2b11e8614133248f9100e0f9",
+    "size": 13961
+  },
+  {
+    "path": "tests/host/original_idle_test.sh",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "b21f63d609c133afd784d9a4ca84ae70d5817393",
+    "size": 7677
+  },
+  {
+    "path": "tests/host/run_ima_delta_lut.sh",
+    "mode": "100755",
+    "type": "blob",
+    "sha": "cc3814760a2ecc46b2f9c48dc696f783229c5c95",
+    "size": 1189
+  },
+  {
+    "path": "tools/gen_drum_samples.py",
+    "mode": "100644",
+    "type": "blob",
+    "sha": "a347501f0787291b99714d01fef577bb9a09d706",
+    "size": 16023
+  }
+]
