@@ -94,15 +94,45 @@ the changed JavaScript source and tests parsed 8 / 8. The connector V8
 runtime substitutes URL/SearchParams because browser globals are unavailable.
 These are **not** native Node, Rust, browser boot or acoustic audio tests.
 
-**NOT_RUN**: `node --test web/dnbox/*.test.mjs` in a checkout; building the
-exact `fm1_web.wasm`; actual Elite and Pro browser boot; sound amplitude,
-short-quanta/dropouts, key-to-output latency, Chrome interaction screenshots,
-heavy scene, browser compatibility and hardware measurements. The source
-repository has no compiled WASM; the allowed Library search did not expose
-a named `fm1_web.wasm` artifact. No firmware was rebuilt, no hardware was
-flashed, and there is no main/nightly merge or deployment. Earlier reported
-Pro ~0.9× realtime/audio breakup and Elite ~1× are unverified in this
-checkpoint and should be retested, not converted into PASS.
+**EXECUTED (QA continuation 2026-11-14)**: 41/41 PASS, 0 FAIL, 0 SKIP,
+Node.js **v24.22.1** on authorized DnBOX cloud, exit 0. Command:
+```bash
+node --test web/dnbox/controls.test.mjs web/dnbox/controls.dom.test.mjs \
+  web/dnbox/hold-regression.test.mjs web/dnbox/integration.test.mjs \
+  web/dnbox/identity.test.mjs web/main.test.mjs
+```
+The isolated test checkout was assembled from exact GitHub source blobs,
+each checked against its Git blob SHA before execution, plus a temporary local
+`web/package.json` with `{"type":"module"}` (not committed). The native
+Node tests include the existing 14 `web/main.test.mjs` page lifecycle
+cases. Scope: held-owner source event routing and accessible DOM listener
+shim, package identity, wiring and existing browser page unit behaviors.
+The first run failed due only to a test harness missing `await` and one
+omitted `build.sh` input; those harness/setup errors were corrected and
+**the actual rerun passed 41/41**.
+
+**Fix for [QA #899 comment 6867997420](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/899#issuecomment-6867997420):**
+`web/main.js` now uses one counted owner registry for canvas pointer IDs,
+computer keyboard physical-key IDs, accessible key/pad/button aggregates and
+per-device/channel MIDI notes, so neither release order steals a shared hold.
+It clears owners on page blur, tab hide and firmware boot/reset. The
+`web/dnbox/controls.js` held router now counts unique pointer/keyboard
+tokens per physical key/pad/button; `aria-pressed` stays true until the last
+pointer lifts. Tests execute the extracted **production handlers** and
+mounted accessible-button events, covering both input orders, two pointers,
+glissando, repeat, cancellation, button blur, page blur, reboot and pad
+sharing. Upstream FM-1/SMK-37 behavior is unchanged by the DnBOX-only
+routing branch.
+
+**NOT_RUN**: compiling the exact `fm1_web.wasm`; actual Elite and Pro
+browser boot, sound amplitude, audio short-quanta/dropouts, key-to-output
+acoustic latency, Chrome interaction screenshots, heavy scenes, browser
+compatibility and hardware measurements. The source repository has no
+compiled WASM; the allowed Library search did not expose a named
+`fm1_web.wasm` artifact. No firmware was rebuilt, no hardware was flashed,
+and there is no main/nightly merge or deployment. Earlier reported Pro
+~0.9× realtime/audio breakup and Elite ~1× remain unverified and must
+not be converted into PASS.
 
 ## Browser qualification before integration
 
