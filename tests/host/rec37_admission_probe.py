@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only
+"""Pinned F1 admission probe. Does not run the historical owner/compact suites.
+
+Usage: python3 tests/host/rec37_admission_probe.py SOURCE_ROOT OUTPUT_DIRECTORY
+Only feeder admission and physical-writer intent are measured; audio, dispatch,
+held-writer ownership and actual pattern writes remain outside this fixture.
+"""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+PIN = '8b0b6d311577fcc303212016423dd4f5ea4e8184'
+BLOBS = {
+    'firmware/src/app/ui.c': '5af70e36fe02e05287760a8e182c80d828d650b9',
+    'firmware/src/app/rec_outer_keymap.h': 'a23a24ae6c2eb7f40f4b1b41eeadf208a9159b8a',
+    'firmware/src/app/engine.h': '9feda5fee976b901a269a7d13e7a0bc4d78aecad',
+    'firmware/src/app/plat.h': 'b57f2737c5090feac762286794c3f4b9fa1b28ae',
+    'firmware/src/seq/pattern.h': '9810f8977dccb726e09d34666657f1e01bf83b1e',
+}
+root, out = map(lambda s: Path(s).resolve(), sys.argv[1:])
+out.mkdir(parents=True, exist_ok=True)
+texts, receipts = {}, {}
+for path, blob in BLOBS.items():
+    data = (root / path).read_bytes()
+    actual = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+    assert actual == blob, (path, actual, blob)
+    texts[path] = data.decode('utf-8')
+    receipts[path] = dict(bytes=len(data), git_blob=blob, sha256=hashlib.sha256(data).hexdigest())
+source = texts['firmware/src/app/ui.c']
+
+def line(text, prefix):
+    found = [s for s in text.splitlines() if s.startswith(prefix)]
+    assert len(found) == 1, ('missing/ambiguous source line', prefix)
+    return found[0]
+
+def span(first, after):
+    assert source.count(first) == 1, first
+    start = source.index(first)
+    return source[start:source.index(after, start)]
+
+predicates = '\n'.join(line(source, s) for s in (
+    'static int part_is_303(', 'static int is_303(', 'static int bidx(', 'static int kbd_on('))
+assert all(s.endswith('}') for s in predicates.splitlines())
+exact_kbd = line(source, 'static int kbd_on(')
+# Exact historical expression from fixture blob 14c88ca4d011f9793f5693d99cd318812b87b57f.
+# Keep it here so applying the fixture correction does not erase the baseline.
+baseline_kbd = 'static int kbd_on(void) {return ui.view==V_SEQ || ui.view==V_PART;}'
+constants = '\n'.join((
+    line(source, 'enum { V_HOME,'), line(source, 'enum { O_NONE,'),
+    line(texts['firmware/src/app/engine.h'], 'enum { PART_909,'),
+    line(texts['firmware/src/seq/pattern.h'], '#define NBASS '),
+))
+plat = texts['firmware/src/app/plat.h']
+start = plat.index('enum { B_FX,')
+constants += '\n' + plat[start:plat.index('};', start) + 2]
+token = span('static unsigned live_token(unsigned physical)\n{', '\nint ui_live_key_owner(void)')
+physical = span('static void bass_kbd_physical(int p, int n)\n{', '\n#endif')
+feeder = span('static uint16_t rec_outer_prev, rec_outer_suppress, rec_outer_admitted;', '\n#endif\n\nstatic void input(void)')
+fragments = dict(constants=constants, predicates=predicates, token=token, physical=physical, feeder=feeder)
+receipts['fragments'] = {k: dict(bytes=len(v.encode()), sha256=hashlib.sha256(v.encode()).hexdigest()) for k, v in fragments.items()}
+(out / 'input-receipt.json').write_text(json.dumps(dict(head=PIN, inputs=receipts), indent=2) + '\n')
+
+prefix = r'''
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include "rec_outer_keymap.h"
+#define BOARD_SMK37 1
+/* CONSTANTS */
+struct { int rec, part, view, oct, overlay; uint32_t btn; uint8_t freeplay[NBASS]; } ui;
+struct { int playing; } seq;
+static uint64_t physical_keys;
+static int project_busy, perf_active, clip_active;
+static unsigned checks, failures, predicate_differences, admission_differences, transition_differences;
+static unsigned fresh_cases, transition_cases, ons, offs, intent_seq, intent_audition;
+static int active[37], last_pitch[37], last_intent[37];
+#define T(x) do { checks++; if (!(x)) { if (failures < 8) fprintf(stderr,"FAIL line=%d %s\n",__LINE__,#x); failures++; } } while (0)
+static int perf_testing(void) { return perf_active; }
+uint8_t smk_clip_mode_on(void) { return (uint8_t)clip_active; }
+static uint64_t plat_physical_keys(void) { return physical_keys; }
+/* PREDICATES */
+/* TOKEN */
+static void bass_kbd_at(int identity, int pitch, int step_record, int vel_key)
+{
+    int p = identity < 33 ? identity - 28 : identity - 1;
+    T(p >= 0 && p < 37 && (p < 5 || p >= 32));
+    T(!active[p]); T(vel_key == -1);
+    active[p] = 1; last_pitch[p] = pitch; last_intent[p] = step_record;
+    ons++; if (step_record) intent_seq++; else intent_audition++;
+}
+static int bass_kbd_release(int identity)
+{
+    int p = identity < 33 ? identity - 28 : identity - 1;
+    T(p >= 0 && p < 37 && active[p]); active[p] = 0; offs++; return 1;
+}
+/* PHYSICAL */
+/* FEEDER */
+'''
+cases = r'''
+static const char *const views[NVIEWS] = {"HOME","PART","GEN","FX","MIX","GLO","SONG","PERF","SEQ"};
+static const int parts[] = {PART_303A, PART_303B, PART_909, PART_808, PART_BRK};
+static const unsigned keys[] = {0,1,2,3,4,32,33,34,35,36};
+static unsigned active_count(void) { unsigned n=0; for(int p=0;p<37;p++) n+=(unsigned)active[p]; return n; }
+static int model_admits(int rec, int v) { return rec && (!BASELINE || v==V_SEQ || v==V_PART); }
+static void reset(int part, int view, int rec, int playing, unsigned mod, int overlay)
+{
+    T(active_count()==0);
+    memset(&ui,0,sizeof ui); ui.part=part; ui.view=view; ui.rec=rec;
+    ui.btn=(mod&1u ? 1u<<B_HOME : 0u) | (mod&2u ? 1u<<B_SAVE : 0u);
+    ui.overlay=overlay; seq.playing=playing; physical_keys=0;
+    rec_outer_prev=rec_outer_suppress=rec_outer_admitted=rec_outer_armed=0;
+    rec_outer_keys();
+}
+static void key(unsigned p,int down)
+{
+    if(down) physical_keys|=UINT64_C(1)<<p; else physical_keys&=~(UINT64_C(1)<<p);
+    rec_outer_keys();
+}
+static void predicate_table(void)
+{
+    for(unsigned part=0;part<5;part++) for(int v=0;v<NVIEWS;v++)
+    for(int rec=0;rec<2;rec++) for(unsigned fp=0;fp<4;fp++) {
+        ui.part=parts[part]; ui.view=v; ui.rec=rec;
+        ui.freeplay[0]=(uint8_t)(fp&1u); ui.freeplay[1]=(uint8_t)((fp>>1)&1u);
+        int synth=part<2, slot=part==1;
+        T(is_303()==synth); T(bidx()==slot);
+        int production=synth && (v==V_PART || rec || (fp & (1u<<slot)));
+        int expected=BASELINE ? (v==V_SEQ || v==V_PART) : production;
+        int observed=!!kbd_on(); T(observed==expected);
+        predicate_differences+=(unsigned)(observed!=production);
+        printf("predicate,%s,%d,%d,-1,0,0,%u,-1,%d,%d\n",views[v],parts[part],rec,fp,observed,production);
+    }
+}
+static void fresh_matrix(void)
+{
+    for(unsigned b=0;b<2;b++) for(int v=0;v<NVIEWS;v++) for(int rec=0;rec<2;rec++)
+    for(int run=0;run<2;run++) for(unsigned mod=0;mod<4;mod++) for(int list=0;list<2;list++)
+    for(unsigned k=0;k<10;k++) {
+        unsigned p=keys[k]; int expected=model_admits(rec,v);
+        reset(parts[b],v,rec,run,mod,list?O_LIST:O_NONE);
+        unsigned before=ons, released=offs;
+        key(p,1); int observed=(int)(ons-before);
+        T(observed==expected); T(active[p]==expected);
+        T(rec_outer_admitted==(expected?(uint16_t)(1u<<k):0));
+        if(expected) { T(last_pitch[p]==36+(int)p); T(last_intent[p]==(v==V_SEQ)); }
+        rec_outer_keys(); T(ons==before+(unsigned)expected);
+        key(p,0); T(offs==released+(unsigned)expected); T(active_count()==0);
+        admission_differences+=(unsigned)(observed!=rec);
+        printf("fresh,%s,%d,%d,%d,%u,%d,0,%u,%d,%d\n",views[v],parts[b],rec,run,mod,list,p,observed,rec);
+        fresh_cases++;
+    }
+}
+static void held_view_transitions(void)
+{
+    for(unsigned b=0;b<2;b++) for(int run=0;run<2;run++) for(int v=0;v<NVIEWS;v++) {
+        if(v==V_SEQ) continue;
+        reset(parts[b],V_SEQ,1,run,0,O_NONE); key(0,1); T(active[0]);
+        ui.view=v; rec_outer_keys(); int held=active[0], expected=model_admits(1,v);
+        T(held==expected);
+        unsigned before=ons; key(36,1); int fresh=(int)(ons-before); T(fresh==expected);
+        key(36,0); T(active_count()==(unsigned)expected);
+        ui.view=V_SEQ; rec_outer_keys(); T(active[0]==expected); /* baseline rearms with p0 suppressed */
+        key(0,0); T(active_count()==0);
+        key(0,1); T(active[0]); key(0,0); T(active_count()==0);
+        transition_differences+=(unsigned)(held!=1 || fresh!=1);
+        printf("transition,%s,%d,1,%d,0,0,0,0,%d,1\n",views[v],parts[b],run,held);
+        transition_cases++;
+    }
+}
+int main(void)
+{
+    puts("suite,view,part,rec,playing,modifier,overlay_list,freeplay_mask,key,observed,production_expected");
+    predicate_table(); fresh_matrix(); held_view_transitions();
+    T(ons==offs); T(active_count()==0);
+    fprintf(stderr,"model=%s checks=%u structural_failures=%u predicate_differences=%u fresh_cases=%u admission_differences=%u transition_cases=%u transition_differences=%u on=%u off=%u seq_intent=%u audition_intent=%u\n",
+        BASELINE?"substituted":"production",checks,failures,predicate_differences,fresh_cases,admission_differences,transition_cases,transition_differences,ons,offs,intent_seq,intent_audition);
+    return failures || predicate_differences || admission_differences || transition_differences ? 1 : 0;
+}
+'''
+compiler = subprocess.run(['cc', '--version'], text=True, capture_output=True, check=True).stdout
+(out / 'compiler.txt').write_text(compiler)
+results = []
+for name, baseline in [('substituted', True), ('production', False)]:
+    code = prefix.replace('/* CONSTANTS */', constants).replace('/* PREDICATES */', predicates)
+    code = code.replace('/* TOKEN */', token).replace('/* PHYSICAL */', physical).replace('/* FEEDER */', feeder)
+    if baseline:
+        assert code.count(exact_kbd) == 1
+        code = code.replace(exact_kbd, baseline_kbd)
+    code = '#define BASELINE %d\n' % baseline + code + cases
+    cfile, binary = out / (name + '.c'), out / name
+    cfile.write_text(code)
+    cmd = ['cc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+           '-I' + str(root / 'firmware/src/app'), str(cfile), '-o', str(binary)]
+    build = subprocess.run(cmd, text=True, capture_output=True)
+    (out / (name + '-build.log')).write_text(build.stdout + build.stderr)
+    assert build.returncode == 0, build.stderr
+    with (out / (name + '.csv')).open('w') as output:
+        run = subprocess.run([str(binary)], stdout=output, stderr=subprocess.PIPE, text=True)
+    (out / (name + '.log')).write_text(run.stderr)
+    row = dict(field.split('=', 1) for field in run.stderr.strip().split())
+    assert row['structural_failures'] == '0', row
+    assert run.returncode == int(baseline), (name, run.returncode, row)
+    assert int(row['admission_differences']) == (2240 if baseline else 0), row
+    assert int(row['transition_differences']) == (28 if baseline else 0), row
+    results.append(dict(model=name, compile_command=cmd, compile_exit=build.returncode,
+                        run_exit=run.returncode, summary=row,
+                        generated_c_sha256=hashlib.sha256(cfile.read_bytes()).hexdigest()))
+    print(run.stderr.strip())
+(out / 'results.json').write_text(json.dumps(results, indent=2) + '\n')
+print('Qualification completed: substituted baseline fails production conformance; exact production passes. Historical suites NOT_RUN.')

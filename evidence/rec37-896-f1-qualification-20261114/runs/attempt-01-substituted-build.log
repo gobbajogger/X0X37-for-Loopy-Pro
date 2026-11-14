@@ -1,0 +1,4 @@
+/workspace/rec37-896-f1-qualification/runs/substituted.c:27:12: error: ‘bidx’ defined but not used [-Werror=unused-function]
+   27 | static int bidx(void) { return ui.part == PART_303B ? 1 : 0; }
+      |            ^~~~
+cc1: all warnings being treated as errors

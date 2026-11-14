@@ -34,9 +34,7 @@ static unsigned checks, failures, owner_before, owner_after, body_count;
 #define T(expr) do { checks++; if (!(expr)) { \
   fprintf(stderr,"FAIL %u:%d: %s\n",checks,__LINE__,#expr); failures++; } } while(0)
 static int perf_testing(void) {return perf_active;}
-static int is_303(void) {return ui.part==PART_303A || ui.part==PART_303B;}
-static int bidx(void) {return ui.part==PART_303B;}
-static int kbd_on(void) {return ui.view==V_SEQ || ui.view==V_PART;}
+/* is_303/bidx/kbd_on and part_is_303 are extracted from ui.c below. */
 static int smc_ui_active(void) {return smc_active;}
 uint8_t smk_clip_mode_on(void) {return (uint8_t)clip_active;}
 static uint64_t plat_physical_keys(void) {return physical_keys;}

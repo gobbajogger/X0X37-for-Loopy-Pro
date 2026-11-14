@@ -1,0 +1,68 @@
+[
+  {
+    "model": "substituted",
+    "compile_command": [
+      "cc",
+      "-std=c99",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/workspace/rec37-896-f1-qualification/source/firmware/src/app",
+      "/workspace/rec37-896-f1-qualification/runs/substituted.c",
+      "-o",
+      "/workspace/rec37-896-f1-qualification/runs/substituted"
+    ],
+    "compile_exit": 0,
+    "run_exit": 1,
+    "summary": {
+      "model": "substituted",
+      "checks": "45802",
+      "structural_failures": "0",
+      "predicate_differences": "136",
+      "fresh_cases": "5760",
+      "admission_differences": "2240",
+      "transition_cases": "32",
+      "transition_differences": "28",
+      "on": "708",
+      "off": "708",
+      "seq_intent": "384",
+      "audition_intent": "324"
+    },
+    "generated_c_sha256": "6e035444ef7feb33cc898e79537894ff38607e6f79fda4192cd2734dbc14ec3e"
+  },
+  {
+    "model": "production",
+    "compile_command": [
+      "cc",
+      "-std=c99",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/workspace/rec37-896-f1-qualification/source/firmware/src/app",
+      "/workspace/rec37-896-f1-qualification/runs/production.c",
+      "-o",
+      "/workspace/rec37-896-f1-qualification/runs/production"
+    ],
+    "compile_exit": 0,
+    "run_exit": 0,
+    "summary": {
+      "model": "production",
+      "checks": "59354",
+      "structural_failures": "0",
+      "predicate_differences": "0",
+      "fresh_cases": "5760",
+      "admission_differences": "0",
+      "transition_cases": "32",
+      "transition_differences": "0",
+      "on": "2976",
+      "off": "2976",
+      "seq_intent": "384",
+      "audition_intent": "2592"
+    },
+    "generated_c_sha256": "b160bce7d7fe332c15108ce43d9c4ad8a1b5035e54fe4b97b7be68fa2895f9b0"
+  }
+]

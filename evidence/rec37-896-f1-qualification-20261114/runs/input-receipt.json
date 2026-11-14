@@ -1,0 +1,52 @@
+{
+  "head": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+  "inputs": {
+    "firmware/src/app/ui.c": {
+      "bytes": 393160,
+      "git_blob": "5af70e36fe02e05287760a8e182c80d828d650b9",
+      "sha256": "9f57cf4f4bcbf6a7fcdf094321854feb3e551c9ee78ec1314b3386f3e2f46945"
+    },
+    "firmware/src/app/rec_outer_keymap.h": {
+      "bytes": 592,
+      "git_blob": "a23a24ae6c2eb7f40f4b1b41eeadf208a9159b8a",
+      "sha256": "ebfb2b600b011ab106a114a11577138583a43f407b8be40c09ce9c0eb6959337"
+    },
+    "firmware/src/app/engine.h": {
+      "bytes": 17774,
+      "git_blob": "9feda5fee976b901a269a7d13e7a0bc4d78aecad",
+      "sha256": "9bc236d4f341a10960581332284fa0eca9f5a9e9823950573f41d9185135c699"
+    },
+    "firmware/src/app/plat.h": {
+      "bytes": 10595,
+      "git_blob": "b57f2737c5090feac762286794c3f4b9fa1b28ae",
+      "sha256": "426e69bb62645a072f3a5f828aeb175fa9854ec9106cc014f8e22b96734019cd"
+    },
+    "firmware/src/seq/pattern.h": {
+      "bytes": 5814,
+      "git_blob": "9810f8977dccb726e09d34666657f1e01bf83b1e",
+      "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191"
+    },
+    "fragments": {
+      "constants": {
+        "bytes": 364,
+        "sha256": "cfdd24576212714a831cc516ddbff4061ac5e234ce639815e46f3a2bb15ed31a"
+      },
+      "predicates": {
+        "bytes": 304,
+        "sha256": "7401f3cfa51c414320c46819c746385a2c33ebcf23fada599deedefc33f091d9"
+      },
+      "token": {
+        "bytes": 129,
+        "sha256": "d6bff8df3fe04246bf75470751a2fbae49cb11976c6e5545cb31b36e6f89bb13"
+      },
+      "physical": {
+        "bytes": 119,
+        "sha256": "2159f8989e517283690c4d1f97646af3ed8749362c325efcc477c4431ac50f5a"
+      },
+      "feeder": {
+        "bytes": 1788,
+        "sha256": "453551c2a296ac61afb4146ce58bfb8ba3ad14869262901a2f68e7df4041c1fc"
+      }
+    }
+  }
+}

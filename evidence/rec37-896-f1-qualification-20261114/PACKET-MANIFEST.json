@@ -1,0 +1,182 @@
+{
+  "PLAN.md": {
+    "bytes": 1117,
+    "sha256": "1269a2b50b4b42b3017a6ec920175f491fc5cefc5c68888b8da5f7ff8a94c82f"
+  },
+  "REVIEW.md": {
+    "bytes": 1772,
+    "sha256": "a8eb97fa048924f3250e19f282e6db8d8849bc598e875265605a6653d628d6a8"
+  },
+  "candidate/tests/host/rec37_admission_probe.py": {
+    "bytes": 11256,
+    "sha256": "555cc18ad6cfcf3f3eeb475df21a2c5d20b8aeaa0c8bdd2cb12f2060e286638d"
+  },
+  "candidate/tests/host/rec37_owner_integration_test.c": {
+    "bytes": 6812,
+    "sha256": "22a18d74b467d940d57c3e7e67ff56bc2b47e66c60e54d659a04fc15f5568376"
+  },
+  "candidate/tests/host/rec37_owner_source_test.py": {
+    "bytes": 2225,
+    "sha256": "24a52ff723b615840eba382e490f3a0d437478f4fb9fdd5a9e957fc97c372cef"
+  },
+  "policy-nightly/AGENTS.md": {
+    "bytes": 5326,
+    "sha256": "c2efff9421a934dcfd2a97e30793437c0a3776c610fbc52435c81a12be168423"
+  },
+  "policy-nightly/skills/x0x37-workflow/SKILL.md": {
+    "bytes": 3915,
+    "sha256": "285e47a79cd59903abf59635af5a025e070bff87823a07b83e80cd79555137b7"
+  },
+  "rec37-896-f1-qualification-report.md": {
+    "bytes": 12823,
+    "sha256": "0567ee626d48c15236f682809af0101d887c4d0c5e01244792fd7379f9843988"
+  },
+  "rec37-f1-test-only.patch": {
+    "bytes": 13632,
+    "sha256": "89785c38b7b4884c544b1994df66b5242103274402b3036380bb1b6b90883351"
+  },
+  "remote-intake.json": {
+    "bytes": 359,
+    "sha256": "f172adc386aa3b1198822b133c470eb69727965c874ef7a4f8be66272c298a8b"
+  },
+  "runs/attempt-01-substituted-build.log": {
+    "bytes": 266,
+    "sha256": "68be454cdecf9725892c49259008e247323ab19b472320162923fc04d33f1491"
+  },
+  "runs/compiler.txt": {
+    "bytes": 231,
+    "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc"
+  },
+  "runs/corrected-owner-probe.c": {
+    "bytes": 10032,
+    "sha256": "381b4decefe22f7cbd9dea3bbf4089d40fd499530ee919290feea208e7a836be"
+  },
+  "runs/input-receipt.json": {
+    "bytes": 1827,
+    "sha256": "4152e8f9919c8c8042bcbba4e5d295e25b9579bee5027ff69b25bd88c92927f8"
+  },
+  "runs/production-build.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "runs/production.c": {
+    "bytes": 8537,
+    "sha256": "b160bce7d7fe332c15108ce43d9c4ad8a1b5035e54fe4b97b7be68fa2895f9b0"
+  },
+  "runs/production.csv": {
+    "bytes": 179605,
+    "sha256": "4598f72d7ca76f2f397bc94dd79cbdd30bbbc828113054f2214ac90a70f1217b"
+  },
+  "runs/production.log": {
+    "bytes": 215,
+    "sha256": "56cf0a8a62ab04e6f65459e3eff0f397dae6e2b0089162096c2f96d1c01afa4f"
+  },
+  "runs/results.json": {
+    "bytes": 1812,
+    "sha256": "fe01a43a13f45945834b47738a5df14d0ee0a134e0afc7390bdb3457d1196714"
+  },
+  "runs/substituted-build.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "runs/substituted.c": {
+    "bytes": 8504,
+    "sha256": "6e035444ef7feb33cc898e79537894ff38607e6f79fda4192cd2734dbc14ec3e"
+  },
+  "runs/substituted.csv": {
+    "bytes": 179605,
+    "sha256": "25088d84df4b30311b0bccfb850409c5648c098597ab7ff06ff8b6d6331b66f7"
+  },
+  "runs/substituted.log": {
+    "bytes": 219,
+    "sha256": "cfacb703246e9984ca0faf32fbdb4219c0d70d197cf8f300deaade31163e37b7"
+  },
+  "runs/validation.json": {
+    "bytes": 1140,
+    "sha256": "865109ea71b34d61395bba1f138e5547cc37f5fcfd178a502233bcaaae6f055c"
+  },
+  "runs/view-counts.json": {
+    "bytes": 1804,
+    "sha256": "ae1439fa0172bb26b6adeeb92b08da2ffef3e2215b28a81dab40781d549743ee"
+  },
+  "source/.agents/skills/x0x37-writing/SKILL.md": {
+    "bytes": 1195,
+    "sha256": "067f511481c8d65f9442fccb026ca8e97377fe571a089a08b8116db9eb099463"
+  },
+  "source/AGENTS.md": {
+    "bytes": 7353,
+    "sha256": "a0d879a2bad29536d6d02a1b609688a8585675273c0362df56c247e20ebf8d33"
+  },
+  "source/docs/FEATURE-REGISTRY.md": {
+    "bytes": 49204,
+    "sha256": "30b247d26f711b8296d48c82da565b8ba0e674ad6322d92bfabb6c57ee527395"
+  },
+  "source/docs/plans/2026-11-13-rec-full-keybed.md": {
+    "bytes": 10251,
+    "sha256": "380078319dd19284b27dc8294aff35ecf3d247697a99029d4b0f6bed26b7250a"
+  },
+  "source/docs/rules/local-proof.md": {
+    "bytes": 5566,
+    "sha256": "e80954ef6d48c1358f8b55dd021fc8f41bdf133ad11d8423830f120c65e87c60"
+  },
+  "source/docs/rules/workflow.md": {
+    "bytes": 2126,
+    "sha256": "23fb75674c89fa82213081ed5e586ee590ae7e72407dbc60a03e8f8eaa08d091"
+  },
+  "source/firmware/src/app/engine.h": {
+    "bytes": 17774,
+    "sha256": "9bc236d4f341a10960581332284fa0eca9f5a9e9823950573f41d9185135c699"
+  },
+  "source/firmware/src/app/plat.h": {
+    "bytes": 10595,
+    "sha256": "426e69bb62645a072f3a5f828aeb175fa9854ec9106cc014f8e22b96734019cd"
+  },
+  "source/firmware/src/app/rec_outer_keymap.h": {
+    "bytes": 592,
+    "sha256": "ebfb2b600b011ab106a114a11577138583a43f407b8be40c09ce9c0eb6959337"
+  },
+  "source/firmware/src/app/ui.c": {
+    "bytes": 393160,
+    "sha256": "9f57cf4f4bcbf6a7fcdf094321854feb3e551c9ee78ec1314b3386f3e2f46945"
+  },
+  "source/firmware/src/seq/pattern.h": {
+    "bytes": 5814,
+    "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191"
+  },
+  "source/skills/x0x37-task/SKILL.md": {
+    "bytes": 3292,
+    "sha256": "c4824891e9ed0f7a8b4cf7ca8c8857a918dc7264aa2edf593aaa7c5a1e2b6364"
+  },
+  "source/skills/x0x37-task/references/ownership.md": {
+    "bytes": 1414,
+    "sha256": "14a0b2d1738d505b12c8ef980cc64701d766b3ea1c7bfeabf8079f7a38379b3e"
+  },
+  "source/skills/x0x37-task/references/routing.md": {
+    "bytes": 2100,
+    "sha256": "bb388657d6fb8a4367c35853389fa645114f2badfb7e062de09efd1cc5f30258"
+  },
+  "source/skills/x0x37-workflow/SKILL.md": {
+    "bytes": 3915,
+    "sha256": "285e47a79cd59903abf59635af5a025e070bff87823a07b83e80cd79555137b7"
+  },
+  "source/tests/host/rec37_owner_integration_test.c": {
+    "bytes": 6934,
+    "sha256": "5448e9c435e211f327563c0e634d3aa324ac24d53336c4e526400e8c48ff25a3"
+  },
+  "source/tests/host/rec37_owner_integration_test.sh": {
+    "bytes": 355,
+    "sha256": "295a8c1aa2befcdf00b35b9a2e702e12378625d2f3d7e8783dc7844f9473eb18"
+  },
+  "source/tests/host/rec37_owner_source_test.py": {
+    "bytes": 1746,
+    "sha256": "b86d38f5df7c1fe415aa9ffbb7fb88a9c6da2d8ecd4e3b8f71b38e57402785f4"
+  },
+  "source-manifest.json": {
+    "bytes": 2687,
+    "sha256": "93288874a070e5f51f983277f5293c98a7f310f3dfcd757fc3af32544a21ffc6"
+  },
+  "source-receipt.json": {
+    "bytes": 5557,
+    "sha256": "5b586d1dd8d1872833eb6728b36973f6b8a0714eab0ff69cbb8f7853fb84c248"
+  }
+}

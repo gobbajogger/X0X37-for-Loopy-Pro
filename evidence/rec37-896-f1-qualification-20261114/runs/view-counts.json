@@ -1,0 +1,96 @@
+{
+  "substituted": {
+    "HOME": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "PART": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "GEN": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "FX": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "MIX": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "GLO": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "SONG": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "PERF": {
+      "cases": 640,
+      "rec_on_admitted": 0,
+      "rec_off_admitted": 0
+    },
+    "SEQ": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    }
+  },
+  "production": {
+    "HOME": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "PART": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "GEN": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "FX": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "MIX": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "GLO": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "SONG": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "PERF": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    },
+    "SEQ": {
+      "cases": 640,
+      "rec_on_admitted": 320,
+      "rec_off_admitted": 0
+    }
+  }
+}

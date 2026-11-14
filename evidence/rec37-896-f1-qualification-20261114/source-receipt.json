@@ -1,0 +1,128 @@
+{
+  "AGENTS.md": {
+    "path": "AGENTS.md",
+    "git_blob_sha": "3700e0a11507897c5f5041c76198e09e9ea01694",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 7353,
+    "sha256": "a0d879a2bad29536d6d02a1b609688a8585675273c0362df56c247e20ebf8d33"
+  },
+  "tests/host/rec37_owner_source_test.py": {
+    "path": "tests/host/rec37_owner_source_test.py",
+    "git_blob_sha": "3e4e6eb4cc1c99858397405fb7c5c519be524dfc",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 1746,
+    "sha256": "b86d38f5df7c1fe415aa9ffbb7fb88a9c6da2d8ecd4e3b8f71b38e57402785f4"
+  },
+  "tests/host/rec37_owner_integration_test.c": {
+    "path": "tests/host/rec37_owner_integration_test.c",
+    "git_blob_sha": "14c88ca4d011f9793f5693d99cd318812b87b57f",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 6934,
+    "sha256": "5448e9c435e211f327563c0e634d3aa324ac24d53336c4e526400e8c48ff25a3"
+  },
+  "firmware/src/app/ui.c": {
+    "path": "firmware/src/app/ui.c",
+    "git_blob_sha": "5af70e36fe02e05287760a8e182c80d828d650b9",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 393160,
+    "sha256": "9f57cf4f4bcbf6a7fcdf094321854feb3e551c9ee78ec1314b3386f3e2f46945"
+  },
+  "firmware/src/app/rec_outer_keymap.h": {
+    "path": "firmware/src/app/rec_outer_keymap.h",
+    "git_blob_sha": "a23a24ae6c2eb7f40f4b1b41eeadf208a9159b8a",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 592,
+    "sha256": "ebfb2b600b011ab106a114a11577138583a43f407b8be40c09ce9c0eb6959337"
+  },
+  "tests/host/rec37_owner_integration_test.sh": {
+    "path": "tests/host/rec37_owner_integration_test.sh",
+    "git_blob_sha": "a295847c9c4eeffbaf531acbcc5a90bfb67fe50f",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 355,
+    "sha256": "295a8c1aa2befcdf00b35b9a2e702e12378625d2f3d7e8783dc7844f9473eb18"
+  },
+  "skills/x0x37-task/SKILL.md": {
+    "path": "skills/x0x37-task/SKILL.md",
+    "git_blob_sha": "b54361708931b92e6b184feced1ebd2e25097dd9",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 3292,
+    "sha256": "c4824891e9ed0f7a8b4cf7ca8c8857a918dc7264aa2edf593aaa7c5a1e2b6364"
+  },
+  ".agents/skills/x0x37-writing/SKILL.md": {
+    "path": ".agents/skills/x0x37-writing/SKILL.md",
+    "git_blob_sha": "f26c4776339eb0f199cb2e43bd4523fc20208996",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 1195,
+    "sha256": "067f511481c8d65f9442fccb026ca8e97377fe571a089a08b8116db9eb099463"
+  },
+  "docs/FEATURE-REGISTRY.md": {
+    "path": "docs/FEATURE-REGISTRY.md",
+    "git_blob_sha": "9fff09e3251a0d2d65c2a0ce93857125ca543a9a",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 49204,
+    "sha256": "30b247d26f711b8296d48c82da565b8ba0e674ad6322d92bfabb6c57ee527395"
+  },
+  "skills/x0x37-workflow/SKILL.md": {
+    "path": "skills/x0x37-workflow/SKILL.md",
+    "git_blob_sha": "b305fcc90a8f2f7eeda4fbcee72d5681f6a25262",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 3915,
+    "sha256": "285e47a79cd59903abf59635af5a025e070bff87823a07b83e80cd79555137b7"
+  },
+  "docs/rules/workflow.md": {
+    "path": "docs/rules/workflow.md",
+    "git_blob_sha": "56e072eb61d16ce3c626d45b7614b6fe918a151c",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 2126,
+    "sha256": "23fb75674c89fa82213081ed5e586ee590ae7e72407dbc60a03e8f8eaa08d091"
+  },
+  "firmware/src/app/engine.h": {
+    "path": "firmware/src/app/engine.h",
+    "git_blob_sha": "9feda5fee976b901a269a7d13e7a0bc4d78aecad",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 17774,
+    "sha256": "9bc236d4f341a10960581332284fa0eca9f5a9e9823950573f41d9185135c699"
+  },
+  "firmware/src/app/plat.h": {
+    "path": "firmware/src/app/plat.h",
+    "git_blob_sha": "b57f2737c5090feac762286794c3f4b9fa1b28ae",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 10595,
+    "sha256": "426e69bb62645a072f3a5f828aeb175fa9854ec9106cc014f8e22b96734019cd"
+  },
+  "firmware/src/seq/pattern.h": {
+    "path": "firmware/src/seq/pattern.h",
+    "git_blob_sha": "9810f8977dccb726e09d34666657f1e01bf83b1e",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 5814,
+    "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191"
+  },
+  "skills/x0x37-task/references/routing.md": {
+    "path": "skills/x0x37-task/references/routing.md",
+    "git_blob_sha": "b7fd87b1ed098209ce5e5cbdd8f08eb1e6da7695",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 2100,
+    "sha256": "bb388657d6fb8a4367c35853389fa645114f2badfb7e062de09efd1cc5f30258"
+  },
+  "skills/x0x37-task/references/ownership.md": {
+    "path": "skills/x0x37-task/references/ownership.md",
+    "git_blob_sha": "15647a6991c8031afa6a20cd83e043eb4a3f8a9d",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 1414,
+    "sha256": "14a0b2d1738d505b12c8ef980cc64701d766b3ea1c7bfeabf8079f7a38379b3e"
+  },
+  "docs/rules/local-proof.md": {
+    "path": "docs/rules/local-proof.md",
+    "git_blob_sha": "0fb258e9cd01884adaee0a673c68e2a9252f4a6f",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 5566,
+    "sha256": "e80954ef6d48c1358f8b55dd021fc8f41bdf133ad11d8423830f120c65e87c60"
+  },
+  "docs/plans/2026-11-13-rec-full-keybed.md": {
+    "path": "docs/plans/2026-11-13-rec-full-keybed.md",
+    "git_blob_sha": "db213224f0cdc6597ec24909179bc5071663d8e4",
+    "ref": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+    "bytes": 10251,
+    "sha256": "380078319dd19284b27dc8294aff35ecf3d247697a99029d4b0f6bed26b7250a"
+  }
+}

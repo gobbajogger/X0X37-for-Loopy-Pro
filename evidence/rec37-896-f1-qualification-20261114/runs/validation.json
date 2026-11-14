@@ -1,0 +1,40 @@
+{
+  "checks": [
+    {
+      "check": "corrected historical fixture syntax only; historical scenarios not executed",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isource/firmware/src/app",
+        "-fsyntax-only",
+        "runs/corrected-owner-probe.c"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "check": "apply test-only patch to disposable two-file copy",
+      "command": [
+        "patch",
+        "--batch",
+        "-p1",
+        "-d",
+        "patch-check",
+        "-i",
+        "/workspace/rec37-896-f1-qualification/rec37-f1-test-only.patch"
+      ],
+      "exit": 0,
+      "stdout": "patching file tests/host/rec37_owner_source_test.py\npatching file tests/host/rec37_owner_integration_test.c\npatching file tests/host/rec37_admission_probe.py\n",
+      "stderr": ""
+    }
+  ],
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "patch_sha256": "89785c38b7b4884c544b1994df66b5242103274402b3036380bb1b6b90883351"
+}

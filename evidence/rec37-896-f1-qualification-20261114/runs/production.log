@@ -1,0 +1,1 @@
+model=production checks=59354 structural_failures=0 predicate_differences=0 fresh_cases=5760 admission_differences=0 transition_cases=32 transition_differences=0 on=2976 off=2976 seq_intent=384 audition_intent=2592

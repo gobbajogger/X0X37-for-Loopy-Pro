@@ -1,0 +1,1 @@
+model=substituted checks=45802 structural_failures=0 predicate_differences=136 fresh_cases=5760 admission_differences=2240 transition_cases=32 transition_differences=28 on=708 off=708 seq_intent=384 audition_intent=324
