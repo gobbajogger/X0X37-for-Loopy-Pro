@@ -1,0 +1,84 @@
+[
+  {
+    "source_path": "docs/MANUAL.md",
+    "local_path": "docs/dnbox-web-program-20261114/learning-intake/candidate-keyboard-manual.md",
+    "bytes": 58014,
+    "sha256": "4ed08fcc93255bab0a2451160064138fdb66bbb2da24b2fdce46c0fda23e8798",
+    "git_blob": "37e276be44337444d93fb6a26d1657061c7272bd",
+    "expected_git_blob": "37e276be44337444d93fb6a26d1657061c7272bd",
+    "git_blob_match": true,
+    "access": "GitHub fetch full UTF8 source; locally reconstructed with exact Git blob match"
+  },
+  {
+    "source_path": "docs/evidence/musician-manual-20261114.md",
+    "local_path": "docs/dnbox-web-program-20261114/learning-intake/musician-manual-evidence.md",
+    "bytes": 5177,
+    "sha256": "1c26fd579e18707f9c56d48c177b232f58cbbf55b1aecb393c551646f23788de",
+    "git_blob": "d2c834292dcd83536f13bfd6db6e8753dcc87b38",
+    "expected_git_blob": "d2c834292dcd83536f13bfd6db6e8753dcc87b38",
+    "git_blob_match": true,
+    "access": "GitHub fetch full UTF8 source; locally reconstructed with exact Git blob match"
+  },
+  {
+    "source_path": "tests/scenarios/manual_break.x0x",
+    "local_path": "docs/dnbox-web-program-20261114/learning-intake/manual_break.x0x",
+    "bytes": 520,
+    "sha256": "5784bb935f86f3f3d5a4a43c0ca7d0e32dc1b9ff58b61dfbdf2325349a26b492",
+    "git_blob": "7f4f1774ef1c3a4dec29c645c101f00b3e68ee9d",
+    "expected_git_blob": "7f4f1774ef1c3a4dec29c645c101f00b3e68ee9d",
+    "git_blob_match": true,
+    "access": "GitHub fetch full UTF8 source; locally reconstructed with exact Git blob match"
+  },
+  {
+    "source_path": "tests/scenarios/manual_pattern5.x0x",
+    "local_path": "docs/dnbox-web-program-20261114/learning-intake/manual_pattern5.x0x",
+    "bytes": 634,
+    "sha256": "251aa278092250911e1adb73bb4faaa135721759204e46a1bba4a01348397e6d",
+    "git_blob": "29763ce97307c5bbeb2ee1a2d74c30dca5abc61b",
+    "expected_git_blob": "29763ce97307c5bbeb2ee1a2d74c30dca5abc61b",
+    "git_blob_match": true,
+    "access": "GitHub fetch full UTF8 source; locally reconstructed with exact Git blob match"
+  },
+  {
+    "source_path": "web/MANUAL.md",
+    "local_path": "docs/dnbox-web-program-20261114/learning-intake/candidate-browser-manual.md",
+    "bytes": 12837,
+    "sha256": "a707e347085b7ca230370f3796d4deb31c9110c7920d079f4abb41d871357d84",
+    "git_blob": "aca67159f874c908180d66a7286e5bc8eebb409c",
+    "expected_git_blob": "aca67159f874c908180d66a7286e5bc8eebb409c",
+    "git_blob_match": true,
+    "access": "GitHub fetch full UTF8 source; locally reconstructed with exact Git blob match"
+  },
+  {
+    "source_path": "web/NEW.md",
+    "local_path": "docs/dnbox-web-program-20261114/learning-intake/candidate-whats-new.md",
+    "bytes": 2174,
+    "sha256": "22637418716534c5e84381751c6a38aea8c786764dc2050adf1a47d348e0fa5d",
+    "git_blob": "730dbab61e4b398de855c0ef74911b06b79dbe19",
+    "expected_git_blob": "730dbab61e4b398de855c0ef74911b06b79dbe19",
+    "git_blob_match": true,
+    "access": "GitHub fetch full UTF8 source; locally reconstructed with exact Git blob match"
+  },
+  {
+    "library_file_id": "libfile_eb0f0d6d84bc8191949aebf501383b81",
+    "version_id": null,
+    "name": "LoopyX0X37-QA2-Lua51-TouchOSC-019b8219-20261104.json",
+    "access": "Library full text read; original file bytes not materialized",
+    "has_more": false,
+    "reconstructed_text_bytes": 15272,
+    "library_size_bytes": 15273,
+    "size_note": "Read text lacks final newline; metadata one byte larger. No raw-file hash consumption claim.",
+    "reconstructed_text_sha256": "5ae698ad9280916f01d01aa6d61a658bd1ef1a02e3a0af758de4c95c34164827"
+  },
+  {
+    "library_file_id": "libfile_fde3_f-f4495bf2287481918c64ea89830f604a_2021479872048191acbfdca1f870a539",
+    "version_id": "0",
+    "name": "EM1-implementation-admission.md",
+    "access": "Library full text read; original file bytes not materialized",
+    "has_more": false,
+    "reconstructed_text_bytes": 16212,
+    "library_size_bytes": 16213,
+    "size_note": "Read text lacks final newline; metadata one byte larger. No raw-file hash consumption claim.",
+    "reconstructed_text_sha256": "d5418ff10216f392b0d03bedaa320e593d99cf7bbd526fc31751f2181b0aff4e"
+  }
+]

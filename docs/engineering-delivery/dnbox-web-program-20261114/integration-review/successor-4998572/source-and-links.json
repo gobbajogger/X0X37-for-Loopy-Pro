@@ -1,0 +1,101 @@
+{
+  "utc": "2026-11-14T14:01:15.584400+00:00",
+  "source": {
+    "path": "/workspace/X0X37-for-Loopy-Pro/docs/dnbox-web-program-20261114/learning-intake/manual-successor-4998572/web-MANUAL.md",
+    "bytes": 13276,
+    "sha256": "51b2906afe94aa51ebf5cc1d94924d17bfcb214c24afa9fe5726f8035e17b89b",
+    "git_blob": "a7f36a186659304340bbdadb2338cd8b3c94702a",
+    "legacy_count": 0
+  },
+  "links": [
+    {
+      "line": 3,
+      "label": "SMK-37 keyboard manual",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md",
+      "target_status": 200,
+      "fragment": null,
+      "rendered_anchor_present": true,
+      "heading_text": null
+    },
+    {
+      "line": 11,
+      "label": "four musical tasks",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md#3-quick-start-real-musical-tasks",
+      "target_status": 200,
+      "fragment": "3-quick-start-real-musical-tasks",
+      "rendered_anchor_present": true,
+      "heading_text": "3. Quick start: real musical tasks"
+    },
+    {
+      "line": 11,
+      "label": "The panel",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md#2-the-panel",
+      "target_status": 200,
+      "fragment": "2-the-panel",
+      "rendered_anchor_present": true,
+      "heading_text": "2. The panel"
+    },
+    {
+      "line": 70,
+      "label": "SMK-37 manual",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md",
+      "target_status": 200,
+      "fragment": null,
+      "rendered_anchor_present": true,
+      "heading_text": null
+    }
+  ],
+  "http_results": [
+    {
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md",
+      "bytes": 570687,
+      "sha256": "b4832be5cfcc4781903be01ff20c09fd9f1d0c949b7941c6b285826bf20ece82"
+    },
+    {
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md",
+      "bytes": 245205,
+      "sha256": "1454bb5dd3f3d67e9b717fba29c81ee79b0b7a4a3f310f9e5a9d4649db3699db"
+    },
+    {
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md",
+      "bytes": 570700,
+      "sha256": "340c98085b5acf5927226b33b276c13b1d4785a78aa8c3b165ef9b5a9bb66abb"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md",
+      "bytes": 58014,
+      "sha256": "4ed08fcc93255bab0a2451160064138fdb66bbb2da24b2fdce46c0fda23e8798"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md",
+      "bytes": 13276,
+      "sha256": "51b2906afe94aa51ebf5cc1d94924d17bfcb214c24afa9fe5726f8035e17b89b"
+    },
+    {
+      "url": "https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/commits/4998572bcc06676f08a7875ca49fb2a56358eff6",
+      "status": 200,
+      "final_url": "https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/commits/4998572bcc06676f08a7875ca49fb2a56358eff6",
+      "bytes": 11301,
+      "sha256": "b4ca6a6f6e89811cec5f72d58fc27d028ab73257b3f99bd12b61780932736a61"
+    }
+  ],
+  "keyboard_source_unchanged": true,
+  "keyboard_git_blob": "37e276be44337444d93fb6a26d1657061c7272bd",
+  "browser_remote_matches_consumed": true,
+  "browser_remote_git_blob": "a7f36a186659304340bbdadb2338cd8b3c94702a",
+  "commit_parent": "a19da721c25ab2323bb818851ab4d92e8ca3aa15",
+  "commit_changed_paths": [
+    "docs/evidence/musician-manual-20261114.md",
+    "web/MANUAL.md"
+  ]
+}

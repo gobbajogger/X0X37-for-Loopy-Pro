@@ -1,0 +1,128 @@
+{
+  "utc": "2026-11-14T13:42:39.246545+00:00",
+  "source_sha256": "a707e347085b7ca230370f3796d4deb31c9110c7920d079f4abb41d871357d84",
+  "source_bytes": 12837,
+  "links": [
+    {
+      "line": 3,
+      "label": "SMK-37 keyboard manual",
+      "authored": "legacy.html",
+      "resolved": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html"
+    },
+    {
+      "line": 5,
+      "label": "recommended published 0.0.25.1 release",
+      "authored": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1",
+      "resolved": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1"
+    },
+    {
+      "line": 11,
+      "label": "four musical tasks",
+      "authored": "legacy.html#s3",
+      "resolved": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html#s3"
+    },
+    {
+      "line": 11,
+      "label": "The panel",
+      "authored": "legacy.html#s2",
+      "resolved": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html#s2"
+    },
+    {
+      "line": 19,
+      "label": "published main installer",
+      "authored": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/",
+      "resolved": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/"
+    },
+    {
+      "line": 19,
+      "label": "nightly installer",
+      "authored": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+      "resolved": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/"
+    },
+    {
+      "line": 23,
+      "label": "Samples",
+      "authored": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/",
+      "resolved": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/"
+    },
+    {
+      "line": 23,
+      "label": "Projects",
+      "authored": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/",
+      "resolved": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/"
+    },
+    {
+      "line": 23,
+      "label": "main installer",
+      "authored": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/",
+      "resolved": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/"
+    },
+    {
+      "line": 23,
+      "label": "nightly installer",
+      "authored": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+      "resolved": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/"
+    },
+    {
+      "line": 38,
+      "label": "M-VAVE",
+      "authored": "https://www.m-vave.com/download",
+      "resolved": "https://www.m-vave.com/download"
+    },
+    {
+      "line": 70,
+      "label": "SMK-37 manual",
+      "authored": "legacy.html",
+      "resolved": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html"
+    }
+  ],
+  "destinations": [
+    {
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1",
+      "bytes": 148001,
+      "sha256": "0cfed71b15d15de615d037821c341ba4e1a66b5e82a962f3012f423e79daf9ed"
+    },
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/",
+      "bytes": 56968,
+      "sha256": "92b4f178ebd60f36a5904670d94a3a02cdadcfc56a7a882e6ea8ad46714e7139"
+    },
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/",
+      "bytes": 505435,
+      "sha256": "b487610afee45d0baf262293e36efaa104f39f69c9979ec86b831980b5c43f6f"
+    },
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/",
+      "bytes": 89437,
+      "sha256": "151d554033fb4fd33f3e0f83440a8494e06226f257e66ab94ff86a94f9809d78"
+    },
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+      "bytes": 628755,
+      "sha256": "9f0726ae387a0773e95601ad0ff77560982acdbf180c6c8545deeff7cf07a669"
+    },
+    {
+      "url": "https://www.m-vave.com/download",
+      "status": 200,
+      "final_url": "https://www.m-vave.com/download",
+      "bytes": 113492,
+      "sha256": "ca0b50e6f6375c1f7f6f03c2a5655a58744164cbf4b2e175ea38b6e1a477bc12"
+    }
+  ]
+}

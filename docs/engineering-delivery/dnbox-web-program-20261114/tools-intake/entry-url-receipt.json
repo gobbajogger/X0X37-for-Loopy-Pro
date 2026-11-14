@@ -1,0 +1,68 @@
+{
+  "at": "2026-11-14T13:29:24.020488+00:00",
+  "method": "urllib default TLS; no bypass",
+  "results": [
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/presets/",
+      "error": "HTTPError",
+      "detail": "HTTP Error 404: Not Found",
+      "tls_verification": "default unmodified"
+    },
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/offline-sequencer/",
+      "error": "HTTPError",
+      "detail": "HTTP Error 404: Not Found",
+      "tls_verification": "default unmodified"
+    },
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/",
+      "bytes": 89437,
+      "title": "<title>X0X songs &amp; projects</title>"
+    },
+    {
+      "url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/",
+      "bytes": 56968,
+      "title": "<title>X0X break loops</title>"
+    }
+  ],
+  "nightly_at": "2026-11-14T13:30:17.709359+00:00",
+  "nightly_results": [
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/presets/",
+      "error": "HTTPError",
+      "detail": "HTTP Error 404: Not Found",
+      "tls_verification": "default unmodified"
+    },
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/offline-sequencer/",
+      "error": "HTTPError",
+      "detail": "HTTP Error 404: Not Found",
+      "tls_verification": "default unmodified"
+    },
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/",
+      "bytes": 116832,
+      "title": "<title>X0X songs &amp; projects</title>"
+    },
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/",
+      "bytes": 93530,
+      "title": "<title>DnBOX break loops</title>"
+    },
+    {
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+      "bytes": 628755,
+      "title": "<title>Firmware & samples \u00b7 DnBOX NIGHTLY</title>"
+    }
+  ]
+}

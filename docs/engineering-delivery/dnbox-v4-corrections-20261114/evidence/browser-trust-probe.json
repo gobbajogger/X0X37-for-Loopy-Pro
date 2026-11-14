@@ -1,0 +1,6 @@
+[
+  {
+    "status": "trusted browser navigation FAIL",
+    "error": "Page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/\nCall log:\n  - navigating to \"https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/\", waiting until \"load\"\n"
+  }
+]

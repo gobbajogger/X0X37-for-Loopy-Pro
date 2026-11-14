@@ -1,0 +1,26 @@
+{
+  "status": "SCOPED_ACCEPT_INDEPENDENT_INTEGRATION_REVIEW",
+  "files": 70,
+  "manifest_sha256": "cb7b5b4d18fa7f1656b6ec99fc163d444599c4fe474a0bd660c2a7771a08a5da",
+  "all_files_sha256": "616401886c5f71cc2d2f5a0faa2f2ad7951b7b6849636ab84bc692d346a25fcb",
+  "base_manifest_sha256": "a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f",
+  "source_unchanged": [
+    "navigation.js",
+    "experience.js",
+    "app.js",
+    "recordings.js",
+    "all audio/image assets"
+  ],
+  "new_source": [
+    "journeys.js",
+    "product.js",
+    "provenance/integration-20261114.md"
+  ],
+  "manual_commit": "a19da721c25ab2323bb818851ab4d92e8ca3aa15",
+  "published": false,
+  "previous_integration_manifest": "7a1e85ad29dfc568628798b9fbeeff010544458d01c903c885bb91da3811f22b",
+  "review_fix": "Adjacent direct keyboard-manual route and explicit stale browser-draft link disclosure",
+  "review_report": "integration-review/REPORT.md",
+  "review_report_sha256": "76179d206a5e7d6e956b63f9b02a505bcbf0323687527f8d046375864558fc0f",
+  "review_evidence_manifest_sha256": "66621d9a2dbf81a101cb669578e54f2e7c3fd5cede0a3c4c02fc59734db7c88d"
+}

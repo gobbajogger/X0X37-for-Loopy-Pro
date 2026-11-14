@@ -1,0 +1,25 @@
+{
+  "candidate_manifest_sha256": "93d68db7d790ab4c37e4dc882e632ad1b7f08bcdd8c4d03d29e9a41f0a9cc596",
+  "baseline_private_host_manifest": "99e51da2442eac9e081f8698018985159d157cde1d5bdb0dcaf029638ad1c8d6",
+  "prior_source_commit": "df04da993c13e55b98254c2300765f190f1649fd",
+  "firmware_version": "0.0.25.1",
+  "model": "SMK-37 Pro_900",
+  "firmware_source": "79280e763341d03ba43266d3e25dad66f12de860",
+  "package_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+  "emulator_source": "431d0db82cbadca761fb32c6548ca4765875324f",
+  "runtime_archive_sha256": "5822db14472ca701db3c17289e5d305e5daeba971223a5cf4de86a56af4d8c57",
+  "wasm_sha256": "8f053c488056eed4d3f71d77901ef796e42e055f64eb04fc71a476dd0b58c33d",
+  "ui_blob": "9c435dc3475d6b8d6d1cfe109453995002f67055",
+  "pictograms_blob": "7753873439d4cc13845220c43a1f1d3f6bca958c",
+  "gfx_blob": "cd80d084f68a283e4e0f851b46f34d5fee581845",
+  "semantic_coverage": "909SEQ,BD,Pattern1,page1,RECoff; safeBDreturnfrom11positivelyobservedrowstates; actualSAVED/SAVESWHENSTOPPEDtext",
+  "uncovered_layouts": "Live exact native-colour HTML fallback; no full semantic reconstruction claim",
+  "excluded_from_git": [
+    "WASM/runtime and firmware packages",
+    "rawRGBA/PCM/images/video and browser backups",
+    "private references.json (captured recognition templates)",
+    "third-party/private editor and companion payloads"
+  ],
+  "public_deployment": false,
+  "device_actions": false
+}

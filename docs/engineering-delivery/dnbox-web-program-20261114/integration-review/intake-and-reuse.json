@@ -1,0 +1,552 @@
+{
+  "utc": "2026-11-14T13:44:44.552333+00:00",
+  "final_manifest_sha256": "cb7b5b4d18fa7f1656b6ec99fc163d444599c4fe474a0bd660c2a7771a08a5da",
+  "total_files": 70,
+  "manifest_entries": 69,
+  "all_entries_match": true,
+  "entries": [
+    {
+      "file": "README.md",
+      "expected": "c56f31a48d91db0eef67783e75724c87e913cd45aa3040d828fd53ebb146dfd1",
+      "actual": "c56f31a48d91db0eef67783e75724c87e913cd45aa3040d828fd53ebb146dfd1",
+      "matches": true
+    },
+    {
+      "file": "VERSION-HISTORY.md",
+      "expected": "00cfc6abc4e18033a9444b1203957ed4955bd0648d4854eaf4e6249606d8c215",
+      "actual": "00cfc6abc4e18033a9444b1203957ed4955bd0648d4854eaf4e6249606d8c215",
+      "matches": true
+    },
+    {
+      "file": "app.js",
+      "expected": "787435e1de6f76017a22b90122942dd9ef967906694a4ad16461467ae353f04e",
+      "actual": "787435e1de6f76017a22b90122942dd9ef967906694a4ad16461467ae353f04e",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/808-groove.wav",
+      "expected": "315f37f0b748a950eb0c4edd6ce1996192bf24e90ee5a1b704eda3f74eb84c15",
+      "actual": "315f37f0b748a950eb0c4edd6ce1996192bf24e90ee5a1b704eda3f74eb84c15",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/break-phrase.wav",
+      "expected": "a01435da2b796fc9cd5b2c4f6e9691ab258361314cd206829b45241e7f28b2e5",
+      "actual": "a01435da2b796fc9cd5b2c4f6e9691ab258361314cd206829b45241e7f28b2e5",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/break-straight.wav",
+      "expected": "c3cb19997a6f3c8d61bc32eaa115d069b0c11b158386883d9f65bb036a71db0e",
+      "actual": "c3cb19997a6f3c8d61bc32eaa115d069b0c11b158386883d9f65bb036a71db0e",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/length-before.wav",
+      "expected": "36d0eaccacc711b25ab6a865f0c97ffaad60060a4d841b10a10f28139906ae66",
+      "actual": "36d0eaccacc711b25ab6a865f0c97ffaad60060a4d841b10a10f28139906ae66",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/length-chance.wav",
+      "expected": "4faf44cb6129b2c7f75288ba0efa0120550df4a7916c88ee69b36567af012221",
+      "actual": "4faf44cb6129b2c7f75288ba0efa0120550df4a7916c88ee69b36567af012221",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/motion-record.wav",
+      "expected": "7b2ea85c9fcba8fe639062c8342f736fad94f5a97beeee2bdf1963e3bec20e2d",
+      "actual": "7b2ea85c9fcba8fe639062c8342f736fad94f5a97beeee2bdf1963e3bec20e2d",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/motion-takeover.wav",
+      "expected": "80bca9bafcf32ac0f02941ee6cab3c6a306585f4deb68c1e4d910f61fb137a76",
+      "actual": "80bca9bafcf32ac0f02941ee6cab3c6a306585f4deb68c1e4d910f61fb137a76",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/parts-performance.wav",
+      "expected": "4bbdd1a198b0695a8ef58f273c5dd3e80c6e082554033962ec6ebfb9f7ad4938",
+      "actual": "4bbdd1a198b0695a8ef58f273c5dd3e80c6e082554033962ec6ebfb9f7ad4938",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/pro-heavy.wav",
+      "expected": "cf0925d92c647b0ea78686ddf2a9dad7eb1510b4bf0d2b0267e24313ca91eb9f",
+      "actual": "cf0925d92c647b0ea78686ddf2a9dad7eb1510b4bf0d2b0267e24313ca91eb9f",
+      "matches": true
+    },
+    {
+      "file": "assets/audio/song-two-bars.wav",
+      "expected": "df32de16549a3c0f91eafca24e0e4f8c7b0e54d92a84ff610805575a8dbbb476",
+      "actual": "df32de16549a3c0f91eafca24e0e4f8c7b0e54d92a84ff610805575a8dbbb476",
+      "matches": true
+    },
+    {
+      "file": "assets/favicon.svg",
+      "expected": "ec205163d3642ea2aa88a5fa1427a3d8b79fde16785d78f309c21bce4041b330",
+      "actual": "ec205163d3642ea2aa88a5fa1427a3d8b79fde16785d78f309c21bce4041b330",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/elite-909-lcd.png",
+      "expected": "fef772cb92a8c347ff0dcec8a04de1a21d40cfcf39cda6fb6599a69c5f9b2973",
+      "actual": "fef772cb92a8c347ff0dcec8a04de1a21d40cfcf39cda6fb6599a69c5f9b2973",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/elite-break-only-lcd.png",
+      "expected": "2161f5178cd2c17c39a4499973829c846de8a17733f36b55d06477a817af3324",
+      "actual": "2161f5178cd2c17c39a4499973829c846de8a17733f36b55d06477a817af3324",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/elite-break-setup-lcd.png",
+      "expected": "0154563c7c6afdb692e25a3940d07d8eb430ab18908325fe5184bc6dc83c40fe",
+      "actual": "0154563c7c6afdb692e25a3940d07d8eb430ab18908325fe5184bc6dc83c40fe",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/elite-chicago-lcd.png",
+      "expected": "a6d507d434f4a0dc81977c231ed0efe1aedb8b6cb5b6d3d6a12d54ed354f44a5",
+      "actual": "a6d507d434f4a0dc81977c231ed0efe1aedb8b6cb5b6d3d6a12d54ed354f44a5",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/elite-miami-lcd.png",
+      "expected": "6161588b07b43ad8c197be6c8ab83fe23b37fb2ce84baf749fd4e7acc434e77b",
+      "actual": "6161588b07b43ad8c197be6c8ab83fe23b37fb2ce84baf749fd4e7acc434e77b",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/independent-qa-pro-playing.png",
+      "expected": "7236b2080365a1e3e4eb9c2d5a93556a47fb606be3964e27ebb39cf21c5bbbef",
+      "actual": "7236b2080365a1e3e4eb9c2d5a93556a47fb606be3964e27ebb39cf21c5bbbef",
+      "matches": true
+    },
+    {
+      "file": "assets/firmware/pro-reset-panel.png",
+      "expected": "db93085e6ca96bc22e7ec95fb6d983aca6d7692a48c88a4e7fc0dff5d8deb605",
+      "actual": "db93085e6ca96bc22e7ec95fb6d983aca6d7692a48c88a4e7fc0dff5d8deb605",
+      "matches": true
+    },
+    {
+      "file": "assets/key-locator.svg",
+      "expected": "b9b6865d4c5bae47355204c76cc9c31b48067a6bd126fb6e3f5a5f5d3cd42742",
+      "actual": "b9b6865d4c5bae47355204c76cc9c31b48067a6bd126fb6e3f5a5f5d3cd42742",
+      "matches": true
+    },
+    {
+      "file": "experience.js",
+      "expected": "893e14dac653e992bad94b8e686e693fefdb5d77ebbfec4787de438570e683fe",
+      "actual": "893e14dac653e992bad94b8e686e693fefdb5d77ebbfec4787de438570e683fe",
+      "matches": true
+    },
+    {
+      "file": "index.html",
+      "expected": "441b424d90b707239b5edd7b751214cabd8c687d6d99117fcd4368f2467b1043",
+      "actual": "441b424d90b707239b5edd7b751214cabd8c687d6d99117fcd4368f2467b1043",
+      "matches": true
+    },
+    {
+      "file": "journeys.js",
+      "expected": "b75a151e3e5b7389c8abb933a9feffed1de491575bfde3248e61a22266dfe73a",
+      "actual": "b75a151e3e5b7389c8abb933a9feffed1de491575bfde3248e61a22266dfe73a",
+      "matches": true
+    },
+    {
+      "file": "navigation.js",
+      "expected": "d29344dd2f46a80e2ef0edfe30fb770e4ad7493bde12b8ce422bbd7175807485",
+      "actual": "d29344dd2f46a80e2ef0edfe30fb770e4ad7493bde12b8ce422bbd7175807485",
+      "matches": true
+    },
+    {
+      "file": "product.css",
+      "expected": "01ed4c1f203b0d938efb114a8d85794dd3b38ccd434762788b91ad5e9571d5d4",
+      "actual": "01ed4c1f203b0d938efb114a8d85794dd3b38ccd434762788b91ad5e9571d5d4",
+      "matches": true
+    },
+    {
+      "file": "product.js",
+      "expected": "1c813fd9ffe3a68c82262c55949e57f4ffbeccf2100926f1451af1c02abdfca8",
+      "actual": "1c813fd9ffe3a68c82262c55949e57f4ffbeccf2100926f1451af1c02abdfca8",
+      "matches": true
+    },
+    {
+      "file": "provenance/EMULATOR-MIT-LICENSE.txt",
+      "expected": "de303af17a9bed9ac5ab105f33ef72b3aa5c658d30132d13609db45f7fc7f257",
+      "actual": "de303af17a9bed9ac5ab105f33ef72b3aa5c658d30132d13609db45f7fc7f257",
+      "matches": true
+    },
+    {
+      "file": "provenance/README-v3.md",
+      "expected": "a1913ebc75b4232a70d7c57a9854bdd99c5450044db873aa95ef0b0244966ba7",
+      "actual": "a1913ebc75b4232a70d7c57a9854bdd99c5450044db873aa95ef0b0244966ba7",
+      "matches": true
+    },
+    {
+      "file": "provenance/baseline/app.js",
+      "expected": "a5c9087b6bc4bcf20732518c7bd45ebabe66410139d665cd1f6a56b1ef24a8b3",
+      "actual": "a5c9087b6bc4bcf20732518c7bd45ebabe66410139d665cd1f6a56b1ef24a8b3",
+      "matches": true
+    },
+    {
+      "file": "provenance/baseline/index.html",
+      "expected": "a88b524909f1ebf051818c31bcce4bc1a83ec9ef213dd3fc0865e66442b7c9fe",
+      "actual": "a88b524909f1ebf051818c31bcce4bc1a83ec9ef213dd3fc0865e66442b7c9fe",
+      "matches": true
+    },
+    {
+      "file": "provenance/baseline/source-receipt.json",
+      "expected": "74be1967b842ba132d67e950e52325b5509c7d70de4c32643eb29719fadfeed2",
+      "actual": "74be1967b842ba132d67e950e52325b5509c7d70de4c32643eb29719fadfeed2",
+      "matches": true
+    },
+    {
+      "file": "provenance/baseline/style.css",
+      "expected": "2810cb7a566f8661299f37d1b3514a6ec830f164feb17db3e395d0314dcd0f54",
+      "actual": "2810cb7a566f8661299f37d1b3514a6ec830f164feb17db3e395d0314dcd0f54",
+      "matches": true
+    },
+    {
+      "file": "provenance/build-provenance.json",
+      "expected": "1f64ec8a979fb9fc36024f8f6685556a5b9a97720770a0502a98e94a4b0500a4",
+      "actual": "1f64ec8a979fb9fc36024f8f6685556a5b9a97720770a0502a98e94a4b0500a4",
+      "matches": true
+    },
+    {
+      "file": "provenance/controls-map.svg",
+      "expected": "a443802c843622bdae8604f79edc34d8421e4a170c229474c4ea5e94ea2580c9",
+      "actual": "a443802c843622bdae8604f79edc34d8421e4a170c229474c4ea5e94ea2580c9",
+      "matches": true
+    },
+    {
+      "file": "provenance/emulator-integration.json",
+      "expected": "f57d77572707125ff2b0ef12d68981d3685b815f279170fa96834bd09ee07280",
+      "actual": "f57d77572707125ff2b0ef12d68981d3685b815f279170fa96834bd09ee07280",
+      "matches": true
+    },
+    {
+      "file": "provenance/firmware-capture-research/REPORT.md",
+      "expected": "63a159e88f1413bd0c72629cce5ac61672e9cad68867b85722e2abd974310032",
+      "actual": "63a159e88f1413bd0c72629cce5ac61672e9cad68867b85722e2abd974310032",
+      "matches": true
+    },
+    {
+      "file": "provenance/firmware-capture-research/capture-index.json",
+      "expected": "2b4e09483cc124071f9e44f1a3831de5febba659069d385b32acf874d38bed1e",
+      "actual": "2b4e09483cc124071f9e44f1a3831de5febba659069d385b32acf874d38bed1e",
+      "matches": true
+    },
+    {
+      "file": "provenance/firmware-capture-research/consumption.json",
+      "expected": "8ecb063ff07ef951cd7c5d39b5b89c5ad15e61228fd5c38624f2b82751345705",
+      "actual": "8ecb063ff07ef951cd7c5d39b5b89c5ad15e61228fd5c38624f2b82751345705",
+      "matches": true
+    },
+    {
+      "file": "provenance/git-delivery-blocker.json",
+      "expected": "79df23880170a3799b6fb5042afe062b1992067270be4ce5da9329b3d9ed5b99",
+      "actual": "79df23880170a3799b6fb5042afe062b1992067270be4ce5da9329b3d9ed5b99",
+      "matches": true
+    },
+    {
+      "file": "provenance/independent-browser-qa.json",
+      "expected": "df135771a53934a12c771c9cf58229e24c30286e83fa42691d99f7f03f743004",
+      "actual": "df135771a53934a12c771c9cf58229e24c30286e83fa42691d99f7f03f743004",
+      "matches": true
+    },
+    {
+      "file": "provenance/independent-browser-qa.md",
+      "expected": "195a783ff22b7874a929484f186459b4189360610026004be6feab0e8667a23a",
+      "actual": "195a783ff22b7874a929484f186459b4189360610026004be6feab0e8667a23a",
+      "matches": true
+    },
+    {
+      "file": "provenance/independent-qa-smoke.cjs",
+      "expected": "46fe14fe7c0e303084a0aa042ed20bc4ce9bc8191939ec99abc6e7662da39244",
+      "actual": "46fe14fe7c0e303084a0aa042ed20bc4ce9bc8191939ec99abc6e7662da39244",
+      "matches": true
+    },
+    {
+      "file": "provenance/input-consumption.json",
+      "expected": "95b4a39d4a9563439f1455e536809204b307105c5a5977b058be55d46c6a6176",
+      "actual": "95b4a39d4a9563439f1455e536809204b307105c5a5977b058be55d46c6a6176",
+      "matches": true
+    },
+    {
+      "file": "provenance/input-v1-MANIFEST.sha256",
+      "expected": "4d9045f8871747d3a3920ec295ee827622fee6182d105be62c7edbba56484170",
+      "actual": "4d9045f8871747d3a3920ec295ee827622fee6182d105be62c7edbba56484170",
+      "matches": true
+    },
+    {
+      "file": "provenance/input-v1-manifest-check.json",
+      "expected": "ec9e9fab623dfa12dcc0e852a48b2a299ee4754b3cf8f527fe80a3b1406b433b",
+      "actual": "ec9e9fab623dfa12dcc0e852a48b2a299ee4754b3cf8f527fe80a3b1406b433b",
+      "matches": true
+    },
+    {
+      "file": "provenance/inspiration.md",
+      "expected": "0b8c14898e5a67bfa375e8710a1d6933e0a5e36cc0026f681ea09a36784fe49c",
+      "actual": "0b8c14898e5a67bfa375e8710a1d6933e0a5e36cc0026f681ea09a36784fe49c",
+      "matches": true
+    },
+    {
+      "file": "provenance/integration-20261114.md",
+      "expected": "519914cb5aaff4a0bcf38842797e06cc5909f68b4d0e8ff897463ec41135c5cb",
+      "actual": "519914cb5aaff4a0bcf38842797e06cc5909f68b4d0e8ff897463ec41135c5cb",
+      "matches": true
+    },
+    {
+      "file": "provenance/journeys-20261114.md",
+      "expected": "ea3f41494965f1a82ee2eb4a479d4ebee4a33abf4b5f5c38d9301a52d3def2c5",
+      "actual": "ea3f41494965f1a82ee2eb4a479d4ebee4a33abf4b5f5c38d9301a52d3def2c5",
+      "matches": true
+    },
+    {
+      "file": "provenance/original-fixtures-NOT-RUN.json",
+      "expected": "0865a7ae73923ff1ead748dd5a16ca2dee394b76ed43729fecc619e1f1478abb",
+      "actual": "0865a7ae73923ff1ead748dd5a16ca2dee394b76ed43729fecc619e1f1478abb",
+      "matches": true
+    },
+    {
+      "file": "provenance/panel_smk.rs",
+      "expected": "915f6169e8b225673f3826bba2dc85299296f5a6a005d97094f8057026a45632",
+      "actual": "915f6169e8b225673f3826bba2dc85299296f5a6a005d97094f8057026a45632",
+      "matches": true
+    },
+    {
+      "file": "provenance/qualification-report.md",
+      "expected": "2f8cc0a2462885585bfdefcb7d417bb4c301e72567216b18dce4806541f896c1",
+      "actual": "2f8cc0a2462885585bfdefcb7d417bb4c301e72567216b18dce4806541f896c1",
+      "matches": true
+    },
+    {
+      "file": "provenance/recordings-20261114.json",
+      "expected": "36c7efbbfcc7718edef12257f259ed2a65220ffbf975b29782bbe6ad3c2f546b",
+      "actual": "36c7efbbfcc7718edef12257f259ed2a65220ffbf975b29782bbe6ad3c2f546b",
+      "matches": true
+    },
+    {
+      "file": "provenance/recordings-20261114.md",
+      "expected": "47c9f69ed00af554241e8b455a9fac2bed1f6d4c3ab8af742a23938109531d27",
+      "actual": "47c9f69ed00af554241e8b455a9fac2bed1f6d4c3ab8af742a23938109531d27",
+      "matches": true
+    },
+    {
+      "file": "provenance/research-status.md",
+      "expected": "756cc3cb4386293f0e94c801e96c39c6e4fe934acccc6fdabefa61cdef511649",
+      "actual": "756cc3cb4386293f0e94c801e96c39c6e4fe934acccc6fdabefa61cdef511649",
+      "matches": true
+    },
+    {
+      "file": "provenance/revision-evidence-reuse.json",
+      "expected": "d37e47a547d8f98c38cecff3b9046d6bd41a782e2dbf678acf19a9f1cbfa684f",
+      "actual": "d37e47a547d8f98c38cecff3b9046d6bd41a782e2dbf678acf19a9f1cbfa684f",
+      "matches": true
+    },
+    {
+      "file": "provenance/revision-intake.json",
+      "expected": "2a0c3cca2f46b4171b640fefd53ec70ce86075c7b0d6c6df1eb02514186e1f4f",
+      "actual": "2a0c3cca2f46b4171b640fefd53ec70ce86075c7b0d6c6df1eb02514186e1f4f",
+      "matches": true
+    },
+    {
+      "file": "provenance/scene-receipt.json",
+      "expected": "453fb2cd262fd52cd080690132180508dcccd406a1cd0d105f5d229ce83467ff",
+      "actual": "453fb2cd262fd52cd080690132180508dcccd406a1cd0d105f5d229ce83467ff",
+      "matches": true
+    },
+    {
+      "file": "provenance/smk37.svg",
+      "expected": "bd23879d3f8125543c81bc50314e96a15743dc94d5983b39a8c4215c92059cbe",
+      "actual": "bd23879d3f8125543c81bc50314e96a15743dc94d5983b39a8c4215c92059cbe",
+      "matches": true
+    },
+    {
+      "file": "provenance/v3-DESIGN.md",
+      "expected": "32dc7c4f7ea17c763ddce1d29ffbb55741147427bd5b415e08b066721b622974",
+      "actual": "32dc7c4f7ea17c763ddce1d29ffbb55741147427bd5b415e08b066721b622974",
+      "matches": true
+    },
+    {
+      "file": "provenance/v3-asset-investigation.md",
+      "expected": "2e9255519505ff685a1e2b86369e1e424a896f784710466b8bfe4769103419d6",
+      "actual": "2e9255519505ff685a1e2b86369e1e424a896f784710466b8bfe4769103419d6",
+      "matches": true
+    },
+    {
+      "file": "provenance/v3-control-truth.md",
+      "expected": "ec46819a3b9bc71ab0f865219779d0d573a057da277a6161428f71719cdea98d",
+      "actual": "ec46819a3b9bc71ab0f865219779d0d573a057da277a6161428f71719cdea98d",
+      "matches": true
+    },
+    {
+      "file": "provenance/v3-design-challenge.md",
+      "expected": "fdded9fea5bdb494ffe6908e15507763c9ce245da65fdcd607bf3e67c9c3e433",
+      "actual": "fdded9fea5bdb494ffe6908e15507763c9ce245da65fdcd607bf3e67c9c3e433",
+      "matches": true
+    },
+    {
+      "file": "provenance/v3-home-break-disposition.md",
+      "expected": "a6deee08e322a16aff3749506d5515bad0d5f46c711c586d19c1c644531587c3",
+      "actual": "a6deee08e322a16aff3749506d5515bad0d5f46c711c586d19c1c644531587c3",
+      "matches": true
+    },
+    {
+      "file": "provenance/v3-intake-receipt.json",
+      "expected": "3bcc31b9307073a0fc5df07484e0494952deb825ad1402c89a8da388492ab5ca",
+      "actual": "3bcc31b9307073a0fc5df07484e0494952deb825ad1402c89a8da388492ab5ca",
+      "matches": true
+    },
+    {
+      "file": "recordings.js",
+      "expected": "cdb132649322a897b5f827da450dba5de44fa3b7a531b4ba2782b8f63c9ebdd2",
+      "actual": "cdb132649322a897b5f827da450dba5de44fa3b7a531b4ba2782b8f63c9ebdd2",
+      "matches": true
+    },
+    {
+      "file": "style.css",
+      "expected": "89bd343d546997f51a6216e1b6c142311f1c8aabadbc426c3d21738e61faecb3",
+      "actual": "89bd343d546997f51a6216e1b6c142311f1c8aabadbc426c3d21738e61faecb3",
+      "matches": true
+    },
+    {
+      "file": "support.css",
+      "expected": "63cd1c2345f730dd5855e7a9ff3dbada9af412253390bcb597279baf38a742bc",
+      "actual": "63cd1c2345f730dd5855e7a9ff3dbada9af412253390bcb597279baf38a742bc",
+      "matches": true
+    }
+  ],
+  "historical_baseline_manifest_sha256": "a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f",
+  "byte_identical_to_baseline": [
+    "app.js",
+    "index.html",
+    "README.md",
+    "navigation.js",
+    "experience.js",
+    "VERSION-HISTORY.md",
+    "style.css",
+    "product.css",
+    "support.css",
+    "recordings.js",
+    "assets/favicon.svg",
+    "assets/key-locator.svg",
+    "provenance/emulator-integration.json",
+    "provenance/v3-home-break-disposition.md",
+    "provenance/v3-control-truth.md",
+    "provenance/revision-intake.json",
+    "provenance/original-fixtures-NOT-RUN.json",
+    "provenance/input-v1-manifest-check.json",
+    "provenance/v3-intake-receipt.json",
+    "provenance/v3-DESIGN.md",
+    "provenance/independent-browser-qa.md",
+    "provenance/recordings-20261114.json",
+    "provenance/smk37.svg",
+    "provenance/build-provenance.json",
+    "provenance/input-consumption.json",
+    "provenance/v3-asset-investigation.md",
+    "provenance/scene-receipt.json",
+    "provenance/input-v1-MANIFEST.sha256",
+    "provenance/v3-design-challenge.md",
+    "provenance/controls-map.svg",
+    "provenance/revision-evidence-reuse.json",
+    "provenance/panel_smk.rs",
+    "provenance/inspiration.md",
+    "provenance/independent-browser-qa.json",
+    "provenance/independent-qa-smoke.cjs",
+    "provenance/README-v3.md",
+    "provenance/journeys-20261114.md",
+    "provenance/recordings-20261114.md",
+    "provenance/git-delivery-blocker.json",
+    "provenance/qualification-report.md",
+    "provenance/research-status.md",
+    "provenance/EMULATOR-MIT-LICENSE.txt",
+    "assets/firmware/elite-chicago-lcd.png",
+    "assets/firmware/elite-break-only-lcd.png",
+    "assets/firmware/elite-909-lcd.png",
+    "assets/firmware/elite-break-setup-lcd.png",
+    "assets/firmware/pro-reset-panel.png",
+    "assets/firmware/independent-qa-pro-playing.png",
+    "assets/firmware/elite-miami-lcd.png",
+    "assets/audio/pro-heavy.wav",
+    "assets/audio/parts-performance.wav",
+    "assets/audio/song-two-bars.wav",
+    "assets/audio/808-groove.wav",
+    "assets/audio/motion-takeover.wav",
+    "assets/audio/motion-record.wav",
+    "assets/audio/length-chance.wav",
+    "assets/audio/break-straight.wav",
+    "assets/audio/length-before.wav",
+    "assets/audio/break-phrase.wav",
+    "provenance/firmware-capture-research/consumption.json",
+    "provenance/firmware-capture-research/REPORT.md",
+    "provenance/firmware-capture-research/capture-index.json",
+    "provenance/baseline/app.js",
+    "provenance/baseline/index.html",
+    "provenance/baseline/style.css",
+    "provenance/baseline/source-receipt.json"
+  ],
+  "changed_from_baseline": [
+    "product.js",
+    "journeys.js",
+    "MANIFEST.sha256"
+  ],
+  "added": [
+    "provenance/integration-20261114.md"
+  ],
+  "manual_source_receipt_recheck": [
+    {
+      "path": "docs/dnbox-web-program-20261114/learning-intake/candidate-keyboard-manual.md",
+      "bytes": 58014,
+      "sha256": "4ed08fcc93255bab0a2451160064138fdb66bbb2da24b2fdce46c0fda23e8798",
+      "expected_git_blob": "37e276be44337444d93fb6a26d1657061c7272bd",
+      "actual_git_blob": "37e276be44337444d93fb6a26d1657061c7272bd",
+      "matches": true
+    },
+    {
+      "path": "docs/dnbox-web-program-20261114/learning-intake/musician-manual-evidence.md",
+      "bytes": 5177,
+      "sha256": "1c26fd579e18707f9c56d48c177b232f58cbbf55b1aecb393c551646f23788de",
+      "expected_git_blob": "d2c834292dcd83536f13bfd6db6e8753dcc87b38",
+      "actual_git_blob": "d2c834292dcd83536f13bfd6db6e8753dcc87b38",
+      "matches": true
+    },
+    {
+      "path": "docs/dnbox-web-program-20261114/learning-intake/manual_break.x0x",
+      "bytes": 520,
+      "sha256": "5784bb935f86f3f3d5a4a43c0ca7d0e32dc1b9ff58b61dfbdf2325349a26b492",
+      "expected_git_blob": "7f4f1774ef1c3a4dec29c645c101f00b3e68ee9d",
+      "actual_git_blob": "7f4f1774ef1c3a4dec29c645c101f00b3e68ee9d",
+      "matches": true
+    },
+    {
+      "path": "docs/dnbox-web-program-20261114/learning-intake/manual_pattern5.x0x",
+      "bytes": 634,
+      "sha256": "251aa278092250911e1adb73bb4faaa135721759204e46a1bba4a01348397e6d",
+      "expected_git_blob": "29763ce97307c5bbeb2ee1a2d74c30dca5abc61b",
+      "actual_git_blob": "29763ce97307c5bbeb2ee1a2d74c30dca5abc61b",
+      "matches": true
+    },
+    {
+      "path": "docs/dnbox-web-program-20261114/learning-intake/candidate-browser-manual.md",
+      "bytes": 12837,
+      "sha256": "a707e347085b7ca230370f3796d4deb31c9110c7920d079f4abb41d871357d84",
+      "expected_git_blob": "aca67159f874c908180d66a7286e5bc8eebb409c",
+      "actual_git_blob": "aca67159f874c908180d66a7286e5bc8eebb409c",
+      "matches": true
+    },
+    {
+      "path": "docs/dnbox-web-program-20261114/learning-intake/candidate-whats-new.md",
+      "bytes": 2174,
+      "sha256": "22637418716534c5e84381751c6a38aea8c786764dc2050adf1a47d348e0fa5d",
+      "expected_git_blob": "730dbab61e4b398de855c0ef74911b06b79dbe19",
+      "actual_git_blob": "730dbab61e4b398de855c0ef74911b06b79dbe19",
+      "matches": true
+    }
+  ],
+  "new_tests": "local static-site Chromium only; no firmware/build/component suite/device test",
+  "reuse_scope": "87 route/viewport, 21 journey stages and Pattern5/mixedSONG/audio/capture/navigation proof remain root-provided historical evidence; unchanged source verified, not rerun"
+}

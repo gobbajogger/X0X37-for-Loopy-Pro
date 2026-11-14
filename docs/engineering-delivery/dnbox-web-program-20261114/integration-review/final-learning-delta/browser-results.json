@@ -1,0 +1,379 @@
+{
+  "utc": "2026-11-14T15:22:18.423Z",
+  "manifest": "44188b31a644cde2b7992547faf2f3c6a51b0f729ba7161cf88b168362243496",
+  "pages": [
+    {
+      "width": 1440,
+      "route": "help",
+      "h1": "Keep the music moving.",
+      "overflow": false,
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "#home"
+        },
+        {
+          "label": "Help with no sound →",
+          "href": "#learn/silent"
+        },
+        {
+          "label": "Help with a different screen →",
+          "href": "#learn/view"
+        },
+        {
+          "label": "Help with a save message →",
+          "href": "#learn/save"
+        },
+        {
+          "label": "Help with an unfinished update →",
+          "href": "#help/recover"
+        },
+        {
+          "label": "Version-matched playing & recovery guidance →",
+          "href": "#learn/versions"
+        },
+        {
+          "label": "Connection guides\n→",
+          "href": "#setups"
+        },
+        {
+          "label": "Projects and samples\n→",
+          "href": "#files"
+        },
+        {
+          "label": "Open GitHub feature form",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new?template=feature_request.yml"
+        }
+      ],
+      "errors": [],
+      "nonGETRequests": []
+    },
+    {
+      "width": 1440,
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "#home"
+        },
+        {
+          "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+          "href": "#learn/bass"
+        },
+        {
+          "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+          "href": "#learn/break"
+        },
+        {
+          "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+          "href": "#learn/movement"
+        },
+        {
+          "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+          "href": "#learn/arrangement"
+        },
+        {
+          "label": "0.0.26 keyboard manual (draft)",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md"
+        },
+        {
+          "label": "0.0.26 browser & file manual (draft)",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md"
+        },
+        {
+          "label": "Install & recovery guidance\n→",
+          "href": "#install"
+        },
+        {
+          "label": "Read 0.0.26 candidate source notes →",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md#dnbox-install-and-data-workspace"
+        },
+        {
+          "label": "0.0.25.1 release notes",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1"
+        },
+        {
+          "label": "Published NIGHTLY status",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/new/"
+        },
+        {
+          "label": "Original withdrawal record",
+          "href": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120"
+        },
+        {
+          "label": "Choose the recovery situation\n→",
+          "href": "#help/recover"
+        },
+        {
+          "label": "Published install/support guide",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/"
+        }
+      ],
+      "errors": [],
+      "nonGETRequests": []
+    },
+    {
+      "width": 390,
+      "route": "help",
+      "h1": "Keep the music moving.",
+      "overflow": false,
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "#home"
+        },
+        {
+          "label": "Help with no sound →",
+          "href": "#learn/silent"
+        },
+        {
+          "label": "Help with a different screen →",
+          "href": "#learn/view"
+        },
+        {
+          "label": "Help with a save message →",
+          "href": "#learn/save"
+        },
+        {
+          "label": "Help with an unfinished update →",
+          "href": "#help/recover"
+        },
+        {
+          "label": "Version-matched playing & recovery guidance →",
+          "href": "#learn/versions"
+        },
+        {
+          "label": "Connection guides\n→",
+          "href": "#setups"
+        },
+        {
+          "label": "Projects and samples\n→",
+          "href": "#files"
+        },
+        {
+          "label": "Open GitHub feature form",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new?template=feature_request.yml"
+        }
+      ],
+      "errors": [],
+      "nonGETRequests": []
+    },
+    {
+      "width": 390,
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "#home"
+        },
+        {
+          "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+          "href": "#learn/bass"
+        },
+        {
+          "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+          "href": "#learn/break"
+        },
+        {
+          "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+          "href": "#learn/movement"
+        },
+        {
+          "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+          "href": "#learn/arrangement"
+        },
+        {
+          "label": "0.0.26 keyboard manual (draft)",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md"
+        },
+        {
+          "label": "0.0.26 browser & file manual (draft)",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md"
+        },
+        {
+          "label": "Install & recovery guidance\n→",
+          "href": "#install"
+        },
+        {
+          "label": "Read 0.0.26 candidate source notes →",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md#dnbox-install-and-data-workspace"
+        },
+        {
+          "label": "0.0.25.1 release notes",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1"
+        },
+        {
+          "label": "Published NIGHTLY status",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/new/"
+        },
+        {
+          "label": "Original withdrawal record",
+          "href": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120"
+        },
+        {
+          "label": "Choose the recovery situation\n→",
+          "href": "#help/recover"
+        },
+        {
+          "label": "Published install/support guide",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/"
+        }
+      ],
+      "errors": [],
+      "nonGETRequests": []
+    },
+    {
+      "width": 320,
+      "route": "help",
+      "h1": "Keep the music moving.",
+      "overflow": false,
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "#home"
+        },
+        {
+          "label": "Help with no sound →",
+          "href": "#learn/silent"
+        },
+        {
+          "label": "Help with a different screen →",
+          "href": "#learn/view"
+        },
+        {
+          "label": "Help with a save message →",
+          "href": "#learn/save"
+        },
+        {
+          "label": "Help with an unfinished update →",
+          "href": "#help/recover"
+        },
+        {
+          "label": "Version-matched playing & recovery guidance →",
+          "href": "#learn/versions"
+        },
+        {
+          "label": "Connection guides\n→",
+          "href": "#setups"
+        },
+        {
+          "label": "Projects and samples\n→",
+          "href": "#files"
+        },
+        {
+          "label": "Open GitHub feature form",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new?template=feature_request.yml"
+        }
+      ],
+      "errors": [],
+      "nonGETRequests": []
+    },
+    {
+      "width": 320,
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "#home"
+        },
+        {
+          "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+          "href": "#learn/bass"
+        },
+        {
+          "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+          "href": "#learn/break"
+        },
+        {
+          "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+          "href": "#learn/movement"
+        },
+        {
+          "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+          "href": "#learn/arrangement"
+        },
+        {
+          "label": "0.0.26 keyboard manual (draft)",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/docs/MANUAL.md"
+        },
+        {
+          "label": "0.0.26 browser & file manual (draft)",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/MANUAL.md"
+        },
+        {
+          "label": "Install & recovery guidance\n→",
+          "href": "#install"
+        },
+        {
+          "label": "Read 0.0.26 candidate source notes →",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md#dnbox-install-and-data-workspace"
+        },
+        {
+          "label": "0.0.25.1 release notes",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1"
+        },
+        {
+          "label": "Published NIGHTLY status",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/new/"
+        },
+        {
+          "label": "Original withdrawal record",
+          "href": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120"
+        },
+        {
+          "label": "Choose the recovery situation\n→",
+          "href": "#help/recover"
+        },
+        {
+          "label": "Published install/support guide",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/"
+        }
+      ],
+      "errors": [],
+      "nonGETRequests": []
+    }
+  ],
+  "focusedHistory": {
+    "before": {
+      "hash": "#help",
+      "y": 960,
+      "focus": "Version-matched playing & recovery guidance →"
+    },
+    "destination": {
+      "hash": "#learn/versions",
+      "y": 0,
+      "focus": "H1"
+    },
+    "back": {
+      "hash": "#help",
+      "y": 960,
+      "focus": "Version-matched playing & recovery guidance →"
+    },
+    "forward": {
+      "hash": "#learn/versions",
+      "y": 0,
+      "focus": "H1"
+    }
+  },
+  "browserVersion": "154.0.8037.57",
+  "privateHostRoutes": [
+    {
+      "route": "help",
+      "h1": "Keep the music moving.",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

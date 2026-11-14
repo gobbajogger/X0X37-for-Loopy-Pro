@@ -1,0 +1,26 @@
+{
+  "status": "SCOPED_ACCEPT_SUCCESSOR_LINK_REQUALIFICATION",
+  "files": 70,
+  "manifest_sha256": "ed518381e86d16fa2a104d156912b5da11d4c180b9f02764e45d4c89554ee00a",
+  "all_files_sha256": "7f32e599b7262a3da0c9a41044c5727b128dd5be2de79f27e56f3d68d672999d",
+  "base_manifest_sha256": "a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f",
+  "source_unchanged": [
+    "navigation.js",
+    "experience.js",
+    "app.js",
+    "recordings.js",
+    "all audio/image assets"
+  ],
+  "new_source": [
+    "journeys.js",
+    "product.js",
+    "provenance/integration-20261114.md"
+  ],
+  "manual_commit": "4998572bcc06676f08a7875ca49fb2a56358eff6",
+  "published": false,
+  "previous_integration_manifest": "cb7b5b4d18fa7f1656b6ec99fc163d444599c4fe474a0bd660c2a7771a08a5da",
+  "review_fix": "Consumed manual-owner source link correction; updated both immutable manual destinations and removed obsolete warning",
+  "review_report": "integration-review/successor-4998572/REPORT.md",
+  "review_report_sha256": "478396d6a9aee28d019b5fce5154cd95ec504b7634298ff7a989bdadd3ce2ce7",
+  "review_evidence_manifest_sha256": "6f1fdec5f289f9e25533c589f55660fa4569a7c8b277d6661b67c1d3231249f5"
+}

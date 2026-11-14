@@ -1,0 +1,74 @@
+[
+  {
+    "case": "direct hash initialized and heading focused",
+    "width": 1440,
+    "passed": true
+  },
+  {
+    "case": "focus-only Forward restores select",
+    "width": 1440,
+    "passed": true
+  },
+  {
+    "case": "expanded disclosure restores before scroll",
+    "width": 1440,
+    "before": 471,
+    "after": 471,
+    "passed": true
+  },
+  {
+    "case": "sample disclosure restores before scroll",
+    "width": 1440,
+    "before": 1387,
+    "after": 1387,
+    "passed": true
+  },
+  {
+    "case": "direct hash initialized and heading focused",
+    "width": 390,
+    "passed": true
+  },
+  {
+    "case": "focus-only Forward restores select",
+    "width": 390,
+    "passed": true
+  },
+  {
+    "case": "expanded disclosure restores before scroll",
+    "width": 390,
+    "before": 857,
+    "after": 857,
+    "passed": true
+  },
+  {
+    "case": "sample disclosure restores before scroll",
+    "width": 390,
+    "before": 2551,
+    "after": 2551,
+    "passed": true
+  },
+  {
+    "case": "direct hash initialized and heading focused",
+    "width": 320,
+    "passed": true
+  },
+  {
+    "case": "focus-only Forward restores select",
+    "width": 320,
+    "passed": true
+  },
+  {
+    "case": "expanded disclosure restores before scroll",
+    "width": 320,
+    "before": 1033,
+    "after": 1033,
+    "passed": true
+  },
+  {
+    "case": "sample disclosure restores before scroll",
+    "width": 320,
+    "before": 3029,
+    "after": 3029,
+    "passed": true
+  }
+]

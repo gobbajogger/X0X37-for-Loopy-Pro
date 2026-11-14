@@ -1,0 +1,850 @@
+{
+  "utc": "2026-11-14T13:39:39.391Z",
+  "manifest": "7a1e85ad29dfc568628798b9fbeeff010544458d01c903c885bb91da3811f22b",
+  "browser": [
+    {
+      "width": 1440,
+      "route": "home",
+      "h1": "A whole track.Under your hands.",
+      "overflow": false,
+      "initialActive": "BODY"
+    },
+    {
+      "width": 1440,
+      "route": "files",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 1440,
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 1440,
+      "route": "companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 390,
+      "route": "home",
+      "h1": "A whole track.Under your hands.",
+      "overflow": false,
+      "initialActive": "BODY"
+    },
+    {
+      "width": 390,
+      "route": "files",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 390,
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 390,
+      "route": "companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 320,
+      "route": "home",
+      "h1": "A whole track.Under your hands.",
+      "overflow": false,
+      "initialActive": "BODY"
+    },
+    {
+      "width": 320,
+      "route": "files",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 320,
+      "route": "learn/versions",
+      "h1": "Play the version you have.",
+      "overflow": false,
+      "initialActive": "H1"
+    },
+    {
+      "width": 320,
+      "route": "companion",
+      "h1": "More room to play your DnBOX.",
+      "overflow": false,
+      "initialActive": "H1"
+    }
+  ],
+  "flows": [
+    {
+      "width": 1440,
+      "case": "initial-direct-hash-tab",
+      "active": {
+        "tag": "A",
+        "text": "Open project tools",
+        "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/"
+      }
+    },
+    {
+      "width": 1440,
+      "case": "files-details-version-back-forward",
+      "before": {
+        "y": 525,
+        "open": true,
+        "focus": "SUMMARY"
+      },
+      "navigated": {
+        "hash": "#learn/versions",
+        "y": 0,
+        "active": "H1",
+        "text": "Play the version you have."
+      },
+      "back": {
+        "hash": "#files",
+        "y": 1605,
+        "open": true,
+        "focus": "A",
+        "text": "Match your firmware & files→"
+      },
+      "forward": {
+        "hash": "#learn/versions",
+        "y": 0,
+        "active": "H1",
+        "text": "Play the version you have."
+      }
+    },
+    {
+      "width": 1440,
+      "case": "companion-limits-history",
+      "state": {
+        "hash": "#companion",
+        "detailsOpen": true,
+        "focus": "Version-matched playing & setup guide→",
+        "overflow": false
+      }
+    },
+    {
+      "width": 390,
+      "case": "initial-direct-hash-tab",
+      "active": {
+        "tag": "A",
+        "text": "Open project tools",
+        "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/"
+      }
+    },
+    {
+      "width": 390,
+      "case": "files-details-version-back-forward",
+      "before": {
+        "y": 1157,
+        "open": true,
+        "focus": "SUMMARY"
+      },
+      "navigated": {
+        "hash": "#learn/versions",
+        "y": 0,
+        "active": "H1",
+        "text": "Play the version you have."
+      },
+      "back": {
+        "hash": "#files",
+        "y": 2606,
+        "open": true,
+        "focus": "A",
+        "text": "Match your firmware & files→"
+      },
+      "forward": {
+        "hash": "#learn/versions",
+        "y": 0,
+        "active": "H1",
+        "text": "Play the version you have."
+      }
+    },
+    {
+      "width": 390,
+      "case": "companion-limits-history",
+      "state": {
+        "hash": "#companion",
+        "detailsOpen": true,
+        "focus": "Version-matched playing & setup guide→",
+        "overflow": false
+      }
+    },
+    {
+      "width": 320,
+      "case": "initial-direct-hash-tab",
+      "active": {
+        "tag": "A",
+        "text": "Open project tools",
+        "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/"
+      }
+    },
+    {
+      "width": 320,
+      "case": "files-details-version-back-forward",
+      "before": {
+        "y": 1399,
+        "open": true,
+        "focus": "SUMMARY"
+      },
+      "navigated": {
+        "hash": "#learn/versions",
+        "y": 0,
+        "active": "H1",
+        "text": "Play the version you have."
+      },
+      "back": {
+        "hash": "#files",
+        "y": 3110,
+        "open": true,
+        "focus": "A",
+        "text": "Match your firmware & files→"
+      },
+      "forward": {
+        "hash": "#learn/versions",
+        "y": 0,
+        "active": "H1",
+        "text": "Play the version you have."
+      }
+    },
+    {
+      "width": 320,
+      "case": "companion-limits-history",
+      "state": {
+        "hash": "#companion",
+        "detailsOpen": true,
+        "focus": "Version-matched playing & setup guide→",
+        "overflow": false
+      }
+    },
+    {
+      "case": "musician-path",
+      "route": "listen",
+      "h1": "Hear what changes.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Try an idea on your instrument\n→",
+          "href": "http://127.0.0.1:4323/#learn/next"
+        },
+        {
+          "label": "Capture sources & limits\n→",
+          "href": "http://127.0.0.1:4323/#sources"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn",
+      "h1": "A kick on\nevery beat.",
+      "links": [
+        {
+          "label": "How keys & pads map to the screen →",
+          "href": "http://127.0.0.1:4323/#learn/controls"
+        },
+        {
+          "label": "00\nReady",
+          "href": "http://127.0.0.1:4323/#learn"
+        },
+        {
+          "label": "01\nPlace",
+          "href": "http://127.0.0.1:4323/#learn/beat"
+        },
+        {
+          "label": "02\nHear",
+          "href": "http://127.0.0.1:4323/#learn/listen"
+        },
+        {
+          "label": "03\nKeep",
+          "href": "http://127.0.0.1:4323/#learn/save"
+        },
+        {
+          "label": "909 SEQ · set up the bar →\n→",
+          "href": "http://127.0.0.1:4323/#learn/setup"
+        },
+        {
+          "label": "My screen is different\n→",
+          "href": "http://127.0.0.1:4323/#learn/view"
+        },
+        {
+          "label": "Save current work first",
+          "href": "http://127.0.0.1:4323/#learn/save"
+        },
+        {
+          "label": "",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/start",
+      "h1": "Let’s find your next step.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Back to DnBOX\n→",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Find help\n→",
+          "href": "http://127.0.0.1:4323/#help"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/next",
+      "h1": "Follow the groove.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+          "href": "http://127.0.0.1:4323/#learn/bass"
+        },
+        {
+          "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+          "href": "http://127.0.0.1:4323/#learn/break"
+        },
+        {
+          "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+          "href": "http://127.0.0.1:4323/#learn/movement"
+        },
+        {
+          "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+          "href": "http://127.0.0.1:4323/#learn/arrangement"
+        },
+        {
+          "label": "Choose your version →",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/bass",
+      "h1": "Give the beat a bassline.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "not the 0.0.26 draft",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        },
+        {
+          "label": "Give the line movement\n→",
+          "href": "http://127.0.0.1:4323/#learn/movement"
+        },
+        {
+          "label": "Another musical idea\n→",
+          "href": "http://127.0.0.1:4323/#learn/next"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/break",
+      "h1": "Let a loop answer the beat.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "not the 0.0.26 draft",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        },
+        {
+          "label": "sample tools",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/"
+        },
+        {
+          "label": "Bring the parts in and out\n→",
+          "href": "http://127.0.0.1:4323/#learn/arrangement"
+        },
+        {
+          "label": "Another musical idea\n→",
+          "href": "http://127.0.0.1:4323/#learn/next"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/movement",
+      "h1": "Make a movement return.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "not the 0.0.26 draft",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        },
+        {
+          "label": "Turn the groove into an arrangement\n→",
+          "href": "http://127.0.0.1:4323/#learn/arrangement"
+        },
+        {
+          "label": "Another musical idea\n→",
+          "href": "http://127.0.0.1:4323/#learn/next"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/arrangement",
+      "h1": "Make the drop. Keep the shape.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "not the 0.0.26 draft",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        },
+        {
+          "label": "Keep the arrangement\n→",
+          "href": "http://127.0.0.1:4323/#learn/save"
+        },
+        {
+          "label": "Another musical idea\n→",
+          "href": "http://127.0.0.1:4323/#learn/next"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "learn/save",
+      "h1": "This one’s\nworth keeping.",
+      "links": [
+        {
+          "label": "How keys & pads map to the screen →",
+          "href": "http://127.0.0.1:4323/#learn/controls"
+        },
+        {
+          "label": "00\nReady",
+          "href": "http://127.0.0.1:4323/#learn"
+        },
+        {
+          "label": "01\nPlace",
+          "href": "http://127.0.0.1:4323/#learn/beat"
+        },
+        {
+          "label": "02\nHear",
+          "href": "http://127.0.0.1:4323/#learn/listen"
+        },
+        {
+          "label": "03\nKeep",
+          "href": "http://127.0.0.1:4323/#learn/save"
+        },
+        {
+          "label": "Enlarge →",
+          "href": "http://127.0.0.1:4323/assets/firmware/elite-909-lcd.png"
+        },
+        {
+          "label": "Keep both backups",
+          "href": "http://127.0.0.1:4323/#files"
+        },
+        {
+          "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+          "href": "http://127.0.0.1:4323/#learn/bass"
+        },
+        {
+          "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+          "href": "http://127.0.0.1:4323/#learn/break"
+        },
+        {
+          "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+          "href": "http://127.0.0.1:4323/#learn/movement"
+        },
+        {
+          "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+          "href": "http://127.0.0.1:4323/#learn/arrangement"
+        },
+        {
+          "label": "Choose your version →",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "install",
+      "h1": "Make your SMK-37 a DnBOX.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Open firmware installer",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/#firmware"
+        },
+        {
+          "label": "Projects & portable export",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/"
+        },
+        {
+          "label": "Sample-slot backup",
+          "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/"
+        },
+        {
+          "label": "Update or recovery help\n→",
+          "href": "http://127.0.0.1:4323/#help/recover"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "help/recover",
+      "h1": "Find your next recovery step.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Version-matched playing & recovery guidance →",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        },
+        {
+          "label": "Get more help\n→",
+          "href": "http://127.0.0.1:4323/#help"
+        },
+        {
+          "label": "Back to preparation\n→",
+          "href": "http://127.0.0.1:4323/#install"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "setups",
+      "h1": "Where will you play?",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Standalone",
+          "href": "http://127.0.0.1:4323/#setups/standalone"
+        },
+        {
+          "label": "Computer",
+          "href": "http://127.0.0.1:4323/#setups/computer"
+        },
+        {
+          "label": "Phone / tablet",
+          "href": "http://127.0.0.1:4323/#setups/mobile"
+        },
+        {
+          "label": "Other gear",
+          "href": "http://127.0.0.1:4323/#setups/gear"
+        },
+        {
+          "label": "SMC mixer",
+          "href": "http://127.0.0.1:4323/#setups/smc"
+        },
+        {
+          "label": "",
+          "href": "http://127.0.0.1:4323/#learn/versions"
+        },
+        {
+          "label": "Make a beat\n→",
+          "href": "http://127.0.0.1:4323/#learn"
+        },
+        {
+          "label": "Connection help\n→",
+          "href": "http://127.0.0.1:4323/#help"
+        }
+      ]
+    },
+    {
+      "case": "musician-path",
+      "route": "try",
+      "h1": "Real firmware. Browser timing still in progress.",
+      "links": [
+        {
+          "label": "DnBOX",
+          "href": "http://127.0.0.1:4323/#home"
+        },
+        {
+          "label": "Recorded firmware examples\n→",
+          "href": "http://127.0.0.1:4323/#demo"
+        },
+        {
+          "label": "Emulator development status",
+          "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/899"
+        },
+        {
+          "label": "Hardware MIDI companion\n→",
+          "href": "http://127.0.0.1:4323/#companion"
+        },
+        {
+          "label": "Playing guide\n→",
+          "href": "http://127.0.0.1:4323/#learn"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "links": [
+    {
+      "from": "home",
+      "label": "Install firmware",
+      "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/#firmware"
+    },
+    {
+      "from": "home",
+      "label": "Browser emulator status\n→",
+      "href": "http://127.0.0.1:4323/#try"
+    },
+    {
+      "from": "home",
+      "label": "Explore the recorded firmware screens →",
+      "href": "http://127.0.0.1:4323/#demo"
+    },
+    {
+      "from": "home",
+      "label": "Hear length, motion, BREAK & SONG\n→",
+      "href": "http://127.0.0.1:4323/#listen"
+    },
+    {
+      "from": "home",
+      "label": "Open sample tools",
+      "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/"
+    },
+    {
+      "from": "home",
+      "label": "Make a BREAK phrase\n→",
+      "href": "http://127.0.0.1:4323/#learn/break"
+    },
+    {
+      "from": "home",
+      "label": "Shape a two-bar arrangement\n→",
+      "href": "http://127.0.0.1:4323/#learn/arrangement"
+    },
+    {
+      "from": "home",
+      "label": "Projects, samples & presets\n→",
+      "href": "http://127.0.0.1:4323/#files"
+    },
+    {
+      "from": "home",
+      "label": "Keep and move your music\nPortable projects, sample slots and preset files.\n→",
+      "href": "http://127.0.0.1:4323/#files"
+    },
+    {
+      "from": "home",
+      "label": "Hardware MIDI companion\nA separate browser-control project. See what is available.\n→",
+      "href": "http://127.0.0.1:4323/#companion"
+    },
+    {
+      "from": "home",
+      "label": "Connect your setup\nStandalone, computer, phone/tablet and other gear.\n→",
+      "href": "http://127.0.0.1:4323/#setups"
+    },
+    {
+      "from": "home",
+      "label": "Playing guide\nActual keys, pads and screen mappings.\n→",
+      "href": "http://127.0.0.1:4323/#learn"
+    },
+    {
+      "from": "home",
+      "label": "Install firmware",
+      "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/#firmware"
+    },
+    {
+      "from": "home",
+      "label": "Installation & backup guide\n→",
+      "href": "http://127.0.0.1:4323/#install"
+    },
+    {
+      "from": "home",
+      "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+      "href": "http://127.0.0.1:4323/#learn/bass"
+    },
+    {
+      "from": "home",
+      "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+      "href": "http://127.0.0.1:4323/#learn/break"
+    },
+    {
+      "from": "home",
+      "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+      "href": "http://127.0.0.1:4323/#learn/movement"
+    },
+    {
+      "from": "home",
+      "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+      "href": "http://127.0.0.1:4323/#learn/arrangement"
+    },
+    {
+      "from": "home",
+      "label": "Choose your version →",
+      "href": "http://127.0.0.1:4323/#learn/versions"
+    },
+    {
+      "from": "files",
+      "label": "DnBOX",
+      "href": "http://127.0.0.1:4323/#home"
+    },
+    {
+      "from": "files",
+      "label": "Open project tools",
+      "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/projects/"
+    },
+    {
+      "from": "files",
+      "label": "Open sample tools",
+      "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/breaks/"
+    },
+    {
+      "from": "files",
+      "label": "Preset librarian status",
+      "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/915"
+    },
+    {
+      "from": "files",
+      "label": "View offline editor source",
+      "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer"
+    },
+    {
+      "from": "files",
+      "label": "Match your firmware & files\n→",
+      "href": "http://127.0.0.1:4323/#learn/versions"
+    },
+    {
+      "from": "files",
+      "label": "Saving on the keyboard\n→",
+      "href": "http://127.0.0.1:4323/#learn/save"
+    },
+    {
+      "from": "files",
+      "label": "Firmware & compatibility\n→",
+      "href": "http://127.0.0.1:4323/#install"
+    },
+    {
+      "from": "learn/versions",
+      "label": "DnBOX",
+      "href": "http://127.0.0.1:4323/#home"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Add a bass pulse\nA short line against your four kicks.\n→",
+      "href": "http://127.0.0.1:4323/#learn/bass"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Let BREAK answer the beat\nTurn a small loop into a phrase of its own.\n→",
+      "href": "http://127.0.0.1:4323/#learn/break"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Make a movement return\nRecord a sweep, then take over for one pass.\n→",
+      "href": "http://127.0.0.1:4323/#learn/movement"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Shape the arrangement\nDrop a part, bring it back, keep the structure.\n→",
+      "href": "http://127.0.0.1:4323/#learn/arrangement"
+    },
+    {
+      "from": "learn/versions",
+      "label": "0.0.26 keyboard manual (draft)",
+      "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md"
+    },
+    {
+      "from": "learn/versions",
+      "label": "0.0.26 browser & file manual (draft)",
+      "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/MANUAL.md"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Install & recovery guidance\n→",
+      "href": "http://127.0.0.1:4323/#install"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Choose the recovery situation\n→",
+      "href": "http://127.0.0.1:4323/#help/recover"
+    },
+    {
+      "from": "learn/versions",
+      "label": "Published install/support guide",
+      "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/"
+    },
+    {
+      "from": "companion",
+      "label": "DnBOX",
+      "href": "http://127.0.0.1:4323/#home"
+    },
+    {
+      "from": "companion",
+      "label": "",
+      "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/CAPABILITIES.md"
+    },
+    {
+      "from": "companion",
+      "label": "Current connection guides\n→",
+      "href": "http://127.0.0.1:4323/#setups"
+    },
+    {
+      "from": "companion",
+      "label": "Working project & sample tools\n→",
+      "href": "http://127.0.0.1:4323/#files"
+    },
+    {
+      "from": "companion",
+      "label": "TouchOSC source & setup",
+      "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md"
+    },
+    {
+      "from": "companion",
+      "label": "Get TouchOSC",
+      "href": "https://hexler.net/touchosc"
+    },
+    {
+      "from": "companion",
+      "label": "Emulator status\n→",
+      "href": "http://127.0.0.1:4323/#try"
+    },
+    {
+      "from": "companion",
+      "label": "File tools\n→",
+      "href": "http://127.0.0.1:4323/#files"
+    },
+    {
+      "from": "companion",
+      "label": "Version-matched playing & setup guide\n→",
+      "href": "http://127.0.0.1:4323/#learn/versions"
+    }
+  ],
+  "browserVersion": "154.0.8037.57"
+}

@@ -1,0 +1,28 @@
+{
+  "status": "SCOPED_ACCEPT_FINAL_LEARNING_SUPPORT_DELTA",
+  "files": 70,
+  "manifest_sha256": "44188b31a644cde2b7992547faf2f3c6a51b0f729ba7161cf88b168362243496",
+  "all_files_sha256": "2496d9a4db4dbebdfb1ede17ab540a5515e06094f90ecd6b842f7e4ace154b82",
+  "base_manifest_sha256": "a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f",
+  "source_unchanged": [
+    "navigation.js",
+    "experience.js",
+    "recordings.js",
+    "all audio/image assets"
+  ],
+  "new_source": [
+    "app.js",
+    "journeys.js",
+    "product.js",
+    "provenance/integration-20261114.md"
+  ],
+  "manual_commit": "4998572bcc06676f08a7875ca49fb2a56358eff6",
+  "published": false,
+  "previous_integration_manifest": "ed518381e86d16fa2a104d156912b5da11d4c180b9f02764e45d4c89554ee00a",
+  "review_fix": "Source-matched What\u2019sNew/history + existing manual GitHub feature-form route; no automated intake/vote or publication",
+  "historical_review_report": "integration-review/successor-4998572/REPORT.md",
+  "review_report": "integration-review/final-learning-delta/REPORT.md",
+  "review_report_sha256": "27695a5e48212dc3d1887b5006a795bb48f6378400d6286087a8249957cc02d1",
+  "review_evidence_manifest_sha256": "af757ee15150c0aa2ac48d3a3c44b6f7dc5ac33a26b6b8eb04da7d739e8402e4",
+  "unchanged_behavior": "0.0.25.1 musical controls, recordings/captures and navigation remain unchanged; app.js changes only default Help content"
+}

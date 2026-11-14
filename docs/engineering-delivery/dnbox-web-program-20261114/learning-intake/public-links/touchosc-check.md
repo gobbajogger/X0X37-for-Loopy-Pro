@@ -1,0 +1,30 @@
+The public TouchOSC integration can link to development source and official setup guidance. It cannot yet offer a verified, ready-to-open DnBOX layout. This check read official public sources on 14 November 2026. It made no source, Git, queue, publication, device or trust changes.
+
+The live [TouchOSC source directory](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main/web/offline-sequencer/touchosc) and its [setup/readiness note](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/web/offline-sequencer/touchosc/README.md) resolve on source `main`, observed at `035026fe70059af35e25c7c121b40f318b732fe3`. The exact [consumed note](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md) explicitly marks runtime acceptance pending. Its firmware reference is `bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2`; it does not qualify current firmware or an installed keyboard.
+
+| What exists in the consumed source | Musical purpose and limit |
+| --- | --- |
+| Twelve chromatic keys, MIDI notes 60–71 | A small performance keyboard; fixed outgoing velocity 100. |
+| Four drum pads, notes 36/38/42/46 | Kick, snare and two hi-hat triggers on the manually selected MIDI channel. |
+| Channel 1–16, Arm and Release | Explicit routing on TouchOSC connection 1. It begins disarmed; changing channel releases held notes and disarms. |
+| Received Note On/Off feedback | Shows received messages on the selected channel. It does not prove device identity, echo support or synchronized state. |
+| Ten-second held-note limit | Releases this layout's tracked notes and disarms after a lost touch release; a disconnected route still cannot guarantee a delivered Note Off. |
+
+These are source-backed intentions from the [controller](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/controller.lua), not a TouchOSC or physical-MIDI result. The source sends notes only. It has no transport, mixer/CC controls, preset transfer, sample/project access, pattern synchronization or firmware/update commands. Keep it distinct from the separate browser companion.
+
+No generated `.tosc` or DnBOX companion XML appears in the complete source-main tree (5,788 entries, not truncated), or in the complete public installer/site tree at `8af48f83c21e76bc7ebac2ddbdb7c5e3ff0a81ea` (709 entries, not truncated). The source [packer](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/pack.py) can write those formats, but was not run here. The exact TouchOSC directory and README return 404 on firmware NIGHTLY `83fc6d60289869116f93352cf845a9a7e271cdba`. Do not route a TouchOSC-source link through that branch. The current [stable release 0.0.25.1](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1) lists two firmware packages and two checksum files, with no TouchOSC asset. The public installer/site repository's releases collection is empty.
+
+Use these official Hexler destinations:
+
+- [Get TouchOSC](https://hexler.net/touchosc): native macOS, Windows, Linux, iOS and Android application. Current desktop guidance is macOS 10.13+, Windows 7+ 64-bit and Ubuntu 18.04+ x64/ARM64. Mobile licensing is separate from desktop licensing; check current requirements before purchase.
+- [TouchOSC releases](https://hexler.net/touchosc/releases): observed current release 1.5.4, build 269, dated 2 November 2026. Direct XML opening was added in 1.5.2.261. The DnBOX source targets current TouchOSC, not Mk1; format support does not establish that its generated layout works.
+- [MIDI connection settings](https://hexler.net/touchosc/manual/connections-midi): explicitly enable connection 1 and choose Send/Receive ports. A port name alone is not model identity.
+- [MIDI setup](https://hexler.net/touchosc/manual/getting-started-midi): Bridge is a computer/network MIDI route; same-device ports can use the direct setup. This is general setup guidance, not DnBOX certification.
+
+Suggested website wording: **“TouchOSC companion source. Twelve keys and four drum pads for a small touch performance surface. Layout packaging and TouchOSC/device checks remain pending.”** Link **View source and setup** to the source note and **Get TouchOSC** to Hexler. Reserve **Download DnBOX layout** and device-specific playing instructions for a delivered layout with actual application and route evidence.
+
+The earlier mocked-Lua receipt can be retained within its original scope. This check fetched `controller.lua` and `controller.test.lua` at historical ref `019b8219` and current source-main: both exact Git blobs are unchanged (`ff4869e3adbf2626805a4e7fbf0c2f92219861f8` and `04d65a66409a9d34ca355c1f91cbb3e4715a272c`). The parent already consumed the legacy QA2 PASS; this task did not access Library or rerun tests. That receipt does not establish packaging, TouchOSC application behavior or hardware operation.
+
+Consumed text: TouchOSC README, controller, button script, controller test, packer, and offline-sequencer README at the pinned source-main revision; the historical controller/test pair; official Hexler product, introduction, releases, MIDI setup/settings and document pages. `pack.test.py` was listed but not read or executed. GitHub blobs were independently recomputed from the consumed UTF-8 text. Exact source hashes, URLs, tree/release observations and retrieval limits are recorded in [touchosc-check.receipts.json](touchosc-check.receipts.json).
+
+A separate normal-HTTPS Python fetch of the Hexler product page returned `HTTP 403 Forbidden`; that route transferred no page bytes and was not retried. The already successful normal-HTTPS web tool reads support the Hexler guidance. No trust setting changed. No TouchOSC app or installer bytes were downloaded, no layout opened, no hardware MIDI or browser certification performed, and no build/test execution claimed.

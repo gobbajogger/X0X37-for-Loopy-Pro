@@ -1,0 +1,197 @@
+{
+  "method": "sha1(Git blob header plus exact UTF-8 content), with independent SHA-256",
+  "files": 21,
+  "all_match": true,
+  "rows": [
+    {
+      "receipt": "candidate-control-schema.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/control-schema.js",
+      "bytes": 9211,
+      "expected_git_blob": "722ca291facf2890e96ffa9c67dc7b1f523cd910",
+      "actual_git_blob": "722ca291facf2890e96ffa9c67dc7b1f523cd910",
+      "match": true,
+      "sha256": "d9b54ce7957f10b7f4b21e127a427cb4b496829668697421395575335790b5c2"
+    },
+    {
+      "receipt": "candidate-controls.json.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/controls.json",
+      "bytes": 116299,
+      "expected_git_blob": "6e94a1234f4e94baa0d564069666a49377805bba",
+      "actual_git_blob": "6e94a1234f4e94baa0d564069666a49377805bba",
+      "match": true,
+      "sha256": "e480661bb8d268dfe9c57245ffc7701bad53800f8c785882bdb4ce9851da8689"
+    },
+    {
+      "receipt": "candidate-device-sync.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/device-sync.js",
+      "bytes": 2669,
+      "expected_git_blob": "0c7abdf50b484bff21fec5dac1b3950d4cca370c",
+      "actual_git_blob": "0c7abdf50b484bff21fec5dac1b3950d4cca370c",
+      "match": true,
+      "sha256": "88bc2e27488b02fcdaae010ac26aebd2a594bf1d3e6620bd8bbc2b6a5388bbe6"
+    },
+    {
+      "receipt": "candidate-draft-guards.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/draft-guards.js",
+      "bytes": 5109,
+      "expected_git_blob": "b7919feafabbc74f49901606161a25e5de4bbec3",
+      "actual_git_blob": "b7919feafabbc74f49901606161a25e5de4bbec3",
+      "match": true,
+      "sha256": "16bf0b7e48ae2189b8a1a30ddee6529fa663dd4b5671e41ce325eafc07e31d3d"
+    },
+    {
+      "receipt": "candidate-editing.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/editing.js",
+      "bytes": 2573,
+      "expected_git_blob": "2f87548e4cfafd0c5a192b206f0b8ccaf4b99728",
+      "actual_git_blob": "2f87548e4cfafd0c5a192b206f0b8ccaf4b99728",
+      "match": true,
+      "sha256": "758c66c8234d5fa7f773b7008dde0583717953c34eb7cb60132869df9a00d957"
+    },
+    {
+      "receipt": "candidate-editor.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/editor.js",
+      "bytes": 56366,
+      "expected_git_blob": "185f20adeeaf76501778c09cb41197ad44e244e4",
+      "actual_git_blob": "185f20adeeaf76501778c09cb41197ad44e244e4",
+      "match": true,
+      "sha256": "5f2a009fa18c56e45d90865f4d7c90737b79c6dff19dcdf6308e746a4a5608e1"
+    },
+    {
+      "receipt": "candidate-generator.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/generator.js",
+      "bytes": 2837,
+      "expected_git_blob": "94877c5af5c65f216690a4f86c1c4be0e1163caf",
+      "actual_git_blob": "94877c5af5c65f216690a4f86c1c4be0e1163caf",
+      "match": true,
+      "sha256": "f06b1b5c9c061dde4a7b00f0eff540a90dd15cbc927d2165c6e1d2f26c1d1843"
+    },
+    {
+      "receipt": "candidate-handoff.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/F6B-HANDOFF.md",
+      "bytes": 6310,
+      "expected_git_blob": "e4c71f8d80c29d3ced5008d87354002f8440570d",
+      "actual_git_blob": "e4c71f8d80c29d3ced5008d87354002f8440570d",
+      "match": true,
+      "sha256": "80e71c6246a4dcdb8e5a5c5249f8a51b71e745ee800b114761df48037483099d"
+    },
+    {
+      "receipt": "candidate-import-worker.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/import-worker.js",
+      "bytes": 722,
+      "expected_git_blob": "8ce88c441ffa9d40b3981fcf51fa29527160b1ef",
+      "actual_git_blob": "8ce88c441ffa9d40b3981fcf51fa29527160b1ef",
+      "match": true,
+      "sha256": "7cd4aca84af10331afcb6bcfc91e3e1e86b995afed9077b9deb67e947916e23d"
+    },
+    {
+      "receipt": "candidate-index.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/index.html",
+      "bytes": 6284,
+      "expected_git_blob": "db229d3dcfca921693fddb4167cb0cb1e828c615",
+      "actual_git_blob": "db229d3dcfca921693fddb4167cb0cb1e828c615",
+      "match": true,
+      "sha256": "12c2ddfa8a248b9435dbce27563ea6740f5d051a3feb9f796c5d9b4570ebf4f2"
+    },
+    {
+      "receipt": "candidate-library-ui.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/library-ui.js",
+      "bytes": 5540,
+      "expected_git_blob": "0ef170e05765aec3e28eecfee5664de57781a005",
+      "actual_git_blob": "0ef170e05765aec3e28eecfee5664de57781a005",
+      "match": true,
+      "sha256": "21c4536a775d79f2e4953a0bdc45f3385a8f7d0f547f865bca942fb23cebe201"
+    },
+    {
+      "receipt": "candidate-model.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/model.js",
+      "bytes": 9177,
+      "expected_git_blob": "b6d6805d2cc4373d987eb04e8295caa3eb655424",
+      "actual_git_blob": "b6d6805d2cc4373d987eb04e8295caa3eb655424",
+      "match": true,
+      "sha256": "3bd9e43f2a0f47d4ee3d36525006df7720dc7aec22b318a00790fa373f6c5ea1"
+    },
+    {
+      "receipt": "candidate-musical-grid.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/musical-grid.js",
+      "bytes": 1250,
+      "expected_git_blob": "a9ad21bede33eb4f93f22c7d7f307993026112b8",
+      "actual_git_blob": "a9ad21bede33eb4f93f22c7d7f307993026112b8",
+      "match": true,
+      "sha256": "c716df901b2d46080e11a100dd775046149be3945bfda792cd410f7c61514bea"
+    },
+    {
+      "receipt": "candidate-note-groups.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/note-groups.js",
+      "bytes": 6626,
+      "expected_git_blob": "be27f7484bcc6b0cae52ee65432ec50352e665ec",
+      "actual_git_blob": "be27f7484bcc6b0cae52ee65432ec50352e665ec",
+      "match": true,
+      "sha256": "44119ef259972b9b7b43c83a3e18e80398db3948aac700f7c2c2688f42158e59"
+    },
+    {
+      "receipt": "candidate-part-operations.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/part-operations.js",
+      "bytes": 1277,
+      "expected_git_blob": "039907a3e3e8ffc67245313d91584a0ed69489db",
+      "actual_git_blob": "039907a3e3e8ffc67245313d91584a0ed69489db",
+      "match": true,
+      "sha256": "8a8e033f784aae6ee3ce3f793171ef8b088fd53658243c82b5526135f612380a"
+    },
+    {
+      "receipt": "candidate-project-adapter.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/project-adapter.js",
+      "bytes": 7108,
+      "expected_git_blob": "e2f5d06ff598e83906a034d3a0742f4ef8668edf",
+      "actual_git_blob": "e2f5d06ff598e83906a034d3a0742f4ef8668edf",
+      "match": true,
+      "sha256": "67adba590838a3cde074dbb2fa96ef5a52a9f595b4f907c45a5d5056ad80943c"
+    },
+    {
+      "receipt": "candidate-readme.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/README.md",
+      "bytes": 9307,
+      "expected_git_blob": "7fefe836fffb2d7ac609d6b6dbbf8829c77b7492",
+      "actual_git_blob": "7fefe836fffb2d7ac609d6b6dbbf8829c77b7492",
+      "match": true,
+      "sha256": "105b25e044d293b05f5e1db895aab6900cd1e3a8c661b8b427f64a77ef637875"
+    },
+    {
+      "receipt": "candidate-smf.js.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/smf.js",
+      "bytes": 10273,
+      "expected_git_blob": "6b4a1998c168c705c1e487d34edc872f9c60466b",
+      "actual_git_blob": "6b4a1998c168c705c1e487d34edc872f9c60466b",
+      "match": true,
+      "sha256": "b1c495ce49f0cf7b2d226b67c9359015d2c5574922ca25728e31fd0cbb3bd7ed"
+    },
+    {
+      "receipt": "candidate-sync.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/SYNC.md",
+      "bytes": 5283,
+      "expected_git_blob": "4b376cd6650ce3dec77c37bb77f9092db18b7754",
+      "actual_git_blob": "4b376cd6650ce3dec77c37bb77f9092db18b7754",
+      "match": true,
+      "sha256": "b555692f2c2613c20045897473e7a72955a527cd6330203afc5a9c50ff156229"
+    },
+    {
+      "receipt": "parity-matrix.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/f65de4148cdbbadefa896f2b59f6c156f7e5ed74/docs/evidence/offline-sound-parity/matrix.json",
+      "bytes": 212958,
+      "expected_git_blob": "fd290041bf0c665576a98a8254b013ba1fab5fef",
+      "actual_git_blob": "fd290041bf0c665576a98a8254b013ba1fab5fef",
+      "match": true,
+      "sha256": "0b523ac2d448f52805dd843903ce45f3bbdc0610beaa4df3aa26bf74f4fa63bb"
+    },
+    {
+      "receipt": "parity-report.json",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/f65de4148cdbbadefa896f2b59f6c156f7e5ed74/docs/evidence/offline-sound-parity/REPORT.md",
+      "bytes": 12736,
+      "expected_git_blob": "4cb1bf89f8a0d07305c180bf3f3f81912974ab51",
+      "actual_git_blob": "4cb1bf89f8a0d07305c180bf3f3f81912974ab51",
+      "match": true,
+      "sha256": "e2380f001e99b19f5b663aafde3c60ca96415e9f24ecd67e96bd7888783f5cc6"
+    }
+  ],
+  "execution_type": "Evidence identity calculation, not an application test suite."
+}

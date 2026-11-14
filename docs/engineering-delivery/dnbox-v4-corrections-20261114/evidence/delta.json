@@ -1,0 +1,122 @@
+[
+  {
+    "path": "MANIFEST.sha256",
+    "sha256": "f93aa4c97fc5989cf4f7aae941814a1f3794b2529c06a0ddcab627d59c862c17",
+    "bytes": 6543,
+    "kind": "modified"
+  },
+  {
+    "path": "app.js",
+    "sha256": "787435e1de6f76017a22b90122942dd9ef967906694a4ad16461467ae353f04e",
+    "bytes": 32981,
+    "kind": "modified"
+  },
+  {
+    "path": "assets/audio/808-groove.wav",
+    "sha256": "315f37f0b748a950eb0c4edd6ce1996192bf24e90ee5a1b704eda3f74eb84c15",
+    "bytes": 1073196,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/break-phrase.wav",
+    "sha256": "a01435da2b796fc9cd5b2c4f6e9691ab258361314cd206829b45241e7f28b2e5",
+    "bytes": 1417260,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/break-straight.wav",
+    "sha256": "c3cb19997a6f3c8d61bc32eaa115d069b0c11b158386883d9f65bb036a71db0e",
+    "bytes": 1081388,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/length-before.wav",
+    "sha256": "36d0eaccacc711b25ab6a865f0c97ffaad60060a4d841b10a10f28139906ae66",
+    "bytes": 884780,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/length-chance.wav",
+    "sha256": "4faf44cb6129b2c7f75288ba0efa0120550df4a7916c88ee69b36567af012221",
+    "bytes": 1429548,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/motion-record.wav",
+    "sha256": "7b2ea85c9fcba8fe639062c8342f736fad94f5a97beeee2bdf1963e3bec20e2d",
+    "bytes": 1622060,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/motion-takeover.wav",
+    "sha256": "80bca9bafcf32ac0f02941ee6cab3c6a306585f4deb68c1e4d910f61fb137a76",
+    "bytes": 1486892,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/parts-performance.wav",
+    "sha256": "4bbdd1a198b0695a8ef58f273c5dd3e80c6e082554033962ec6ebfb9f7ad4938",
+    "bytes": 2199596,
+    "kind": "added"
+  },
+  {
+    "path": "assets/audio/song-two-bars.wav",
+    "sha256": "df32de16549a3c0f91eafca24e0e4f8c7b0e54d92a84ff610805575a8dbbb476",
+    "bytes": 1757228,
+    "kind": "added"
+  },
+  {
+    "path": "experience.js",
+    "sha256": "893e14dac653e992bad94b8e686e693fefdb5d77ebbfec4787de438570e683fe",
+    "bytes": 42181,
+    "kind": "modified"
+  },
+  {
+    "path": "index.html",
+    "sha256": "441b424d90b707239b5edd7b751214cabd8c687d6d99117fcd4368f2467b1043",
+    "bytes": 2091,
+    "kind": "modified"
+  },
+  {
+    "path": "journeys.js",
+    "sha256": "9a58bea569858cd85d389c10979f24f69570fc42e7610c7130118d96e70af978",
+    "bytes": 10670,
+    "kind": "added"
+  },
+  {
+    "path": "navigation.js",
+    "sha256": "d29344dd2f46a80e2ef0edfe30fb770e4ad7493bde12b8ce422bbd7175807485",
+    "bytes": 4918,
+    "kind": "added"
+  },
+  {
+    "path": "product.css",
+    "sha256": "01ed4c1f203b0d938efb114a8d85794dd3b38ccd434762788b91ad5e9571d5d4",
+    "bytes": 12150,
+    "kind": "modified"
+  },
+  {
+    "path": "product.js",
+    "sha256": "7a47d91b3b0ea97e9befc13dafccffa48d38cd936de231ef305c7cb71850a3e0",
+    "bytes": 23635,
+    "kind": "modified"
+  },
+  {
+    "path": "provenance/recordings-20261114.json",
+    "sha256": "36c7efbbfcc7718edef12257f259ed2a65220ffbf975b29782bbe6ad3c2f546b",
+    "bytes": 2552,
+    "kind": "added"
+  },
+  {
+    "path": "provenance/recordings-20261114.md",
+    "sha256": "47c9f69ed00af554241e8b455a9fac2bed1f6d4c3ab8af742a23938109531d27",
+    "bytes": 2866,
+    "kind": "added"
+  },
+  {
+    "path": "recordings.js",
+    "sha256": "cdb132649322a897b5f827da450dba5de44fa3b7a531b4ba2782b8f63c9ebdd2",
+    "bytes": 4178,
+    "kind": "added"
+  }
+]

@@ -1,0 +1,1020 @@
+[
+  {
+    "t": 532.4000000000233,
+    "ms": null,
+    "phase": "boot",
+    "type": "boot",
+    "seq": 1,
+    "wasm": {},
+    "package": {},
+    "sectors": {},
+    "script": {},
+    "mhz": 360,
+    "ahead": 512,
+    "jit": true
+  },
+  {
+    "t": 12286.699999999953,
+    "ms": 12026,
+    "phase": "boot",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 12694.199999999953,
+    "ms": 12444,
+    "phase": "boot",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 13099.599999999977,
+    "ms": 12861,
+    "phase": "boot",
+    "type": "key",
+    "id": 6,
+    "down": true
+  },
+  {
+    "t": 13251.099999999977,
+    "ms": 12966,
+    "phase": "boot",
+    "type": "key",
+    "id": 6,
+    "down": false
+  },
+  {
+    "t": 13401.300000000047,
+    "ms": 13140,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 0,
+    "value": 700
+  },
+  {
+    "t": 13547.099999999977,
+    "ms": 13314,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 0,
+    "value": 0
+  },
+  {
+    "t": 13692.599999999977,
+    "ms": 13454,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 4,
+    "value": 700
+  },
+  {
+    "t": 13837.400000000023,
+    "ms": 13593,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 4,
+    "value": 0
+  },
+  {
+    "t": 13981.699999999953,
+    "ms": 13733,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 8,
+    "value": 700
+  },
+  {
+    "t": 14125.900000000023,
+    "ms": 13872,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 8,
+    "value": 0
+  },
+  {
+    "t": 14270.300000000047,
+    "ms": 14011,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 12,
+    "value": 700
+  },
+  {
+    "t": 14415.099999999977,
+    "ms": 14185,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 12,
+    "value": 0
+  },
+  {
+    "t": 14559.699999999953,
+    "ms": 14324,
+    "phase": "boot",
+    "type": "key",
+    "id": 8,
+    "down": true
+  },
+  {
+    "t": 14704.300000000047,
+    "ms": 14429,
+    "phase": "boot",
+    "type": "key",
+    "id": 8,
+    "down": false
+  },
+  {
+    "t": 14848.400000000023,
+    "ms": 14603,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 4,
+    "value": 700
+  },
+  {
+    "t": 14995.099999999977,
+    "ms": 14741,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 4,
+    "value": 0
+  },
+  {
+    "t": 15140.400000000023,
+    "ms": 14881,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 12,
+    "value": 700
+  },
+  {
+    "t": 15284.5,
+    "ms": 15056,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 12,
+    "value": 0
+  },
+  {
+    "t": 15428.099999999977,
+    "ms": 15194,
+    "phase": "boot",
+    "type": "key",
+    "id": 30,
+    "down": true
+  },
+  {
+    "t": 15572.300000000047,
+    "ms": 15334,
+    "phase": "boot",
+    "type": "key",
+    "id": 30,
+    "down": false
+  },
+  {
+    "t": 15715.199999999953,
+    "ms": 15473,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 2,
+    "value": 700
+  },
+  {
+    "t": 15859.400000000023,
+    "ms": 15612,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 2,
+    "value": 0
+  },
+  {
+    "t": 16006.099999999977,
+    "ms": 15752,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 6,
+    "value": 700
+  },
+  {
+    "t": 16151.199999999953,
+    "ms": 15891,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 6,
+    "value": 0
+  },
+  {
+    "t": 16300.099999999977,
+    "ms": 16065,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 10,
+    "value": 700
+  },
+  {
+    "t": 16449.800000000047,
+    "ms": 16204,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 10,
+    "value": 0
+  },
+  {
+    "t": 16595.900000000023,
+    "ms": 16343,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 14,
+    "value": 700
+  },
+  {
+    "t": 16739.900000000023,
+    "ms": 16483,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 14,
+    "value": 0
+  },
+  {
+    "t": 16884.699999999953,
+    "ms": 16656,
+    "phase": "boot",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 17031.599999999977,
+    "ms": 16796,
+    "phase": "boot",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 17180.900000000023,
+    "ms": 16935,
+    "phase": "808-groove"
+  },
+  {
+    "t": 28856.300000000047,
+    "ms": 28529,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 28998.800000000047,
+    "ms": 28668,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 29144.699999999953,
+    "ms": 28807,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 29545,
+    "ms": 29225,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 29943.199999999953,
+    "ms": 29608,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 0,
+    "value": 700
+  },
+  {
+    "t": 30099.400000000023,
+    "ms": 29713,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 0,
+    "value": 0
+  },
+  {
+    "t": 30252.099999999977,
+    "ms": 29887,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 3,
+    "value": 700
+  },
+  {
+    "t": 30400.199999999953,
+    "ms": 30061,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 3,
+    "value": 0
+  },
+  {
+    "t": 30545.199999999953,
+    "ms": 30200,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 6,
+    "value": 700
+  },
+  {
+    "t": 30693.199999999953,
+    "ms": 30339,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 6,
+    "value": 0
+  },
+  {
+    "t": 30838.199999999953,
+    "ms": 30514,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 9,
+    "value": 700
+  },
+  {
+    "t": 30985.5,
+    "ms": 30653,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 9,
+    "value": 0
+  },
+  {
+    "t": 31133,
+    "ms": 30792,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 2,
+    "clicks": -1
+  },
+  {
+    "t": 31534.099999999977,
+    "ms": 31210,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 2,
+    "clicks": -1
+  },
+  {
+    "t": 31929.800000000047,
+    "ms": 31593,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 0,
+    "value": 700
+  },
+  {
+    "t": 32073.599999999977,
+    "ms": 31732,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 0,
+    "value": 0
+  },
+  {
+    "t": 32220.599999999977,
+    "ms": 31872,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 1,
+    "value": 700
+  },
+  {
+    "t": 32365.199999999953,
+    "ms": 32045,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 1,
+    "value": 0
+  },
+  {
+    "t": 32509.900000000023,
+    "ms": 32185,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 2,
+    "value": 700
+  },
+  {
+    "t": 32654.699999999953,
+    "ms": 32323,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 2,
+    "value": 0
+  },
+  {
+    "t": 32798.69999999995,
+    "ms": 32463,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 3,
+    "value": 700
+  },
+  {
+    "t": 32942.90000000002,
+    "ms": 32603,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 3,
+    "value": 0
+  },
+  {
+    "t": 33087.40000000002,
+    "ms": 32741,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 4,
+    "value": 700
+  },
+  {
+    "t": 33231.59999999998,
+    "ms": 32881,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 4,
+    "value": 0
+  },
+  {
+    "t": 33375.80000000005,
+    "ms": 33055,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 5,
+    "value": 700
+  },
+  {
+    "t": 33520.09999999998,
+    "ms": 33195,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 5,
+    "value": 0
+  },
+  {
+    "t": 33664.5,
+    "ms": 33333,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 6,
+    "value": 700
+  },
+  {
+    "t": 33807.40000000002,
+    "ms": 33473,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 6,
+    "value": 0
+  },
+  {
+    "t": 33951.90000000002,
+    "ms": 33612,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 7,
+    "value": 700
+  },
+  {
+    "t": 34096,
+    "ms": 33751,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 7,
+    "value": 0
+  },
+  {
+    "t": 34241.09999999998,
+    "ms": 33891,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 8,
+    "value": 700
+  },
+  {
+    "t": 34384.69999999995,
+    "ms": 34064,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 8,
+    "value": 0
+  },
+  {
+    "t": 34528.90000000002,
+    "ms": 34204,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 9,
+    "value": 700
+  },
+  {
+    "t": 34673.30000000005,
+    "ms": 34343,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 9,
+    "value": 0
+  },
+  {
+    "t": 34818.19999999995,
+    "ms": 34482,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 10,
+    "value": 700
+  },
+  {
+    "t": 34961.5,
+    "ms": 34622,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 10,
+    "value": 0
+  },
+  {
+    "t": 35106.19999999995,
+    "ms": 34761,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 11,
+    "value": 700
+  },
+  {
+    "t": 35251.59999999998,
+    "ms": 34900,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 11,
+    "value": 0
+  },
+  {
+    "t": 35396.59999999998,
+    "ms": 35075,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 12,
+    "value": 700
+  },
+  {
+    "t": 35541,
+    "ms": 35213,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 12,
+    "value": 0
+  },
+  {
+    "t": 35686.90000000002,
+    "ms": 35353,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 13,
+    "value": 700
+  },
+  {
+    "t": 35831.09999999998,
+    "ms": 35492,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 13,
+    "value": 0
+  },
+  {
+    "t": 35975.19999999995,
+    "ms": 35632,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 14,
+    "value": 700
+  },
+  {
+    "t": 36118.09999999998,
+    "ms": 35771,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 14,
+    "value": 0
+  },
+  {
+    "t": 36263.59999999998,
+    "ms": 35945,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 15,
+    "value": 700
+  },
+  {
+    "t": 36408.69999999995,
+    "ms": 36084,
+    "phase": "808-groove",
+    "type": "analog",
+    "idx": 15,
+    "value": 0
+  },
+  {
+    "t": 36556,
+    "ms": 36223,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 49,
+    "down": true
+  },
+  {
+    "t": 36700.30000000005,
+    "ms": 36363,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 49,
+    "down": false
+  },
+  {
+    "t": 36843.90000000002,
+    "ms": 36501,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 6,
+    "down": true
+  },
+  {
+    "t": 36988.19999999995,
+    "ms": 36641,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 6,
+    "down": false
+  },
+  {
+    "t": 37132.69999999995,
+    "ms": 36780,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 8,
+    "down": true
+  },
+  {
+    "t": 37277.90000000002,
+    "ms": 36955,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 8,
+    "down": false
+  },
+  {
+    "t": 37423.30000000005,
+    "ms": 37094,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 13,
+    "down": true
+  },
+  {
+    "t": 37568.90000000002,
+    "ms": 37233,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 13,
+    "down": false
+  },
+  {
+    "t": 37720.69999999995,
+    "ms": 37372,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 15,
+    "down": true
+  },
+  {
+    "t": 37866.5,
+    "ms": 37546,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 15,
+    "down": false
+  },
+  {
+    "t": 38014.19999999995,
+    "ms": 37685,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 52,
+    "down": true
+  },
+  {
+    "t": 38159.19999999995,
+    "ms": 37825,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 52,
+    "down": false
+  },
+  {
+    "t": 38309.30000000005,
+    "ms": 37964,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 40,
+    "down": true
+  },
+  {
+    "t": 38460.5,
+    "ms": 38138,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 40,
+    "down": false
+  },
+  {
+    "t": 38611.30000000005,
+    "ms": 38277,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 4,
+    "clicks": -200
+  },
+  {
+    "t": 39010,
+    "ms": 38660,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 5,
+    "clicks": -200
+  },
+  {
+    "t": 39433.5,
+    "ms": 39043,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 6,
+    "clicks": -200
+  },
+  {
+    "t": 39837.5,
+    "ms": 39461,
+    "phase": "808-groove",
+    "type": "enc",
+    "enc": 7,
+    "clicks": -200
+  },
+  {
+    "t": 40252,
+    "ms": 39879,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 40401.69999999995,
+    "ms": 39983,
+    "phase": "808-groove",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 40546.90000000002,
+    "ms": 40158,
+    "phase": "break-straight"
+  },
+  {
+    "t": 52064.5,
+    "ms": 51542,
+    "phase": "break-straight",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 52208.30000000005,
+    "ms": 51786,
+    "phase": "break-straight",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 52352.19999999995,
+    "ms": 51925,
+    "phase": "break-straight",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 18
+  },
+  {
+    "t": 52750.59999999998,
+    "ms": 52308,
+    "phase": "break-straight",
+    "type": "enc",
+    "enc": 6,
+    "clicks": 25
+  },
+  {
+    "t": 53150,
+    "ms": 52727,
+    "phase": "break-straight",
+    "type": "enc",
+    "enc": 7,
+    "clicks": 30
+  },
+  {
+    "t": 53549.5,
+    "ms": 53109,
+    "phase": "break-straight",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 53694.5,
+    "ms": 53249,
+    "phase": "break-straight",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 53839.30000000005,
+    "ms": 53388,
+    "phase": "break-phrase"
+  },
+  {
+    "t": 67863.40000000002,
+    "ms": 67349,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 68011.40000000002,
+    "ms": 67488,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 68156.40000000002,
+    "ms": 67628,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 49,
+    "down": true
+  },
+  {
+    "t": 68300.80000000005,
+    "ms": 67767,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 49,
+    "down": false
+  },
+  {
+    "t": 68444.80000000005,
+    "ms": 67941,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 8,
+    "down": true
+  },
+  {
+    "t": 68590.19999999995,
+    "ms": 68080,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 8,
+    "down": false
+  },
+  {
+    "t": 68733.90000000002,
+    "ms": 68219,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 13,
+    "down": true
+  },
+  {
+    "t": 68877.30000000005,
+    "ms": 68359,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 13,
+    "down": false
+  },
+  {
+    "t": 69022.59999999998,
+    "ms": 68497,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 10,
+    "down": true
+  },
+  {
+    "t": 69166.80000000005,
+    "ms": 68637,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 10,
+    "down": false
+  },
+  {
+    "t": 69312.40000000002,
+    "ms": 68776,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 69459.09999999998,
+    "ms": 68951,
+    "phase": "break-phrase",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 69606.80000000005,
+    "ms": 69090,
+    "phase": "parts-performance"
+  },
+  {
+    "t": 72612.90000000002,
+    "ms": 72084,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 10,
+    "down": true
+  },
+  {
+    "t": 72758.40000000002,
+    "ms": 72223,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 10,
+    "down": false
+  },
+  {
+    "t": 75908.59999999998,
+    "ms": 75112,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 13,
+    "down": true
+  },
+  {
+    "t": 76053.5,
+    "ms": 75252,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 13,
+    "down": false
+  },
+  {
+    "t": 79237.19999999995,
+    "ms": 78490,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 13,
+    "down": true
+  },
+  {
+    "t": 79383.69999999995,
+    "ms": 78629,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 13,
+    "down": false
+  },
+  {
+    "t": 95123.59999999998,
+    "ms": 94157,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 95267.69999999995,
+    "ms": 94296,
+    "phase": "parts-performance",
+    "type": "key",
+    "id": 53,
+    "down": false
+  }
+]

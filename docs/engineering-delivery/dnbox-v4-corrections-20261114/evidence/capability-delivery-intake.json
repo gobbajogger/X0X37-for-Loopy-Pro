@@ -1,0 +1,39 @@
+{
+  "sample_importer": {
+    "pr": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/130",
+    "source_head": "7f132700f98689235c431293f2a3492fb26d0f87",
+    "source_merge_commit": "8af48f83c21e76bc7ebac2ddbdb7c5e3ff0a81ea",
+    "state": "source merged; not publication proof",
+    "scope": "skip failed MIDI candidates and invalidINFO; live source/publication parity remains publisher-owned",
+    "publication": "explicitly denied twice; no retry/bypass"
+  },
+  "companion": {
+    "library_file_id": "libfile_fde3_f-a51b8b3307e4819196c004512d5d0fde_2021479872048191acbfdca1f870a539",
+    "name": "DnBOX-performance-companion-R4-20261114.zip",
+    "bytes": 1149589,
+    "metadata_observed": "2026-11-14T12:19:51.304401Z",
+    "byte_intake": "BLOCKED before transfer",
+    "error": "library download request failed: hosted apps tools/list request failed with HTTP status401",
+    "exact_hash_consumption": "NOT_RUN; do not claim this artifact was consumed or qualified",
+    "owner": "6af84a14 retains source; existing bounded e2d36dba contract remains consumed",
+    "tool_action": "OpenAI Library bundled library_download.py, unchanged search-result selection000; hosted apps tools/list before prepare/transfer",
+    "transfer_occurred": false,
+    "retry_attempts": 0,
+    "version_id": "1",
+    "file_id": "file_00000000b88081f583bb30694bb3b143",
+    "expected_manifest_sha256_relayed_by_owner": "cafecba8b2ad0503fb49fd4f9686ab45644685a96b3e024f0af1c808c5584a82",
+    "original_exporter": "6af84a14",
+    "git_delivery": "40-file original exporter delivery running per parent; no duplicate transfer/retry here",
+    "verified_contract": "83fc6d6 notes/transport profile; explicit94197fc8 addsCC1/64/bend; physicalMIDI untested; no arbitrarymixerfeedback orpresettransfer"
+  },
+  "installer_and_files": {
+    "current_https": "manual/install/catalog source receipts in current-status-receipts.json",
+    "device_workflows": "NOT_RUN; normal Chromium certificate trust fails; no trust mutation or bypass",
+    "source_changes": "none"
+  },
+  "website_candidate": {
+    "manifest_sha256": "a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f",
+    "files": 69,
+    "runtime_changed_by_intake": false
+  }
+}

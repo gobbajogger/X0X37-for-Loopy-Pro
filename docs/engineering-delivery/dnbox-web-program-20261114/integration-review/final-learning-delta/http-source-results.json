@@ -1,0 +1,95 @@
+{
+  "utc": "2026-11-14T15:22:18.928302+00:00",
+  "requests": [
+    {
+      "key": "notes_page",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md",
+      "bytes": 189852,
+      "sha256": "0b04d1d57b7a98336f452fac37e396007ffec1d7dcba7eb0c217580f9f3ceb0a"
+    },
+    {
+      "key": "notes_raw",
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/4998572bcc06676f08a7875ca49fb2a56358eff6/web/NEW.md",
+      "bytes": 2174,
+      "sha256": "22637418716534c5e84381751c6a38aea8c786764dc2050adf1a47d348e0fa5d"
+    },
+    {
+      "key": "release",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1",
+      "bytes": 148001,
+      "sha256": "212aa4e7ae7cd885271e0ffcc8f51b1c1df87c4fc4415bf322dd7b65c549a5b7"
+    },
+    {
+      "key": "nightly_status",
+      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/new/",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/new/",
+      "bytes": 3652,
+      "sha256": "65e548e58cb8784e550763cd224605326dda86dbc9714761c86cb80e2b5229ea"
+    },
+    {
+      "key": "withdrawal_record",
+      "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120",
+      "bytes": 278808,
+      "sha256": "a63ef4bbdeb0d951df4041d91154050e48ca9fe7cfc757b3a58da3561cd0a0eb"
+    },
+    {
+      "key": "withdrawal_metadata",
+      "url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/120",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/120",
+      "bytes": 20003,
+      "sha256": "1b9621711f27ef365c53781b9d863147aebecfa4947aa8c20d6f5697f0460f85"
+    },
+    {
+      "key": "feature_form",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new?template=feature_request.yml",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fgobbajogger%2FX0X37-for-Loopy-Pro%2Fissues%2Fnew%3Ftemplate%3Dfeature_request.yml",
+      "bytes": 46021,
+      "sha256": "21023c954a7452f2dd0ea9b32854d214cafad75f023ea79d09cb62e54ce197eb"
+    },
+    {
+      "key": "default_form_source",
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/035026fe70059af35e25c7c121b40f318b732fe3/.github/ISSUE_TEMPLATE/feature_request.yml",
+      "method": "GET",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/035026fe70059af35e25c7c121b40f318b732fe3/.github/ISSUE_TEMPLATE/feature_request.yml",
+      "bytes": 825,
+      "sha256": "c49fed71a790ac96d5ffbd13bdfb225ab8ec3e95dc1f6443ffcad84a1d557c35"
+    }
+  ],
+  "facts": {
+    "notes_bytes": 2174,
+    "notes_git_blob": "730dbab61e4b398de855c0ef74911b06b79dbe19",
+    "notes_sha256": "22637418716534c5e84381751c6a38aea8c786764dc2050adf1a47d348e0fa5d",
+    "notes_anchor_present": true,
+    "notes_have_candidate_pin": true,
+    "notes_synth_names_present": true,
+    "notes_source_has_generated_site_links": true,
+    "default_form_bytes": 825,
+    "default_form_sha256": "c49fed71a790ac96d5ffbd13bdfb225ab8ec3e95dc1f6443ffcad84a1d557c35",
+    "default_form_git_blob": "eb2c19b822375dd7c3689be9b319227c47fa5d56",
+    "default_form_existing_fields": true,
+    "nightly_has_corrected_and_original_pins": true,
+    "nightly_has_physical_unverified_notice": true,
+    "withdrawal_title": "Withdraw 0.0.26 installer selection pending boot fix",
+    "withdrawal_mentions_withdrawal": true
+  },
+  "limits": "GET only; no issue created, no form submitted, no vote/inbox/scheduler action; ordinary trust, no certificate bypass; no external Chromium result claimed"
+}

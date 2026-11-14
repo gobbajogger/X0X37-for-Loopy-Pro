@@ -1,0 +1,26 @@
+{
+  "runtime_archive_sha256": "5822db14472ca701db3c17289e5d305e5daeba971223a5cf4de86a56af4d8c57",
+  "runtime_manifest_entries": 123,
+  "runtime_manifest_pass": true,
+  "pro_firmware_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+  "pro_firmware_bytes": 651721,
+  "new_capture_source": "79280e763341d03ba43266d3e25dad66f12de860",
+  "runtime_source": "431d0db82cbadca761fb32c6548ca4765875324f",
+  "additional_ui_control_file_git_blob": "91f7cb204bf2ca2e5405f1715dd7c73a57dde3ac",
+  "additional_ui_control_file_sha256": "cda28e1d1bb4e47a3450e985d6da40ad75257fa72039140723954b5c1242a0ef",
+  "failed_attempts": [
+    "recordings/first-pass BREAK parameter edits stayed on SEQUENCE; excluded.",
+    "recordings-extra/first-pass PARA motion edited oscillator WAVE, not cutoff; excluded."
+  ],
+  "actual_final_observations": [
+    "808 BD/SD/CH",
+    "BREAK GROOVE0/0/0/0 then80/0/100/100",
+    "Chicago13steps; heldSTEP10 70%",
+    "Chicago FILTER1 selected; actual cutoff recording/manual event sequence",
+    "SONG2rows Pattern1; Chicago mutedbar2"
+  ],
+  "device_writes": false,
+  "runtime_source_edits": false,
+  "human_acoustic_listening": "NOT_RUN",
+  "physical_device": "NOT_RUN"
+}

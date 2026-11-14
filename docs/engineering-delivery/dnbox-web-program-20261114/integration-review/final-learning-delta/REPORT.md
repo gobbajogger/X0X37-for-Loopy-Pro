@@ -1,0 +1,32 @@
+# Final learning and support delta review
+
+**SCOPED ACCEPT** for public website manifest `44188b31a644cde2b7992547faf2f3c6a51b0f729ba7161cf88b168362243496`. The two changed routes make candidate changes, package status and manual feature requests discoverable without claiming hardware qualification, automatic intake, voting or issue submission. No actionable defect was found in this delta.
+
+The public candidate has 70 files and all 69 manifest entries independently match. The exact accepted predecessor `ed518381e86d16fa2a104d156912b5da11d4c180b9f02764e45d4c89554ee00a` was verified in the preserved archive. Only three entries changed: `app.js` line 47 adds the Help feature-request section; `journeys.js` line 18 adds What's New and package history to Versions; the integration provenance has an append-only documentary addition. The other 66 entries are unchanged.
+
+The private host manifest `99e51da2442eac9e081f8698018985159d157cde1d5bdb0dcaf029638ad1c8d6` also matches all 75 entries, with 76 own files. The same three changed files are byte-identical between public and private hosts, both locally and as served on ports 4323/4324. This review stored only aggregate private-manifest results and the hashes of those shared public files. No private component payload, raw private source or private screenshot is included. Existing independent core 55+48 proof remains with its owner and was not rerun or newly claimed here.
+
+| Affected check | Observed result |
+| --- | --- |
+| Help and Versions at 1440, 390 and 320 × 900 | Six changed-route/layout observations pass: no horizontal overflow or page errors. The history table, source/status labels, feature-form explanation and actions remain readable. Desktop Versions, small Versions and phone Help screenshots were visually inspected. |
+| Help → version guide → Back/Forward using keyboard Return | Intentional navigation focuses H1 at scroll 0. Back restores the initiating Help link and exact scroll 960. Forward returns to the guide H1 at scroll 0. |
+| Same two routes on the private host | Both render at 390 × 900 with matching public headings, no overflow and no page errors. No workspace, editor, geometry or connected-control action was exercised. |
+| Source-notes destination and fragment | The immutable `4998572…/web/NEW.md` source returns HTTP 200; its actual rendered `dnbox-install-and-data-workspace` anchor exists. The raw 2,174-byte source matches Git blob `730dbab61e4b398de855c0ef74911b06b79dbe19`, SHA-256 `22637418716534c5e84381751c6a38aea8c786764dc2050adf1a47d348e0fa5d`. |
+| Package-history destinations | The 0.0.25.1 release, published NIGHTLY status and original withdrawal PR #120 all return HTTP 200. NIGHTLY identifies corrected `94197fc8`, withdrawn `600b3b45` and unverified physical startup/restart/recovery. The withdrawal record is titled “Withdraw 0.0.26 installer selection pending boot fix.” |
+| Manual feature request | The exact `issues/new?template=feature_request.yml` GET reaches GitHub's sign-in page, preserving the intended destination in `return_to`. The existing default-main form at `035026fe…` was actually consumed: 825 bytes, Git blob `eb2c19b822375dd7c3689be9b319227c47fa5d56`, SHA-256 `c49fed71a790ac96d5ffbd13bdfb225ab8ec3e95dc1f6443ffcad84a1d557c35`; it asks model, requested change, benefit and optional context. |
+
+The source notes support the website's Juno/Drone wording as choices for the existing synth parts, rather than extra simultaneous parts. Their candidate web-workspace statements are explicitly separated from the published examples, installed firmware and currently live tools. The three history rows distinguish published `0.0.25.1` / `79280e76`, corrected test candidate `0.0.26` / `94197fc8`, and withdrawn original `0.0.26` / `600b3b45`, retaining installed-hash and hardware limits.
+
+`web/NEW.md` still contains generated-site `legacy.html` and `../history/` links. The website accurately labels it source notes, warns of that topology limitation and supplies its own working history destinations. It copies neither broken generated route. This acceptance does not repair those source-note links or claim a deployed generated History page.
+
+Help offers an ordinary external GitHub anchor, not a local issue form. Its text clearly requires sign-in, user review and submission; excludes private recordings/backups; states this preview sends nothing; and leaves automatic collection, an owner's vote and implementation unfinished. The browser run observed no non-GET requests. No issue was created, form submitted, vote cast, inbox written or automatic consumer qualified. Opening a sign-in route is not accepted request persistence.
+
+Checks used Chromium 154.0.8037.57 for local pages and ordinary default-trust Python HTTPS for external GETs. No TLS setting, certificate, device, firmware, adapter, codec, importer, component implementation, Git ref or deployment changed. No MIDI or other real-device operation ran. External Chromium's previously recorded certificate limitation was not bypassed or retried. No external form completion or application acceptance is claimed from HTTP status alone.
+
+The previously accepted whole-experience, manual499 and unchanged navigation/music checks remain applicable; they were not restarted. Historical REPORT/EVIDENCE and the manual-successor REPORT/EVIDENCE hashes remain unchanged and are recorded in [intake-results.json](intake-results.json). No old scored assessment or desired score was supplied for this follow-up. No new reviewer or implementation stream was started.
+
+This completes the requested two-route delta review. It does not replace the parent owner's remaining launcher/delivery verification or remove any publication/export denial, device gate, component ownership or previously recorded capability limit. There is no remaining blocker within this review's source/layout/link scope.
+
+Standard service and Sol 6.1/ultra reasoning were requested. No tier or model-routing control is exposed in this turn; effective routing/tier is not asserted.
+
+Evidence: [actual input and shared-file identities](intake-results.json), [changed-route and focused-history results](browser-results.json), [normal-trust destination, anchor and source results](http-source-results.json), [phone Help](390-help.png), [small Versions](320-learn-versions.png), [desktop Versions](1440-learn-versions.png). The accompanying scripts are bounded read-only checks.

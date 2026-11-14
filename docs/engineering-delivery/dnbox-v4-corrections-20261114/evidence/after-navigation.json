@@ -1,0 +1,190 @@
+[
+  {
+    "check": "initial first Tab is skip",
+    "width": 1440
+  },
+  {
+    "check": "Back restores home position",
+    "width": 1440,
+    "expected": 3786,
+    "actual": 3786,
+    "focus": "<a href=\"#companion\"><b>Hardware MIDI companion</b><span>A separate browser-control project. See what is available.</span><i aria-hidden=\"true\">\u2192</i><"
+  },
+  {
+    "check": "Forward restores companion",
+    "width": 1440,
+    "expected": 300,
+    "actual": 300
+  },
+  {
+    "check": "repeated home visits have independent positions",
+    "width": 1440
+  },
+  {
+    "check": "install backup-failure warning",
+    "width": 1440
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/next"
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/bass"
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/break"
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/movement"
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/arrangement"
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/versions"
+  },
+  {
+    "check": "journey fits",
+    "width": 1440,
+    "route": "learn/save"
+  },
+  {
+    "check": "initial first Tab is skip",
+    "width": 390
+  },
+  {
+    "check": "Back restores home position",
+    "width": 390,
+    "expected": 6237,
+    "actual": 6237,
+    "focus": "<a href=\"#companion\"><b>Hardware MIDI companion</b><span>A separate browser-control project. See what is available.</span><i aria-hidden=\"true\">\u2192</i><"
+  },
+  {
+    "check": "Forward restores companion",
+    "width": 390,
+    "expected": 300,
+    "actual": 300
+  },
+  {
+    "check": "repeated home visits have independent positions",
+    "width": 390
+  },
+  {
+    "check": "install backup-failure warning",
+    "width": 390
+  },
+  {
+    "check": "menu Escape retains focus",
+    "width": 390
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/next"
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/bass"
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/break"
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/movement"
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/arrangement"
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/versions"
+  },
+  {
+    "check": "journey fits",
+    "width": 390,
+    "route": "learn/save"
+  },
+  {
+    "check": "initial first Tab is skip",
+    "width": 320
+  },
+  {
+    "check": "Back restores home position",
+    "width": 320,
+    "expected": 6664,
+    "actual": 6664,
+    "focus": "<a href=\"#companion\"><b>Hardware MIDI companion</b><span>A separate browser-control project. See what is available.</span><i aria-hidden=\"true\">\u2192</i><"
+  },
+  {
+    "check": "Forward restores companion",
+    "width": 320,
+    "expected": 300,
+    "actual": 300
+  },
+  {
+    "check": "repeated home visits have independent positions",
+    "width": 320
+  },
+  {
+    "check": "install backup-failure warning",
+    "width": 320
+  },
+  {
+    "check": "menu Escape retains focus",
+    "width": 320
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/next"
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/bass"
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/break"
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/movement"
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/arrangement"
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/versions"
+  },
+  {
+    "check": "journey fits",
+    "width": 320,
+    "route": "learn/save"
+  }
+]

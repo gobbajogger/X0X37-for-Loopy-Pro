@@ -1,0 +1,48 @@
+[
+  {
+    "label": "keyboard manual",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md",
+    "status": 200,
+    "bytes": 570686,
+    "sha256": "ce6c89edf9866030187256907bcd77b516fec03bdaacb6c51a2f31f4bc6bcb81",
+    "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md"
+  },
+  {
+    "label": "browser manual",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/MANUAL.md",
+    "status": 200,
+    "bytes": 244568,
+    "sha256": "c54d705e56a0c89e2b644820aed7d2c715cc8a0848b018950025b87d10cc2b64",
+    "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/MANUAL.md"
+  },
+  {
+    "label": "browser manual keyboard link",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html",
+    "status": 404,
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "label": "offline editor source",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer",
+    "status": 200,
+    "bytes": 297054,
+    "sha256": "e1f6a7f85a86257bbc58c4c1e9f5aa00e60e68d2fabbdcfed545ddb683051d25",
+    "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer"
+  },
+  {
+    "label": "TouchOSC source",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md",
+    "status": 200,
+    "bytes": 212225,
+    "sha256": "c358bffce402202fc8d808222c3caef778c7425fa73403b604b74518533dcfc4",
+    "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md"
+  },
+  {
+    "label": "capability contract",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/CAPABILITIES.md",
+    "status": 200,
+    "bytes": 255990,
+    "sha256": "3867469b44c555725d109d90d6171da7ebcb327a3387d3bb87ddb449ae01538d",
+    "final_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/CAPABILITIES.md"
+  }
+]

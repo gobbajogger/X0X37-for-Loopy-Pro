@@ -1,0 +1,26 @@
+[
+  {
+    "name": "manual",
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/manual/",
+    "status": 200,
+    "bytes": 3701,
+    "sha256": "bbe9a7c69027affb5096843ed687b11adcb9f64de0acbd03085d8c8d5fc68a1e",
+    "checked": "2026-11-14T11:57:59.565288+00:00"
+  },
+  {
+    "name": "installer",
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+    "status": 200,
+    "bytes": 628755,
+    "sha256": "9f0726ae387a0773e95601ad0ff77560982acdbf180c6c8545deeff7cf07a669",
+    "checked": "2026-11-14T11:57:59.837056+00:00"
+  },
+  {
+    "name": "versions",
+    "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json",
+    "status": 200,
+    "bytes": 89223,
+    "sha256": "84d79d2f5240eb02d0dadd810e84f2aec7577d9bf0218bfdbc6d187334285893",
+    "checked": "2026-11-14T11:58:00.060093+00:00"
+  }
+]
