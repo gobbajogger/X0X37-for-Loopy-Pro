@@ -2,6 +2,18 @@
 
 These are canonical records, not copies of another active tracker. Read [ROADMAP](../ROADMAP.md) for ownership, execution plans, current decisions and migration rules. Original rows below are preserved verbatim as dated evidence; the current disposition takes precedence. A source-stage completion is not hardware qualification.
 
+### Current program routing (observed 2026-11-14 13:30–13:33 UTC)
+
+These pointers reconcile coordination ownership, not completed implementation or a second request inventory. Existing per-record source writers and denied-action boundaries remain authoritative. No record changes category merely because a program owner was admitted.
+
+- Firmware program 6af85eee-125c-8191-bf22-966667c460f4 substantively consumed roadmap/nightly pins and mapped 26.1–26.5, 26.8a–b/F1–F2, 26.9, 26.10, J1, REC1, DROP1, LAG1, MW1 and controller/FX requirements; 26.7 stays declined. Latest receipt reports source-bank-derived Juno origin bound for four/eight presets; exact final output and combined acceptance not established. Existing heavy-scene and REC writers retained.
+- Web program 6af84ba2-9170-8191-9dbd-e5cc8450b0f4 resumed accepted candidate a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f and broader integration. Browser preparation 6af85da6-73fc-8191-af07-9d25609320f1 is active; frozen editor and companion producers retain delivery boundaries. W3/#915 remains an integration input, not an adopted product solely because its producer completed.
+- Learning supplier 6af85db5-5c10-8191-80c3-285ddcfc10d9 completed scoped manual branch a19da721c25ab2323bb818851ab4d92e8ca3aa15; exact branch verified remotely. Draft PR denied. Web task received commit/evidence-path delegation; actual manual consumption/integration remains unverified. D1/D2/I3/#78 and applicable documentation goals are not all complete.
+- Lifecycle supplier 6af85da9-296c-8191-9deb-992d5fcf10f1 completed test-only branch 7724398a86e45eb8f660daee34338db61a5ef17f, remotely verified; draft PR denied. Host reproductions identify preference loss after read-failure/reset, logical-client transfer interference and stale sound after project load. Coordinator reports firmware routing; exact receiving-owner fixes/acceptance and Sol/Astra successor handoff are unverified. #47–#55/#7/F1 goals remain unfinished.
+- Firmware design remains separate: Settings 6af84d26-84d0-8191-9e55-0448748ca0dc revises its private comparison/model, while whole-design owner 6af85b95-84d8-8191-a2f2-1e60b77640e0 retains disjoint integration. Historical Settings checkpoint 5fb481fc is not current revision/runtime acceptance. Preserve exact current artifacts, matched comparisons, research and receiver evidence before changing design status.
+
+New/resumed threads and subagents use only Sol 6.1 or Astra where selectable; record requested versus exposed effective settings. Do not restart stopped Grok, create duplicate writers or infer comprehensive active coverage from these pointers. This observation does not resolve M12 or all historical lane liveness.
+
 ## 26.1
 
 **Current disposition:** Unfinished or current activity/acceptance unverified. Historical ACTIVE wording below is not a current execution claim.

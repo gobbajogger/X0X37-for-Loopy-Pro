@@ -4,15 +4,17 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## W1
 
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
+
 **Live Git read (2026-11-14 11:20 UTC):** [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890), head `34c321466ca3ccb5b7f125c3513cebf4ec76640c`, branch `website-ux/v2-preview`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Root verified substantive V3 intake through standard_work_creation around 11:18 UTC; exact intake timestamp unknown. Implementation ongoing and selected direction reported; result not independently reviewed. Feedback delivered. Preview/design work, not finished website or publication acceptance.
+**Current disposition:** Ongoing web-product integration. Resumed owner acknowledged accepted candidate manifest a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f; producer reports 87 route/viewport and 21 journey checks plus Pattern 5/mixed-part continuity. Git preservation, final packet, component integration and publisher intake remain pending in the observed receipt; not deployed website completion.
 
-**Owner:** Existing website revision [Work task 6af84177-2584-8191-a4a2-651f4a4750dc](https://chatgpt.com/c/6af84177-2584-8191-a4a2-651f4a4750dc); no second website writer.
+**Owner:** Web product owner 6af84ba2-9170-8191-9dbd-e5cc8450b0f4; original V3 producer 6af84177-2584-8191-a4a2-651f4a4750dc is historical, not current shared writer. Component suppliers and sole publisher retain scopes.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Consume visual-first physical-control-to-real-firmware feedback; verify latest feedback intake, render/interaction evidence and fresh blind review. Preserve truthful emulator/device limits.
+**Next action:** Preserve accepted exact candidate, consume manual a19da721c25ab2323bb818851ab4d92e8ca3aa15 and other component outputs, verify integration and permitted publisher intake. Do not repeat unchanged checks or retry denied publication. Receipt msg_03832422de20bbd8016af8611466cc87d1bc515a74b76c9d81 confirms resumed candidate acknowledgment; the manual delegation alone is not consumption.
 
 **Consumed input:** V3 archive SHA-256 `9ce98216ab67fdc226e56bc7b7bf31a7634162a077dfa63f68fb3f953559b241`; Library ID `libfile_fde3_f-5f36010bb1b88191861379c30c3fa9a8_2021479872048191acbfdca1f870a539`. This receipt is actual input consumption, not completion; retrieve via Library and verify identity before reuse.
 
@@ -26,15 +28,17 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## W2
 
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
+
 **Live Git read (2026-11-14 11:20 UTC):** [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890), head `34c321466ca3ccb5b7f125c3513cebf4ec76640c`, branch `website-ux/v2-preview`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Root verified substantive V3 intake through standard_work_creation around 11:18 UTC; exact intake timestamp unknown. Implementation ongoing and selected direction reported; result not independently reviewed. Feedback delivered. Preview/design work, not finished website or publication acceptance.
+**Current disposition:** Same current web-product owner and accepted candidate as W1; accurate hardware depiction and versioned simulator/device distinctions remain required. Broad image/hardware fidelity is not independently established by this queue update.
 
-**Owner:** Existing website revision [Work task 6af84177-2584-8191-a4a2-651f4a4750dc](https://chatgpt.com/c/6af84177-2584-8191-a4a2-651f4a4750dc); no second website writer.
+**Owner:** Web product owner 6af84ba2-9170-8191-9dbd-e5cc8450b0f4; retain component owners and sole publisher, no second website writer.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Consume visual-first physical-control-to-real-firmware feedback; verify latest feedback intake, render/interaction evidence and fresh blind review. Preserve truthful emulator/device limits.
+**Next action:** Verify hardware depiction and source-grounded physical-control feedback in the actual integrated candidate. Reuse W1 exact-candidate proof where applicable; do not infer device validation from host images.
 
 **Consumed input:** V3 archive SHA-256 `9ce98216ab67fdc226e56bc7b7bf31a7634162a077dfa63f68fb3f953559b241`; Library ID `libfile_fde3_f-5f36010bb1b88191861379c30c3fa9a8_2021479872048191acbfdca1f870a539`. This receipt is actual input consumption, not completion; retrieve via Library and verify identity before reuse.
 
@@ -48,13 +52,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## P3
 
-**Current disposition:** Verified current execution: root assigned this migration; exact #887 input read and partition written. Independent review and remote verification required before closing this stage.
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
 
-**Owner:** Dot/root; delegated sole bounded queue-reorganization writer workflow_diagnosis for this change.
+**Current disposition:** Initial three-file migration was independently checked and remotely preserved at d389142f409a043dcba3c79186afef97cf5d88e6. Ongoing request coverage and current owner/status reconciliation remain active; do not repeat the completed migration.
+
+**Owner:** Dot/root is accountable coordinator; workflow_diagnosis is sole bounded writer for this reconciliation only and releases after remote verification.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Review and push the exact partition, verify remote rows and return sole roadmap ownership to Dot/root; wider historical coverage work remains open.
+**Next action:** Reconcile current receipts and remaining requests into existing canonical records, preserve historical rows and one writer, and verify remote bytes. Do not treat appended receipts as a substitute for current queue fields.
 
 **Preserved source section:** Later owner requests (2026-11-13)
 
@@ -64,13 +70,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## #116
 
-**Current disposition:** Verified current execution: root assigned this migration; exact #887 input read and partition written. Independent review and remote verification required before closing this stage.
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
 
-**Owner:** Dot/root; delegated sole bounded queue-reorganization writer workflow_diagnosis for this change.
+**Current disposition:** Initial canonical partition is preserved; comprehensive request coverage is ongoing, not proven complete. New program owners have scoped receipts but all historical lanes are not thereby verified active or delivered.
+
+**Owner:** Dot/root coordinates; workflow_diagnosis owns only this bounded queue reconciliation. Existing program/component owners retain implementation ownership.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Review and push the exact partition, verify remote rows and return sole roadmap ownership to Dot/root; wider historical coverage work remains open.
+**Next action:** Audit actual owner intake and remaining historical requests against live evidence without duplicating work. Preserve unknowns and denied actions; return sole queue ownership to root after verification.
 
 **Preserved source section:** Owner request list (#1–#122)
 
@@ -80,15 +88,17 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## REC1
 
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
+
 **Live Git read (2026-11-14 11:20 UTC):** [PR #896](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/896), head `8b0b6d311577fcc303212016423dd4f5ea4e8184`, branch `wip/rec37-compact-continuation-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Verified substantive private dispatcher-harness work, not whole-app acceptance or public delivery. Direct paginated task read at 11:56 UTC exposes producer confirmation of all 114 packet members and candidate blob, plus an attempted complete sequencer compile. Missing tb3po.h and x0x_cold.h are explicit dependency limits; fail-if-called generator adapter and host annotation approach are being pursued, not reported passing. The accepted eight-line correction export remains denied/pending specific authorization.
+**Current disposition:** Partial host integration evidence exists; current delivery is pending a specific private-upload authority determination. Latest integration task completed its checkpoint, preserves drum delta 156,427 bytes SHA256 df5fd68dc3904983706fdf39bdfcc94e0965a1067e9a8eb744e130b08fa8ef33, and reports all children finished. It did not upload, retry, repackage or replay tests. No whole-keybed/native/audio/device completion.
 
-**Owner:** [Correction producer](https://chatgpt.com/c/6af843d3-a504-8191-a6c0-644931c010d7) completed and relinquished isolated ownership; [exporter](https://chatgpt.com/c/6af8478f-b70c-8191-bb87-fbd47f7b20ca) stopped and released after denial. Incumbent REC source integration remains unchanged. [Dispatcher harness task](https://chatgpt.com/c/6af84949-932c-8191-b490-aa624dc650cb) owns new isolated tests only, not accepted correction bytes.
+**Owner:** REC integration/delivery owner 6af85329-e998-8191-b8b2-33cc24bb70c8 retains sole scope. Earlier dispatcher 6af84949-932c-8191-b490-aa624dc650cb completed/released; correction producer and exporter below remain historical released owners. Firmware program coordinator 6af85eee-125c-8191-bf22-966667c460f4 is not a competing REC writer.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Continue only the isolated actual-dispatcher/nearest-step composition and affected boundary tests; identify actual source versus stubs and obtain independent exact-candidate review. Do not label extracted/host work whole-app, native, audio or device acceptance. No retry/alternate export of the denied correction payload; authorization remains unresolved separately.
+**Next action:** Resolve the original refusal scope and authorization for exact drum delta/private Library destination through permitted means; no upload workaround. Verify actual downstream acceptance of prior BREAK packet f6efc12d8418ffc6f91d30caf00fe01be79d87978805c0fe9d58f0a4e3546507 separately. Receipt msg_0dc8977f8065230e016af861f84f7887d1aca90f8d188ef684; older host and publication evidence below is dated, not current activity.
 
 **Accepted private evidence:** patch SHA-256 `27f77692ba55c5a1ce8bbf62debe1d4b4b2e69ca8fbd57401cf62b66634dd77d`; packet SHA-256 `c257533ca20a71ade414317e0ea862de78685416644c1aa753d7ead44dbcd96a`; candidate ui.c blob `3cf59062c52f883b10fd89cb48dab82995535a91`. Producer reports red exit 1, green 29,968 mocked-intent and 28,034 extracted pattern-write assertions; prior 59,354 admission proof reused, not rerun. Whole dispatcher/native/audio/device acceptance remains unrun. Export receipt identifies proposed `chat/rec37-inner-break-capture-20261114`, target #896 `8b0b6d311577fcc303212016423dd4f5ea4e8184`, intended parent `beb4f2d54ccb068f604773fd5a4fce390c089266`, local tree `a4085b3f374399970e72d96c79536490d2b14fb1`. These are proposed/local identities, not Git delivery. First denied public blob was ACCEPTED-RESULTS.json; no Git retry or PR occurred. Direct 11:49–11:50 UTC reads show dispatcher inProgress with assignment only; admission time is not inferred.
 
@@ -102,15 +112,17 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## #103
 
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
+
 **Live Git read (2026-11-14 11:20 UTC):** [PR #913](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/913), head `f65de4148cdbbadefa896f2b59f6c156f7e5ed74`, branch `chat/offline-sound-parity-evidence-20261114`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Verified input and substantive candidate/mockup work. Producer confirmed archive/member/accepted-patch hashes, created separate copies, and obtained independent mockup review. Review found zero-versus-Unset ambiguity; exact-position, accessible Unset readout and one-step Unset action are being added before controls enablement. Not accepted final implementation or public delivery.
+**Current disposition:** Private editor-controls producer completed accepted self-contained packet ae8c92cfba8278b5cde7bf0b15132a705637e5f7111a2820a8fb1f29386bb41f, tree 45f47c45cd7a72b85c7f5ef3e045bda8398dabe3; public export beyond CHECKS.md remains denied. Browser-preparation integration is active separately and still correcting rejected-edit slider recovery/focus; not all engine parity or native conversion complete.
 
-**Owner:** [Juno/Drone UI task](https://chatgpt.com/c/6af84a83-48d8-8191-aeef-62c85b3be0db) owns isolated changed controls and focused tests. Existing editor/shared source, website, W3 and companion owners remain separate.
+**Owner:** 6af84a83-48d8-8191-aeef-62c85b3be0db retains frozen private editor delivery, source writer released. 6af85da6-73fc-8191-af07-9d25609320f1 owns broader browser preparation/integration without rewriting the frozen accepted producer output. Web product coordinator 6af84ba2-9170-8191-9dbd-e5cc8450b0f4 integrates permitted outputs.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Correct the independently found Unset ambiguity, validate actual persistent/runtime-only controls and saved-draft workflows, then obtain fresh frozen-candidate workflow/source review. Retain candidate94197fc labels, project-adapter fail-closed behavior and no-device/audio claim. Inherited public-export denial remains binding.
+**Next action:** Verify exact producer packet consumption and applicable bank/profile compatibility; finish changed recovery/focus paths with independent exact-output checks. Preserve denied public check-import-defaults.mjs action and fail-closed project adapter. Receipts msg_02ead9b145dcbdab016af85d0de7ec87d182dac987ff8c802c and msg_0b2926d761b52063016af86209172c87d1a0bad7332e18a310 distinguish completed private producer from ongoing integration.
 
 **Consumed input:** S103 archive SHA-256 `5664a4cce007bc4ca8f777dcacd7a775ca5de7805997f9fb22d1ec5701e5b9f8`, patch `13196607186759a026b673ad3860d219a6f6600906937f812b19479302477a71`, virtual tree `da2b1f159dadf24005caaf75755765d116595331`. Frozen candidate is `94197fc839b00aff47b98ca02f3c6396e4a6eabf`, not claimed current-nightly/native compatibility. Existing 37 scoped and 16 independent model tests are prior proof; new changed-control browser/source review is still required.
 
@@ -124,13 +136,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## COMP1
 
+**Reconciled observation (2026-11-14 13:30–13:33 UTC):** Current fields below supersede dated activity snapshots; exact action/consumption times remain unknown unless stated. Model Sol 6.1/Astra only for new or resumed tasks where selectable; requested versus effective settings remain separate.
+
 **Request/source:** Owner requested a browser interface to remotely control the SMK; current creating-coordinator assignment separates this performance companion from firmware two-way sync, TouchOSC, offline editor, emulator, W3 files and website marketing. COMP1 is a new explicit substage label, not a renumbered historical request or replacement for #52/#104.
 
-**Current disposition:** Verified source/hash intake and substantive capability comparison. Producer verified all 49 stage packet files and 56 nested contract files; found current nightly musical dispatcher lacks CC1, CC64 and pitch bend while notes/transport are present. It is implementing a conservative connected profile plus explicit94197fc contract profile and clearly simulated demo. This is work underway, not finished controls, device verification or deployment.
+**Current disposition:** Private R4 is implemented and scoped-accepted; public delivery remains blocked. Owner-approved 40-file upload encountered a new refusal for candidate-r1.json. Producer reports branch 404, no open PR and ten unreferenced blobs: these are not Git delivery. No retry or alternate upload.
 
-**Owner:** [companion task](https://chatgpt.com/c/6af84a14-5e20-8191-ae31-792e6bd880e1), owns new isolated companion files only. No takeover of protocol, shared firmware, marketing website, offline editor, W3 or TouchOSC.
+**Owner:** Companion delivery owner 6af84a14-5e20-8191-ae31-792e6bd880e1 retains frozen scope; web product owner 6af84ba2-9170-8191-9dbd-e5cc8450b0f4 consumes permitted interfaces without taking over companion source or sole publisher.
 
 **Exact input/evidence:** packet SHA-256 `ebcdfaf851783693d4a5d8e4f4a8ef9f311c70efe05e780db87fb48df013985e`; nested reference transport `6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489`; branded synthetic adapter `a33b5d7d1bea49654d853c5cf2617bc04dae5002cd2368cf97d6dbfa09bf7940`. Direct paginated read at11:56 UTC exposes producer receipt `msg_0cf96f9626ff5135016af84afedcdc87d19d2fc7816b5c9a11`; exact action times/current-nightly full pin not exposed in that receipt, so final acceptance must record exact current source. The synthetic adapter guard is not silently removed or counted as real-adapter proof.
 
-**Next action:** Finish responsive controls and separate production adapter with injected dependencies; independently review current contract/profile truth, real rendered interaction and cancellation/cleanup boundaries using fake MIDI only. No actual permission prompt/port traffic in tests. The coordination ref404 does not halt this isolated work or authorize recreating a stale queue. Record exact current source and frozen-candidate profile, new adapter evidence and limitations before claiming completion. Existing denied REC/editor/W3 actions remain separate and are not retried.
+**Next action:** Resolve exact candidate-r1.json/public-payload scope via permitted authorization, then preserve and verify branch/PR if allowed. Reconciliation receipt SHA256 929c6afc4a82b44f7b06110261059f665498192f5de52885fbdd9636f000f82f; runnable packet a295c44f8c6c1a4c53a3559505713abc575bdcace9157f90809f9e74ddc1b11d; payload cafecba8b2ad0503fb49fd4f9686ab45644685a96b3e024f0af1c808c5584a82. Receipt msg_00e1955b9bd5b05d016af85d3782c087d190d098ed96be60c8. Physical MIDI and receiving web integration remain unverified.
 
