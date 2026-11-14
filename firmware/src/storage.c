@@ -199,7 +199,7 @@ static int st_current(uint32_t obj, st_hdr_t *h)
 
 /* Body CRC of one copy, through a stack window. Does not write st_buf: the
  * project object buffer is that same array, and it already holds the bytes
- * about to be saved. */
+ * about to be saved. Returns 1 for valid, 0 for CRC damage, -2 for I/O. */
 static int st_body_ok(uint32_t obj, uint32_t copy, const st_hdr_t *h)
 {
     uint8_t tmp[256];
@@ -209,33 +209,46 @@ static int st_body_ok(uint32_t obj, uint32_t copy, const st_hdr_t *h)
         if (n > sizeof tmp)
             n = (uint32_t)sizeof tmp;
         if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF + off, tmp, n))
-            return 0;
+            return -2;
         c = x0x_crc32_upd(c, tmp, n);
         off += n;
     }
     return (~c) == h->crc;
 }
 
-/* The current copy (0 or 1), or -1. Same rule as st_current: the valid body
- * with the highest seq, copy A on a tie. *seq is that copy's seq. */
+/* The current copy (0 or 1), -1 when neither is valid, -2 for I/O. Same rule
+ * as st_current: the valid body with the highest seq, copy A on a tie.
+ * *seq is that copy's seq. */
 static int st_pick(uint32_t obj, uint32_t *seq)
 {
     st_hdr_t a, b;
-    int va = st_head(obj, 0, &a) == 0, vb = st_head(obj, 1, &b) == 0;
+    int ra = st_head(obj, 0, &a), rb = st_head(obj, 1, &b), rc;
+    int va = ra == 0, vb = rb == 0;
+    if (ra == -2 || rb == -2) return -2;
     if (vb && (!va || b.seq > a.seq)) {
-        if (st_body_ok(obj, 1, &b)) {
+        rc = st_body_ok(obj, 1, &b);
+        if (rc == -2) return rc;
+        if (rc == 1) {
             *seq = b.seq;
             return 1;
         }
         vb = 0;
     }
-    if (va && st_body_ok(obj, 0, &a)) {
-        *seq = a.seq;
-        return 0;
+    if (va) {
+        rc = st_body_ok(obj, 0, &a);
+        if (rc == -2) return rc;
+        if (rc == 1) {
+            *seq = a.seq;
+            return 0;
+        }
     }
-    if (vb && st_body_ok(obj, 1, &b)) {
-        *seq = b.seq;
-        return 1;
+    if (vb) {
+        rc = st_body_ok(obj, 1, &b);
+        if (rc == -2) return rc;
+        if (rc == 1) {
+            *seq = b.seq;
+            return 1;
+        }
     }
     return -1;
 }
@@ -292,6 +305,8 @@ static int st_save(uint32_t obj, const void *src, uint32_t len)
     if (len > ST_PAYLOAD_MAX)
         return -1;
     cur = st_pick(obj, &seq);                         /* leaves st_buf alone */
+    if (cur == -2)                                  /* current copy is uncertain: do not erase either */
+        return cur;
     if (cur < 0)
         seq = 0;
     base = st_sector(obj, cur == 0 ? 1u : 0u);       /* write the other copy */
