@@ -320,13 +320,13 @@ static struct {
     uint32_t t_ms, ticks, cyc, frames, prof[ENG_PROF_N], st[3];
     uint16_t mhz10;                    /* the CPU clock x 10; 0 = not known (no cycle counter) */
     uint8_t load, peak, stalls_on, have;
-    uint16_t stage[ENG_PROF_N];        /* each stage's share of the CPU, x 10 (%) */
-    uint16_t cps;                      /* the render's cycles per sample (cycle counter only) */
+    uint16_t stage[ENG_PROF_N];        /* elapsed stage share of one core's audio budget, x10 (%) */
+    uint16_t cps;                      /* sum of measured stage elapsed 24 MHz ticks / sample */
     uint8_t stall[3];                  /* fetch / read / write stall cycles, % */
     int8_t test, phase;                /* test: PT_IDLE, a scenario 0..2, PT_DONE (when phase is 4);
                                         * phase: 0 stop, 1 settle, 2 measure, 3 put back, 4 done */
     uint32_t test_t0;
-    uint16_t res_load[3], res_cps[3];  /* per scenario: the render's share x 10, cycles per sample */
+    uint16_t res_load[3], res_cps[3];  /* per scenario: sum stage elapsed shares x10, ticks/sample */
     uint8_t res_peak[3];
     pattern_t *pat;                    /* what the test changes, to put back */
     uint8_t ppat[NPARTS], song_on, ca, cb;
@@ -2312,7 +2312,7 @@ static void perf_window(int force)
 {
     uint32_t now = plat_ms(), t = plat_ticks24(), c = plat_cycles(), f = eng_prof_frames, st[3];
     uint32_t dt = t - perf.ticks, dc = c - perf.cyc, df = f - perf.frames, sum = 0;
-    float ups;
+    const float ticks_per_sample = (float)ENG_PROF_TICKS_HZ / 44100.0f;
     int k;
     if (!force && now - perf.t_ms < 1000u)
         return;
@@ -2320,13 +2320,16 @@ static void perf_window(int force)
     if (perf.have && df) {
         if (plat_cycles_cpu() && dt >= 240u)
             perf.mhz10 = (uint16_t)(dc / (dt / 240u));          /* cycles per (dt / 24) us, x 10 */
-        ups = plat_cycles_cpu() ? (float)perf.mhz10 * (100000.0f / 44100.0f) : (float)plat_cycles_hz() / 44100.0f;
+        /* Every eng_prof delta comes from 24 MHz TIMER4, including C1 and
+         * the no-CKCNTL fallback. The C0 clock above is display-only, never
+         * a denominator for a C1 stage. Overlap can take the total >100%. */
         for (k = 0; k < ENG_PROF_N; k++) {
             uint32_t d = eng_prof[k] - perf.prof[k];
+            float pct10 = (float)d * 1000.0f / ((float)df * ticks_per_sample) + 0.5f;
             sum += d;
-            perf.stage[k] = (uint16_t)((float)d * 1000.0f / ((float)df * ups) + 0.5f);
+            perf.stage[k] = pct10 >= 65535.0f ? 65535u : (uint16_t)pct10;
         }
-        perf.cps = plat_cycles_cpu() ? (uint16_t)(sum / df) : 0;
+        perf.cps = sum / df > 65535u ? 65535u : (uint16_t)(sum / df);
         perf.load = (uint8_t)plat_cpu_pct();
         perf.peak = (uint8_t)plat_cpu_peak_pct();
         if (plat_stalls(st) == 0 && dc)
@@ -6376,7 +6379,7 @@ static UI_DRAW void draw_perf(int band)
             if (!done)
                 cv_text(4, 46, &FONT_XS, UI_CAP_HOME " / " UI_CAP_PLAY ": STOP", C_DIM);
             else
-                cv_text(4, 46, &FONT_XS, "SHARE OF THE CPU (PEAK)  CYCLES / SAMPLE", C_DIM);
+                cv_text(4, 46, &FONT_XS, "STAGE ELAPSED %  TICKS / SAMPLE", C_DIM);
             return;
         }
         q = put_s(t, "LOAD ");
@@ -6432,7 +6435,7 @@ static UI_DRAW void draw_perf(int band)
         }
         return;
     }
-    for (k = 0; k < ENG_PROF_N; k++) {                /* each stage's share of the CPU */
+    for (k = 0; k < ENG_PROF_N; k++) {                /* elapsed stage shares, C0+C1 */
         int x = (k & 1) * 118 + 4, y = (k >> 1) * 12;
         int stage = k < NPARTS ? part_at(k) : k;
         cv_text(x, y, &FONT_XS, k < NPARTS ? part_s(stage) : SN_TAIL[k - NPARTS], C_GRAY);
@@ -6440,9 +6443,9 @@ static UI_DRAW void draw_perf(int band)
         text_r(x + 108, y, &FONT_XS, t, C_WHITE);
     }
     if (perf.cps) {
-        q = put_s(t, "RENDER ");
+        q = put_s(t, "STAGES ");
         q = put_i(q, perf.cps);
-        put_s(q, " CYCLES / SAMPLE");
+        put_s(q, " TICKS / SAMPLE");
         cv_text(4, 44, &FONT_XS, t, C_GRAY);
     }
     q = put_s(t, engine_guard_active() ? "GUARD ON  " : "GUARD ");   /* the overload guard: engaged, times */
