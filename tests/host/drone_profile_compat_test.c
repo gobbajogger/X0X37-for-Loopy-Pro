@@ -8,6 +8,7 @@
 #include "../../firmware/src/app/bass_identity.h"
 #include "../../firmware/src/app/bass_pattern_preset.h"
 #include "../../firmware/src/app/preset_record.h"
+#include "../../experiments/original_synth/chicago_fx2_compact.h"
 
 static unsigned checks;
 #define CHECK(x) do { ++checks; if (!(x)) { \
@@ -245,8 +246,460 @@ static void runtime_case(unsigned factory)
     CHECK(original_runtime_init(&part, saved, 120, NULL, NULL) == 0);
     CHECK(!memcmp(&part, &expected, sizeof part));
 }
-int main(void)
+
+/* Baseline red builds deliberately model the previous retire+cold-init path.
+ * They compile against49f without inventing a missing-symbol test failure. */
+static int hard_replace(original_runtime_part *p, const uint8_t cell[32])
 {
+#ifdef DRONE_REPLACEMENT_REPRO_BASE
+    int rc = original_runtime_retire(p);
+    return rc == ORIGINAL_RUNTIME_OK ? original_runtime_init(p, cell, 120, NULL, NULL) : rc;
+#else
+    return original_runtime_replace(p, cell, 120, NULL, NULL);
+#endif
+}
+static original_runtime_part replacement_part;
+static original_runtime_workspace replacement_workspace;
+static void init_replacement_juno(void)
+{
+    uint8_t cell[32];
+    CHECK(original_sound_init(cell, 3, 0));
+    CHECK(original_runtime_init(&replacement_part, cell, 120, NULL, NULL) == 1);
+}
+static void replace_kind(unsigned kind)
+{
+    uint8_t cell[32], before[32];
+    CHECK(original_sound_init(cell, kind, 0)); memcpy(before, cell, 32);
+    CHECK(hard_replace(&replacement_part, cell) ==
+          (kind == 2 && !X0X_DRONE_RUNTIME_ENABLED ? -3 : 1));
+    CHECK(!memcmp(cell, before, 32));
+    CHECK(replacement_part.kind == kind);
+}
+static void replacement_render(unsigned frames)
+{
+    float left[256], right[256];
+    for (unsigned i = 0; i < 256; ++i) left[i] = right[i] = 91;
+    int unavailable = replacement_part.status == ORIGINAL_RUNTIME_UNAVAILABLE;
+    CHECK(original_runtime_render(&replacement_part,
+          unavailable ? NULL : &replacement_workspace, left, right, frames) ==
+          (unavailable ? -3 : 1));
+    for (unsigned i = 0; i < frames; ++i) {
+        CHECK(isfinite(left[i]) && isfinite(right[i]));
+        if (unavailable) CHECK(left[i] == 0 && right[i] == 0);
+    }
+    for (unsigned i = frames; i < 256; ++i) CHECK(left[i] == 91 && right[i] == 91);
+}
+
+static original_chicago_fx2_compact replacement_fx;
+static original_chicago_tuning replacement_tuning;
+static struct {
+    original_chicago_fx2_cold_owner borrowed;
+    unsigned discards;
+} replacement_fx_owner;
+static int tracked_supports(void *context, unsigned type)
+{
+    (void)context;
+    return replacement_fx_owner.borrowed.supports(replacement_fx_owner.borrowed.context, type);
+}
+static const original_chicago_fx2_kernel *tracked_select(void *context, unsigned type)
+{
+    (void)context;
+    return replacement_fx_owner.borrowed.select_cold(replacement_fx_owner.borrowed.context, type);
+}
+static void tracked_discard(void *context)
+{
+    (void)context;
+    ++replacement_fx_owner.discards;
+    replacement_fx_owner.borrowed.discard(replacement_fx_owner.borrowed.context);
+}
+static void replacement_retirement_cases(void)
+{
+    uint8_t cell[32], next[32];
+    CHECK(original_chicago_fx2_compact_init(&replacement_fx));
+    CHECK(original_chicago_tuning_bind(&replacement_tuning, 0, 0, NULL, 0x6d70));
+    replacement_fx_owner.borrowed = original_chicago_fx2_compact_owner(&replacement_fx);
+    replacement_fx_owner.discards = 0;
+    original_chicago_fx2_cold_owner owner = {NULL, tracked_supports, tracked_select, tracked_discard, NULL};
+    CHECK(original_sound_init(cell, 0, 0));
+    CHECK(original_runtime_init(&replacement_part, cell, 120, &replacement_tuning, &owner) == 1);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    unsigned discards = replacement_fx_owner.discards;
+    original_chicago_backend_workspace workspace = {
+        replacement_workspace.chicago.left, replacement_workspace.chicago.right,
+        replacement_workspace.chicago.converted[0], replacement_workspace.chicago.converted[1],
+        {replacement_workspace.chicago.scratch[0], replacement_workspace.chicago.scratch[1],
+         replacement_workspace.chicago.scratch[2], replacement_workspace.chicago.scratch[3]}, 256};
+    CHECK(original_chicago_backend_begin(&replacement_part.dsp.chicago, &workspace, NULL, 0, 1) == 1);
+    static original_runtime_part snapshot;
+    snapshot = replacement_part;
+    CHECK(original_sound_init(next, 2, 0));
+    CHECK(hard_replace(&replacement_part, next) == 0);
+    CHECK(!memcmp(&snapshot, &replacement_part, sizeof snapshot));
+    CHECK(replacement_fx_owner.discards == discards);
+    CHECK(original_chicago_backend_frame(&replacement_part.dsp.chicago) == 1);
+    float left[256], right[256];
+    CHECK(original_chicago_backend_end(&replacement_part.dsp.chicago, left, right) == 1);
+    discards = replacement_fx_owner.discards;
+    replace_kind(2);
+    CHECK(replacement_fx_owner.discards == discards + 1);
+    CHECK(replacement_part.stale[ORIGINAL_INPUT_USB][60] == 1);
+    replace_kind(2); replace_kind(3);
+    CHECK(replacement_fx_owner.discards == discards + 1);
+
+#ifndef DRONE_REPLACEMENT_REPRO_BASE
+    /* A valid cell whose backend lacks resources ends the old hard-adopted
+     * voice, reports the real refusal and keeps its external release debt. */
+    init_replacement_juno();
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    CHECK(original_runtime_replace(&replacement_part, cell, 120, &replacement_tuning, NULL) == -1);
+    CHECK(replacement_part.kind == 0 && replacement_part.status == -1);
+    CHECK(!replacement_part.keys[0][60] && replacement_part.stale[0][60] == 1);
+    CHECK(!original_runtime_owned(&replacement_part));
+#endif
+}
+#if !X0X_DRONE_RUNTIME_ENABLED
+static void check_unavailable_owners(void)
+{
+    CHECK(replacement_part.kind == 2 && replacement_part.status == -3);
+    CHECK(!original_runtime_active(&replacement_part) && !original_runtime_owned(&replacement_part));
+    for (unsigned s = 0; s < ORIGINAL_INPUT_COUNT; ++s)
+        for (unsigned key = 0; key < 128; ++key) CHECK(!replacement_part.keys[s][key]);
+    const uint8_t *dsp = (const uint8_t *)&replacement_part.dsp;
+    for (unsigned i = 0; i < sizeof replacement_part.dsp; ++i) CHECK(dsp[i] == 0);
+}
+
+static void source_disconnect_red(void)
+{
+    init_replacement_juno(); replace_kind(2);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 90) == -3);
+    CHECK(replacement_part.stale[ORIGINAL_INPUT_USB][60] == 1);
+    CHECK(original_runtime_release_source(&replacement_part, ORIGINAL_INPUT_USB) == -3);
+    CHECK(replacement_part.stale[ORIGINAL_INPUT_USB][60] == 0);
+    replace_kind(3);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 100) == 1);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 0) == 1);
+    CHECK(replacement_part.keys[ORIGINAL_INPUT_USB][60] == 0);
+}
+static void unavailable_disconnect_cases(void)
+{
+    original_runtime_part *p = &replacement_part;
+    for (unsigned source = 0; source < ORIGINAL_INPUT_KEYS; ++source) {
+        unsigned other = (source + 1) % ORIGINAL_INPUT_KEYS;
+        init_replacement_juno(); replace_kind(2);
+        CHECK(original_runtime_key(p, source, 60, 90) == -3);
+        CHECK(original_runtime_key(p, other, 61, 90) == -3);
+        CHECK(p->stale[source][60] == 1 && p->stale[other][61] == 1);
+        CHECK(original_runtime_release_source(p, source) == -3);
+        CHECK(!p->stale[source][60] && p->stale[other][61] == 1);
+        CHECK(original_runtime_release_source(p, source) == -3);
+        CHECK(!p->stale[source][60] && p->stale[other][61] == 1 && !p->stale_timers);
+        check_unavailable_owners();
+        replace_kind(3);
+        CHECK(original_runtime_key(p, source, 60, 100) == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == 1);
+        CHECK(!p->keys[source][60] && !p->stale_ttl[source][60] && !p->stale_timers);
+        CHECK(p->stale[other][61] == 1);
+    }
+
+    /* Create real no-held deadlines, two pitches in each MIDI source. A
+     * disconnect removes only its own three timers and preserves the exact
+     * other-source state and shared255-frame phase. The third target timer,
+     * held count and pending bit defensively exercise silent cleanup of a
+     * partially populated source without any backend call. */
+    for (unsigned source = 0; source < ORIGINAL_INPUT_KEYS; ++source) {
+        init_replacement_juno();
+        for (unsigned input = 0; input < ORIGINAL_INPUT_KEYS; ++input) {
+            for (unsigned key = 60; key <= 61; ++key) {
+                CHECK(original_runtime_key(p, input, key, 90) == 1);
+                CHECK(original_runtime_cut_source(p, input) == 1);
+                CHECK(original_runtime_key(p, input, key, 100) == 1);
+                CHECK(original_runtime_key(p, input, key, 0) == 1);
+                CHECK(original_runtime_key(p, input, key, 0) == 1);
+            }
+        }
+        replacement_render(255); replace_kind(2);
+        CHECK(p->stale_timers == 6 && p->stale_tick_frames == 255);
+        for (unsigned input = 0; input < ORIGINAL_INPUT_KEYS; ++input)
+            CHECK(original_runtime_key(p, input, 64, 90) == -3);
+        p->keys[source][12] = 2;
+        p->stale[source][12] = 3; p->stale_ttl[source][12] = 1;
+        p->stale_pending[source][0] = UINT32_C(1) << 12;
+        ++p->stale_timers;
+        static original_runtime_part before;
+        before = *p;
+        CHECK(original_runtime_release_source(p, source) == -3);
+        CHECK(p->kind == 2 && p->status == -3 && p->stale_timers == 4 && p->stale_tick_frames == 255);
+        CHECK(!memcmp(&p->dsp, &before.dsp, sizeof p->dsp));
+        for (unsigned key = 0; key < 128; ++key)
+            CHECK(!p->keys[source][key] && !p->stale[source][key] && !p->stale_ttl[source][key]);
+        for (unsigned lane = 0; lane < 4; ++lane) CHECK(!p->stale_pending[source][lane]);
+        for (unsigned input = 0; input < ORIGINAL_INPUT_COUNT; ++input) if (input != source) {
+            CHECK(!memcmp(p->keys[input], before.keys[input], sizeof p->keys[input]));
+            if (input < ORIGINAL_INPUT_KEYS) {
+                CHECK(!memcmp(p->stale[input], before.stale[input], sizeof p->stale[input]));
+                CHECK(!memcmp(p->stale_ttl[input], before.stale_ttl[input], sizeof p->stale_ttl[input]));
+                CHECK(!memcmp(p->stale_pending[input], before.stale_pending[input], sizeof p->stale_pending[input]));
+            }
+        }
+        before = *p;
+        CHECK(original_runtime_release_source(p, source) == -3);
+        CHECK(!memcmp(p, &before, sizeof before));
+        CHECK(original_runtime_release_source(p, ORIGINAL_INPUT_COUNT) == 0);
+        CHECK(!memcmp(p, &before, sizeof before));
+        replacement_render(0);
+        CHECK(p->stale_tick_frames == 255 && p->stale_timers == 4);
+        replacement_render(1);
+        CHECK(!p->stale_tick_frames && p->stale_timers == 4);
+        for (unsigned input = 0; input < ORIGINAL_INPUT_KEYS; ++input) if (input != source)
+            CHECK(p->stale_ttl[input][60] == 15 && p->stale_ttl[input][61] == 15);
+        CHECK(original_runtime_release_source(p, ORIGINAL_INPUT_KEYS) == -3);
+        CHECK(p->stale_timers == 4);
+        check_unavailable_owners();
+    }
+}
+static void replacement_red_adoption(void)
+{
+    init_replacement_juno();
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    replace_kind(2);
+    CHECK(replacement_part.stale[ORIGINAL_INPUT_USB][60] == 1);
+}
+static void replacement_red_unheard(void)
+{
+    init_replacement_juno(); replace_kind(2);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_BLE, 61, 90) == -3);
+    CHECK(replacement_part.stale[ORIGINAL_INPUT_BLE][61] == 1);
+}
+static void replacement_cases(void)
+{
+    original_runtime_part *p = &replacement_part;
+    for (unsigned source = 0; source < ORIGINAL_INPUT_KEYS; ++source) {
+        unsigned other = (source + 1) % ORIGINAL_INPUT_KEYS;
+        /* The original held press ends at the actual hard-adoption boundary.
+         * Its delayed off after escape consumes debt, not a fresh Juno press. */
+        init_replacement_juno();
+        CHECK(original_runtime_key(p, source, 60, 90) == 1);
+        CHECK(original_runtime_key(p, ORIGINAL_INPUT_KEYS, 64, 90) == 1);
+        CHECK(original_runtime_key(p, ORIGINAL_INPUT_SEQUENCE, 67, 90) == 1);
+        replace_kind(2); check_unavailable_owners();
+        CHECK(p->stale[source][60] == 1 && p->stale_timers == 0);
+        replacement_render(256); /* Waiting alone never starts retrigger grace. */
+        CHECK(p->stale[source][60] == 1 && p->stale_timers == 0);
+        replace_kind(3);
+        CHECK(original_runtime_key(p, source, 60, 100) == 1);
+        CHECK(original_runtime_key(p, other, 60, 100) == 1);
+        CHECK(p->stale_ttl[source][60] == 16 && p->stale_timers == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == 1);
+        CHECK(p->keys[source][60] == 1 && p->keys[other][60] == 1);
+        CHECK(!p->stale[source][60] && (p->stale_pending[source][1] & (UINT32_C(1) << 28)));
+        CHECK(original_runtime_key(p, source, 60, 0) == 1);
+        CHECK(!p->keys[source][60] && p->keys[other][60] == 1);
+        CHECK(original_runtime_owned(p));
+        CHECK(original_runtime_key(p, other, 60, 0) == 1 && !p->keys[other][60]);
+
+        /* If the old off never arrives, the one real current off is ambiguous.
+         * Exactly the existing16*256-frame grace recovers that held count. */
+        init_replacement_juno();
+        CHECK(original_runtime_key(p, source, 60, 90) == 1);
+        replace_kind(2); replace_kind(3);
+        CHECK(original_runtime_key(p, source, 60, 100) == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == 1);
+        for (unsigned i = 0; i < 15; ++i) replacement_render(256);
+        replacement_render(255);
+        CHECK(p->keys[source][60] == 1 && p->stale_ttl[source][60] == 1 && p->stale_tick_frames == 255);
+        replacement_render(1);
+        CHECK(!p->keys[source][60] && !p->stale_ttl[source][60] && !p->stale_timers);
+        CHECK(!(p->stale_pending[source][1] & (UINT32_C(1) << 28)));
+
+        /* Refused MIDI onsets also owe offs, without becoming live owners. */
+        init_replacement_juno(); replace_kind(2);
+        CHECK(original_runtime_key(p, source, 60, 90) == -3);
+        CHECK(p->stale[source][60] == 1); check_unavailable_owners();
+        CHECK(original_runtime_key(p, source, 60, 90) == -3);
+        CHECK(p->stale[source][60] == 2); check_unavailable_owners();
+        CHECK(original_runtime_key(p, source, 60, 0) == -3 && p->stale[source][60] == 1);
+        replace_kind(2);
+        CHECK(p->stale[source][60] == 1); check_unavailable_owners();
+        replace_kind(3);
+        CHECK(original_runtime_key(p, source, 60, 100) == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == 1 && p->keys[source][60] == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == 1 && !p->keys[source][60]);
+
+        /* When old/unheard offs arrive while unavailable, no stale debt leaks
+         * into the next accepted press and its current off works immediately. */
+        init_replacement_juno();
+        CHECK(original_runtime_key(p, source, 60, 90) == 1); replace_kind(2);
+        CHECK(original_runtime_key(p, source, 60, 90) == -3 && p->stale[source][60] == 2);
+        CHECK(original_runtime_key(p, source, 60, 0) == -3 && p->stale[source][60] == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == -3 && !p->stale[source][60]);
+        replace_kind(3);
+        CHECK(original_runtime_key(p, source, 60, 100) == 1);
+        CHECK(original_runtime_key(p, source, 60, 0) == 1 && !p->keys[source][60]);
+    }
+
+    /* Preserve an unrelated no-held deadline and fractional input clock.
+     * Do not copy pending ambiguity into new held debt or restart timers. */
+    init_replacement_juno();
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_BLE, 61, 90) == 1);
+    CHECK(original_runtime_cut_source(p, ORIGINAL_INPUT_USB) == 1);
+    CHECK(original_runtime_cut_source(p, ORIGINAL_INPUT_BLE) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 100) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_BLE, 61, 100) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 0) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_BLE, 61, 0) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_BLE, 61, 0) == 1);
+    replacement_render(17);
+    CHECK(p->stale_timers == 2 && p->stale_tick_frames == 17);
+    replace_kind(2);
+    CHECK(p->stale[0][60] == 1 && !p->stale_ttl[0][60] && !p->stale_pending[0][1]);
+    CHECK(!p->keys[1][61] && p->stale_ttl[1][61] == 16);
+    CHECK(p->stale_timers == 1 && p->stale_tick_frames == 17);
+    replace_kind(2);
+    CHECK(p->stale_timers == 1 && p->stale_tick_frames == 17 && p->stale_ttl[1][61] == 16);
+    replacement_render(0);
+    CHECK(p->stale_tick_frames == 17 && p->stale_ttl[1][61] == 16);
+    float l = 73, r = 73;
+    CHECK(original_runtime_render(p, NULL, &l, &r, 257) == 0);
+    CHECK(l == 73 && r == 73 && p->stale_tick_frames == 17);
+    replacement_render(238);
+    CHECK(p->stale_tick_frames == 255 && p->stale_ttl[1][61] == 16);
+    replacement_render(1);
+    CHECK(!p->stale_tick_frames && p->stale_ttl[1][61] == 15);
+    for (unsigned i = 0; i < 15; ++i) replacement_render(256);
+    CHECK(!p->stale_timers && !p->stale_ttl[1][61] && p->stale[0][60] == 1);
+    check_unavailable_owners();
+
+    /* New unheard input follows the existing new-cut reset policy for that
+     * pitch alone. Saturate counts rather than wrapping or faulting live DSP. */
+    for (unsigned i = 0; i < 300; ++i) CHECK(original_runtime_key(p, ORIGINAL_INPUT_TRS, 62, 90) == -3);
+    CHECK(p->stale[ORIGINAL_INPUT_TRS][62] == 255);
+    for (unsigned i = 0; i < 255; ++i) CHECK(original_runtime_key(p, ORIGINAL_INPUT_TRS, 62, 0) == -3);
+    CHECK(!p->stale[ORIGINAL_INPUT_TRS][62]); check_unavailable_owners();
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_KEYS, 62, 90) == -3);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_SEQUENCE, 62, 90) == -3);
+    CHECK(!p->stale[ORIGINAL_INPUT_TRS][62]); check_unavailable_owners();
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 0) == -3);
+    CHECK(!p->stale[ORIGINAL_INPUT_USB][60]);
+
+
+    /* An unheard onset is a new cut obligation: cancel only that pitch's
+     * old no-held deadline, retaining another pitch's deadline and phase. */
+    init_replacement_juno();
+    for (unsigned key = 60; key <= 61; ++key) {
+        CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, key, 90) == 1);
+        CHECK(original_runtime_cut_source(p, ORIGINAL_INPUT_USB) == 1);
+        CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, key, 100) == 1);
+        CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, key, 0) == 1);
+        CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, key, 0) == 1);
+    }
+    replacement_render(33); replace_kind(2);
+    CHECK(p->stale_timers == 2 && p->stale_tick_frames == 33);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 90) == -3);
+    CHECK(p->stale[0][60] == 1 && !p->stale_ttl[0][60]);
+    CHECK(p->stale_ttl[0][61] == 16 && p->stale_timers == 1 && p->stale_tick_frames == 33);
+    unsigned debt = p->stale[0][60];
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 128, 90) == 0);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 128) == 0);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_COUNT, 60, 90) == 0);
+    CHECK(p->stale[0][60] == debt && p->stale_timers == 1 && p->stale_tick_frames == 33);
+    replace_kind(2);
+    CHECK(p->stale[0][60] == 1 && p->stale_ttl[0][61] == 16 && p->stale_tick_frames == 33);
+
+    /* Accepted held counts merge with old unheard debt with the same255 cap;
+     * hard replacement never adds the same current press a second time. */
+    CHECK(original_runtime_all_off(p) == -3);
+    for (unsigned i = 0; i < 250; ++i) CHECK(original_runtime_key(p, ORIGINAL_INPUT_TRS, 62, 90) == -3);
+    replace_kind(3);
+    for (unsigned i = 0; i < 10; ++i) CHECK(original_runtime_key(p, ORIGINAL_INPUT_TRS, 62, 90) == 1);
+    CHECK(p->keys[2][62] == 10 && p->stale[2][62] == 250 && p->stale_timers == 1);
+    replace_kind(2);
+    CHECK(!p->keys[2][62] && p->stale[2][62] == 255 && !p->stale_timers);
+    replace_kind(2);
+    CHECK(p->stale[2][62] == 255 && !p->stale_timers);
+    check_unavailable_owners();
+
+    /* Bad replacement input must preserve current DSP, held/debt and clock.
+     * Copy for comparison is fixture-only; production never copies a part. */
+    init_replacement_juno();
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_BLE, 61, 90) == 1);
+    CHECK(original_runtime_cut_source(p, ORIGINAL_INPUT_BLE) == 1);
+    static original_runtime_part before;
+    before = *p;
+    uint8_t bad[32]; CHECK(original_sound_init(bad, 2, 0)); bad[28] = 3;
+    CHECK(hard_replace(p, bad) == 0);
+    CHECK(!memcmp(p, &before, sizeof before));
+    CHECK(hard_replace(p, NULL) == 0 && !memcmp(p, &before, sizeof before));
+
+    /* Explicit panic/cold init continue to clear debt by caller intent. */
+    replace_kind(2);
+    CHECK(p->stale[0][60] == 1 && p->stale[1][61] == 1);
+    CHECK(original_runtime_all_off(p) == -3);
+    CHECK(!p->stale[0][60] && !p->stale[1][61] && !p->stale_timers);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 90) == -3 && p->stale[0][60] == 1);
+    init_replacement_juno();
+    CHECK(!p->stale[0][60] && !p->stale_timers);
+}
+#else
+static void replacement_cases(void)
+{
+    init_replacement_juno();
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    replace_kind(2);
+    CHECK(replacement_part.stale[0][60] == 1 && !replacement_part.keys[0][60]);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 100) == 1);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 0) == 1);
+    CHECK(replacement_part.keys[0][60] == 1);
+    replacement_render(256);
+    CHECK(original_runtime_key(&replacement_part, ORIGINAL_INPUT_USB, 60, 0) == 1);
+    CHECK(!replacement_part.keys[0][60]);
+    replace_kind(3);
+}
+#endif
+
+
+static void ready_disconnect_cases(void)
+{
+    original_runtime_part *p = &replacement_part;
+    for (unsigned source = 0; source < ORIGINAL_INPUT_KEYS; ++source) {
+        unsigned other = (source + 1) % ORIGINAL_INPUT_KEYS;
+        init_replacement_juno();
+        CHECK(original_runtime_key(p, source, 60, 90) == 1);
+        CHECK(original_runtime_cut_source(p, source) == 1);
+        CHECK(original_runtime_key(p, source, 60, 100) == 1);
+        CHECK(original_runtime_key(p, other, 60, 100) == 1);
+        replacement_render(255);
+        CHECK(p->stale_timers == 1 && p->stale_tick_frames == 255);
+        CHECK(original_runtime_release_source(p, source) == 1);
+        CHECK(!p->keys[source][60] && !p->stale[source][60] && !p->stale_ttl[source][60]);
+        CHECK(!p->stale_pending[source][1] && !p->stale_timers && p->stale_tick_frames == 255);
+        CHECK(p->keys[other][60] == 1 && p->status == 1 && original_runtime_owned(p));
+        CHECK(original_runtime_key(p, other, 60, 0) == 1 && !p->keys[other][60]);
+        CHECK(original_runtime_release_source(p, source) == 1 && !p->stale_timers);
+    }
+    /* Preserve the established sticky-fault behavior of an available engine. */
+    init_replacement_juno();
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 90) == 1);
+    CHECK(original_runtime_cut_source(p, ORIGINAL_INPUT_USB) == 1);
+    CHECK(original_runtime_key(p, ORIGINAL_INPUT_USB, 60, 100) == 1);
+    p->status = ORIGINAL_RUNTIME_FAULT;
+    static original_runtime_part before;
+    before = *p;
+    CHECK(original_runtime_release_source(p, ORIGINAL_INPUT_USB) == ORIGINAL_RUNTIME_FAULT);
+    CHECK(!memcmp(p, &before, sizeof before));
+    CHECK(original_runtime_release_source(NULL, ORIGINAL_INPUT_USB) == 0);
+}
+
+int main(int argc, char **argv)
+{
+#if !X0X_DRONE_RUNTIME_ENABLED
+    if (argc == 2 && !strcmp(argv[1], "--red-adoption")) { replacement_red_adoption(); return 0; }
+    if (argc == 2 && !strcmp(argv[1], "--red-unheard")) { replacement_red_unheard(); return 0; }
+    if (argc == 2 && !strcmp(argv[1], "--red-disconnect")) { source_disconnect_red(); return 0; }
+#else
+    (void)argc; (void)argv;
+#endif
     CHECK(ORIGINAL_SOUND_DRONE == 2 && ORIGINAL_SOUND_JUNO == 3);
     CHECK(ORIGINAL_SOUND_DRONE_ID == UINT32_C(0x4f445231));
     CHECK(ORIGINAL_SOUND_JUNO_ID == UINT32_C(0x4f4a5531));
@@ -264,6 +717,12 @@ int main(void)
     for (unsigned factory = 0; factory < 4; ++factory) {
         archive_case(factory, 0); archive_case(factory, 1); runtime_case(factory);
     }
+    replacement_cases();
+    replacement_retirement_cases();
+#if !X0X_DRONE_RUNTIME_ENABLED
+    unavailable_disconnect_cases();
+#endif
+    ready_disconnect_cases();
     CHECK(original_runtime_retire(NULL) == 0);
     printf("drone profile %s: %u checks PASS (runtime/archive only)\n",
         X0X_DRONE_RUNTIME_ENABLED ? "historical opt-in" : "shipping disabled", checks);

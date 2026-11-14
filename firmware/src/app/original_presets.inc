@@ -1,11 +1,15 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Textually included by engine.c: replacement-only patch publication. */
+#include "bass_pattern_preset.h"
 static int16_t bass_named_preset[NBASS] = {-1, -1};
 static volatile uint8_t bass_preview_dirty, bass_wheel_mask, bass_edit_depth;
 static volatile uint32_t bass_request[NBASS], bass_applied[NBASS];
 static uint32_t bass_request_serial;
 static volatile uint32_t bass_publish_seq[NBASS], bass_midi_mark[NBASS], bass_cq_mark[NBASS];
-typedef struct { uint32_t token, midi, cq; } bass_request_t;
+enum { BASS_REQUEST_FACTORY, BASS_REQUEST_UNAVAILABLE, BASS_REQUEST_INHERIT };
+static volatile uint8_t bass_request_mode[NBASS], bass_unavailable_recall[NBASS];
+static volatile uint32_t bass_pattern_epoch[NBASS];
+typedef struct { uint32_t token, midi, cq; uint8_t mode, pat; } bass_request_t;
 /* Per-pattern preset recall (owner 2026-11-12 02:42): a request may wait for
  * its pattern. 0xFF = no gate (every ordinary preset choice). */
 static volatile uint8_t bass_gate_pat[NBASS] = {0xFF, 0xFF};
@@ -23,14 +27,16 @@ static int bass_request_snapshot(int voice, bass_request_t *r)
     if (serial & 1u) return 0;
     __asm__ volatile("" ::: "memory");
     r->token = bass_request[voice]; r->midi = bass_midi_mark[voice]; r->cq = bass_cq_mark[voice];
+    r->mode = bass_request_mode[voice]; r->pat = bass_gate_pat[voice];
     __asm__ volatile("" ::: "memory");
     return serial == bass_publish_seq[voice];
 }
-static void bass_publish_request(int voice, uint32_t token)
+static void bass_publish_request(int voice, uint32_t token, unsigned mode, unsigned pat)
 {
     ++bass_publish_seq[voice];
     __asm__ volatile("" ::: "memory");
     bass_midi_mark[voice] = plat_midi_mark(); bass_cq_mark[voice] = cq_w;
+    bass_request_mode[voice] = (uint8_t)mode; bass_gate_pat[voice] = (uint8_t)pat;
     bass_request[voice] = token;
     __asm__ volatile("" ::: "memory");
     ++bass_publish_seq[voice];
@@ -91,7 +97,9 @@ int engine_bass_note_validate(const lane_t *l)
 static int bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound,int effective)
 {
     if(!lanes || sound!=mot_base_snd || (unsigned)pat>=NPAT ||
-       (unsigned)voice>=NBASS || (unsigned)step>=NSTEPS || engine_bass_sound_bank(sound,voice)<0)return -1;
+       (unsigned)voice>=NBASS || (unsigned)step>=NSTEPS || engine_bass_sound_bank(sound,voice)<0 ||
+       original_bass[voice].status!=ORIGINAL_RUNTIME_OK ||
+       !original_runtime_kind_available(original_bass[voice].kind))return -1;
     int k=bass_note_find(lanes,pat,voice,step);
     if(k<0)for(int j=0;j<NLANE;j++)if(!lanes[j].used){k=j;break;}
     if(k<0)return -7;
@@ -160,6 +168,9 @@ static void note_lock_restore(int v)
  * knobs back after a locked onset. A lock for the other engine is skipped. */
 static void note_lock_onset(int v)
 {
+    /* A preserved archive is valid storage, not an audible lock target. */
+    if(original_bass[v].status!=ORIGINAL_RUNTIME_OK ||
+       !original_runtime_kind_available(original_bass[v].kind))return;
     const lane_t *l=0;
     if(note_lock_any && mot.lane) {
         int k=bass_note_find(mot.lane,seq.ppat[TRK_BASS0+v],v,eng_step[TRK_BASS0+v]);
@@ -198,9 +209,15 @@ void engine_bass_sound_refresh(sound_t *sound, int v)
 static int bass_restore_part(const sound_t *sound, int v)
 {
     if (engine_bass_sound_bank(sound, v) < 0) return 0;
-    if (original_runtime_retire(&original_bass[v]) != ORIGINAL_RUNTIME_OK) return 0;
-    int rc = original_runtime_init(&original_bass[v], sound->v[T_303][v], seq_tempo(&seq),
-        &original_tuning, &original_fx_owner[v]);
+    /* This is initialized project/history adoption. Cold init and explicit
+     * panic remain separate APIs; neither may erase debt between replacements. */
+    int rc=original_runtime_replace(&original_bass[v],sound->v[T_303][v],seq_tempo(&seq),
+        &original_tuning,&original_fx_owner[v]);
+    if(rc==ORIGINAL_RUNTIME_OK || rc==ORIGINAL_RUNTIME_UNAVAILABLE) {
+        bass_unavailable_recall[v]=0;
+        __asm__ volatile("" ::: "memory");
+        bass_pattern_epoch[v]++;
+    }
     original_switch_gain[v] = 512u;
     /* An unavailable placeholder owns no DSP or residual audio. It must be
      * possible to explicitly select an available engine without waiting for
@@ -216,11 +233,19 @@ static int bass_restore_part(const sound_t *sound, int v)
 static void bass_restore_sound(const sound_t *sound)
 {
     for (int v = 0; v < NBASS; ++v) {
+        engine_bass_cancel_preset(v); /* Old-project requests cannot outlive adoption. */
+        bass_unavailable_recall[v]=0;
         live_key_context_retire(v, 0);
         (void)bass_restore_part(sound, v);
     }
 }
 int engine_bass_bank(int v) { return (unsigned)v < NBASS ? original_bass[v].kind : -1; }
+uint32_t engine_bass_pattern_epoch(int v)
+{
+    uint32_t epoch=(unsigned)v<NBASS?bass_pattern_epoch[v]:0;
+    __asm__ volatile("" ::: "memory");
+    return epoch;
+}
 int engine_bass_bank_available(int v, int bank)
 {
     return (unsigned)v < NBASS && original_runtime_kind_available(bank) &&
@@ -234,6 +259,7 @@ int engine_bass_wheel_active(void) { return bass_wheel_mask != 0; }
 int engine_bass_preset_index(int v) { return (unsigned)v < NBASS ? bass_named_preset[v] : -1; }
 int engine_bass_preset_edited(int v)
 {
+    if ((unsigned)v < NBASS && bass_unavailable_recall[v]) return 0;
     return (unsigned)v >= NBASS || !mot_base_snd ||
         original_sound_edit_mask(mot_base_snd->v[T_303][v]) != 0;
 }
@@ -245,6 +271,9 @@ int engine_bass_preset_pending(int v)
     if (!bass_request_snapshot(v, &request)) return 6;
     if (!(request.token & 0x80000000u) || request.token == bass_applied[v]) return 0;
     if (!plat_midi_passed(request.midi) || (int32_t)(cq_r - request.cq) < 0) return 5;
+    /* An archived unavailable recall is a terminal silent pattern outcome,
+     * not a new playable preset choice waiting for the old note forever. */
+    if (request.mode != BASS_REQUEST_FACTORY) return 1;
     if (bass_has_locks(v)) return 4;
     if (bass_wheel_mask & (1u << v)) return 3;
     if (original_runtime_owned(&original_bass[v]) || original_quiet_samples[v] < 512u) return 2;
@@ -255,7 +284,7 @@ int engine_bass_requested_bank(int v)
 int engine_bass_requested_preset(int v)
 { bass_request_t r; return (unsigned)v < NBASS && bass_request_snapshot(v, &r) && engine_bass_preset_pending(v) ? (int)(r.token & 127) : engine_bass_preset_index(v); }
 void engine_bass_cancel_preset(int v)
-{ if ((unsigned)v < NBASS) bass_publish_request(v, 0x40000000u | ((++bass_request_serial & 0x3fffffu) << 8)); }
+{ if ((unsigned)v < NBASS) bass_publish_request(v, 0x40000000u | ((++bass_request_serial & 0x3fffffu) << 8), BASS_REQUEST_FACTORY, 0xFFu); }
 void engine_bass_edit_hold(int hold)
 {
     __asm__ volatile("" ::: "memory");
@@ -292,17 +321,62 @@ int engine_bass_select_preset_at(int v, int bank, int preset, sound_t *sound, in
         (unsigned)preset >= original_sound_factories((unsigned)bank)) return -1;
     if (!engine_bass_bank_available(v, bank)) return -2;
     if (bass_has_locks(v)) return -4;
-    bass_gate_pat[v] = (uint8_t)((unsigned)pat < NPAT ? pat : 0xFF);
-    __asm__ volatile("" ::: "memory");
     uint32_t token = 0x80000000u | ((++bass_request_serial & 0x3fffffu) << 9) |
         ((uint32_t)bank << 7) | (uint32_t)preset;
     bass_preview_dirty = 1;
-    bass_publish_request(v, token);
+    bass_publish_request(v, token, BASS_REQUEST_FACTORY, (unsigned)pat < NPAT ? (unsigned)pat : 0xFFu);
     return 0;
 }
 int engine_bass_select_preset(int v, int bank, int preset, sound_t *sound)
 { return engine_bass_select_preset_at(v, bank, preset, sound, -1); }
-int engine_bass_preset_gate(int v) { return (unsigned)v < NBASS && bass_gate_pat[v] < NPAT ? bass_gate_pat[v] : -1; }
+/* Only a recognized archived pattern request can ask for silent unavailability.
+ * The ordinary user-choice API continues to refuse disabled engines. */
+int engine_bass_recall_unavailable_at(int v, int bank, int preset, sound_t *sound, int pat)
+{
+    if ((unsigned)v>=NBASS || !sound || sound!=mot_base_snd || (unsigned)pat>=NPAT || !seq.pat ||
+        (unsigned)preset>=original_sound_factories((unsigned)bank) ||
+        original_runtime_kind_available(bank) ||
+        seq.pat[pat].rsv[v]!=bass_pattern_preset_encode((unsigned)bank,(unsigned)preset+1u))return -1;
+    uint32_t token=0x80000000u|((++bass_request_serial&0x3fffffu)<<9)|
+        ((uint32_t)bank<<7)|(uint32_t)preset;
+    bass_preview_dirty=1;
+    bass_publish_request(v,token,BASS_REQUEST_UNAVAILABLE,(unsigned)pat);
+    return 0;
+}
+/* OFF means inherit the preserved base after an unavailable recall. A future
+ * OFF cue is gated just like any other pattern request; drawing it never unmutes. */
+int engine_bass_pattern_inherit(int v, sound_t *sound, int pat)
+{
+    if ((unsigned)v>=NBASS || !sound || sound!=mot_base_snd || (unsigned)pat>=NPAT ||
+        !seq.pat || seq.pat[pat].rsv[v])return -1;
+    if (!bass_unavailable_recall[v])return 0;
+    int bank=engine_bass_sound_bank(sound,v);
+    if (bank<0)return -1;
+    unsigned preset=sound->v[T_303][v][30];
+    uint32_t token=0x80000000u|((++bass_request_serial&0x3fffffu)<<9)|
+        ((uint32_t)bank<<7)|preset;
+    bass_preview_dirty=1;
+    bass_publish_request(v,token,BASS_REQUEST_INHERIT,(unsigned)pat);
+    return 0;
+}
+int engine_bass_preset_gate(int v)
+{ bass_request_t r; return (unsigned)v < NBASS && bass_request_snapshot(v,&r) && r.pat < NPAT ? r.pat : -1; }
+
+static void bass_finish_hard_replace(int v, int status, int preset)
+{
+    original_switch_gain[v]=512u;
+    original_quiet_samples[v]=status==ORIGINAL_RUNTIME_UNAVAILABLE?512u:0u;
+    bass_named_preset[v]=(int16_t)preset;
+    original_seq_note[v]=-1;
+    __builtin_memset(original_key_pitch[v],0,sizeof original_key_pitch[v]);
+    bass_held[v]=bass_held_count[v]=bass_held_src[v]=0;
+    bass_accent[v]=bass_slide[v]=0;
+    for(unsigned s=0;s<3;++s)src_held[s]&=(uint16_t)~(1u<<v);
+    perf_ctl[v][0]=64;perf_ctl[v][1]=0;mod_ctl[v]=-1;ext_touch[v]=0;
+#if X0X_BASS_NOTE_SOUND
+    note_lock_applied[v]=0;
+#endif
+}
 static void bass_preset_boundary_voice(int v)
 {
     {
@@ -312,17 +386,52 @@ static void bass_preset_boundary_voice(int v)
         if (!(token & 0x80000000u)) { bass_applied[v] = token; return; }
         if (engine_bass_preset_pending(v) != 1) return;
         /* A pattern preset waits until its pattern plays (the bar switch). */
-        if (bass_gate_pat[v] < NPAT && seq.ppat[TRK_BASS0 + v] != bass_gate_pat[v]) return;
+        if (request.pat < NPAT && seq.ppat[TRK_BASS0 + v] != request.pat) return;
         int bank = (int)((token >> 7) & 3u), preset = (int)(token & 127);
         uint8_t next[32];
-        if (!engine_bass_bank_available(v, bank) || !original_sound_init(next, bank, preset)) return;
-        live_key_context_retire(v, 1);
-        if (original_runtime_retire(&original_bass[v]) != ORIGINAL_RUNTIME_OK) {
-            bass_applied[v] = token;
+        if (request.mode!=BASS_REQUEST_FACTORY) {
+            /* Revalidate the actual pattern at adoption: an edit/cancel cannot
+             * turn an old inspected cue into a new silent transition. */
+            if (request.pat>=NPAT || !seq.pat) { bass_applied[v]=token;return; }
+            if (request.mode==BASS_REQUEST_UNAVAILABLE) {
+                if (seq.pat[request.pat].rsv[v]!=bass_pattern_preset_encode((unsigned)bank,(unsigned)preset+1u) ||
+                    original_runtime_kind_available(bank) || !original_sound_init(next,bank,preset)) {
+                    bass_applied[v]=token;return;
+                }
+            } else if (request.mode==BASS_REQUEST_INHERIT) {
+                if (seq.pat[request.pat].rsv[v] || engine_bass_sound_bank(mot_base_snd,v)<0) {
+                    bass_applied[v]=token;return;
+                }
+                __builtin_memcpy(next,mot_base_snd->v[T_303][v],sizeof next);
+                preset=next[30];
+            } else { bass_applied[v]=token;return; }
+#if X0X_BASS_NOTE_SOUND
+            if(note_lock_applied[v])note_lock_restore(v);
+#endif
+            live_key_context_retire(v,1);
+            seq_rec_cancel(&seq,v);
+            int rc=original_runtime_replace(&original_bass[v],next,seq_tempo(&seq),
+                &original_tuning,&original_fx_owner[v]);
+            bass_finish_hard_replace(v,rc,preset);
+            bass_unavailable_recall[v]=(uint8_t)(request.mode==BASS_REQUEST_UNAVAILABLE && rc==ORIGINAL_RUNTIME_UNAVAILABLE);
+            __asm__ volatile("" ::: "memory");
+            bass_pattern_epoch[v]++;
+            if(request.mode==BASS_REQUEST_INHERIT)
+                for(int i=0;i<MX_NPARAMS;++i)apply_base(T_MIX,PART_303A+v,i);
+            bass_applied[v]=token;
             return;
         }
-        int rc = original_runtime_init(&original_bass[v], next, seq_tempo(&seq),
-            &original_tuning, &original_fx_owner[v]);
+        if (!engine_bass_bank_available(v, bank) || !original_sound_init(next, bank, preset)) return;
+        live_key_context_retire(v, 1);
+        int was_unavailable=original_bass[v].status==ORIGINAL_RUNTIME_UNAVAILABLE;
+        if(was_unavailable)
+            seq_rec_cancel(&seq,v);
+        /* Debt can survive the first escape. Every later initialized adoption
+         * must preserve it too, even when the current backend is available. */
+        int rc=original_runtime_replace(&original_bass[v],next,seq_tempo(&seq),
+            &original_tuning,&original_fx_owner[v]);
+        if(was_unavailable)
+            bass_finish_hard_replace(v,rc,preset);
         if (rc != ORIGINAL_RUNTIME_OK) {
             /* A failed adoption remains visible and needs a fresh explicit
              * request; do not rerun expensive initialization every block. */
@@ -330,6 +439,9 @@ static void bass_preset_boundary_voice(int v)
             return;
         }
         original_switch_gain[v] = 512u; original_quiet_samples[v] = 0;
+        bass_unavailable_recall[v]=0;
+        __asm__ volatile("" ::: "memory");
+        bass_pattern_epoch[v]++;
         sound_t *sound = (sound_t *)mot_base_snd;
         __builtin_memcpy(sound->v[T_303][v], next, sizeof next);
         bass_tag_set(sound, v, bank, preset, 0);
@@ -348,5 +460,13 @@ static void bass_preset_boundary(void)
 {
     if (bass_edit_depth) return;
     for (int v = 0; v < NBASS; ++v) bass_preset_boundary_voice(v);
+}
+/* A rest has no s_bon callback. Follow actual in-buffer pattern changes before
+ * rendering the next stretch, including a REST at the new pattern's step0. */
+static void bass_pattern_boundary(unsigned before_a, unsigned before_b)
+{
+    if(bass_edit_depth)return;
+    if(before_a!=seq.ppat[TRK_BASS0])bass_preset_boundary_voice(0);
+    if(before_b!=seq.ppat[TRK_BASS0+1])bass_preset_boundary_voice(1);
 }
 

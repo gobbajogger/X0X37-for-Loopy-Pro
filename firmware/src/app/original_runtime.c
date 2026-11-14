@@ -28,15 +28,13 @@ static int runtime_result(original_runtime_part *p, int ok)
     return p->status;
 }
 
-X0X_COLD int original_runtime_init(original_runtime_part *p, const uint8_t cell[32], float bpm,
+/* Both callers validate the cell and clear DSP storage before entry. Keeping
+ * this graph at its original address preserves backend self-references. */
+static X0X_COLD int runtime_adopt_cell(original_runtime_part *p, const uint8_t cell[32], float bpm,
     original_chicago_tuning *tuning, const original_chicago_fx2_cold_owner *fx)
 {
-    if (!p || !original_sound_valid(cell)) return ORIGINAL_RUNTIME_INVALID;
     unsigned kind = cell[29];
     unsigned factory = (unsigned)original_sound_factory_source(kind, cell[30]);
-    /* The old active union is intentionally retired at this explicit cold
-     * boundary. A caller must inspect the returned admission result. */
-    memset(p, 0, sizeof *p);
     p->kind = (uint8_t)kind;
     if (!original_runtime_kind_available((int)kind)) {
         p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
@@ -94,6 +92,16 @@ X0X_COLD int original_runtime_init(original_runtime_part *p, const uint8_t cell[
     return original_runtime_prepare(p, bpm);
 }
 
+X0X_COLD int original_runtime_init(original_runtime_part *p, const uint8_t cell[32], float bpm,
+    original_chicago_tuning *tuning, const original_chicago_fx2_cold_owner *fx)
+{
+    if (!p || !original_sound_valid(cell)) return ORIGINAL_RUNTIME_INVALID;
+    /* Cold startup/panic adoption intentionally forgets all input debt. A
+     * caller must retire externally owned resources before this cold reset. */
+    memset(p, 0, sizeof *p);
+    return runtime_adopt_cell(p, cell, bpm, tuning, fx);
+}
+
 int original_runtime_prepare(original_runtime_part *p, float bpm)
 {
     if (runtime_unavailable(p)) return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
@@ -112,6 +120,15 @@ int original_runtime_prepare(original_runtime_part *p, float bpm)
     return runtime_result(p, ok);
 }
 
+static int runtime_retire_backend(original_runtime_part *p)
+{
+    if (p->kind == ORIGINAL_SOUND_CHICAGO && p->status != ORIGINAL_RUNTIME_NEEDS_FX && p->dsp.chicago.ready) {
+        int rc = original_chicago_backend_retire(&p->dsp.chicago);
+        if (rc != ORIGINAL_CHICAGO_BACKEND_OK) return rc;
+    }
+    return ORIGINAL_RUNTIME_OK;
+}
+
 int original_runtime_retire(original_runtime_part *p)
 {
     if (!p) return ORIGINAL_RUNTIME_INVALID;
@@ -119,10 +136,8 @@ int original_runtime_retire(original_runtime_part *p)
         runtime_clear_unavailable(p);
         return ORIGINAL_RUNTIME_OK;
     }
-    if (p->kind == ORIGINAL_SOUND_CHICAGO && p->status != ORIGINAL_RUNTIME_NEEDS_FX && p->dsp.chicago.ready) {
-        int rc = original_chicago_backend_retire(&p->dsp.chicago);
-        if (rc != ORIGINAL_CHICAGO_BACKEND_OK) return rc;
-    }
+    int rc = runtime_retire_backend(p);
+    if (rc != ORIGINAL_RUNTIME_OK) return rc;
     p->status = ORIGINAL_RUNTIME_INVALID;
     return ORIGINAL_RUNTIME_OK;
 }
@@ -169,6 +184,25 @@ static int key_held(const original_runtime_part *p, unsigned key)
     return 0;
 }
 
+/* A canceled accepted press or an unheard refused MIDI onset still owes an
+ * off. This saturating ceiling and per-pitch timer reset are the existing cut
+ * policy; neither pending ambiguity nor a live key is an extra hidden count. */
+static void runtime_add_stale(original_runtime_part *p, unsigned source, unsigned key, unsigned count)
+{
+    unsigned owed = (unsigned)p->stale[source][key] + count;
+    p->stale[source][key] = (uint8_t)(owed > UINT8_MAX ? UINT8_MAX : owed);
+    if (p->stale_ttl[source][key]) --p->stale_timers;
+    p->stale_ttl[source][key] = 0;
+    p->stale_pending[source][key >> 5] &= ~(UINT32_C(1) << (key & 31u));
+}
+
+static void runtime_cut_key(original_runtime_part *p, unsigned source, unsigned key)
+{
+    if (source < ORIGINAL_INPUT_KEYS)
+        runtime_add_stale(p, source, key, p->keys[source][key]);
+    p->keys[source][key] = 0;
+}
+
 /* Same-source, same-pitch MIDI offs carry no note identity. For a cancelled
  * press followed by a retrigger, keep the first ambiguous off pending for at
  * most 16 x 256 rendered frames (about 93 ms at 44.1 kHz). Another off within
@@ -197,7 +231,8 @@ static int runtime_stale_tick(original_runtime_part *p, unsigned frames)
                 p->stale_pending[source][lane] &= ~mask;
                 if (p->keys[source][key]) {
                     --p->keys[source][key];
-                    if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK)
+                    if (!key_held(p, key) && !runtime_unavailable(p) &&
+                        runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK)
                         return p->status;
                 }
             }
@@ -209,7 +244,15 @@ static int runtime_stale_tick(original_runtime_part *p, unsigned frames)
 int original_runtime_key(original_runtime_part *p, unsigned source, unsigned key, unsigned velocity)
 {
     if (!p || source >= ORIGINAL_INPUT_COUNT || key > 127 || velocity > 127) return 0;
-    if (runtime_unavailable(p)) return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
+    if (runtime_unavailable(p)) {
+        /* Refusal is not live ownership. Still account for external on/off
+         * input so an unheard press's later off cannot bypass retained debt. */
+        if (source < ORIGINAL_INPUT_KEYS) {
+            if (velocity) runtime_add_stale(p, source, key, 1);
+            else if (p->stale[source][key]) --p->stale[source][key];
+        }
+        return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
+    }
     if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
     uint8_t *held = &p->keys[source][key];
     if (velocity) {
@@ -236,11 +279,11 @@ int original_runtime_key(original_runtime_part *p, unsigned source, unsigned key
     return key_held(p, key) ? ORIGINAL_RUNTIME_OK : runtime_note(p, key, 0);
 }
 
-int original_runtime_release_source(original_runtime_part *p, unsigned source)
+/* Disconnect/channel-context teardown ends this source lifetime. Every
+ * nonzero TTL contributes exactly one timer; clearing the row also makes
+ * repeated teardown idempotent without changing another source's clock. */
+static void runtime_clear_source_debt(original_runtime_part *p, unsigned source)
 {
-    if (!p || source >= ORIGINAL_INPUT_COUNT) return 0;
-    if (runtime_unavailable(p)) return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
-    if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
     if (source < ORIGINAL_INPUT_KEYS) {
         for (unsigned key = 0; key < 128; ++key)
             if (p->stale_ttl[source][key]) --p->stale_timers;
@@ -248,6 +291,18 @@ int original_runtime_release_source(original_runtime_part *p, unsigned source)
         memset(p->stale_ttl[source], 0, sizeof p->stale_ttl[source]);
         memset(p->stale_pending[source], 0, sizeof p->stale_pending[source]);
     }
+}
+
+int original_runtime_release_source(original_runtime_part *p, unsigned source)
+{
+    if (!p || source >= ORIGINAL_INPUT_COUNT) return 0;
+    if (runtime_unavailable(p)) {
+        runtime_clear_source_debt(p, source);
+        memset(p->keys[source], 0, sizeof p->keys[source]);
+        return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
+    }
+    if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
+    runtime_clear_source_debt(p, source);
     for (unsigned key = 0; key < 128; ++key) if (p->keys[source][key]) {
         p->keys[source][key] = 0;
         if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK) return p->status;
@@ -264,17 +319,27 @@ int original_runtime_cut_source(original_runtime_part *p, unsigned source)
     if (runtime_unavailable(p)) return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;
     if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
     for (unsigned key = 0; key < 128; ++key) if (p->keys[source][key]) {
-        if (source < ORIGINAL_INPUT_KEYS) {
-            unsigned owed = (unsigned)p->stale[source][key] + p->keys[source][key];
-            p->stale[source][key] = (uint8_t)(owed > UINT8_MAX ? UINT8_MAX : owed);
-            if (p->stale_ttl[source][key]) --p->stale_timers;
-            p->stale_ttl[source][key] = 0;
-            p->stale_pending[source][key >> 5] &= ~(UINT32_C(1) << (key & 31u));
-        }
-        p->keys[source][key] = 0;
+        runtime_cut_key(p, source, key);
         if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK) return p->status;
     }
     return ORIGINAL_RUNTIME_OK;
+}
+
+X0X_COLD int original_runtime_replace(original_runtime_part *p, const uint8_t cell[32], float bpm,
+    original_chicago_tuning *tuning, const original_chicago_fx2_cold_owner *fx)
+{
+    if (!p || !original_sound_valid(cell)) return ORIGINAL_RUNTIME_INVALID;
+    /* This is the caller's actual hard boundary, not a queued cue preview.
+     * Refuse an in-flight Chicago retirement before touching any input debt. */
+    int rc = runtime_retire_backend(p);
+    if (rc != ORIGINAL_RUNTIME_OK) return rc;
+    for (unsigned source = 0; source < ORIGINAL_INPUT_COUNT; ++source)
+        for (unsigned key = 0; key < 128; ++key)
+            if (p->keys[source][key]) runtime_cut_key(p, source, key);
+    /* Current voices stop here. Held/debt bookkeeping is not part of the DSP
+     * union, so no self-referential graph or whole part is copied or retained. */
+    memset(&p->dsp, 0, sizeof p->dsp);
+    return runtime_adopt_cell(p, cell, bpm, tuning, fx);
 }
 
 int original_runtime_all_off(original_runtime_part *p)
@@ -434,6 +499,9 @@ int original_runtime_render(original_runtime_part *p, original_runtime_workspace
 {
     if (!p || !left || !right || frames > 256) return ORIGINAL_RUNTIME_INVALID;
     if (runtime_unavailable(p)) {
+        /* Silent slots still advance already-running input deadlines. This
+         * never starts a grace period or calls an unavailable DSP endpoint. */
+        (void)runtime_stale_tick(p, frames);
         memset(left, 0, frames * sizeof *left);
         memset(right, 0, frames * sizeof *right);
         return p->status = ORIGINAL_RUNTIME_UNAVAILABLE;

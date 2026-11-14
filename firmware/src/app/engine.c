@@ -284,6 +284,17 @@ static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 12
                                                {"PAN", 127, 64, 0}, {"CUT", 127, 127, 0}};
 static const char *const PART_NAMES[NPARTS] = {"909", "808", "BASS A", "BASS B", "BREAK"};
 static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS], mix_cut[NPARTS];
+#ifdef X0X_HOST
+/* Read-only actual mixer target; archive bytes alone cannot prove that a
+ * refused unavailable note lock left the audio-side mixer untouched. */
+uint32_t engine_mix_level_bits(int part)
+{
+    uint32_t bits;
+    if ((unsigned)part >= NPARTS) return UINT32_MAX;
+    __builtin_memcpy(&bits,&mix_level[part],sizeof bits);
+    return bits;
+}
+#endif
 /* Momentary bus FX, snapshotted once per stretch so both cores see the same hold. */
 static volatile uint8_t bfx_down_pub;
 static volatile uint8_t bfx_fx_pub[SMCFX_N];
@@ -1107,6 +1118,10 @@ int seq_bass_chord_get(seq_t *s,int b,int pat,int step,uint8_t *notes)
 int seq_bass_chord_set(seq_t *s,int b,int pat,int step,const uint8_t *notes,int count)
 {
     (void)s;
+    /* This is the live recorder's admission/publication hook. Archive edits
+     * use the storage codec directly and do not claim an audible capture. */
+    if((unsigned)b>=NBASS || original_bass[b].status!=ORIGINAL_RUNTIME_OK ||
+       !original_runtime_kind_available(original_bass[b].kind))return 0;
     if(!mot.lane)return 0;
     /* Audio owns both operations. A new sound lock can consume one lane
      * between admission and the chord write, so reserve it in the same check. */
@@ -2906,7 +2921,11 @@ void engine_render(int32_t *out_lr, uint32_t n)
         bass_preset_boundary();
 #endif
         fxbus_set_bpm(&fx, seq_tempo(&seq));
+        unsigned pat_a=seq.ppat[TRK_BASS0],pat_b=seq.ppat[TRK_BASS0+1];
         seq_advance(&seq, 0, &SINK);
+#if X0X_BASS_PRESET_PREVIEW
+        bass_pattern_boundary(pat_a,pat_b);
+#endif
         brk_midi_drain();
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
@@ -2924,7 +2943,11 @@ void engine_render(int32_t *out_lr, uint32_t n)
         {
             PROF_T(pt);
             original_prepare_all(); /* next actual sequencer stretch, before its events */
+            unsigned pat_a=seq.ppat[TRK_BASS0],pat_b=seq.ppat[TRK_BASS0+1];
             seq_advance(&seq, k, &SINK);
+#if X0X_BASS_PRESET_PREVIEW
+            bass_pattern_boundary(pat_a,pat_b);
+#endif
             brk_midi_drain();
             PROF_ADD(7, pt);
         }

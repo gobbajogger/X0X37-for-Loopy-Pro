@@ -32,7 +32,7 @@ typedef union {
 typedef struct {
     original_runtime_backend dsp;
     uint8_t keys[ORIGINAL_INPUT_COUNT][128];
-    uint8_t stale[ORIGINAL_INPUT_KEYS][128]; /* offs still owed by cut external presses */
+    uint8_t stale[ORIGINAL_INPUT_KEYS][128]; /* offs owed by cut/unheard external presses */
     uint8_t stale_ttl[ORIGINAL_INPUT_KEYS][128]; /* 256-frame ticks since a canceled pitch is retriggered */
     uint32_t stale_pending[ORIGINAL_INPUT_KEYS][4]; /* first ambiguous off, one bit per pitch */
     uint16_t stale_tick_frames, stale_timers;
@@ -53,6 +53,20 @@ int original_runtime_kind_available(int kind);
  * remain a visible refusal. No old engine or bank is involved. */
 int original_runtime_init(original_runtime_part *, const uint8_t cell[32], float bpm,
     original_chicago_tuning *, const original_chicago_fx2_cold_owner *);
+/* Serialized hard adoption on an initialized/zero part at its actual audio
+ * boundary. Validate cell first, retire old external DSP resources once, move
+ * USB/BLE/TRS held counts to saturating off debt and clear live voices. Keep
+ * existing debt/deadlines; no voice, controller or stored sound is migrated.
+ * The caller invalidates physical/sequence generations once at this boundary.
+ * It must route external on/off events here even while unavailable: refused
+ * MIDI onsets accrue unheard off debt, and offs consume it without live/REC
+ * ownership. The same-source/pitch identity ambiguity and16x256-frame recovery
+ * policy remain; this API cannot distinguish arbitrary reordered MIDI offs.
+ * Cell and cold owners must remain disjoint from this part through the call.
+ * Invalid cell/failed retirement leave the old part unchanged. New-backend
+ * refusal leaves the old voice stopped and its input debt preserved. */
+int original_runtime_replace(original_runtime_part *, const uint8_t cell[32], float bpm,
+    original_chicago_tuning *, const original_chicago_fx2_cold_owner *);
 /* Call on an initialized or zero-initialized part before cold replacement;
  * externally owned Chicago resources must be retired before overwriting it. */
 int original_runtime_retire(original_runtime_part *);
@@ -61,6 +75,8 @@ int original_runtime_param(original_runtime_part *, unsigned parameter, float va
 int original_runtime_key(original_runtime_part *, unsigned source, unsigned key, unsigned velocity);
 int original_runtime_release_source(original_runtime_part *, unsigned source);
 int original_runtime_cut_source(original_runtime_part *p, unsigned source);
+/* Explicit panic: forget all live keys AND external off debt. Hard adoption
+ * must use replace(), not an all-off/retire/cold-init sequence. */
 int original_runtime_all_off(original_runtime_part *);
 /* Source/voice ownership excludes residual insert output; selector fades that output separately. */
 int original_runtime_owned(const original_runtime_part *);
@@ -80,7 +96,8 @@ int original_runtime_motion_view(const original_runtime_part *, float *phase, fl
 int original_runtime_env_view(const original_runtime_part *, float adsr[4], float *level, int *state);
 /* A recognised unavailable part clears exactly frames output samples and
  * returns UNAVAILABLE. Invalid pointers or frames > 256 return INVALID without
- * touching outputs; no workspace is needed for the unavailable silent path. */
+ * touching outputs or input clocks. The unavailable path requires no workspace
+ * and advances only already-running input deadlines, without DSP calls. */
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
 

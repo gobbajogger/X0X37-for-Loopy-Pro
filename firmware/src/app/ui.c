@@ -21,6 +21,7 @@
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
 #include "bass_pattern_preset.h"
+#include "original_runtime.h"                    /* profile availability and explicit unavailable status */
 #include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
@@ -262,6 +263,7 @@ static void keyboard_panic_reset(uint32_t btn);
 static uint8_t project_busy, project_revision;
 /* Per-pattern recall observations belong to the currently adopted engine state. */
 static uint8_t pattern_sound_seen_pat[NBASS] = {0xFF, 0xFF}, pattern_sound_seen_val[NBASS];
+static uint32_t pattern_sound_seen_epoch[NBASS];
 static uint32_t song_structure_revision; /* runtime identity epoch for frozen song-bar controls */
 int ui_project_busy(void) { return project_busy != 0; }
 X0X_COLD static void project_input_sync(void)
@@ -511,6 +513,9 @@ static const x0x_param_t SONG_P[] = {
 static int pref_read_only(pref_t r)
 {
     if (r.kind == R_BSTATUS) return 1;
+    if (r.kind == R_BPRESET && !original_runtime_kind_available(engine_bass_requested_bank(r.b))) return 1;
+    if (r.kind == R_ENG && r.a == T_303 &&
+        !original_runtime_kind_available(engine_bass_bank(r.b))) return 1;
     if (r.kind == R_ENG && r.a == T_303 && original_sound_is_performance(
         (unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c)) return 1;
     return r.kind == R_BATT || r.kind == R_BTSTAT || r.kind == R_BTNAME;
@@ -744,6 +749,13 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
         mark_dirty();
         if (from_keyboard) build_pages();
         return;
+    }
+    if (r.kind == R_BPATSND) {
+        if (v && !original_runtime_kind_available(engine_bass_requested_bank(r.b))) {
+            say("ENGINE UNAVAILABLE",0);
+            return;
+        }
+        if (!v && !pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1]) return;
     }
     mark_dirty();
     switch (r.kind) {
@@ -1050,6 +1062,11 @@ static const char *original_status_name(int voice)
 {
     static const char *const pending[] = {"READY","WAIT","HELD","WHEEL","LOCKS","INPUT","WAIT"};
     int status = engine_bass_status(voice), wait = engine_bass_preset_pending(voice);
+    if (status == ORIGINAL_RUNTIME_UNAVAILABLE) {
+        if (wait > 0 && wait < 7 && original_runtime_kind_available(engine_bass_requested_bank(voice)))
+            return pending[wait];
+        return "UNAVAIL";
+    }
     if (status != 1) return status == -1 ? "FX WAIT" : "DSP ERR";
     return wait > 0 && wait < 7 ? pending[wait] : "READY";
 }
@@ -1518,7 +1535,7 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
                 chicago ? ui_original_chicago_titles : ui_original_miami_titles;
             int count = kind == ORIGINAL_SOUND_JUNO ? UI_ORIGINAL_JUNO_PAGES : kind == ORIGINAL_SOUND_DRONE ? UI_ORIGINAL_DRONE_PAGES :
                 chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
-            for (int row = 0; row < count; row++) {
+            for (int row = 0; original_runtime_kind_available(kind) && row < count; row++) {
                 pref_t refs[4];
                 for (int col = 0; col < 4; col++) refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG,T_303,b,rows[row][col]);
                 add_page_refs(emit, titles[row],refs,0,0);
@@ -3128,7 +3145,19 @@ static void turn_ref(pref_t r, int e, int knob)
         e = e > 0 ? 1 : -1;                          /* a switch: one detent, one position */
     else
         e = accel(knob, e, d->max);
-    pref_set_impl(r, pref_get(r) + e,!accel_smc);
+    int next = pref_get(r) + e;
+    if (r.kind == R_BENGINE) {
+        while (next >= 0 && next <= d->max && !original_runtime_kind_available(next))
+            next += e > 0 ? 1 : -1;
+    } else if (r.kind == R_BPATSND && e < 0) {
+        unsigned kind, preset;
+        unsigned code=pat_of(PART_303A+(r.b&1))->rsv[r.b&1];
+        /* The visible archived byte owns this gesture, even while a different
+         * available engine is requested. Never turn D4 into J3 implicitly. */
+        if(bass_pattern_preset_decode(code,&kind,&preset) && preset &&
+           !original_runtime_kind_available((int)kind))next=0;
+    }
+    pref_set_impl(r, next,!accel_smc);
     }
     if (r.kind == R_ENG)
         PARAM_TRACE(accel_smc ? PARAM_SMC_KNOB : PARAM_PANEL_KNOB,
@@ -3314,6 +3343,9 @@ static void bass_rec_link(int b, int step)
 
 static void bass_write(int b, int note, int gate)
 {
+    if (gate==G_NOTE && !original_runtime_kind_available(engine_bass_bank(b))) {
+        say("ENGINE UNAVAILABLE",0);return;
+    }
     bpart_t *bp = &cur_pat()->bass[b];
     int len = bp->len ? bp->len : 16, w = ui.wpos[b] % len;
     uint8_t f = (uint8_t)gate;
@@ -3349,6 +3381,9 @@ static void bass_write(int b, int note, int gate)
 
 static void bass_write_held_chord(int b)
 {
+    if (!original_runtime_kind_available(engine_bass_bank(b))) {
+        say("ENGINE UNAVAILABLE",0);return;
+    }
     uint8_t notes[HELD_CHORD_NOTES];int n=0;
     for(unsigned j=0;j<kbd_arp_n[b];j++) {
         unsigned note=kbd_arp_note[b][j];int at=0;
@@ -3375,6 +3410,9 @@ static void bass_write_held_chord(int b)
 static void bass_kbd(int key, int step_record)
 {
     int b = bidx(), n = kbd_note(key);
+    if (!original_runtime_kind_available(engine_bass_bank(b))) {
+        say("ENGINE UNAVAILABLE",0);return;
+    }
     if ((X0X_ORIGINAL_SYNTH || chi_arp_on_part(b)) && kbd_arp_n[b] < UI_BASS_HELD_MAX) {
         uint32_t i, have = 0;
         for (i = 0; i < kbd_arp_n[b]; i++)
@@ -3400,7 +3438,8 @@ static void bass_kbd(int key, int step_record)
         ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
         seq.rec_mask = (uint8_t)(1u << b);
         engine_bass_record(b, n, BASS_VELOCITY_DEFAULT, f);
-        mark_dirty();
+        /* The audio recorder publishes rec_dirty only after an accepted write.
+         * A queued onset may be refused after an engine/pattern transition. */
     } else
         bass_rec_step[b] = 0;
     kbd_held_note[b] = (uint8_t)n;
@@ -5724,14 +5763,19 @@ static UI_DRAW const char *matrix_group(int page)
 static UI_DRAW void matrix_knob_caption(char *text, int page)
 {
     int k, n=0, emitted=0;
+    unsigned mapped=0;
+    int sound=pg.r[page][0].kind==R_BENGINE;
     char *q=text;
-    for(k=0;k<4;k++) n+=pg.r[page][k].kind!=R_NONE;
+    for(k=0;k<4;k++) if(pg.r[page][k].kind!=R_NONE && (!sound || !pref_read_only(pg.r[page][k]))) {
+        mapped|=1u<<k;
+        n++;
+    }
     *q=0;
     if(!n) return;
     q=put_s(q,n==1?"KNOB ":"KNOBS ");
-    for(k=0;k<4;k++) if(pg.r[page][k].kind!=R_NONE) {
+    for(k=0;k<4;k++) if(mapped&(1u<<k)) {
         int last=k;
-        while(last+1<4 && pg.r[page][last+1].kind!=R_NONE) last++;
+        while(last+1<4 && (mapped&(1u<<(last+1)))) last++;
         if(emitted++) q=put_s(q,",");
         q=put_i(q,UI_FIRST_KNOB+k);
         if(last>k) q=put_i(put_s(q,"-"),UI_FIRST_KNOB+last);
@@ -7258,8 +7302,10 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BPRESET) {
         draw_preset_name(r.b,cx,y,height,ink);
-        cv_rect(x+8,y+bar_y,42,1,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
-        if(val>0 && d->max) cv_rect(x+8,y+bar_y,1+41*(val>d->max?d->max:val)/d->max,1,ink);
+        if(!pref_read_only(r)) {
+            cv_rect(x+8,y+bar_y,42,1,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
+            if(val>0 && d->max) cv_rect(x+8,y+bar_y,1+41*(val>d->max?d->max:val)/d->max,1,ink);
+        }
         return;
     }
 #endif
@@ -7297,7 +7343,7 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         int w=tw(font,value), left=cx-(w+(glyph?14:0))/2;
         if(glyph) matrix_glyph(left,y+value_y+1,glyph,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:C_BLACK));
         cv_text(left+(glyph?14:0),y+value_y,font,value,ink);
-        if(!unused) {
+        if(!unused && r.kind!=R_BSTATUS) {
             cv_rect(x+8,y+bar_y,42,1,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
             if(val>0 && d->max) cv_rect(x+8,y+bar_y,1+41*(val>d->max?d->max:val)/d->max,1,ink);
         }
@@ -8761,17 +8807,26 @@ static void pattern_sound_tick(void)
         int t = TRK_BASS0 + b, cue = seq_cue_of(&seq, t), pat = cue >= 0 ? cue : seq.ppat[t];
         int gate = engine_bass_preset_gate(b);
         unsigned ps = proj.pat[pat].rsv[b];
+        uint32_t epoch=engine_bass_pattern_epoch(b);
         if (gate >= 0 && gate != pat && gate != seq.ppat[t] && engine_bass_preset_pending(b))
             engine_bass_cancel_preset(b);                /* its cue was taken back */
-        if (pattern_sound_seen_pat[b] == pat && pattern_sound_seen_val[b] == ps) continue;
+        /* A future OFF may be inspected before the current unavailable request
+         * adopts. Revisit OFF after actual adoption, while preserving explicit
+         * manual overrides of a cached nonzero pattern request. */
+        if (pattern_sound_seen_pat[b] == pat && pattern_sound_seen_val[b] == ps &&
+            (ps || pattern_sound_seen_epoch[b]==epoch)) continue;
         pattern_sound_seen_pat[b] = (uint8_t)pat; pattern_sound_seen_val[b] = (uint8_t)ps;
-        if (!ps) continue;
+        pattern_sound_seen_epoch[b]=epoch;
+        if (!ps) { (void)engine_bass_pattern_inherit(b,&proj.sound,pat); continue; }
         unsigned kind, one_based;
         if (!bass_pattern_preset_decode(ps, &kind, &one_based) || !one_based) continue;
         int bank = (int)kind, preset = (int)one_based - 1;
         if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
             !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
-        (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
+        if (!original_runtime_kind_available(bank))
+            (void)engine_bass_recall_unavailable_at(b,bank,preset,&proj.sound,pat);
+        else
+            (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
     }
 }
 
