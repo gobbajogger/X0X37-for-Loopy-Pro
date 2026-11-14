@@ -99,7 +99,20 @@ static void reset_during_play(void)
     engine_drum(0, 0, 1.0f);
     min_q[mi_w++ % MQ] = 0xFA0Fu;
     uint32_t writes = store_writes, ons = note_ons, transports = transport_out_count;
-    assert(ui_project_reset() == 0);
+    /* Exercise the panel confirmation handlers. Cancelling must not change
+     * the project, sequencer state or project-store write count. */
+    open_action(ACT_RESET);
+    assert(ui.overlay == O_ASK && ui.ask_act == ACT_RESET);
+    assert(!strcmp(ui.ask_q[1], "SAMPLES ARE KEPT"));
+    before = proj; seq_before = seq;
+    int sel = ui.list_sel, top = ui.list_top;
+    button_tap(B_HOME);
+    assert(ui.overlay == O_LIST && ui.list_sel == sel && ui.list_top == top);
+    assert(!memcmp(&proj, &before, sizeof proj) && !memcmp(&seq, &seq_before, sizeof seq));
+    assert(ui.rec && store_writes == writes && transport_out_count == transports);
+    check_samples();
+    list_enter();
+    button_tap(B_SEL);
     check_stopped();
     assert(seq.bpm == 125.0f && seq.accent_q7 == 88 && seq.clk_src == SEQ_CLK_AUTO);
     assert(seq.send_clock == 1 && seq.send_notes == 0 && seq.ch[TRK_BASS0] == 1);
@@ -115,6 +128,35 @@ static void reset_during_play(void)
     undo_start();
     check_samples();
     released();
+}
+
+static void reset_external_clock_and_reload(void)
+{
+    seq.bpm = 179.0f;
+    seq.clk_src = SEQ_CLK_EXT;
+    seq.ext = seq.ext_pending = 1;
+    seq.req_start = seq.req_cont = seq.req_stop = 1;
+    seq.pcue[TRK_BASS0] = 7;
+    proj.pat[31].bass[1].step[63].flags = G_NOTE;
+    mark_dirty();
+    uint32_t writes = store_writes;
+    open_action(ACT_RESET);
+    assert(ui.overlay == O_ASK && ui.ask_act == ACT_RESET);
+    button_tap(B_SEL);
+    check_stopped();
+    assert(seq.bpm == 125.0f && seq.clk_src == SEQ_CLK_AUTO);
+    assert(ui.dirty && store_writes == writes);
+    assert(ui_project_save() == 0 && !ui.dirty);
+    assert(store_writes > writes);
+    expected = proj; /* Save captures live I/O settings into the project. */
+    proj.pat[31].bass[1].step[63].flags = G_NOTE;
+    seq.bpm = 220.0f;
+    mark_dirty();
+    assert(ui_project_load() == 0);
+    assert(!memcmp(&proj, &expected, sizeof proj));
+    assert(seq.bpm == 125.0f && seq.clk_src == SEQ_CLK_AUTO && !ui.dirty);
+    check_stopped();
+    check_samples();
 }
 
 static void save_and_load(void)
@@ -325,6 +367,7 @@ int main(void)
     fclose(midi_log); midi_log = 0;
     save_and_load();
     invalid_load_and_undo();
+    reset_external_clock_and_reload();
     abort_and_apply_transfer();
     busy_and_save_status();
     performance_save_window();

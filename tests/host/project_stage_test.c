@@ -282,6 +282,31 @@ static void musical_fixture(void)
     proj.arr.lane[NLANE - 1].val[NSTEPS - 1] = engine_param(T_303, 1, 0)->max;
 }
 
+static void test_reset_save_reload(void)
+{
+    fixture("reset save and reload retain sample slots");
+    musical_fixture();
+    REQUIRE(project_save() == 0);
+    snapshot();
+    project_reset_stage();
+    REQUIRE(project_validate_stage() == 0);
+    project_commit_stage();
+    check_no_writes();
+    set_runtime();
+    REQUIRE(project_save() == 0);
+    memcpy(&saved_project, &proj, sizeof proj);
+    check_protected_flash();
+    musical_fixture();
+    memset(stored_known, 0, sizeof stored_known); /* simulate a fresh storage cache */
+    snapshot();
+    REQUIRE(project_load_stage() == 0);
+    CHECK(!memcmp(&project_stage, &saved_project, sizeof saved_project));
+    check_live_unchanged();
+    project_commit_stage();
+    CHECK(!memcmp(&proj, &saved_project, sizeof proj));
+    check_no_writes();
+}
+
 static void test_save_export_load(void)
 {
     uint8_t h[PROJECT_FILE_HDR];
@@ -832,6 +857,7 @@ static void test_rates_format(void)
 int main(void)
 {
     test_defaults();
+    test_reset_save_reload();
     test_rates_format();
     test_save_export_load();
     test_file_rejection();
