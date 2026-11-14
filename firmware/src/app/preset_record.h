@@ -9,6 +9,7 @@
  * Factory table bytes are not stored in this record. */
 #pragma once
 #include <stdint.h>
+#include "original_sound.h"
 
 #ifndef DNBOX_PRESET_MEASURE_STAGE
 /* Device measurement only: 0 (default) = the codec is not in the image.
@@ -38,11 +39,12 @@
 #define PRESET_ENGINE_BREAK   7u
 #define PRESET_ENGINE_LAST    PRESET_ENGINE_BREAK
 
-/* Pinned factory counts at 94197fc8 (Dot inventory). Juno/Drone appends, if
- * any, start at index 4. This step does not add factory tables. */
+/* Factory origin bounds match the selected source bank. Juno's legacy
+ * indexes 0-3 stay fixed; append-only additions use the next one-based IDs
+ * on wire. Including the declaration header does not link factory bytes. */
 #define PRESET_FACTORY_CHICAGO_N 81u
 #define PRESET_FACTORY_MIAMI_N   30u
-#define PRESET_FACTORY_JUNO_N    4u
+#define PRESET_FACTORY_JUNO_N    ORIGINAL_JUNO_FACTORIES
 #define PRESET_FACTORY_DRONE_N   4u
 
 #define PRESET_NAME_MAX            32u
