@@ -408,11 +408,21 @@ static void bass_preset_boundary_voice(int v)
 #if X0X_BASS_NOTE_SOUND
             if(note_lock_applied[v])note_lock_restore(v);
 #endif
-            live_key_context_retire(v,1);
+        } else if (!engine_bass_bank_available(v, bank) || !original_sound_init(next, bank, preset)) return;
+        /* Both request kinds adopt at this same serialized boundary. Share
+         * the retirement/replacement graph without moving validation, lock
+         * restoration, or publication across the actual adoption. */
+        live_key_context_retire(v, 1);
+        int was_unavailable=original_bass[v].status==ORIGINAL_RUNTIME_UNAVAILABLE;
+        if(request.mode!=BASS_REQUEST_FACTORY || was_unavailable)
             seq_rec_cancel(&seq,v);
-            int rc=original_runtime_replace(&original_bass[v],next,seq_tempo(&seq),
-                &original_tuning,&original_fx_owner[v]);
+        /* Debt can survive the first escape. Every later initialized adoption
+         * must preserve it too, even when the current backend is available. */
+        int rc=original_runtime_replace(&original_bass[v],next,seq_tempo(&seq),
+            &original_tuning,&original_fx_owner[v]);
+        if(request.mode!=BASS_REQUEST_FACTORY || was_unavailable)
             bass_finish_hard_replace(v,rc,preset);
+        if (request.mode!=BASS_REQUEST_FACTORY) {
             bass_unavailable_recall[v]=(uint8_t)(request.mode==BASS_REQUEST_UNAVAILABLE && rc==ORIGINAL_RUNTIME_UNAVAILABLE);
             __asm__ volatile("" ::: "memory");
             bass_pattern_epoch[v]++;
@@ -421,17 +431,6 @@ static void bass_preset_boundary_voice(int v)
             bass_applied[v]=token;
             return;
         }
-        if (!engine_bass_bank_available(v, bank) || !original_sound_init(next, bank, preset)) return;
-        live_key_context_retire(v, 1);
-        int was_unavailable=original_bass[v].status==ORIGINAL_RUNTIME_UNAVAILABLE;
-        if(was_unavailable)
-            seq_rec_cancel(&seq,v);
-        /* Debt can survive the first escape. Every later initialized adoption
-         * must preserve it too, even when the current backend is available. */
-        int rc=original_runtime_replace(&original_bass[v],next,seq_tempo(&seq),
-            &original_tuning,&original_fx_owner[v]);
-        if(was_unavailable)
-            bass_finish_hard_replace(v,rc,preset);
         if (rc != ORIGINAL_RUNTIME_OK) {
             /* A failed adoption remains visible and needs a fresh explicit
              * request; do not rerun expensive initialization every block. */

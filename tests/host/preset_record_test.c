@@ -414,7 +414,11 @@ static void test_factory_stable(void)
 
 static void test_project_files(void)
 {
-    expect(file_crc("firmware/src/app/project.c") == 0xa20e0a98u, "project.c unchanged");
+    /* The reviewed #922 device-role recovery changes load/save guards, not
+     * the project stream, sound layout or the fixture bytes pinned below.
+     * Pin that audited baseline (blob cd61b3f1), replacing d4088e60's source. */
+    expect(file_crc("firmware/src/app/project.c") == 0x3f650e32u,
+           "project.c reviewed settings-recovery baseline");
     expect(file_crc("tests/fixtures/project-v3-sound10.json") == 0x750e04dau,
            "fixture project-v3");
     expect(file_crc("tests/fixtures/project-v6-sound10.json") == 0xa26387a4u,
