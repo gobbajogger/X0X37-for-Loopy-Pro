@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -33,6 +34,7 @@ def main():
     original_source=next(x for x in compile_cmd if x.endswith('/closure/scheduler/scheduler.cpp'))
     link_cmd=commands[-1]
     original_object=compile_cmd[compile_cmd.index('-o')+1]
+    local=Path(original_source).parent
     source=Path(original_source).read_text();out=build/'mutations';out.mkdir(exist_ok=True)
     table=out/'public-morphs.f32';table.write_bytes(table_bytes)
     baseline=Path(link_cmd[link_cmd.index('-o')+1])
@@ -42,13 +44,31 @@ def main():
     build_env=dict(os.environ)
     for variable in ['CPATH','C_INCLUDE_PATH','CPLUS_INCLUDE_PATH','OBJC_INCLUDE_PATH']:build_env.pop(variable,None)
     for name,old,new,count in MUTATIONS:
-        if source.count(old)!=count:raise SystemExit('mutation binding mismatch: '+name)
-        altered=out/(name+'.cpp');altered.write_text(source.replace(old,new))
+        # The handwritten oracle setter is inline in a separate header. Rebuild
+        # every local translation unit against an isolated copy, not stale objects.
+        header_mutation=name=='unclamped_oracle_output_half_time'
+        bound_source=(local/'oracle/state.hpp').read_text() if header_mutation else source
+        if bound_source.count(old)!=count:raise SystemExit('mutation binding mismatch: '+name)
         obj=out/(name+'.o');binary=out/name
-        c=[str(altered) if x==original_source else str(obj) if x==original_object else x for x in compile_cmd]
-        l=[str(obj) if x==original_object else str(binary) if x==link_cmd[link_cmd.index('-o')+1] else x for x in link_cmd]
-        compiled=subprocess.run(c,text=True,capture_output=True,env=build_env);(out/(name+'.compile.txt')).write_text(compiled.stdout+compiled.stderr)
-        if compiled.returncode:raise SystemExit('mutation did not compile: '+name)
+        if header_mutation:
+            closure=out/(name+'-closure');shutil.copytree(local,closure,dirs_exist_ok=True)
+            (closure/'oracle/state.hpp').write_text(bound_source.replace(old,new))
+            replacements={}
+            for original in commands[:-1]:
+                if not any(x.startswith(str(local)+'/') and x.endswith('.cpp') for x in original):continue
+                old_object=original[original.index('-o')+1]
+                new_object=out/(name+'-'+Path(old_object).name);replacements[old_object]=str(new_object)
+                c=[str(new_object) if x==old_object else x.replace(str(local),str(closure)) for x in original]
+                compiled=subprocess.run(c,text=True,capture_output=True,env=build_env)
+                (out/(name+'-'+Path(old_object).stem+'.compile.txt')).write_text(compiled.stdout+compiled.stderr)
+                if compiled.returncode:raise SystemExit('mutation did not compile: '+name)
+            l=[replacements.get(x,str(binary) if x==str(baseline) else x) for x in link_cmd]
+        else:
+            altered=out/(name+'.cpp');altered.write_text(bound_source.replace(old,new))
+            c=[str(altered) if x==original_source else str(obj) if x==original_object else x for x in compile_cmd]
+            l=[str(obj) if x==original_object else str(binary) if x==str(baseline) else x for x in link_cmd]
+            compiled=subprocess.run(c,text=True,capture_output=True,env=build_env);(out/(name+'.compile.txt')).write_text(compiled.stdout+compiled.stderr)
+            if compiled.returncode:raise SystemExit('mutation did not compile: '+name)
         linked=subprocess.run(l,text=True,capture_output=True,env=build_env)
         if linked.returncode:raise SystemExit('mutation did not link: '+name+' '+linked.stderr)
         executed=subprocess.run([str(binary),str(table)],text=True,capture_output=True)

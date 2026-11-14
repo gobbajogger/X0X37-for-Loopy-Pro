@@ -8,6 +8,7 @@
 #include <cstring>
 #include <vector>
 #include <limits>
+#include <type_traits>
 #include <sys/mman.h>
 #include <unistd.h>
 
@@ -68,7 +69,7 @@ static void record(Snapshot&z,const S1NoteState&a,bool initialized){
     record(z,*a.morphCrossFade);record(z,*a.filterCrossFade);record(z,*a.subOsc);record(z,*a.fmOsc);
     record(z,*a.noise);record(z,*a.loPass);record(z,*a.bandPass);record(z,*a.hiPass);
 }
-static Snapshot capture(const State&a,bool original){
+static Snapshot common_capture(const State&a){
     Snapshot z;
     F(parameters);F(playingNoteStatesIndex);F(monoFrequency);F(monoFrequencySmooth);F(previousProcessMonoPolyStatus);
     F(resetted);F(initializedNoteStates);F(processSampleCounter);
@@ -82,20 +83,33 @@ static Snapshot capture(const State&a,bool original){
     z.put(a.sp->sr);z.put(a.sp->rand);z.put(a.sp->pos);z.put(*a.sp->out);z.put(a.sp->nchan);z.put(a.sp->len);z.put(a.sp->filename);
     z.put(a.ft_frequencyBand);z.put(a.initialized());
     for(unsigned i=0;i<53;++i){const auto&d=i<52?*a.ft_array[i]:*a.sine;z.put(d.size);z.put(d.lobits);z.put(d.lomask);z.put(d.lodiv);z.put(d.sicvt);z.put(d.del);z.put(d.tbl);}
+    return z;
+}
+static Snapshot capture(const RuntimeState&a){
+    Snapshot z=common_capture(a);
+    for(unsigned i=0;i<150;++i)if(synthone_ports::selected_slots[i]!=synthone_ports::unsmoothed_slot){
+        z.put(a.compactPorts.target(i).value);record(z,a.compactPorts.port(i).state);
+    }
+    return z;
+}
+static Snapshot capture(const OracleState&a){
+    Snapshot z=common_capture(a);
     for(unsigned i=0;i<150;++i)if(a.s1p[i].usePortamento){
-        if(original){z.put(a.s1p[i].portamentoTarget);record(z,*a.s1p[i].portamento);}
-        else {z.put(a.compactPorts.target(i).value);record(z,a.compactPorts.port(i).state);}
+        z.put(a.s1p[i].portamentoTarget);record(z,*a.s1p[i].portamento);
     }
     return z;
 }
 #undef F
 static void equal(const Snapshot&a,const Snapshot&b){++snapshots;CHECK(a.size==b.size);if(std::memcmp(a.bytes,b.bytes,a.size)){for(size_t i=0;i<a.size;++i)if(a.bytes[i]!=b.bytes[i]){std::fprintf(stderr,"snapshot byte %zu of %zu: %u != %u\n",i,a.size,a.bytes[i],b.bytes[i]);break;}fail("exact state snapshot",__LINE__);}}
-struct Trace {std::vector<Snapshot> values;bool original=false;};
-static void traced(const State&s,unsigned phase,unsigned frame,void*context){auto&t=*static_cast<Trace*>(context);CHECK(t.values.size()<t.values.capacity());auto z=capture(s,t.original);z.put(phase);z.put(frame);t.values.push_back(z);}
+struct Trace {std::vector<Snapshot> values;};
+template<class S>static void traced(const S&s,unsigned phase,unsigned frame,void*context){auto&t=*static_cast<Trace*>(context);CHECK(t.values.size()<t.values.capacity());auto z=capture(s);z.put(phase);z.put(frame);t.values.push_back(z);}
 struct Pair {
     Scheduler s;Oracle o;Fixture&fixture;float values[150];
-    Pair(Fixture&f,int rate,bool mono=false):fixture(f){std::memcpy(values,defaults,sizeof values);values[isMono]=mono?1:0;CHECK(s.init(f.tables,rate,values,150,f.tuning,128));CHECK(o.init(f.tables,rate,values,150,f.tuning,128));compare();}
-    void compare(){equal(capture(s,false),capture(o,true));}
+    Pair(Fixture&f,int rate,bool mono=false):fixture(f){std::memcpy(values,defaults,sizeof values);values[isMono]=mono?1:0;CHECK(s.init(f.tables,rate,values,150,f.tuning,128));CHECK(o.init(f.tables,rate,values,150,f.tuning,128));
+        unsigned selected=0;
+        for(unsigned i=0;i<150;++i){CHECK(o.s1p[i].usePortamento==(synthone_ports::selected_slots[i]!=synthone_ports::unsmoothed_slot));if(o.s1p[i].usePortamento){CHECK(synthone_ports::selected_indices[selected]==i);++selected;}}
+        CHECK(selected==46);compare();}
+    void compare(){equal(capture(s),capture(o));}
     void parameter(unsigned p,float v){NoHeap n;CHECK(s.set_target(p,v));o._setSynthParameter(p,v);++events;compare();}
     void start(int p,int v,float f=1){NoHeap n;CHECK(s.start(p,v,f));o.startNote(p,v,f);++events;compare();}
     void on(int p,int v,float f){NoHeap n;CHECK(s.on(p,v,f));o.turnOnKey(p,v,f);++events;compare();}
@@ -109,10 +123,10 @@ struct Pair {
     void block(unsigned n,unsigned offset=0){
         CHECK(n<=512&&offset<=7);float sl[520],sr[520],ol[520],orr[520];
         for(unsigned i=0;i<520;++i)sl[i]=sr[i]=ol[i]=orr[i]=123.25f;
-        Trace st,ot;st.values.reserve(n+1);ot.values.reserve(n+1);ot.original=true;
-        s.trace_fn=o.trace_fn=traced;s.trace_context=&st;o.trace_context=&ot;
+        Trace st,ot;st.values.reserve(n+1);ot.values.reserve(n+1);
+        s.trace_fn=traced<RuntimeState>;o.trace_fn=traced<OracleState>;s.trace_context=&st;o.trace_context=&ot;
         {NoHeap guard;CHECK(s.process(n,offset,sl,sr));o.process(n,offset,ol,orr);}
-        s.trace_fn=o.trace_fn=nullptr;s.trace_context=o.trace_context=nullptr;
+        s.trace_fn=nullptr;o.trace_fn=nullptr;s.trace_context=o.trace_context=nullptr;
         CHECK(st.values.size()==n+1&&ot.values.size()==n+1);
         for(size_t i=0;i<st.values.size();++i)equal(st.values[i],ot.values[i]);
         CHECK(!std::memcmp(sl,ol,sizeof sl)&&!std::memcmp(sr,orr,sizeof sr));
@@ -120,7 +134,64 @@ struct Pair {
         frames+=n;compare();
     }
 };
+// A constructed instance owns self-referential DSP/control pointers and cannot relocate.
+static_assert(!std::is_copy_constructible<Scheduler>::value && !std::is_copy_assignable<Scheduler>::value &&
+              !std::is_move_constructible<Scheduler>::value && !std::is_move_assignable<Scheduler>::value,"runtime address stability");
+static_assert(!std::is_copy_constructible<Oracle>::value && !std::is_copy_assignable<Oracle>::value &&
+              !std::is_move_constructible<Oracle>::value && !std::is_move_assignable<Oracle>::value,"oracle address stability");
+template<class S>static bool inside(const S&a,const void*p,size_t bytes){
+    auto begin=reinterpret_cast<uintptr_t>(&a),x=reinterpret_cast<uintptr_t>(p);
+    return x>=begin && x-begin<=sizeof a && bytes<=sizeof a-(x-begin);
+}
+template<class S>static void self_bound(const S&a){
+    CHECK(inside(a,a.sp,sizeof *a.sp));CHECK(inside(a,a.sp->out,sizeof(float)));
+    CHECK(inside(a,a.lfo1Phasor,sizeof *a.lfo1Phasor));CHECK(inside(a,a.lfo2Phasor,sizeof *a.lfo2Phasor));
+    CHECK(inside(a,a.lfo1Port,sizeof *a.lfo1Port));CHECK(inside(a,a.lfo2Port,sizeof *a.lfo2Port));
+    CHECK(inside(a,a.monoFrequencyPort,sizeof *a.monoFrequencyPort));
+    for(unsigned i=0;i<53;++i)CHECK(inside(a,i<52?a.ft_array[i]:a.sine,sizeof(sp_ftbl)));
+    if(a.initializedNoteStates)for(unsigned i=0;i<7;++i){const auto&v=i<6?a.poly[i]:a.mono;
+        CHECK(v.kernel==static_cast<const State*>(&a));CHECK(inside(a,v.adsr,sizeof *v.adsr));CHECK(inside(a,v.fadsr,sizeof *v.fadsr));
+        CHECK(inside(a,v.oscmorph1,sizeof *v.oscmorph1));CHECK(inside(a,v.oscmorph2,sizeof *v.oscmorph2));
+        CHECK(inside(a,v.morphCrossFade,sizeof *v.morphCrossFade));CHECK(inside(a,v.filterCrossFade,sizeof *v.filterCrossFade));
+        CHECK(inside(a,v.subOsc,sizeof *v.subOsc));CHECK(inside(a,v.fmOsc,sizeof *v.fmOsc));CHECK(inside(a,v.noise,sizeof *v.noise));
+        CHECK(inside(a,v.loPass,sizeof *v.loPass));CHECK(inside(a,v.bandPass,sizeof *v.bandPass));CHECK(inside(a,v.hiPass,sizeof *v.hiPass));
+    }
+}
+template<class S>static void rejected_aliases(S&a,void*control,Fixture&f,int rate){
+    unsigned char before[sizeof(S)];std::memcpy(before,&a,sizeof a);
+    float left[4]={1,2,3,4},right[4]={5,6,7,8};auto*internal=reinterpret_cast<float*>(control);
+    Tables bad=f.tables;bad.morph[0].samples=internal;
+    {NoHeap n;
+        CHECK(!a.restore(internal,150));CHECK(!a.restore(a.parameters+1,150));
+        CHECK(!a.init(f.tables,rate,internal,150,f.tuning,128));
+        CHECK(!a.init(f.tables,rate,defaults,150,internal,128));
+        CHECK(!a.init(bad,rate,defaults,150,f.tuning,128));
+        CHECK(!a.valid_output(internal,right,1,0));CHECK(!a.valid_output(left,internal,1,0));
+        CHECK(!a.valid_output(a.parameters,right,1,0));CHECK(!a.valid_output(left,left,1,0));
+    }
+    CHECK(!std::memcmp(before,&a,sizeof a));CHECK(left[0]==1&&right[0]==5);
+}
 static void run(Fixture&f,int rate){
+    case_name="concrete whole-instance aliases reject atomically";++cases;
+    {Pair p(f,rate);p.start(60,80);p.block(16);
+        rejected_aliases(p.s,&p.s.compactPorts,f,rate);
+        rejected_aliases(p.o,p.o.s1p,f,rate);
+        rejected_aliases(p.o,p.o.s1p[149].portamento,f,rate);
+        auto before=capture(p.s);float output=77;
+        {NoHeap n;CHECK(!p.s.process(1,0,reinterpret_cast<float*>(&p.s.compactPorts),&output));}
+        equal(before,capture(p.s));CHECK(output==77);p.compare();p.block(3);
+    }
+    case_name="exact output restore, independent instances and fresh reinit";++cases;
+    {Pair p(f,rate);p.start(60,90);p.block(20);p.restore();
+        {NoHeap n;CHECK(p.s.restore(p.s.parameters,150));CHECK(p.o.restore(p.o.parameters,150));}
+        p.compare();p.start(67,100);p.block(20);self_bound(p.s);self_bound(p.o);
+        for(unsigned i=0;i<150;++i)CHECK(inside(p.o,p.o.s1p[i].portamento,sizeof(sp_port)));
+        auto before_s=capture(p.s),before_o=capture(p.o);
+        {Pair other(f,rate);other.start(35,40);other.block(12);equal(before_s,capture(p.s));equal(before_o,capture(p.o));}
+        {NoHeap n;CHECK(p.s.init(f.tables,rate,p.values,150,f.tuning,128));CHECK(p.o.init(f.tables,rate,p.values,150,f.tuning,128));}
+        Pair fresh(f,rate);p.compare();equal(capture(p.s),capture(fresh.s));equal(capture(p.o),capture(fresh.o));
+        p.start(40,90);p.block(20);self_bound(p.s);self_bound(p.o);
+    }
     case_name="source-header fresh LFO inverses and 128 held pitches";++cases;
     {Pair p(f,rate);CHECK(p.s.lfo1_1_0==0&&p.s.lfo2_1_0==0&&p.s.lfo3_1_0==0);
         for(int i=0;i<128;++i)p.start(i,i%128);CHECK(p.s.heldNoteNumbers.count==128);p.start(63,117);CHECK(p.s.heldNoteNumbers.count==128&&p.s.heldNoteNumbers[0].noteNumber==63);p.block(32);p.stop_all();CHECK(p.s.heldNoteNumbers.count==0);p.block(10);}
@@ -161,9 +232,9 @@ static void run(Fixture&f,int rate){
     case_name="empty block selected-bank release, counter, resetSequencer";++cases;
     {Pair p(f,rate);p.start(60,70);for(int i=0;i<5;++i)p.block(512);CHECK(p.s.processSampleCounter==0);{NoHeap n;CHECK(p.s.reset_sequencer());p.o.resetSequencer();p.compare();}p.block(0);}
     case_name="atomic invalid external admission";++cases;
-    {Pair p(f,rate);p.start(60,70);p.block(20);auto before=capture(p.s,false);float x[4]={1,2,3,4},y[4]={5,6,7,8};
+    {Pair p(f,rate);p.start(60,70);p.block(20);auto before=capture(p.s);float x[4]={1,2,3,4},y[4]={5,6,7,8};
         {NoHeap n;CHECK(!p.s.start(-1,80));CHECK(!p.s.start(128,80));CHECK(!p.s.start(60,128));CHECK(!p.s.on(60,80,std::numeric_limits<float>::quiet_NaN()));CHECK(!p.s.set_target(150,1));CHECK(!p.s.set_target(arpIsOn,1));CHECK(!p.s.set_target(cutoff,std::numeric_limits<float>::infinity()));CHECK(!p.s.process(4,0,x,x));CHECK(!p.s.process(65537,0,x,y));CHECK(!p.s.process(1,0,p.s.parameters,y));CHECK(!p.s.process(1,0,const_cast<float*>(f.tables.sine),y));CHECK(!p.s.restore(nullptr,150));}
-        equal(before,capture(p.s,false));CHECK(x[0]==1&&y[0]==5);}
+        equal(before,capture(p.s));CHECK(x[0]==1&&y[0]==5);}
 }
-int main(int argc,char**argv){CHECK(argc==2);Fixture fixture(argv[1]);for(int rate:{44100,48000,96000})run(fixture,rate);
+int main(int argc,char**argv){CHECK(argc==2);case_name="runtime excludes original oracle control storage";CHECK(sizeof(Scheduler)<sizeof(Oracle));Fixture fixture(argv[1]);for(int rate:{44100,48000,96000})run(fixture,rate);
     std::printf("{\"cases\":%u,\"checks\":%llu,\"frames\":%llu,\"state_snapshots\":%llu,\"events\":%llu,\"heap_calls_during_actions\":0,\"failures\":0}\n",cases,checks,frames,snapshots,events);return 0;}

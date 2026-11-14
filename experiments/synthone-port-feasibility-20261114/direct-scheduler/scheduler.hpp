@@ -24,26 +24,16 @@ struct EmptySequencer {
     void reset(bool) { pending_empty = true; ++resets; }
     void process(float *, const Held &) const;
 };
-struct S1Info { bool usePortamento = false; sp_port *portamento = nullptr; float portamentoTarget = 0; };
+struct InstanceSpan { const void *data; size_t bytes; };
 class State : public S1DSPKernel {
 public:
-    State() = default;
     State(const State &) = delete;
     State &operator=(const State &) = delete;
-    bool init(const synthone_shared::Tables &, int rate, const float *values,
-              size_t value_count, const float *tuning, size_t tuning_count);
-    // Source restoreValues note/control boundary only; absent FX/rates excluded.
-    bool restore(const float *values, size_t count);
     void initializeNoteStates();
     double tuningTableNoteToHz(int note) const;
     void heldNotesDidChange() {}
     void playingNotesDidChange() {}
     void beatCounterDidChange() {}
-    void _setSynthParameter(int parameter, float value); // Oracle control adapter.
-    void trace(unsigned phase, unsigned frame) const;
-    using Trace = void (*)(const State &,unsigned,unsigned,void *);
-    Trace trace_fn = nullptr;
-    void *trace_context = nullptr;
 
     std::array<S1NoteState,6> poly{};
     std::array<S1NoteState,6> *noteStates = &poly;
@@ -57,15 +47,20 @@ public:
     const float *tuningTable = nullptr;
     bool resetted = false, initializedNoteStates = false;
     double processSampleCounter = 0;
-    S1Info s1p[150]{};
     EmptySequencer sequencer{};
-    void *delayL = nullptr, *delayR = nullptr, *delayRR = nullptr, *delayFillIn = nullptr;
-    synthone_ports::Ports compactPorts;
     bool initialized() const { return initialized_; }
     bool valid_parameter(unsigned, float) const;
     bool valid_event(int pitch, int velocity, float frequency) const;
-    bool valid_output(float *, float *, unsigned, unsigned) const;
 protected:
+    State() = default;
+    State(State &&) = delete;
+    State &operator=(State &&) = delete;
+    bool valid_init(const synthone_shared::Tables &, int, const float *, size_t,
+                    const float *, size_t, InstanceSpan) const;
+    bool valid_restore(const float *, size_t, InstanceSpan) const;
+    bool valid_output_span(float *, float *, unsigned, unsigned, InstanceSpan) const;
+    void init_graph(const synthone_shared::Tables &, int, const float *);
+    void restore_graph();
     struct NoteObjects {
         sp_adsr adsr{}, fadsr{};
         sp_oscmorph2d morph1{}, morph2{};
@@ -74,15 +69,49 @@ protected:
         sp_moogladder lowpass{}; sp_butbp bandpass{}; sp_buthp highpass{};
     } objects_[7]{};
     sp_phasor phasor1_{}, phasor2_{};
-    sp_port port1_{}, port2_{}, mono_port_{}, reference_ports_[150]{};
+    sp_port port1_{}, port2_{}, mono_port_{};
     sp_data context_{};
     float context_output_ = 0;
     sp_ftbl descriptors_[53]{};
     bool initialized_ = false;
 };
 
-class Scheduler : public State {
+// Only the compact control representation belongs to the runtime.
+class RuntimeState : public State {
 public:
+    synthone_ports::Ports compactPorts;
+    using Trace = void (*)(const RuntimeState &,unsigned,unsigned,void *);
+    Trace trace_fn = nullptr;
+    void *trace_context = nullptr;
+    void trace(unsigned phase, unsigned frame) const {
+        if(trace_fn) trace_fn(*this,phase,frame,trace_context);
+    }
+protected:
+    RuntimeState() = default;
+    bool init_runtime(const synthone_shared::Tables &, int, const float *, size_t,
+                      const float *, size_t, InstanceSpan);
+    bool restore_runtime(const float *, size_t, InstanceSpan);
+};
+
+// Concrete wrappers authenticate the entire final object, not its common base.
+class Scheduler final : public RuntimeState {
+public:
+    Scheduler() = default;
+    Scheduler(const Scheduler &) = delete;
+    Scheduler &operator=(const Scheduler &) = delete;
+    Scheduler(Scheduler &&) = delete;
+    Scheduler &operator=(Scheduler &&) = delete;
+    bool init(const synthone_shared::Tables &tables, int rate, const float *values,
+              size_t count, const float *tuning, size_t tuning_count) {
+        return init_runtime(tables,rate,values,count,tuning,tuning_count,{this,sizeof *this});
+    }
+    // Source restoreValues note/control boundary only; absent FX/rates excluded.
+    bool restore(const float *values, size_t count) {
+        return restore_runtime(values,count,{this,sizeof *this});
+    }
+    bool valid_output(float *l, float *r, unsigned n, unsigned offset) const {
+        return valid_output_span(l,r,n,offset,{this,sizeof *this});
+    }
     bool set_target(unsigned parameter, float resolved_value);
     bool start(int pitch, int velocity, float ignored_frequency = 1.f);
     bool on(int pitch, int velocity, float explicit_frequency);

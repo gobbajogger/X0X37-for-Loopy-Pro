@@ -9,6 +9,12 @@
   "source_receipt_sha256": "bcc78cf484067a5863ae041efca070a1e74c124e42c6c5ead7196331b362e823",
   "inputs": [
     {
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.hpp",
+      "bytes": 31105,
+      "git_blob_sha": "175615d3fdd920df2054546dc1523a0ea8f0066e",
+      "sha256": "95dd9af314495a56e5d2b9619c5737107b2a6d9ac3b9120ff657034f5b0dac32"
+    },
+    {
       "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+toggleKeys.mm",
       "bytes": 6142,
       "git_blob_sha": "dbffc5a69ae0ee4da88b67291d50b52386a8947d",
@@ -350,7 +356,7 @@
   "generated": [
     {
       "path": "oracle.hpp",
-      "sha256": "c856ac499d87f24ff6d1d239ddaf333e298c486c61cf4aca9579c7d195c38b64"
+      "sha256": "4dc52f4d47e24cc276a8b7e8a0b92d2812af0f1d5975844766b58b9c643f99e8"
     },
     {
       "path": "oracle.cpp",
@@ -361,7 +367,7 @@
     "Sequential direct-event calls only; no cross-thread AEArray timing claim",
     "Arp disabled and original sequencer.reset(true) leaves no pending notes before processing",
     "Caller enforces held capacity of 128 distinct valid MIDI pitches",
-    "Source-compatible State supplies actual per-note DSP, shared tables/LFOs/PRNG, independent actual parameter ports and no-op notification methods"
+    "Common State supplies actual per-note DSP and shared tables/LFOs/PRNG; separate OracleState owns actual parameter ports and no-op delay tokens"
   ],
   "exclusions": [
     "Global FX suffix after eligible-note render",
@@ -371,6 +377,12 @@
     "AU event slicing, sustain/app wrapper and MIDI-origin policy",
     "CPU/resource/native/device or complete engine acceptance"
   ],
+  "original_selected_flags": {
+    "source": "S1DSPKernel.hpp",
+    "parameters": 150,
+    "selected": 46,
+    "flags_sha256": "dc5662f7ea455eab577513d16bc068dd7297d6bbded2e487fb00c16494f8f075"
+  },
   "local_adapters": [
     "AEArray token is the address of the independently copied Held snapshot; item returns the corresponding NoteNumber address",
     "Direct-event domain constants are MIDI 128, six poly slots and source 0.01f release threshold",
@@ -380,6 +392,6 @@
     "No scheduler/allocation/ADSR/frequency/LFO arithmetic rewritten",
     "Source body comments preserved",
     "Traces observe state only and must not mutate it",
-    "State is caller-owned common adaptation; its initialization and helper closure require separate verification"
+    "State is caller-owned common graph; OracleState lifecycle/setter is handwritten and separately verified, independent of runtime compact ports"
   ]
 }
