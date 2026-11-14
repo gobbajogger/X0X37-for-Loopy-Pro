@@ -437,7 +437,7 @@ for b in elite pro elite-rel pro-rel; do   # code free, RAM free and pool headro
     ru=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 1); rm=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 2)
     pu=$(num 'pool [0-9]+ B of [0-9]+' "$f" 1); pm=$(num 'pool [0-9]+ B of [0-9]+' "$f" 2)
     rf=$(( ${rm:-0} - ${ru:-0} )); ph=$(( ${pm:-0} - ${pu:-0} ))
-    [ -n "$cf" ] && [ "$cf" -ge 0 ] || fail "$b build: app code over the limit (no 'B free' line)"
+    [ -n "$cf" ] && [ "$cf" -ge 8192 ] || fail "$b build: app flash headroom ${cf:-unknown} B < 8192 B"
     [ -n "$ru" ] && [ -n "$rm" ] && [ "$rf" -ge 0 ] || fail "$b build: app RAM over the limit"
     [ -n "$pu" ] && [ "$ph" -ge 8192 ] || fail "$b build: pool headroom $ph B < 8192 B"
     SIZES="$SIZES| ${b/-rel/ rel} | ${cf:-?} B | ${ru:-?} of ${rm:-?} B, $rf B free | ${pu:-?} of ${pm:-?} B, $ph B headroom |
