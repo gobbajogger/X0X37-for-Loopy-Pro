@@ -1,0 +1,184 @@
+[
+  {
+    "type": "analog",
+    "idx": 0,
+    "value": 1023,
+    "ms": 120
+  },
+  {
+    "type": "analog",
+    "idx": 0,
+    "value": 0,
+    "ms": 240
+  },
+  {
+    "type": "analog",
+    "idx": 4,
+    "value": 1023,
+    "ms": 120
+  },
+  {
+    "type": "analog",
+    "idx": 4,
+    "value": 0,
+    "ms": 240
+  },
+  {
+    "type": "analog",
+    "idx": 8,
+    "value": 1023,
+    "ms": 120
+  },
+  {
+    "type": "analog",
+    "idx": 8,
+    "value": 0,
+    "ms": 240
+  },
+  {
+    "type": "analog",
+    "idx": 12,
+    "value": 1023,
+    "ms": 120
+  },
+  {
+    "type": "analog",
+    "idx": 12,
+    "value": 0,
+    "ms": 240
+  },
+  {
+    "type": "wait",
+    "ms": 250,
+    "capture": "01-four-kicks"
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "02-play-press",
+    "captureDown": "02a-play-held"
+  },
+  {
+    "type": "wait",
+    "ms": 500,
+    "capture": "03-running-grid"
+  },
+  {
+    "type": "tap",
+    "id": 49,
+    "capture": "04-home-running"
+  },
+  {
+    "type": "analog",
+    "idx": 1,
+    "value": 1023,
+    "ms": 100,
+    "capture": "05-pattern2-pending"
+  },
+  {
+    "type": "analog",
+    "idx": 1,
+    "value": 0,
+    "ms": 120
+  },
+  {
+    "type": "wait",
+    "ms": 2300,
+    "capture": "06-pattern2-adopted"
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "07-stop"
+  },
+  {
+    "type": "enc",
+    "enc": 2,
+    "count": 4,
+    "clicks": 1
+  },
+  {
+    "type": "tap",
+    "id": 52,
+    "capture": "08-chicago-b-seq"
+  },
+  {
+    "type": "analog",
+    "idx": 4,
+    "value": 1023,
+    "ms": 180,
+    "capture": "09-held-step5"
+  },
+  {
+    "type": "tap",
+    "id": 50,
+    "capture": "10-held-step-sound"
+  },
+  {
+    "type": "enc",
+    "enc": 1,
+    "count": 2,
+    "clicks": 1,
+    "capture": "11-held-filter1"
+  },
+  {
+    "type": "enc",
+    "enc": 4,
+    "count": 2,
+    "clicks": 1,
+    "capture": "12-step-cutoff-lock"
+  },
+  {
+    "type": "analog",
+    "idx": 4,
+    "value": 0,
+    "ms": 400,
+    "capture": "13-lock-released"
+  },
+  {
+    "type": "tap",
+    "id": 52,
+    "capture": "14-seq-return"
+  },
+  {
+    "type": "tap",
+    "id": 50
+  },
+  {
+    "type": "tap",
+    "id": 53
+  },
+  {
+    "type": "key",
+    "id": 17,
+    "down": true,
+    "ms": 1000,
+    "capture": "15-running-f4"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "16-global-running-key"
+  },
+  {
+    "type": "wait",
+    "ms": 1800,
+    "capture": "17-global-running-silent"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "18-exit-running-key"
+  },
+  {
+    "type": "key",
+    "id": 17,
+    "down": false,
+    "ms": 300
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "19-stop"
+  }
+]

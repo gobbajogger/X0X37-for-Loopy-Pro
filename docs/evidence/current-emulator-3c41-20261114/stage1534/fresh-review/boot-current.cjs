@@ -1,0 +1,25 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),path=require('path'),crypto=require('crypto');
+const root=path.resolve(__dirname,'../..');
+const model=process.argv[2]||'elite';
+if(!['elite','pro'].includes(model))throw Error('unknown model');
+const expected={elite:'62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2',pro:'c38bff0a661e8b4aaaf6b16b153e4ff9ad34fe5e32c4daa5f043db6818ea72e0'};
+const pkg=fs.readFileSync(path.join(root,`stage1444/native-3c41/artifacts/DnBOX-0.0.26-BUILD_ONLY-3c41ef4b-${model}.fwsc`));
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+if(sha(pkg)!==expected[model])throw Error('package hash mismatch');
+const wasm=fs.readFileSync(path.join(root,'emulator-web-poc/audio/fm1_web.wasm'));
+if(sha(wasm)!=='4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14')throw Error('module hash mismatch');
+const worklet=fs.readFileSync(path.join(root,'emulator-web-poc/audio/worklet.js'));
+if(sha(worklet)!=='d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c')throw Error('worklet hash mismatch');
+let Processor;const events=[];global.sampleRate=44100;
+global.AudioWorkletProcessor=class{constructor(){this.port={postMessage:m=>{if(m.type==='frame'){events.push({type:m.type,ms:m.ms,short:m.short,halted:m.halted,playing:m.playing,lcdChanged:!!m.lcd});}else events.push({type:m.type,message:m.message,board:m.board,fatal:m.fatal});}}}};
+global.registerProcessor=(name,c)=>{Processor=c;};
+vm.runInThisContext(worklet.toString(),{filename:'pinned-worklet.js'});
+const ab=b=>b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength);
+(async()=>{const p=new Processor();await p.port.onmessage({data:{type:'boot',seq:1,wasm:ab(wasm),package:ab(pkg),mhz:360,jit:true}});
+if(!p.x)throw Error('boot did not supply emulator');let quanta=0;const start=performance.now();
+while(p.x&&p.x.fm1_ms()<2500&&quanta<15000){p.process([],[[new Float32Array(128),new Float32Array(128)]]);quanta++;}
+const x=p.x;const receipt={model,packageSha256:sha(pkg),node:process.version,booted:events.some(e=>e.type==='booted'),board:p.board,quanta,wallMs:performance.now()-start,ms:x?.fm1_ms(),halted:x?.fm1_halted(),lcdRevision:x?.fm1_lcd_revision(),jit:p.jit,events:events.slice(-10),errors:events.filter(e=>e.type==='error')};
+if(x)fs.writeFileSync(path.join(__dirname,`${model}-boot.rgb565`),Buffer.from(new Uint16Array(x.memory.buffer,x.fm1_lcd(),240*240).slice().buffer));
+fs.writeFileSync(path.join(__dirname,`${model}-boot.json`),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt,null,2));if(!receipt.booted||!x||receipt.halted||receipt.errors.length)process.exitCode=1;
+})().catch(e=>{console.error(e);process.exitCode=1});

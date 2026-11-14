@@ -1,0 +1,72 @@
+[
+  {
+    "path": "stage1534/fresh-review/exercise-current.cjs",
+    "bytes": 4783,
+    "sha256": "cf2f9ff34dda0d40198f830372ef2eef691e061be592ae246b02fdb31542ac38"
+  },
+  {
+    "path": "stage1534/fresh-review/boot-current.cjs",
+    "bytes": 2702,
+    "sha256": "e91a134fc72aa369b0c2b59580ef1a93a77ccdc07d1ae153f6128ce3d93f08e3"
+  },
+  {
+    "path": "stage1534/fresh-review/musical-plan.json",
+    "bytes": 2611,
+    "sha256": "7d28a4df717cb83b049cee4e6a556fa046bc9fc6282591b3c3429763f15416a4"
+  },
+  {
+    "path": "stage1534/fresh-review/musical-qualified-plan.json",
+    "bytes": 2579,
+    "sha256": "fbc24601cdfd4dd6b672b67568c1e44e414198bb67864015d873b679b8212904"
+  },
+  {
+    "path": "stage1534/fresh-review/navigation-qualified-plan.json",
+    "bytes": 1547,
+    "sha256": "d56e249152ff1c539271448f32be7575b46929fd819705e00e5710fbc8e1575f"
+  },
+  {
+    "path": "stage1534/fresh-review/settings-held-plan.json",
+    "bytes": 2108,
+    "sha256": "3a06fcc3be8ea690ae1a5bc2c52bc5f5be5067d8eff94dfe941964e8c20cda68"
+  },
+  {
+    "path": "stage1534/fresh-review/load-plan.json",
+    "bytes": 1772,
+    "sha256": "2b3dedfc10be370b368a96757cbce60960a30148e9092e52f4f1c39062529d74"
+  },
+  {
+    "path": "stage1534/fresh-review/continuity-running-plan.json",
+    "bytes": 1037,
+    "sha256": "3c7f3747d06284c6e869746846517ae37ecb9014af6896d03e990b1c862bbeb7"
+  },
+  {
+    "path": "stage1534/fresh-review/navigation-plan.json",
+    "bytes": 1531,
+    "sha256": "148698eddfb2a1ce6ba854e154fbc0d30a59b64939a6617c349d3af8b3d7d346"
+  },
+  {
+    "path": "stage1534/fresh-review/render-lcd.py",
+    "bytes": 757,
+    "sha256": "120239670f7b8ee506d92ab116209da4f8cf726d05e5ee5ed6f5b8229e78718a"
+  },
+  {
+    "path": "stage1534/emulator-mapping/crates_fm1-web_src_lib.rs",
+    "bytes": 39010,
+    "sha256": "9ac5cf23b787fd81c83c89a4cc1302151c60d3a0a195cc51d9f88fa823548524"
+  },
+  {
+    "path": "stage1534/emulator-mapping/SOURCE.json",
+    "bytes": 1023,
+    "sha256": "96fa51c902bc829ede34bff386028c2ff5116c12a41591f3fbfdf18b9fde4900"
+  },
+  {
+    "path": "stage1534/emulator-mapping/crates_fm1-soc_src_smk.rs",
+    "bytes": 13872,
+    "sha256": "030d022ee4fe23aa55602e461b36c93caf0158fe42a9ae2985a6bb5930bc49c7"
+  },
+  {
+    "path": "stage1534/emulator-mapping/crates_fm1-live_src_panel_smk.rs",
+    "bytes": 19488,
+    "sha256": "310bc39a97fe738e07465f73d6467c423404160d91312756975a68fb212be613"
+  }
+]

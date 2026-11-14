@@ -1,0 +1,298 @@
+{
+  "schema": 1,
+  "purpose": "Exact source/text archive; no runtime or firmware redistribution",
+  "parent_commit": "83fc6d60289869116f93352cf845a9a7e271cdba",
+  "base_root_tree": "555d0913145263800fc062eab23b83e4dfecfed9",
+  "preserved_firmware_source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4475,
+      "sha256": "f17a0705aaffa852adff56eb1ea95a81a2710ae6cfbed23d77d88c04b2b4ace3",
+      "git_blob": "947ecc13d8c7a9032e38fc04897e160fecda4600",
+      "mode": "100644",
+      "origin": "archive addition"
+    },
+    {
+      "path": "stage1534/emulator-mapping/SOURCE.json",
+      "bytes": 1023,
+      "sha256": "96fa51c902bc829ede34bff386028c2ff5116c12a41591f3fbfdf18b9fde4900",
+      "git_blob": "66bef4336fd1e922dfe547e7f51e8e2ba2075433",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/COMMANDS.md",
+      "bytes": 2974,
+      "sha256": "d46e4286e9c3cf5066c5f7b9171d2ce681fe00363712b049437349ec3c230d0b",
+      "git_blob": "4e689c38515743d0245f47980704ffcad63d1377",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/LAUNCH.md",
+      "bytes": 2685,
+      "sha256": "39739efad534cbcecaf9ec5c6c297c53f337bf163b235cbbce125df8b888dd5d",
+      "git_blob": "f323720c8688393d020b0c0b99ba6c69dcde7814",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/REVIEW.md",
+      "bytes": 9972,
+      "sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a",
+      "git_blob": "11f010ed2a6235b2534f7208188421ee53cb9daa",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/boot-current.cjs",
+      "bytes": 2702,
+      "sha256": "e91a134fc72aa369b0c2b59580ef1a93a77ccdc07d1ae153f6128ce3d93f08e3",
+      "git_blob": "508211491cc64d92fd223be3f75d5fc509ddbd63",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/continuity-running-plan.json",
+      "bytes": 1037,
+      "sha256": "3c7f3747d06284c6e869746846517ae37ecb9014af6896d03e990b1c862bbeb7",
+      "git_blob": "1e872cfaec371745e79d86e2f18d5f0893afa1ac",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-boot.json",
+      "bytes": 1893,
+      "sha256": "dc4bc0ecfa6a92b68555bd9a4f165eeaac20d5ce38ef771a44a7b4e3b8b790e0",
+      "git_blob": "1f9a0c68d89f97e8e9dd082202e1f82d85d02baa",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-continuity.json",
+      "bytes": 53803,
+      "sha256": "c1105db255a38160cd2bfa9be19e4cceeb100a9125281c73a08b973225e3b8a0",
+      "git_blob": "ca5ab4075939b30c29038c2bf7122a94c7fafc11",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-load.json",
+      "bytes": 70817,
+      "sha256": "1d8c7a6deab47352730a37f4af113079aa45ff5ea19f9ca65b1ac67217f71cd7",
+      "git_blob": "772b9cef58dc2cb5d304d07768445203ee66e436",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-musical.json",
+      "bytes": 93663,
+      "sha256": "e24adef03f1f99ee25623762ea26c36b43c33a62820ba5f6967434306271fbf7",
+      "git_blob": "9f77a53b2d9764a5edc700c143038cf046f13f09",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-musical2.json",
+      "bytes": 93826,
+      "sha256": "3a6d1c369e3dac6227032e86b1e13dada553390c73f9150d2823d6a09dc844d1",
+      "git_blob": "b8fbe98f3147126587bbecbbbbc11f72f4386745",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-navigation.json",
+      "bytes": 58969,
+      "sha256": "f712b66faf91a69ea5b897dcace80c84fb95f27dace65d548c5cc57efce124e8",
+      "git_blob": "c5f446a50583d81174168315763a95093bf3fac1",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-navigation2.json",
+      "bytes": 59735,
+      "sha256": "8b7c0b8b8ea761ac0078832c621834e9bc6c4b5122daa6367eb6cc5e90ee37aa",
+      "git_blob": "18f01a4354a5cccb698bdcb769abebaf72244817",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/elite-settings-held.json",
+      "bytes": 85278,
+      "sha256": "4cd2d9235e98643fd79630d7b1034663548a8e2c784aa50dd7e5778e1202f1f6",
+      "git_blob": "1ac07f14c6b4fcf3e4abe92c79d7774f6e294ccc",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/exercise-current.cjs",
+      "bytes": 4783,
+      "sha256": "cf2f9ff34dda0d40198f830372ef2eef691e061be592ae246b02fdb31542ac38",
+      "git_blob": "b0e0600b2184b83617f46336f14c14ba147e8643",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/harness-mapping-hashes.json",
+      "bytes": 2394,
+      "sha256": "7e1707cd70139facc503501d7bbcb404702ed30371f8656cee886c21a3e91c15",
+      "git_blob": "6a2fa5205e227238d46e475d0fc8647337595edf",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/inputs.json",
+      "bytes": 906,
+      "sha256": "e5cfbe3ca8c5bd70bca00e5dde1eed86c7f824710aae30b034a583035804c057",
+      "git_blob": "59f3794298a43c6ab749a1057130c9f0428d34c2",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/load-plan.json",
+      "bytes": 1772,
+      "sha256": "2b3dedfc10be370b368a96757cbce60960a30148e9092e52f4f1c39062529d74",
+      "git_blob": "f97774af43bb706c0d270d9cf1cdf872a26705dd",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/musical-plan.json",
+      "bytes": 2611,
+      "sha256": "7d28a4df717cb83b049cee4e6a556fa046bc9fc6282591b3c3429763f15416a4",
+      "git_blob": "1bd5d39a8ad45606ed58a14ffc7f48617d8a612c",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/musical-qualified-plan.json",
+      "bytes": 2579,
+      "sha256": "fbc24601cdfd4dd6b672b67568c1e44e414198bb67864015d873b679b8212904",
+      "git_blob": "397790079ecb42f10354fa43183183fc80e04712",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/navigation-plan.json",
+      "bytes": 1531,
+      "sha256": "148698eddfb2a1ce6ba854e154fbc0d30a59b64939a6617c349d3af8b3d7d346",
+      "git_blob": "b74b685706613ce92ba4ffb719013d251be2825e",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/navigation-qualified-plan.json",
+      "bytes": 1547,
+      "sha256": "d56e249152ff1c539271448f32be7575b46929fd819705e00e5710fbc8e1575f",
+      "git_blob": "3f53f02a023f506f7cb76d2c6a447d42561320f8",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-boot.json",
+      "bytes": 1891,
+      "sha256": "d62ba715a5cf02d97ce9807e1d98754e501ddcf6317e226dd786e11eb03505d0",
+      "git_blob": "c40af65db645dee9a66eb50ca02c1c9e8f0f3410",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-continuity.json",
+      "bytes": 53775,
+      "sha256": "d82fe729a5b5973f59c99548b25d1654dcdb5d3ef97d18e88f3d82c5db280585",
+      "git_blob": "66000741ac3801d9728c1a9529d68f2880ca7782",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-load.json",
+      "bytes": 70645,
+      "sha256": "c06552caa2693585562a8aaa1b47640721470d1b54d4ea3e5b07c5bc9e913283",
+      "git_blob": "18822afdfe4d6597558503bd19ed60557bd6c371",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-musical.json",
+      "bytes": 93659,
+      "sha256": "0c5d8ab333aa0b6b95f9de909791456dc7c7b03b269b15253095dace5fa85719",
+      "git_blob": "b253bc9c036a9839cd5e74bd08ea2d4530771ea8",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-musical2.json",
+      "bytes": 93783,
+      "sha256": "d7db474fc6a2b2b853735124c43433b027d6f33ec4644b1391b69692b30d9ba0",
+      "git_blob": "6cd885f46a16325eb5988742f5f26bd2aa8fdb9c",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-navigation2.json",
+      "bytes": 59662,
+      "sha256": "2b2f9f5487727996258df41deb402297a2cbfbc059d9e0a5c1f042f4552ee653",
+      "git_blob": "3d3358d805e3352e362108442590fa580a153634",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/pro-settings-held.json",
+      "bytes": 85236,
+      "sha256": "0dbdd5fc59ee121644a79b6f92297acef71e424b21626b8215a44a7f3ed859f5",
+      "git_blob": "8fa11b36ce9cd964e826f1f249ef4e39bfa4beb8",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/render-lcd.py",
+      "bytes": 757,
+      "sha256": "120239670f7b8ee506d92ab116209da4f8cf726d05e5ee5ed6f5b8229e78718a",
+      "git_blob": "9d289241ad70f39cd19a65e8e4446dc1cbc5a4f5",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/run-summary.json",
+      "bytes": 3996,
+      "sha256": "3142e4a55810616e6758809507735239201894962b9967255f7c5c20a352716d",
+      "git_blob": "b70372d7eba519f68645fa27af0641d2eaa82511",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/settings-held-plan.json",
+      "bytes": 2108,
+      "sha256": "3a06fcc3be8ea690ae1a5bc2c52bc5f5be5067d8eff94dfe941964e8c20cda68",
+      "git_blob": "ad068e2ebd362da455f4ca496905f4515a52dca6",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/source-inputs.json",
+      "bytes": 1472,
+      "sha256": "713c80ef2a665e4c5403029893bc39c013c9ef16a4fe3c098f6c97b737d8d48a",
+      "git_blob": "763aa681c58576999ec70a692695da0fd7bedf8d",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "stage1534/fresh-review/wasm-exports.json",
+      "bytes": 3736,
+      "sha256": "888d2366f0d87b8190348b495642c175a2090ecb0b53ea0c4a600db865453c94",
+      "git_blob": "bd0865d7df4ca54b071e5af8b95f442bafa169c7",
+      "mode": "100644",
+      "origin": "byte-identical original"
+    },
+    {
+      "path": "PRESERVATION-CHECKS.json",
+      "bytes": 690,
+      "sha256": "4d1f7a891d1872b6ef7409d55d330adddf5f9832a9aef60afd104071dd52d114",
+      "git_blob": "a046567daf994e2fbc3d61b7544c6fb45f21536f",
+      "mode": "100644",
+      "origin": "archive addition"
+    }
+  ],
+  "manifest_self_excluded": true
+}

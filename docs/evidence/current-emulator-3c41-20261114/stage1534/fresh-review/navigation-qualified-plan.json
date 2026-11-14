@@ -1,0 +1,108 @@
+[
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "01-global"
+  },
+  {
+    "type": "tap",
+    "id": 40,
+    "capture": "02-clock-enter-held",
+    "hold": 900
+  },
+  {
+    "type": "tap",
+    "id": 40,
+    "capture": "03-clock-fresh"
+  },
+  {
+    "type": "tap",
+    "id": 39,
+    "capture": "04-clock-back"
+  },
+  {
+    "type": "enc",
+    "enc": 1,
+    "count": 3,
+    "clicks": 1,
+    "capture": "05-audio-selected"
+  },
+  {
+    "type": "tap",
+    "id": 40,
+    "capture": "06-audio"
+  },
+  {
+    "type": "enc",
+    "enc": 1,
+    "count": 1,
+    "clicks": 1,
+    "capture": "07-usb-audio"
+  },
+  {
+    "type": "enc",
+    "enc": 2,
+    "count": 1,
+    "clicks": 1,
+    "capture": "08-usb-edited"
+  },
+  {
+    "type": "tap",
+    "id": 49,
+    "capture": "09-audio-back",
+    "count": 2
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "10-settings-exit"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "11-reentry"
+  },
+  {
+    "type": "tap",
+    "id": 47
+  },
+  {
+    "type": "tap",
+    "id": 49,
+    "capture": "12-home"
+  },
+  {
+    "type": "tap",
+    "id": 49,
+    "capture": "13-song"
+  },
+  {
+    "type": "tap",
+    "id": 52,
+    "capture": "14-seq"
+  },
+  {
+    "type": "enc",
+    "enc": 2,
+    "count": 3,
+    "clicks": 1,
+    "capture": "15-chicago-b-seq"
+  },
+  {
+    "type": "tap",
+    "id": 50,
+    "capture": "16-chicago-sound"
+  },
+  {
+    "type": "enc",
+    "enc": 1,
+    "count": 1,
+    "clicks": 1,
+    "capture": "17-sound-page-next"
+  },
+  {
+    "type": "tap",
+    "id": 50,
+    "capture": "18-para-next"
+  }
+]

@@ -1,0 +1,104 @@
+{
+  "model": "elite",
+  "packageSha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2",
+  "node": "v24.22.1",
+  "booted": true,
+  "board": 1,
+  "quanta": 682,
+  "wallMs": 1946.190003,
+  "ms": 2502,
+  "halted": 0,
+  "lcdRevision": 106428,
+  "jit": {
+    "regions": 954,
+    "failed": 0,
+    "error": "",
+    "bytes": 1725140,
+    "tableSlots": 1132,
+    "compileMs": 107.01176100000112,
+    "compileMaxMs": 3.258771999999965
+  },
+  "events": [
+    {
+      "type": "frame",
+      "ms": 2159,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2194,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2229,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2264,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2298,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2333,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2368,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    },
+    {
+      "type": "frame",
+      "ms": 2403,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": true
+    },
+    {
+      "type": "frame",
+      "ms": 2438,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": true
+    },
+    {
+      "type": "frame",
+      "ms": 2473,
+      "short": 13,
+      "halted": 0,
+      "playing": true,
+      "lcdChanged": false
+    }
+  ],
+  "errors": []
+}

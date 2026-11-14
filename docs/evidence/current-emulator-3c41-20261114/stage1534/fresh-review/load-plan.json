@@ -1,0 +1,117 @@
+[
+  {
+    "type": "tap",
+    "id": 47
+  },
+  {
+    "type": "tap",
+    "id": 40
+  },
+  {
+    "type": "tap",
+    "id": 40,
+    "capture": "01-dirty-clock"
+  },
+  {
+    "type": "tap",
+    "id": 39
+  },
+  {
+    "type": "enc",
+    "enc": 1,
+    "count": 5,
+    "clicks": 1,
+    "capture": "02-project-selected"
+  },
+  {
+    "type": "tap",
+    "id": 40,
+    "capture": "03-project"
+  },
+  {
+    "type": "enc",
+    "enc": 1,
+    "count": 1,
+    "clicks": 1,
+    "capture": "04-load-selected"
+  },
+  {
+    "type": "tap",
+    "id": 45,
+    "capture": "05-load-question",
+    "captureDown": "04b-scale-before-release"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "06-globe-ignored"
+  },
+  {
+    "type": "tap",
+    "id": 39,
+    "capture": "07-left-ignored"
+  },
+  {
+    "type": "tap",
+    "id": 49,
+    "capture": "08-patch-cancel"
+  },
+  {
+    "type": "tap",
+    "id": 45,
+    "capture": "09-load-question"
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "10-play-start",
+    "captureDown": "10a-play-press"
+  },
+  {
+    "type": "tap",
+    "id": 45,
+    "capture": "11-question-running"
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "12-play-stop",
+    "captureDown": "12a-play-press"
+  },
+  {
+    "type": "tap",
+    "id": 45,
+    "capture": "13-question-for-clip"
+  },
+  {
+    "type": "tap",
+    "id": 37,
+    "capture": "14-clip-enter",
+    "hold": 180
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "15-clip-play-question"
+  },
+  {
+    "type": "tap",
+    "id": 45,
+    "capture": "16-clip-scale-masked"
+  },
+  {
+    "type": "tap",
+    "id": 49,
+    "capture": "17-clip-patch-cancel"
+  },
+  {
+    "type": "tap",
+    "id": 37,
+    "capture": "18-clip-exit"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "19-settings-exit"
+  }
+]
