@@ -1,5 +1,11 @@
 # X0X
 
+**Scope: upstream FM-1 reference.** For LoopyX0X37 / DnBOX on SMK-37, start with
+the [SMK firmware manual](../SMK37.md). Its pinned development-source instructions
+and qualification limits take precedence. The FM-1 installation/recovery links,
+legacy synth parameters and old-project migration text below are retained as
+history, not instructions or compatibility promises for DnBOX candidates.
+
 X0X turns the M-VAVE FM-1 into a groovebox: a 909, an 808, two 303s and a breakbeat player,
 all playing at once, in stereo. Each part can play its own pattern, you can arrange patterns
 into a song, record knob moves, and give single steps a sound and a chance of their own.
