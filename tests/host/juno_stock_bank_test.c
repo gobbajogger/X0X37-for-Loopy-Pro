@@ -28,7 +28,14 @@ static const uint8_t notes[8][4] = {
     {48,55,60,0}, {48,55,60,0}, {60,64,67,0}, {60,64,67,0},
     {36,48,0,0}, {48,52,55,60}, {60,72,84,0}, {48,55,60,64}
 };
-static const uint8_t stress_notes[6] = {48,52,55,60,64,67};
+static const uint8_t stress_notes[4][6] = {
+    {48,52,55,60,64,67}, {36,37,38,39,40,41},
+    {48,49,50,51,52,53}, {60,61,62,63,64,65}
+};
+static const char *const scene_names[] = {
+    "musical", "six_voice110", "six_voice127",
+    "cluster36", "cluster48", "cluster60"
+};
 static const uint8_t velocities[8] = {98,98,95,95,96,96,94,96};
 static void setup(juno6_t *s, juno6_chorus_t *c, unsigned p)
 {
@@ -47,25 +54,21 @@ static void hash_pcm(uint64_t *hash, float x)
     *hash ^= (uint32_t)q;
     *hash *= UINT64_C(1099511628211);
 }
-static result_t render(unsigned p, int stress)
+static result_t render(unsigned p, unsigned scene)
 {
     juno6_t s; juno6_chorus_t c;
     float mono[BLOCK], l[BLOCK], r[BLOCK];
     result_t out = {0};
-    unsigned total=0, nnotes=0;
+    unsigned total=0, nnotes=scene ? 6u : 0u;
+    const uint8_t *held_notes=scene ? stress_notes[scene<3u ? 0u : scene-2u] : notes[p];
+    uint8_t velocity=scene>=2u ? 127u : scene ? 110u : velocities[p];
     setup(&s,&c,p);
-    if (stress) {
-        for (unsigned i=0;i<6;i++)assert(juno6_note_on(&s,stress_notes[i],110));
-        nnotes=6;
-    } else {
-        while (nnotes<4 && notes[p][nnotes]) {
-            assert(juno6_note_on(&s,notes[p][nnotes],velocities[p])); nnotes++;
-        }
-    }
+    if (!scene)while (nnotes<4u && held_notes[nnotes])nnotes++;
+    for (unsigned i=0;i<nnotes;i++)assert(juno6_note_on(&s,held_notes[i],velocity));
     out.identity=UINT64_C(14695981039346656037);
     while (total<TOTAL) {
         if (total==HELD) {
-            for (unsigned i=0;i<nnotes;i++)juno6_note_off(&s,stress ? stress_notes[i] : notes[p][i]);
+            for (unsigned i=0;i<nnotes;i++)juno6_note_off(&s,held_notes[i]);
         }
         unsigned n=BLOCK;
         if (total<HELD && total+n>HELD)n=HELD-total;
@@ -107,15 +110,19 @@ int main(void)
         assert(name && strlen(name)<=12);
         for(unsigned j=0;j<i;j++)assert(strcmp(name,original_sound_juno_names[j]));
         for(unsigned j=0;j<16;j++)assert(original_sound_juno_factories[i][j]<=127);
-        for(unsigned scene=0;scene<2;scene++) {
-            result_t r=render(i,(int)scene);
-            assert(r.dry_clip==0 && r.wet_clip==0);
+        /* Keep the original scenes and exercise maximum velocity. Additional
+         * low/mid-register clusters qualify the four appended sound designs;
+         * legacy data remain immutable, not universally headroom-qualified. */
+        for(unsigned scene=0;scene<(i<4u ? 3u : 6u);scene++) {
+            result_t r=render(i,scene);
             printf("%s,%s,%u,%.8f,%.8f,%.8f,%.8f,%u,%u,%016llx\n",
-                name,scene ? "six_voice" : "musical",
+                name,scene_names[scene],
                 scene ? 6u : i<4 ? 3u : i==4 ? 2u : i==5||i==7 ? 4u : 3u,
                 r.dry_rms,r.dry_peak,r.wet_rms,r.wet_peak,r.dry_clip,r.wet_clip,
                 (unsigned long long)r.identity);
+            fflush(stdout);
+            assert(r.dry_clip==0 && r.wet_clip==0);
         }
     }
-    puts("PASS: legacy indices untouched; eight distinct stock sounds; sixteen actual Juno DSP dry/chorus scenes finite and below unity (host only)");
+    puts("PASS: legacy indices untouched; eight distinct stock sounds; 36 actual Juno DSP dry/chorus scenes finite and below unity (host only)");
 }
