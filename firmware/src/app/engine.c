@@ -23,18 +23,23 @@
 #define POOL X0X_POOL
 
 
-/* time per stage of the render, in plat_cycles() units (the CPU's cycles, or the 24 MHz timer):
- * running totals (wrapping; the PERF screen takes differences) and the frames rendered. */
+/* Per-stage elapsed execution spans, measured on BOTH cores against the SAME
+ * free-running 24 MHz TIMER4 (plat_ticks24). C0's CKCNTL (plat_cycles) is NOT
+ * a validated C1 cycle counter. These values are elapsed timer ticks, NOT CPU
+ * instruction counts or exclusive CPU utilization: overlapping C0/C1 spans may
+ * sum to more than one core's audio deadline. Waits are excluded where marked.
+ * Unsigned differences handle TIMER4's 32-bit rollover (~179 seconds).
+ * The UI divides every stage by ENG_PROF_TICKS_HZ / audio sample rate. */
 volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
-/* C0's join wait for C1. Included in last_us / LOAD. Not a PERF row (layout unchanged). */
+/* C0's join elapsed ticks; included in last_us / LOAD, not a PERF stage row. */
 volatile uint32_t eng_prof_wait;
-/* C1 writes only this array; C0 reads and clears it after plat_cpu2_wait.
- * They never increment the same word. */
+/* C1 writes only its private totals; C0 folds them after joining, or discards on
+ * failure before replaying that work on C0. Never co-write the same word. */
 static volatile uint32_t eng_prof_c1[ENG_PROF_N];
-#define PROF_T(v) uint32_t v = plat_cycles()
-#define PROF_ADD(k, t0) (eng_prof[k] += plat_cycles() - (t0))
+#define PROF_T(v) uint32_t v = plat_ticks24()
+#define PROF_ADD(k, t0) (eng_prof[k] += plat_ticks24() - (t0))
 #define PROF_ADD_CORE(core, k, t0) do { \
-    uint32_t _dt = plat_cycles() - (t0); \
+    uint32_t _dt = plat_ticks24() - (t0); \
     if (!(core)) \
         eng_prof[k] += _dt; \
     else \
@@ -2730,7 +2735,7 @@ static void core2_fx(uint32_t arg)
             PROF_T(px);
             fxbus_process_st(&fx, dry_l + off, dry_r + off, rev + off, dly + off,
                              ol + off, orr + off, (int)m);
-            eng_prof_c1[PR_FX] += plat_cycles() - px;  /* C1 only; C0 folds after the FX join */
+            PROF_ADD_CORE(1, PR_FX, px);              /* C1 timer ticks; fold after FX join */
         }
         off += m;
         eng_sync();
@@ -2787,7 +2792,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (!(eng_c1_mask & (1u << j)))
             (void)run_job(j, 0);
     if (eng_c1_mask) {
-        uint32_t pt = plat_cycles();
+        uint32_t pt = plat_ticks24();
         int c1_fail = 0;
         if (!eng_c1_waited) {
             eng_c1_waited = 1;
@@ -2797,7 +2802,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             }
         } else if (eng_c1_waited == 2)
             c1_fail = 1;
-        eng_prof_wait += plat_cycles() - pt;          /* join only; takeover is job work */
+        eng_prof_wait += plat_ticks24() - pt;         /* join elapsed ticks; takeover is job work */
         prof_c1_fold(!c1_fail);                       /* C0 adds C1's private totals */
         c1_take_over(JB_N + 1u);                      /* failed, or the host: the rest here */
     }
