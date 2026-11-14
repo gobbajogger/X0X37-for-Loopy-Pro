@@ -1,0 +1,45 @@
+{
+  "status": "qualification_failed_return_to_creator",
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "roadmap": "32b0cacd17c89f23bb2f16915732750d158b33e7",
+  "scope": [
+    "ROADMAP15",
+    "ROADMAP16"
+  ],
+  "shared_write_ownership": "No shared write lease taken; existing firmware/UI/recording owners preserved; #891 planning preserved",
+  "completed": [
+    "Recovered audit and d5c8c9d2 rows",
+    "Verified 5345 source blobs before and after",
+    "Recovered PR791/810/869 receipts",
+    "Executed uncovered normal and ASan/UBSan host regressions"
+  ],
+  "findings": [
+    {
+      "id": "F2-15-RESTORE",
+      "failures": 12,
+      "owner_action": "Restore all edited stopped-preview parameters against captured source owner across EDIT paging and list overlays."
+    },
+    {
+      "id": "F2-16-HOLD",
+      "failures": 20,
+      "owner_action": "Disposition and implement admitted source-note retention through ordinary navigation, list dismissal and SMC popup, preserving genuine invalidation and stale release safeguards."
+    }
+  ],
+  "next_consumer": "Creator routes findings to the existing firmware/UI implementation owner; do not appoint a duplicate writer.",
+  "first_action": "Read REPORT.md and inspect ui.c blobs eb911f58db83e417c67dd71576331803fa6c829e at lines2995/3015 and4279/4375 against the two fixtures; establish current owner candidate before any repair.",
+  "next_acceptance": "After an owner-delivered changed candidate, independently run affected fixtures with exact source verification, retain passing unchanged coverage and all later NOTELOCK decisions. Do not repeat full F2/REC/performance/UX audits.",
+  "successor": {
+    "created": false,
+    "reason": "Standard thread_management.create_thread/read_thread and saved thread-configuration tools unavailable in exposed registry",
+    "first_input_action": "NOT_OBSERVED",
+    "resume": "Return packet to creator via platform completion notification"
+  },
+  "boundaries": [
+    "No SDK workaround",
+    "No physical device actions",
+    "No merge or publication",
+    "No shared UI/firmware changes in this worker"
+  ],
+  "branch": "none; NOT PUSHED",
+  "pr": "none"
+}

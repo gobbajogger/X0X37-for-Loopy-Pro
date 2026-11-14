@@ -1,0 +1,162 @@
+[
+  {
+    "id": 8,
+    "historical_requirement": "Полный sound lock на отдельной ноте",
+    "historical_classification": "NOT BUILT",
+    "historical_source_evidence": "Per-note capture scaffolding exists, but complete per-note 22/18-param sound lock and safe morph not found in #734 or qualified external PR; new regression/implementation required.",
+    "historical_source_revision": "8f5999712998fb7a88d08e9d4ea5ae019338d523",
+    "historical_audit": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md",
+    "requirement": "Full sound lock on a single note. Was missing on 2026-11-01. Owner 2026-11-12 02:43 and 03:12 UTC+10: GLO > AUDIO > NOTE LOCK (runtime, not saved).",
+    "roadmap_status_at_input": "DONE",
+    "roadmap_evidence": "[`29296cbd7`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/29296cbd72a7b0a9e764e06ec55bf98e0c389331)",
+    "earlier_crosswalk": {
+      "pins": {
+        "pr699": "445b91b60b6d97eb56ab4c673aaf56c2186ee967",
+        "pr706": "07bb15e3deab9942531712100b7358e6750f6e5d",
+        "one_build": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40"
+      },
+      "evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "limit": "Complete per-note sound locks and safe morph are not proved in final source."
+    },
+    "combined_source": {
+      "revision": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "path": "firmware/src/app/engine.c",
+      "blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/engine.c",
+      "scope": "Exact file fetched; historical/source labels are documentary presence evidence, not executed acceptance."
+    },
+    "contributions": [
+      {
+        "pr": 791,
+        "head": "b7ae1dd83c2452d500b81e96a360fabe32f7656e",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/791",
+        "disposition": "Five recording commits represented at bb190749; no duplicate firmware port; N6 adds regression. Closed/unmerged, closure6813765419 reports present via864."
+      },
+      {
+        "commit": "29296cbd72a7b0a9e764e06ec55bf98e0c389331",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/29296cbd72a7b0a9e764e06ec55bf98e0c389331",
+        "disposition": "Exact commit metadata/files read: pattern preset binding and runtime NOTELOCK capture/playback; source implementation, not independent acceptance."
+      }
+    ],
+    "independent_review": [
+      {
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/791#issuecomment-6552099499",
+        "head": "b7ae1dd83c2452d500b81e96a360fabe32f7656e",
+        "tree": "0a0fb1287a6a3d0734db0c85d9c0127839d211ed",
+        "verdict": "SCOPED ACCEPTED N6 and provenance only",
+        "scope": "2 selected normal/sanitized host selectors and independent fail-before mutation; explicitly does not certify F2 rows8,15–18,23 or native/device."
+      }
+    ],
+    "integration": "Located at the combined source pin through the linked historical/source records; complete donor-to-combined patch equivalence and final acceptance are not established by a source-present label.",
+    "usable_product_evidence": {
+      "scope": "ROADMAP snapshot at 01175dd8277178005e7e3deb73c2fc81307e2761 reports 0.0.25.1 shipped and 0.0.26 source candidate. Later verified publication evidence belongs to the parent global product envelope and supersedes this snapshot for availability; publication alone does not establish this row on a hash-matched installed product.",
+      "current_exact_candidate_acceptance": "NOT ESTABLISHED by this bounded reconciliation",
+      "device": "No hash-matched per-feature device receipt located; no device operation performed."
+    },
+    "next_action": "Consume F2 per-row acceptance disposition and newer behavior-specific receipts; do not duplicate five already-represented recording patches or count N6 QA as all-F2 acceptance.",
+    "decision": "Historical conditional NOTE_SOUND/scaffold gap superseded by later runtime GLO>NOTELOCK request and29296cbd7 source; old NOTBUILT is history. Need independent reviewed/head execution for new note-lock behavior."
+  },
+  {
+    "id": 15,
+    "historical_requirement": "Сохранение cutoff locks при навигации",
+    "historical_classification": "NOT BUILT",
+    "historical_source_evidence": "Motion and step-lock source exist, but no verified cutoff-lock persistence across navigation/current selection was found. #693 owner should supply exact save/restore proof.",
+    "historical_source_revision": "8f5999712998fb7a88d08e9d4ea5ae019338d523",
+    "historical_audit": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md",
+    "requirement": "Keep cutoff locks when navigating.",
+    "roadmap_status_at_input": "SOURCE EVIDENCE PRESENT at 94197fc8; cutoff/navigation/release and recall acceptance open.",
+    "roadmap_evidence": "[feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md); [F2 acceptance](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/engineering-delivery/f2-recording-port-audit.md)",
+    "earlier_crosswalk": {
+      "pins": {
+        "pr699": "445b91b60b6d97eb56ab4c673aaf56c2186ee967",
+        "pr706": "07bb15e3deab9942531712100b7358e6750f6e5d",
+        "one_build": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40"
+      },
+      "evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "limit": "Cutoff-lock preservation on navigation is not independently verified."
+    },
+    "combined_source": {
+      "revision": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "path": "firmware/src/app/ui.c",
+      "blob": "eb911f58db83e417c67dd71576331803fa6c829e",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c",
+      "scope": "Exact file fetched; historical/source labels are documentary presence evidence, not executed acceptance."
+    },
+    "contributions": [
+      {
+        "pr": 791,
+        "head": "b7ae1dd83c2452d500b81e96a360fabe32f7656e",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/791",
+        "disposition": "Five recording commits represented at bb190749; no duplicate firmware port; N6 adds regression. Closed/unmerged, closure6813765419 reports present via864."
+      }
+    ],
+    "independent_review": [
+      {
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/791#issuecomment-6552099499",
+        "head": "b7ae1dd83c2452d500b81e96a360fabe32f7656e",
+        "tree": "0a0fb1287a6a3d0734db0c85d9c0127839d211ed",
+        "verdict": "SCOPED ACCEPTED N6 and provenance only",
+        "scope": "2 selected normal/sanitized host selectors and independent fail-before mutation; explicitly does not certify F2 rows8,15–18,23 or native/device."
+      }
+    ],
+    "integration": "Located at the combined source pin through the linked historical/source records; complete donor-to-combined patch equivalence and final acceptance are not established by a source-present label.",
+    "usable_product_evidence": {
+      "scope": "ROADMAP snapshot at 01175dd8277178005e7e3deb73c2fc81307e2761 reports 0.0.25.1 shipped and 0.0.26 source candidate. Later verified publication evidence belongs to the parent global product envelope and supersedes this snapshot for availability; publication alone does not establish this row on a hash-matched installed product.",
+      "current_exact_candidate_acceptance": "NOT ESTABLISHED by this bounded reconciliation",
+      "device": "No hash-matched per-feature device receipt located; no device operation performed."
+    },
+    "next_action": "Consume F2 per-row acceptance disposition and newer behavior-specific receipts; do not duplicate five already-represented recording patches or count N6 QA as all-F2 acceptance."
+  },
+  {
+    "id": 16,
+    "historical_requirement": "Жест принадлежит исходной партии до отпускания",
+    "historical_classification": "BUILT ELSEWHERE",
+    "historical_source_evidence": "External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` captures held SMC Solo/FX gestures. Port only missing ownership-through-release to #734; retain per-peer queue; #736 is partial.",
+    "historical_source_revision": "8f5999712998fb7a88d08e9d4ea5ae019338d523",
+    "historical_audit": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md",
+    "requirement": "A gesture belongs to its original part until release. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished.",
+    "roadmap_status_at_input": "SOURCE EVIDENCE PRESENT; original-part cleanup does not prove held notes survive ordinary menus/popups until actual release. Reconcile current acceptance owner.",
+    "roadmap_evidence": "#812; [combined UI](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c); [F2 acceptance](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/engineering-delivery/f2-recording-port-audit.md)",
+    "earlier_crosswalk": {
+      "pins": {
+        "pr699": "445b91b60b6d97eb56ab4c673aaf56c2186ee967",
+        "pr706": "07bb15e3deab9942531712100b7358e6750f6e5d",
+        "one_build": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40"
+      },
+      "evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "limit": "**Proven:** NO, not end-to-end/one-build accepted. Part/gesture ownership repair candidate; full shared-input validation pending."
+    },
+    "combined_source": {
+      "revision": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "path": "firmware/src/app/ui.c",
+      "blob": "eb911f58db83e417c67dd71576331803fa6c829e",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c",
+      "scope": "Exact file fetched; historical/source labels are documentary presence evidence, not executed acceptance."
+    },
+    "contributions": [
+      {
+        "pr": 791,
+        "head": "b7ae1dd83c2452d500b81e96a360fabe32f7656e",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/791",
+        "disposition": "Five recording commits represented at bb190749; no duplicate firmware port; N6 adds regression. Closed/unmerged, closure6813765419 reports present via864."
+      }
+    ],
+    "independent_review": [
+      {
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/791#issuecomment-6552099499",
+        "head": "b7ae1dd83c2452d500b81e96a360fabe32f7656e",
+        "tree": "0a0fb1287a6a3d0734db0c85d9c0127839d211ed",
+        "verdict": "SCOPED ACCEPTED N6 and provenance only",
+        "scope": "2 selected normal/sanitized host selectors and independent fail-before mutation; explicitly does not certify F2 rows8,15–18,23 or native/device."
+      }
+    ],
+    "integration": "Located at the combined source pin through the linked historical/source records; complete donor-to-combined patch equivalence and final acceptance are not established by a source-present label.",
+    "usable_product_evidence": {
+      "scope": "ROADMAP snapshot at 01175dd8277178005e7e3deb73c2fc81307e2761 reports 0.0.25.1 shipped and 0.0.26 source candidate. Later verified publication evidence belongs to the parent global product envelope and supersedes this snapshot for availability; publication alone does not establish this row on a hash-matched installed product.",
+      "current_exact_candidate_acceptance": "NOT ESTABLISHED by this bounded reconciliation",
+      "device": "No hash-matched per-feature device receipt located; no device operation performed."
+    },
+    "next_action": "Consume F2 per-row acceptance disposition and newer behavior-specific receipts; do not duplicate five already-represented recording patches or count N6 QA as all-F2 acceptance.",
+    "decision": "SMC Solo/FX captured ownership from688 and UI captured-source cancellation are partial coverage; ordinary-menu/popup held-note survival until actual release remains distinct HOLD-NOTES-UI acceptance."
+  }
+]

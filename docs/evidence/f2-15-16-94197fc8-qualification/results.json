@@ -1,0 +1,958 @@
+{
+  "step-final": {
+    "exit_code": 1,
+    "summary": [
+      "426",
+      "12"
+    ],
+    "cases": [
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list choose page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list choose page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list choose page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list choose page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      }
+    ],
+    "sanitizer_diagnostics": false,
+    "log_sha256": "3538da6235cdceee3c412e158d29e5ec7fa16859f537147a97ec1c013d62d31a"
+  },
+  "step-sanitized": {
+    "exit_code": 1,
+    "summary": [
+      "426",
+      "12"
+    ],
+    "cases": [
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list choose page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list choose page then release base=3f010204 actual=3f0b162c held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list choose page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "HOME cancel then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "part change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "blocked SEQ then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list choose page then release base=3f010204 actual=3f376ede held=-1 keymask=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "pattern change then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "HELP then release base=3f010204 actual=3f010204 held=-1 keymask=0",
+        "result": "PASS"
+      }
+    ],
+    "sanitizer_diagnostics": false,
+    "log_sha256": "3538da6235cdceee3c412e158d29e5ec7fa16859f537147a97ec1c013d62d31a"
+  },
+  "live-normal": {
+    "exit_code": 1,
+    "summary": [
+      "408",
+      "20"
+    ],
+    "cases": [
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      }
+    ],
+    "sanitizer_diagnostics": false,
+    "log_sha256": "cb9826c198e8ebc0e69844e840d4556613cae3a05e3cc47551aea0cf7a7ea61d"
+  },
+  "live-sanitized": {
+    "exit_code": 1,
+    "summary": [
+      "408",
+      "20"
+    ],
+    "cases": [
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 0,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 0,
+        "voice": 1,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 0,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list open held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "list close HOME held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "part change held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "global menu held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "FX navigation held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "SMC popup held-gate=0 source-token=0 other-gate=0",
+        "result": "FAIL"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "EDIT page held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "SEQ navigation held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "octave held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      },
+      {
+        "bank": 1,
+        "voice": 1,
+        "path": "pattern held-gate=1 source-token=13 other-gate=0",
+        "result": "PASS"
+      }
+    ],
+    "sanitizer_diagnostics": false,
+    "log_sha256": "a482d4eb071edc6f6fd4bf139fa58c63f95f19b7a2e1eb7ba2fdd545c27f4287"
+  }
+}

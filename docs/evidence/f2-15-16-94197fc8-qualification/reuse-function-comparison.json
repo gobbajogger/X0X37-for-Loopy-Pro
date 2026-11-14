@@ -1,0 +1,32 @@
+[
+  {
+    "function": "int ui_live_key_owner(void)",
+    "identical": true,
+    "old_sha256": "eff656771f4632f6590f54ced5797f21d80160a7fdf5aea0ca5f2fc9869fddd4",
+    "current_sha256": "eff656771f4632f6590f54ced5797f21d80160a7fdf5aea0ca5f2fc9869fddd4"
+  },
+  {
+    "function": "static void ui_live_cancel_voice(int b)",
+    "identical": true,
+    "old_sha256": "89f9fdb18656565a47f36cf241be386364d88d3906eb7dbb928461a435062ba1",
+    "current_sha256": "89f9fdb18656565a47f36cf241be386364d88d3906eb7dbb928461a435062ba1"
+  },
+  {
+    "function": "static void live_edge(unsigned physical",
+    "identical": true,
+    "old_sha256": "dc7da522922149211befe8380ee4d03d3762f3b8ffbedf1a89d49dc4072c3c6d",
+    "current_sha256": "dc7da522922149211befe8380ee4d03d3762f3b8ffbedf1a89d49dc4072c3c6d"
+  },
+  {
+    "function": "static void live_boundary(int entry) [definition]",
+    "identical": true,
+    "old_sha256": "306f238207deef6bbd66a7c21961cfdfdfa1c2601b4215265265652aadcdecf0",
+    "current_sha256": "306f238207deef6bbd66a7c21961cfdfdfa1c2601b4215265265652aadcdecf0"
+  },
+  {
+    "function": "static int live_central_event(int key,int down)\n{",
+    "identical": true,
+    "old_sha256": "dc867c0c9146c6f4e60fe5b62339076cc92b4d570fd9d47b60cbc55c5232bafa",
+    "current_sha256": "dc867c0c9146c6f4e60fe5b62339076cc92b4d570fd9d47b60cbc55c5232bafa"
+  }
+]

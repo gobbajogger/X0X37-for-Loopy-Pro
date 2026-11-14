@@ -1,0 +1,14 @@
+{
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "api_tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+  "readback_verified_at": "2026-11-14T07:13:46.575515+00:00",
+  "first_consumption_timestamp": "Not separately recorded; actual tool reads and source-verification output establish consumption.",
+  "first_selected_uncovered_check": "Held step cutoff edit -> EDIT page or list -> actual release; production UI/engine.",
+  "branch": "none; NOT PUSHED",
+  "pr": null,
+  "successor_created": false,
+  "standard_thread_tools_available": false,
+  "saved_configuration_management_tools_available": false,
+  "source_config_id": "ddb4eb32-6b7d-4be3-a729-1c1870f1a903~cecfg_6adc962db260819b8a0b2b574d97bf85",
+  "note": "Saved config ID observed from environment_status, not a thread creation capability."
+}
