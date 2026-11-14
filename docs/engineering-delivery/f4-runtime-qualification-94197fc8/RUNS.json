@@ -1,0 +1,79 @@
+{
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+  "results": [
+    {
+      "selector": "smc-remainder",
+      "command": "SMC_UI_OUT=/workspace/f4-qualification/runs/remainder sh tests/host/smc_remainder_test.sh",
+      "exit": 0,
+      "log": "/workspace/f4-qualification/remainder.log",
+      "checks": 205893,
+      "log_sha256": "adc888ff24ca755f72a66f8f4f8a6a8ed0d67dde39035a85623f4e55a88d8d6d"
+    },
+    {
+      "selector": "smc-select-mode",
+      "command": "sh tests/host/smc_select_mode_test.sh",
+      "exit": 0,
+      "elapsed_seconds": 15.25,
+      "log": "/workspace/f4-qualification/smc_select_mode.log",
+      "checks": 5303,
+      "log_sha256": "dd13aab5be2dfdb02e7f764b2e35a0f0b416a99d1e96a4dcb0d39b1c64f8fb2d"
+    },
+    {
+      "selector": "smc-lock-beat",
+      "command": "sh tests/host/smc_lock_beat_test.sh",
+      "exit": 0,
+      "elapsed_seconds": 14.52,
+      "log": "/workspace/f4-qualification/smc_lock_beat.log",
+      "checks": 5141,
+      "log_sha256": "c5877434e335ee9e7a9ef69a913941c8e4eb41c6139137ec3a2319a88d19ff97"
+    },
+    {
+      "selector": "smc-ui-popup",
+      "command": "sh tests/host/smc_ui_popup_test.sh",
+      "exit": 0,
+      "elapsed_seconds": 14.3,
+      "log": "/workspace/f4-qualification/smc_ui_popup.log",
+      "checks": 4958,
+      "log_sha256": "67a697237df05134673be3b3266215673d310234b8e684021ffaaab98c15240c"
+    },
+    {
+      "selector": "smc-mode-page",
+      "command": "sh tests/host/smc_mode_page_test.sh",
+      "exit": 0,
+      "elapsed_seconds": 15.18,
+      "log": "/workspace/f4-qualification/smc_mode_page.log",
+      "checks": 1308,
+      "log_sha256": "656cc026863505ca143e763eb61a6849f5f0bd68cc29a76ae7f148d37df5a7ca"
+    },
+    {
+      "selector": "f4-supplement",
+      "command": "SMC_UI_TEST_FILE=/workspace/f4-qualification/supplement.c SMC_UI_OUT=/workspace/f4-qualification/runs/supplement sh tests/host/smc_remainder_test.sh",
+      "exit": 0,
+      "log": "/workspace/f4-qualification/supplement.log",
+      "checks": 302,
+      "log_sha256": "869789d560b07cd3eb28e3967b027647e72ac1f0396ab56035361429d495de57"
+    }
+  ],
+  "total_assertions": 222905,
+  "compiler": "GCC 14.2.0",
+  "python": "3.12.14",
+  "pillow": "12.3.0",
+  "native": false,
+  "device": false,
+  "sanitizers": "not enabled in recorded current runs",
+  "fixture_defines": [
+    "BOARD_SMK37=1",
+    "X0X_DEV_PADCAL=1",
+    "X0X_ORIGINAL_SYNTH=1"
+  ],
+  "peer_count": 1,
+  "fontset": "barlow",
+  "generated_input_sha256": {
+    "build/gen/felucca_font.h": "270ceb95465897e11dbd5a75fa8aaaeb9bc0ef64acaef5f9733c504c17b8a85a",
+    "build/gen/x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+    "build/gen/x0x_drum_tables.h": "9a6dd4084d504d6f1142dcb8a636746036c7fdaf3d66331f5b175b7d06a939f4",
+    "build/gen/x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+  },
+  "supplement_sha256": "ece432b63274b841f5159963bda30e140a226a48c11363c686d2db76d182e9f8"
+}

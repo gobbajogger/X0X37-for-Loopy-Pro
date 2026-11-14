@@ -1,0 +1,56 @@
+{
+  "status": "HOST_QUALIFICATION_COMPLETE_WITH_RETAINED_GAPS",
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "canonical_roadmap_ref": "32b0cacd17c89f23bb2f16915732750d158b33e7",
+  "branch": "NOT PUSHED (archive; no branch created)",
+  "pr": "none",
+  "report": "/workspace/f4-qualification/REPORT.md",
+  "run_receipts": "/workspace/f4-qualification/RUNS.json",
+  "ready_next_action": {
+    "owner": "incumbent F4/SMC test owner; existing firmware integrator consumes evidence",
+    "scope": "Optional capture fixture only, preserve all implementation owners",
+    "action": "Replace invalid capture-only patterns 63/62 and proj.pat[63] with valid intended boundary patterns; run optional capture under bounds diagnostics and inspect frames. Reuse unchanged recorded host proof.",
+    "paths": [
+      "tests/host/smc_remainder_test.c:469",
+      "tests/host/smc_remainder_test.c:475",
+      "tests/host/smc_remainder_test.c:476",
+      "tests/host/smc_remainder_capture.c"
+    ],
+    "acceptance": "No out-of-range capture access, actual 240x240 captures, registered main unchanged; no firmware/UI change."
+  },
+  "other_remaining": [
+    {
+      "owner": "existing roadmap/SMC owner",
+      "action": "Reconcile #40 no-User wording with retained visible DAW/USER setting and verified User/MMC compatibility. No behaviour removal authorized."
+    },
+    {
+      "owner": "existing hardware acceptance owner",
+      "action": "Retain separate physical acceptance for #31/#37/#46/#67. This packet grants no physical action."
+    }
+  ],
+  "handoff": {
+    "route": "structured completion to creator",
+    "external_publication": "not performed",
+    "owner_consumption": "not verified",
+    "standard_create_thread_tool": "absent",
+    "standard_read_thread_tool": "absent",
+    "saved_configuration_management_tool": "absent",
+    "environment_config_identity_available_from_status": true,
+    "successor_created": false,
+    "successor_first_input_action_verified": false
+  },
+  "boundaries": [
+    "No shared source or UI edits",
+    "No Bluetooth implementation",
+    "One peer retained",
+    "Held-FX arrow decisions retained",
+    "No #891 execution",
+    "No SDK workaround",
+    "No native build or device-accurate emulator result",
+    "No physical lamp claim",
+    "No device operation, merge or publication"
+  ],
+  "export_redactions": [
+    "Private creator-thread and environment/configuration identifiers are retained only in the Library original."
+  ]
+}

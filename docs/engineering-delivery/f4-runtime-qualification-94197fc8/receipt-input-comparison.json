@@ -1,0 +1,66 @@
+{
+  "prior_source": "43de100c83d845409bb801ecf29238a78f179aed",
+  "current_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "paths": [
+    {
+      "path": "tests/host/smc_remainder_test.c",
+      "old": "677020e18ab774d34025aa1c77fc82c1f2dc868f",
+      "current": "60bca638fd7ccd8ef51739c1d35d9b190f0aae09"
+    },
+    {
+      "path": "tests/host/smc_select_mode_test.c",
+      "old": "c43ed42b5f82df69f956a200c7752efc34c0b48d",
+      "current": "e0fbe446fc22953344b5b805dee747d435afeaa8"
+    },
+    {
+      "path": "tests/host/smc_ui_popup_test.c",
+      "old": "53815ada1012c7c6cb6e732385a691417d7f7d5e",
+      "current": "5335f8cf2139f6d295d73a6b238aeb214aa013ef"
+    },
+    {
+      "path": "tests/host/smc_lock_beat_test.c",
+      "old": "c0d5fce4017d94620f96928e3d8bc0c48c8f7f7d",
+      "current": "c0d5fce4017d94620f96928e3d8bc0c48c8f7f7d"
+    },
+    {
+      "path": "tests/host/smc_mode_page_test.c",
+      "old": "b6572e4b8627acc0c269cdddbba66ba0e8503e2b",
+      "current": "b6572e4b8627acc0c269cdddbba66ba0e8503e2b"
+    },
+    {
+      "path": "tests/host/smc_ui_test.c",
+      "old": "114aa1628658941271eb0bff167ea294af9e00bb",
+      "current": "76570cc6f66ae9f439dcfccdb4fad17b1de539d8"
+    },
+    {
+      "path": "tests/host/smc_ui_test.sh",
+      "old": "139a0b4c388ec1236f4bfbea5a5eff492bfcace6",
+      "current": "139a0b4c388ec1236f4bfbea5a5eff492bfcace6"
+    },
+    {
+      "path": "firmware/src/app/smc_mixer.c",
+      "old": "2e1d2698c152fe3ad6edf217e5f5ca73d5af26cc",
+      "current": "8942c49681e9bd15f39b4cfd3745826ba58b4a16"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "old": "45eba397d7d69905537ec2e980d6279aee4313a0",
+      "current": "eb911f58db83e417c67dd71576331803fa6c829e"
+    },
+    {
+      "path": "firmware/src/app/engine.c",
+      "old": "646dd893863fb5fb37a0d1ca0d51f72f012961cb",
+      "current": "dddc38dcc3e4ac28fc995fb1e4438703942c5570"
+    },
+    {
+      "path": "host/x0x_host.c",
+      "old": "de387a0550a0e5afd9575d1130b3e6a87b58a538",
+      "current": "d5965d246c369004dd72c09ae9ebd91a0eefd328"
+    },
+    {
+      "path": "tools/gen_font.py",
+      "old": "02d03cd80d4e046ac549d9e55a8aba021aaf53c4",
+      "current": "093bbc5ad7a804256103d52162bdae3a9fc4f29b"
+    }
+  ]
+}

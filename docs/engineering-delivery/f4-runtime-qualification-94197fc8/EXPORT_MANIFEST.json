@@ -1,0 +1,93 @@
+{
+  "operation": "EXPORT_ONLY",
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "source_tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "chat/evidence-f4-host-qualification-94197fc8-20261114",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "original_sha256": "5ca210910a74b70d9c921e3fd8ca5cc972e1e57dcb2b4b1c25a061a1e33db6b8",
+      "export_sha256": "0440b3d3f94c6f76e122c6c3a4f11c691df28682061aab1159866e4008903911",
+      "export_git_blob": "8550bb013e2914642afe5d154fc1177576289616",
+      "bytes": 11771,
+      "transformations": [
+        "Removed private creator-thread identifier; all qualification findings and results unchanged."
+      ]
+    },
+    {
+      "path": "PLAN.md",
+      "original_sha256": "007e6848cdbdbb8bef5d518cb92170b4253bd98250fc9a581ee44cffc88be722",
+      "export_sha256": "007e6848cdbdbb8bef5d518cb92170b4253bd98250fc9a581ee44cffc88be722",
+      "export_git_blob": "19fad892307baa105f6d46b1227fe5b84ec18540",
+      "bytes": 1970,
+      "transformations": []
+    },
+    {
+      "path": "RUNS.json",
+      "original_sha256": "74bf445bf7560f6a489efc8eceae1977790ac292792f3b4440a11a827e935142",
+      "export_sha256": "74bf445bf7560f6a489efc8eceae1977790ac292792f3b4440a11a827e935142",
+      "export_git_blob": "15e704c7332cc499bdcbc09834c0b93b98ed2d6e",
+      "bytes": 3048,
+      "transformations": []
+    },
+    {
+      "path": "NEXT_STAGE.json",
+      "original_sha256": "53ec9143f094ffbc7f78d2a7f9b8db70d074efb8f2912189e8c0187e0291f21a",
+      "export_sha256": "d543ab7be48f7196a0c7cd5dfe89077056ca26009d767fc05c9e884cbba3ad70",
+      "export_git_blob": "436b1995cbe3933a86418231bfc3d417ab4afdea",
+      "bytes": 2479,
+      "transformations": [
+        "Private creator-thread and environment/configuration identifiers are retained only in the Library original."
+      ]
+    },
+    {
+      "path": "fixture-development.md",
+      "original_sha256": "189807ea193abc064455043160295ea6ca93489d25ef9d03357884f88d5c825e",
+      "export_sha256": "189807ea193abc064455043160295ea6ca93489d25ef9d03357884f88d5c825e",
+      "export_git_blob": "cbdd02b937b3e910d2c5c2baca117e5752d92ee8",
+      "bytes": 1771,
+      "transformations": []
+    },
+    {
+      "path": "source-closure.json",
+      "original_sha256": "1afdb2c72c87e5913e3c3603214f805732ff7924a2c450581fe67c8ba1ef3bed",
+      "export_sha256": "1afdb2c72c87e5913e3c3603214f805732ff7924a2c450581fe67c8ba1ef3bed",
+      "export_git_blob": "9e88b535d35ff0faa92e33de2c787cd30c817d31",
+      "bytes": 246,
+      "transformations": []
+    },
+    {
+      "path": "receipt-input-comparison.json",
+      "original_sha256": "a16975167a844e4d0211fcfb6633a32cead34b025dc4d239553c5b628dd9ca0a",
+      "export_sha256": "a16975167a844e4d0211fcfb6633a32cead34b025dc4d239553c5b628dd9ca0a",
+      "export_git_blob": "fd6ae7accb047007a65066441243b5ad60c074bc",
+      "bytes": 2233,
+      "transformations": []
+    },
+    {
+      "path": "frames.json",
+      "original_sha256": "ee4729b5d0b9dbd5588512f8c93362895b6325eccd3ae5b5ab67dedef0173e56",
+      "export_sha256": "ee4729b5d0b9dbd5588512f8c93362895b6325eccd3ae5b5ab67dedef0173e56",
+      "export_git_blob": "d553d748d73c20661cd80fa30c60c69ae2426d7b",
+      "bytes": 3405,
+      "transformations": []
+    },
+    {
+      "path": "supplement.c",
+      "original_sha256": "ece432b63274b841f5159963bda30e140a226a48c11363c686d2db76d182e9f8",
+      "export_sha256": "ece432b63274b841f5159963bda30e140a226a48c11363c686d2db76d182e9f8",
+      "export_git_blob": "c99f6d36ed32868f58292a268d0064728a0406a4",
+      "bytes": 6613,
+      "transformations": []
+    }
+  ],
+  "tests_rerun": false,
+  "raw_artifact_destination": "Personal ChatGPT Library: f4-host-qualification-evidence.zip",
+  "raw_artifact_sha256": "3b5a9d696a5d77b716372be601304ee9cbd31be4305aad2b403abde011b75c14",
+  "historical_delivery_status_superseded_by": "README.md and separately verified Git export receipt",
+  "new_document_sha256": {
+    "README.md": "f74f648eb2bea7212e6d68601a672d9173e76eda51a51f51b77f7e4c97b0fd2d",
+    "REVIEW.md": "663bee08bed0095b99d560cff25b1b1b2672a3413a10d4111ff7033a305dcf5b"
+  }
+}

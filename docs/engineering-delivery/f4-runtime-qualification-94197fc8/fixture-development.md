@@ -1,0 +1,8 @@
+# Supplementary fixture corrections
+
+The five registered fixtures were unchanged and each passed. Development of the additional isolated fixture produced two failed trials; neither is represented as a production firmware defect.
+
+1. `supplement-initial.c`, `supplement-initial.log`: exit 1 at the included `keyboard_unchanged` assertion. The sequence selected a kit, moved global fader 5, then navigated again before peek expiry. Current `smc_show` → `smc_peek_begin` → `smc_peek_page` temporarily changes the keyboard view, while later navigation cancels its restore. Registered `smc_ui_popup_test.c:7–20` explicitly expires the peek before testing keyboard restoration. The final owned extension checks immediate SELECT invariance, then natural `SMC_PEEK_MS` restoration after fader movement before its next navigation. SMC selected part/view remain invariant while the fader is touched. No shared test change.
+2. `supplement-clock-initial.c`, `supplement-clock-initial.log`: exit 1 at `seq_clock_waiting(&seq)` immediately after external start. `sequencer.c:1238–1241` requires external clock, playing, and `ext_since > FS/2`; initial boot has insufficient elapsed samples. Final extension first checks neutral metro state, renders `FS/2+1` samples, then checks WAIT, tick and subsequent one-second loss. This preserves the actual timeout rather than changing firmware or asserting an invented immediate label.
+
+The final diagnostic direct-painter set is preserved in `runs/renderer-diagnostic`, with source/log named `supplement-renderer-diagnostic.*`. Final `supplement.c` uses `ui_frame()` for screen captures. Its run exits 0 with 302 assertions; screenshots are actual host UI display frames, not merely forced calls to an otherwise hidden popup painter.

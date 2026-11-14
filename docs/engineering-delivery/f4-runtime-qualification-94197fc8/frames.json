@@ -1,0 +1,130 @@
+[
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/clip-knob-bank.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "d8e038937eb25943cb7a26aa72ebe5d3d14c3540a7a694195227b34d0d982389"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/clip-strip8.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "a282197681c3af65a3ae616fa97d6c53034971cddda78a1cde5c924aa0474f48"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/fx-held-after-arrow.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "48e27d2e50b657a79bfc392882123be8db2adf608888ca89f50943c2afafd1d4"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/fx-held-before-arrow.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "143ba2860619c496230d9a0843cd20e39ca4bf3d48c24f2e6467203eed43345f"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/fx-release.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "2ba1687702e659f7c4d4b8c28e57752358925b9917b938ecaa1d74b79e0a2b9d"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/kit0-first-select.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "20608537118ba6c42c8965f30f6deae430fbb5ff9bf7abbf499f1bf693d49901"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/kit0-repeat-select.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "3e7e8f3f18b53d72100079b3fe0ae5bd5d2103bfcd2fb73980361bca24bfaa38"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/kit1-first-select.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "20608537118ba6c42c8965f30f6deae430fbb5ff9bf7abbf499f1bf693d49901"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/kit1-repeat-select.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "610cf86fd1bee65e62173c9db2c475758d9c054181a6a1c47abf719db3477dd2"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/locked-clock-dim.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "85ab3466838def98431d34b3b22f101b074b29cf8e8b2fb5006b92d277cf6c99"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/locked-stopped.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "4c1564209ee4503b33e6d0273edbb0caa2e5fcc7488fc415e6db2e91729ffb78"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/pickup-clock-dim.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "8f3a6b23da80155bdd24681d99fe713247ed6c709c3dae1ee2c8b24d29213d89"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/pickup-clock-lit.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "267060f2b2c13ddc285d97be3d97fa7ccaeac0d023d52779ae247023b64e6510"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/pickup-external-loss.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "8f3a6b23da80155bdd24681d99fe713247ed6c709c3dae1ee2c8b24d29213d89"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/pickup-external-tick.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "8f3a6b23da80155bdd24681d99fe713247ed6c709c3dae1ee2c8b24d29213d89"
+  },
+  {
+    "path": "/workspace/f4-qualification/runs/supplement/pickup-external-wait.png",
+    "size": [
+      240,
+      240
+    ],
+    "sha256": "8f3a6b23da80155bdd24681d99fe713247ed6c709c3dae1ee2c8b24d29213d89"
+  }
+]
