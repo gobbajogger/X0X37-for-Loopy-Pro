@@ -625,27 +625,73 @@ function keyId(k) {
   return b === undefined ? -1 : b;
 }
 const padKey = (k) => (board === 1 && /^[1-8]$/.test(k) ? Number(k) - 1 : -1);
+const keyboardDown = new Map(); // physical KeyboardEvent.code -> owned key or pad
+const keyboardToken = e => 'keyboard:' + (e.code || e.key.toLowerCase());
 addEventListener("keydown", (e) => {
+  if (DNBOX && (booting || !running)) return;
   if (e.metaKey || e.ctrlKey || e.target instanceof HTMLSelectElement ||
       (DNBOX && (e.target?.closest?.('#dnbox-controls') || e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLButtonElement))) return;
+        e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement ||
+        e.target?.isContentEditable))) return;
   if (ENC_KEYS[e.key]) { e.preventDefault(); turn(...ENC_KEYS[e.key]); return; }
   const pad = padKey(e.key);
-  if (pad >= 0) { e.preventDefault(); if (!e.repeat) setAnalog(pad, 700); return; }
+  if (pad >= 0) {
+    e.preventDefault();
+    if (!e.repeat) {
+      if (DNBOX) {
+        const token = keyboardToken(e);
+        if (!keyboardDown.has(token)) {
+          keyboardDown.set(token, { kind: 'pad', id: pad });
+          pressPad(pad, token);
+        }
+      } else setAnalog(pad, 700);
+    }
+    return;
+  }
   const id = keyId(e.key);
   if (id < 0 || e.repeat) return;
   e.preventDefault();
-  if (board === 1 && id < NKEY) setVelocity(0.75);
-  setKey(id, true);
+  if (DNBOX) {
+    const token = keyboardToken(e);
+    if (keyboardDown.has(token)) return; // duplicate keydown must not leak a hold
+    keyboardDown.set(token, { kind: 'key', id });
+    if (board === 1 && id < NKEY) setVelocity(0.75);
+    press(id, token);
+  } else {
+    if (board === 1 && id < NKEY) setVelocity(0.75);
+    setKey(id, true);
+  }
 });
 addEventListener("keyup", (e) => {
-  if (DNBOX && (e.target?.closest?.('#dnbox-controls') || e.target instanceof HTMLInputElement ||
-      e.target instanceof HTMLButtonElement || e.target instanceof HTMLSelectElement)) return;
+  if (DNBOX) {
+    // Release the original key, even if focus/keyboard layout changed meanwhile.
+    // A key-up from an editor/button with no owned note must not release a touch.
+    const token = keyboardToken(e), owner = keyboardDown.get(token);
+    if (!owner) return;
+    keyboardDown.delete(token);
+    e.preventDefault();
+    if (owner.kind === 'pad') unpressPad(owner.id, token);
+    else unpress(owner.id, token);
+    return;
+  }
   const pad = padKey(e.key);
   if (pad >= 0) { setAnalog(pad, 0); return; }
   const id = keyId(e.key);
   if (id >= 0) setKey(id, false);
 });
+
+// All input sources release their own ownership when the page loses focus,
+// a tab is hidden or a firmware instance is replaced. DnBOX only.
+function releaseDnboxInputs() {
+  if (!DNBOX) return;
+  dnboxHolds.releaseAll();
+  keyboardDown.clear();
+  pointers.clear();
+  if (analog[20] !== PITCH_REST) setAnalog(20, PITCH_REST);
+  down.fill(0);
+  holds.fill(0);
+}
+addEventListener("blur", releaseDnboxInputs);
 
 // ---------------------------------------------------------------- MIDI in (Web MIDI)
 // The chosen input(s) play the synth through its MIDI IN jack (UART1 at 31250 baud in the
@@ -676,7 +722,11 @@ function midiMessage(e) {
     if ((st === 0x90 || st === 0x80) && k >= 0 && k < NKEY) {
       const on = st === 0x90 && bytes[2] > 0;
       if (on) setVelocity((bytes[2] - 1) / 126);
-      setKey(k, on);
+      if (DNBOX) {
+        // Different MIDI devices/channels pressing C4 are independent owners.
+        const token = 'midi:' + (e.target?.id || 'input') + ':' + (d[0] & 15) + ':' + bytes[1];
+        if (on) press(k, token); else unpress(k, token);
+      } else setKey(k, on);
     } else if (st === 0xe0) {
       const bend = ((bytes[2] << 7) | bytes[1]) - 8192;
       setAnalog(20, PITCH_REST + (bend >= 0 ? bend / 8191 * (640 - PITCH_REST) : bend / 8192 * (PITCH_REST - 445)));
@@ -999,9 +1049,12 @@ function boot(options = {}) {
       showFirmware();
       if (DNBOX) {
         document.dispatchEvent(new Event('dnbox:booting'));
+        releaseDnboxInputs();
         inputProbes.clear(); inputRtts.length = 0; lastInputProbe = -Infinity;
+      } else {
+        down.fill(0); holds.fill(0); pointers.clear();
       }
-      down.fill(0); holds.fill(0); pointers.clear(); encClicks.fill(0);
+      encClicks.fill(0);
       frame = last = null;
       booting = seq;
       perf.reset();
@@ -1263,7 +1316,10 @@ document.getElementById("update-firmware").addEventListener("click", action(asyn
   else saveMessage("Firmware ready: click Start");
 }));
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && running) flushRunning().catch(saveFailure);
+  if (document.visibilityState === "hidden") {
+    releaseDnboxInputs();
+    if (running) flushRunning().catch(saveFailure);
+  }
 });
 
 // Closing a tab is best effort: the browser may terminate the worklet before its reply.
