@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "scope": "source/text-only native d158 evidence preservation",
+  "source_head": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+  "original_checkpoint_sha256": "91289548b616fa9ddb49b34df96c7436d1c350993c05461d0e1782e9f19d0ae2",
+  "files": [
+    {
+      "path": "NATIVE-EVIDENCE.json",
+      "mode": "100644",
+      "bytes": 8409,
+      "sha256": "0b0864d4b834079f438849745fe706952b9c0279d9e998373610c4ebd3ab6db8",
+      "git_blob": "04c9aa8ad80c681d686e795c05fb99d752deddc3",
+      "provenance": "new archive documentation or clearly derived extraction",
+      "original_sha256": null
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "bytes": 3582,
+      "sha256": "c49883a5b559cde6ef3a473f9c370262c0b345b79fc48a565383205cea2ea228",
+      "git_blob": "90b6597b21835c19320b18d2c735d132f36956da",
+      "provenance": "new archive documentation or clearly derived extraction",
+      "original_sha256": null
+    },
+    {
+      "path": "RECEIPT_REVIEW.json",
+      "mode": "100644",
+      "bytes": 6226,
+      "sha256": "39c8f14f0f21bd7e0f7d42f2b9409c79595568ea49c0f845179a64fe9abfc82f",
+      "git_blob": "11c21cbe1b072991da4562200fb82f836ea20f6f",
+      "provenance": "byte-identical original technical JSON",
+      "original_sha256": "39c8f14f0f21bd7e0f7d42f2b9409c79595568ea49c0f845179a64fe9abfc82f"
+    },
+    {
+      "path": "artifact-hashes.json",
+      "mode": "100644",
+      "bytes": 1713,
+      "sha256": "9a3f6ada6e12e476fdc7b5c608a4b2f6f8227bc3e6b58422756234297848a225",
+      "git_blob": "8e7e7d046b4a55bfddf2761a844f78fd83b7e191",
+      "provenance": "byte-identical original technical JSON",
+      "original_sha256": "9a3f6ada6e12e476fdc7b5c608a4b2f6f8227bc3e6b58422756234297848a225"
+    },
+    {
+      "path": "controller-source-scope.json",
+      "mode": "100644",
+      "bytes": 5557,
+      "sha256": "4d9ebc7b2906abe0cfacc4e17fbf060d716a36f109b613b4ca0be2d07e8a4c28",
+      "git_blob": "ad6dda375bb8e5264a14e1243e81c173eb42892e",
+      "provenance": "byte-identical original technical JSON",
+      "original_sha256": "4d9ebc7b2906abe0cfacc4e17fbf060d716a36f109b613b4ca0be2d07e8a4c28"
+    },
+    {
+      "path": "source-delta.json",
+      "mode": "100644",
+      "bytes": 2288,
+      "sha256": "c661760c3bb7a77972c7f3620aeb89f6209ad99c2252bcc93307e8b58fac0042",
+      "git_blob": "0259123bce3b3d98b5d9ff20285b354ecb336936",
+      "provenance": "byte-identical original technical JSON",
+      "original_sha256": "c661760c3bb7a77972c7f3620aeb89f6209ad99c2252bcc93307e8b58fac0042"
+    }
+  ],
+  "manifest_scope": "This manifest lists every archive member except itself."
+}
