@@ -469,13 +469,13 @@ static void capture_scenes(void)
     tap(0x61); smc_ui_draw_peer(); shot("clip-knob-bank");
     setup(V_HOME,PART_303B); tap(31); fader(0,0);
     smc_ui_draw_peer(); shot("select8-mix");
-    setup(V_HOME,PART_303B); seq.ppat[PART_909]=63; seq.pcue[PART_909]=62;
+    setup(V_HOME,PART_303B); seq.ppat[PART_909]=NPAT-1; seq.pcue[PART_909]=NPAT-2;
     ui.msg_until=0; ui.frame=16; draw_header(); shot("glyph-pattern-cue");
     ui.frame=0; draw_header(); shot("glyph-pattern-cue-dim");
     seq.song_on=1; seq.song_pos=191; seq.playing=1;
     draw_header(); shot("glyph-song-position");
-    setup(V_SEQ,PART_303B); seq.bpm=120; seq.ext=0; seq.ppat[PART_303B]=63;
-    proj.pat[63].bass[PART_303B-PART_303A].len=64;
+    setup(V_SEQ,PART_303B); seq.bpm=120; seq.ext=0; seq.ppat[PART_303B]=NPAT-1;
+    proj.pat[NPAT-1].bass[PART_303B-PART_303A].len=64;
     ui.spage=3; seq.chain_a=seq.chain_b=0; seq.pcue[PART_303B]=0xff;
     ui.msg_until=0; draw_header(); shot("glyph-pattern-range");
     seq.chain_b=1; draw_header(); shot("glyph-pattern-chain");
