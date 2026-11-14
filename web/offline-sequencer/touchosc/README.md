@@ -6,17 +6,18 @@ explicit Arm/Release controls and incoming-note feedback. It sends musical
 Note On/Off messages on **connection 1 only**. It never sends SysEx, transport,
 sample, project, installer or flash commands.
 
-**Source delivery; runtime acceptance pending.** The owner assigned all builds
-and tests to the Orchestrator's box. No `.tosc` was generated and no Python,
-Lua, TouchOSC or device check ran in Codex. A generated file opening successfully
-is still separate from MIDI and real-device acceptance. Row 105 remains partial
-until the box has generated the layout, opened it in TouchOSC and recorded the
-required runtime results. This companion does not implement the missing device
-pattern/sound synchronization protocol.
+**Partial runtime qualification.** The authorized 2026-11-14 Work/Codex repair
+stage generated `.tosc` and XML, passed the Python packing and Lua 5.1 checks,
+and exercised incoming-feedback resets in genuine Linux TouchOSC 1.5.4.269
+through loopback Bridge MIDI. This is scoped runtime evidence; row 105 remains
+partial. Actual OS endpoint disappearance/reconnection, independent-touch
+held-note RELEASE/channel changes, multitouch, outside-release/cancel/focus
+loss, mobile/macOS and real-device behavior remain unqualified. This companion
+does not implement the missing device pattern/sound synchronization protocol.
 
-## Build and check on the box
+## Build and check
 
-From the repository root, the Orchestrator runs:
+From the repository root, run in the authorized test environment:
 
 ```sh
 python3 web/offline-sequencer/touchosc/pack.test.py
@@ -70,6 +71,22 @@ reports messages actually received, not a verified project snapshot or proof
 that the keyboard echoes live input. Keyboard MIDI output and the route must
 provide the feedback; the layout never fabricates it. Other connections,
 channels and malformed note messages are ignored.
+
+Incoming feedback has an observation window: initialization, **RELEASE**, either
+channel control (including at channel 1/16 limits), and a local held-note timeout
+clear the feedback line and all key colours. The neutral line means no incoming
+MIDI has been observed in the new window. **ARM** retains feedback from the
+current window. Incoming notes can still update feedback while disarmed; they
+never become locally held notes or cause RELEASE to send Note Offs for them.
+Receive-only highlights have no independent timeout. During normal play, local
+and incoming events keep the existing last-event colour behavior.
+
+The layout cannot detect a downstream receiver outage or replay a Note Off
+after it has removed the local held-note entry. A lost Note Off can leave a
+downstream note sounding, and a later RELEASE cannot recover that cleared entry.
+Release notes before changing the route or endpoints. Loopback receiver
+restoration does not prove OS endpoint reconnection or delivery while
+disconnected.
 
 ## Provenance and limits
 
