@@ -151,3 +151,22 @@ static inline int bass_sound_tag_encode(bass_sound_tag_t *out,const bass_sound_i
     *out=wire;return rc;
 }
 
+/* Archive validation does not imply live availability. A known unavailable
+ * cell/tag pair is preserved by load/save, subject to the exact same metadata
+ * and sound-byte checks as a ready pair. Failure leaves *bank unchanged. */
+static inline int bass_sound_cell_validate(const uint8_t cell[ORIGINAL_SOUND_BYTES],
+                                         const bass_sound_tag_t *tag,
+                                         const bass_identity_entry_t *registry, size_t n,
+                                         int *bank)
+{
+    bass_sound_info_t info;
+    if (!bank || !original_sound_valid(cell)) return -9;
+    int rc = bass_sound_tag_decode(&info, tag, registry, n);
+    if (rc != BASS_IDENTITY_READY && rc != BASS_IDENTITY_UNAVAILABLE) return -9;
+    unsigned kind = cell[29];
+    if (info.identity.engine != original_sound_engine_id(kind) ||
+        info.preset != cell[30] ||
+        info.flags != (original_sound_edit_mask(cell) ? BASS_SOUND_EDITED : 0)) return -9;
+    *bank = (int)kind;
+    return 0;
+}

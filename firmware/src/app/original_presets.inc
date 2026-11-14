@@ -13,7 +13,7 @@ static void bass_preset_boundary_voice(int v);
 static const bass_identity_entry_t BASS_SOUND_REGISTRY[4] = {
     {ORIGINAL_SOUND_CHICAGO_ID, ORIGINAL_SOUND_SCHEMA, 22, 1},
     {ORIGINAL_SOUND_MIAMI_ID, ORIGINAL_SOUND_SCHEMA, 18, 1},
-    {ORIGINAL_SOUND_DRONE_ID, ORIGINAL_SOUND_SCHEMA, ORIGINAL_DRONE_NPARAMS, 1},
+    {ORIGINAL_SOUND_DRONE_ID, ORIGINAL_SOUND_SCHEMA, ORIGINAL_DRONE_NPARAMS, X0X_DRONE_RUNTIME_ENABLED},
     {ORIGINAL_SOUND_JUNO_ID, ORIGINAL_SOUND_SCHEMA, ORIGINAL_JUNO_NPARAMS, 1}
 };
 
@@ -50,13 +50,9 @@ static void bass_tag_set(sound_t *sound, int voice, int bank, int preset, int ed
 }
 static int bass_tagged_cell_validate(const uint8_t *cell, const bass_sound_tag_t *tag, int *bank)
 {
-    bass_sound_info_t info;
-    if (!original_sound_valid(cell)) return -9;
-    if (bass_sound_tag_decode(&info, tag, BASS_SOUND_REGISTRY, 4) != BASS_IDENTITY_READY) return -9;
-    *bank = cell[29];
-    if (info.identity.engine != original_sound_engine_id((unsigned)*bank) ||
-        info.preset != cell[30] || info.flags != (original_sound_edit_mask(cell) ? BASS_SOUND_EDITED : 0)) return -9;
-    return 0;
+    /* Archived sounds remain valid when their recognized backend is absent.
+     * Live selection has a separate availability gate below. */
+    return bass_sound_cell_validate(cell, tag, BASS_SOUND_REGISTRY, 4, bank);
 }
 int engine_bass_sound_bank(const sound_t *sound, int voice)
 {
@@ -205,7 +201,11 @@ static int bass_restore_part(const sound_t *sound, int v)
     if (original_runtime_retire(&original_bass[v]) != ORIGINAL_RUNTIME_OK) return 0;
     int rc = original_runtime_init(&original_bass[v], sound->v[T_303][v], seq_tempo(&seq),
         &original_tuning, &original_fx_owner[v]);
-    original_switch_gain[v] = 512u; original_quiet_samples[v] = 0;
+    original_switch_gain[v] = 512u;
+    /* An unavailable placeholder owns no DSP or residual audio. It must be
+     * possible to explicitly select an available engine without waiting for
+     * a render-success quiet scan that this placeholder will never run. */
+    original_quiet_samples[v] = rc == ORIGINAL_RUNTIME_UNAVAILABLE ? 512u : 0u;
     bass_named_preset[v] = sound->v[T_303][v][30];
     original_seq_note[v] = -1;
     __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
@@ -223,8 +223,8 @@ static void bass_restore_sound(const sound_t *sound)
 int engine_bass_bank(int v) { return (unsigned)v < NBASS ? original_bass[v].kind : -1; }
 int engine_bass_bank_available(int v, int bank)
 {
-    return (unsigned)v < NBASS && (bank == ORIGINAL_SOUND_JUNO || bank == ORIGINAL_SOUND_DRONE || bank == FACTORY_BANK_MIAMI ||
-        (bank == FACTORY_BANK_CHICAGO && original_fx_ready));
+    return (unsigned)v < NBASS && original_runtime_kind_available(bank) &&
+        (bank != FACTORY_BANK_CHICAGO || original_fx_ready);
 }
 const x0x_param_t *engine_bass_bank_param(int bank, int parameter)
 { return original_sound_param((unsigned)bank, (unsigned)parameter); }

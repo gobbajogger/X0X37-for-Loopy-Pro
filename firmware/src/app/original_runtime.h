@@ -3,18 +3,31 @@
 #include "original_sound.h"
 #include "../dsp/original_chicago_backend.h"
 #include "../dsp/original_miami_backend.h"
+/* Shipping builds retain Drone archive identity without linking its DSP.
+ * Opt in only for historical/direct Drone DSP qualification. */
+#ifndef X0X_DRONE_RUNTIME_ENABLED
+#define X0X_DRONE_RUNTIME_ENABLED 0
+#endif
+#if X0X_DRONE_RUNTIME_ENABLED != 0 && X0X_DRONE_RUNTIME_ENABLED != 1
+#error X0X_DRONE_RUNTIME_ENABLED must be 0 or 1
+#endif
+#if X0X_DRONE_RUNTIME_ENABLED
 #include "../dsp/drone_string.h"
+#endif
 #include "../dsp/juno6.h"
 
 enum { ORIGINAL_INPUT_USB, ORIGINAL_INPUT_BLE, ORIGINAL_INPUT_TRS,
        ORIGINAL_INPUT_KEYS, ORIGINAL_INPUT_SEQUENCE, ORIGINAL_INPUT_COUNT };
 enum { ORIGINAL_RUNTIME_OK = 1, ORIGINAL_RUNTIME_INVALID = 0,
-       ORIGINAL_RUNTIME_NEEDS_FX = -1, ORIGINAL_RUNTIME_FAULT = -2 };
+       ORIGINAL_RUNTIME_NEEDS_FX = -1, ORIGINAL_RUNTIME_FAULT = -2,
+       ORIGINAL_RUNTIME_UNAVAILABLE = -3 };
 typedef union {
     original_chicago_backend chicago;
     original_miami_backend miami;
     struct { juno6_t synth; juno6_chorus_t chorus; } juno;
-    drone_string_t drone; /* third synth kind, never an extra part */
+#if X0X_DRONE_RUNTIME_ENABLED
+    drone_string_t drone; /* archived optional kind 2, never an extra part */
+#endif
 } original_runtime_backend;
 typedef struct {
     original_runtime_backend dsp;
@@ -30,6 +43,10 @@ typedef union {
     struct { uint32_t left[256], right[256]; int16_t converted[2][256], scratch[4][256]; } chicago;
     struct { uint32_t left[256], right[256]; int32_t dry[2][256]; int16_t scratch[2][256]; } miami;
 } original_runtime_workspace;
+
+/* Availability is separate from valid persisted sound identity. Unknown kinds
+ * are unavailable; archived Drone keeps kind 2 even in the shipping profile. */
+int original_runtime_kind_available(int kind);
 
 /* Cold/adoption operations use the explicit seven-type Chicago selection
  * policy. Its owner remains caller-owned at a stable address. Missing resources
@@ -61,6 +78,9 @@ int original_runtime_motion_view(const original_runtime_part *, float *phase, fl
     float *current, float *target, int *active);
 /* Chicago only: VCA EG controls, live level and state, for the ADSR graph. */
 int original_runtime_env_view(const original_runtime_part *, float adsr[4], float *level, int *state);
+/* A recognised unavailable part clears exactly frames output samples and
+ * returns UNAVAILABLE. Invalid pointers or frames > 256 return INVALID without
+ * touching outputs; no workspace is needed for the unavailable silent path. */
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
 
