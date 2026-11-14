@@ -32,6 +32,12 @@ assert job.count("PROF_ADD_CORE(core, PR_808, p8);") == 3
 assert "d808_body_run(0);" in wait
 assert "d808_body_run(1);" in SRC
 
+prof_start = SRC.index("#define PROF_T(v)")
+prof_end = SRC.index("/* ---------------------------------------------------------------- state --- */", prof_start)
+PROF_MACROS = SRC[prof_start:prof_end]
+assert PROF_MACROS.count("plat_ticks24()") == 3
+assert "plat_cycles()" not in PROF_MACROS  # a C0-only counter cannot time C1
+
 # Cross-check the other two active-engine attribution boundaries, without
 # trying to substitute a fake synth or BREAK renderer for their real DSP.
 bass = slice_between("} else if (j == JB_A || j == JB_B) {", "} else {\n        PROF_T(pk);")
@@ -58,12 +64,7 @@ prefix = r'''
 #include <string.h>
 enum { PR_909, PR_808, PR_303A, PR_303B, PR_BRK, PR_FX, PR_MST, PR_SEQ, ENG_PROF_N };
 static volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_c1[ENG_PROF_N];
-#define PROF_T(v) uint32_t v = plat_cycles()
-#define PROF_ADD_CORE(core, k, t0) do { \
-    uint32_t _dt = plat_cycles() - (t0); \
-    if (!(core)) eng_prof[k] += _dt; \
-    else eng_prof_c1[k] += _dt; \
-} while (0)
+/* EXACT_PRODUCTION_PROF_MACROS */
 #define eng_sync() ((void)0)
 static uint32_t fake_cycles, eng_job_arg, eng_c1_waited;
 static uint8_t eng_808_body, eng_808_metal_done, eng_808_split, d808_was_active;
@@ -72,7 +73,7 @@ static float t0[256], tr[256], t1[256], t2[256];
 static float original_workspace[2048];
 static struct { int active; } d808;
 static unsigned n_pan, n_render, n_fx, n_body;
-static uint32_t plat_cycles(void) { return fake_cycles; }
+static uint32_t plat_cycles(void) { return 0u; } /* C0 counter frozen; TIMER4 advances */
 static uint32_t plat_ticks24(void) { return fake_cycles; }
 static int plat_cpu2_busy(void) { return 0; }
 static int plat_cpu2_wait(void) { fake_cycles += 200; return 0; }
@@ -139,6 +140,7 @@ static void reset(void) {
 }
 int main(void) {
     reset();
+    assert(plat_cycles() == 0u);  /* this old C0 clock is useless for C1 */
     assert(run_808(0) == 1);
     assert(eng_prof[PR_808] == 16); /* 5 active-scan + 11 pan settle; no 4000 wait */
     assert(n_pan == 1 && n_render == 0 && n_fx == 0 && n_body == 0);
@@ -171,6 +173,7 @@ int main(void) {
     return 0;
 }
 '''
+prefix = prefix.replace("/* EXACT_PRODUCTION_PROF_MACROS */", PROF_MACROS)
 code = (prefix + fold_start + fold + "\n" + body_start + body + "\n" + wait_start + wait + "\n" + job_start + job + suffix)
 with tempfile.TemporaryDirectory(prefix="dnbox-perf-meter-") as tmp:
     src = Path(tmp) / "test.c"
