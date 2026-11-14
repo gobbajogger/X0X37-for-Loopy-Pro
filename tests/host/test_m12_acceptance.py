@@ -11,6 +11,7 @@ from pathlib import Path
 
 TOOL = Path(__file__).resolve().parents[2] / "tools" / "m12_acceptance.py"
 SOURCE_SECTION = "Owner request list (#1–#122)"
+REQUEST_SOURCE = "Owner requested a synthetic browser companion; not product qualification."
 
 
 class Fixture:
@@ -82,6 +83,25 @@ class Fixture:
     def selection(request, level="source"):
         return {"request_id": request, "source_section": SOURCE_SECTION, "row": request,
                 "obligations": [{"id": "required", "level": level, "paths": ["firmware/feature.c"]}]}
+
+    def bind_documents(self):
+        self.roadmap, _ = self.commit(self.documents)
+        self.roadmap_blob = self.blob(self.documents["docs/ROADMAP.md"])
+        self.policy["queues"] = [{"path": p, "blob": self.blob(b)}
+                                 for p, b in self.documents.items() if p != "docs/ROADMAP.md"]
+        self.bind_policy()
+
+    def non_table(self, text=None):
+        path = "docs/roadmap/Working.md"
+        self.documents[path] += (text if text is not None else
+                                 "## COMP1\n\n**Request/source:** " + REQUEST_SOURCE + "\n\n").encode()
+        selection = self.selection("COMP1")
+        selection.pop("source_section")
+        selection.pop("row")
+        selection["identity"] = {"kind": "request-source", "document": path,
+                                 "sha256": hashlib.sha256(REQUEST_SOURCE.encode()).hexdigest()}
+        self.policy["selected"].append(selection)
+        self.bind_documents()
 
     def proof(self, paths):
         return [{"path": p, "blob": self.blob(self.files[p]),
@@ -379,6 +399,165 @@ class AcceptanceTests(unittest.TestCase):
         self.f.policy["selected"][0]["row"] = "Historical alias"
         self.f.bind_policy()
         self.accept()
+
+    def test_non_table_and_preserved_table_selections_coexist(self):
+        self.f.non_table()
+        report = self.accept()
+        self.assertEqual([r["request_id"] for r in report["results"]], ["#1", "#2", "COMP1"])
+        self.assertTrue(all(r["proof_kind"] == "git-source-bytes" for r in report["results"]))
+        self.assertEqual({r["request_id"] for r in report["unselected"]}, {"#119", "26.7", "M5"})
+
+    def test_non_table_source_digest_preserves_exact_utf8_value(self):
+        value = "  Synthetic café companion.  "
+        self.f.non_table("## COMP1\n\n**Request/source:** " + value + "\n\n")
+        self.f.policy["selected"][-1]["identity"]["sha256"] = hashlib.sha256(value.encode()).hexdigest()
+        self.f.bind_policy()
+        self.accept()
+
+    def test_non_table_source_metadata_must_be_unique_visible_and_nonempty(self):
+        for metadata in ("", "**Request/source:** ", "**Request/source:**    ",
+                         "**Request/source:**" + REQUEST_SOURCE,
+                         "```md\n**Request/source:** " + REQUEST_SOURCE + "\n```",
+                         "~~~md\n**Request/source:** " + REQUEST_SOURCE + "\n~~~",
+                         ("**Request/source:** " + REQUEST_SOURCE + "\n") * 2,
+                         "**Request/source:** " + REQUEST_SOURCE + "\n**Request/source:**"):
+            with self.subTest(metadata=metadata):
+                self.f = Fixture(Path(self.temp.name) / str(hashlib.sha256(metadata.encode()).hexdigest()))
+                self.f.non_table("## COMP1\n\n" + metadata + "\n\n")
+                report = self.reject()
+                self.assertTrue(any("request-source" in e for e in report["errors"]), report)
+
+    def test_non_table_digest_cannot_select_changed_source(self):
+        self.f.non_table()
+        path = "docs/roadmap/Working.md"
+        self.f.documents[path] = self.f.documents[path].replace(REQUEST_SOURCE.encode(), b"Changed owner source.")
+        self.f.bind_documents()
+        report = self.reject()
+        self.assertTrue(any("request-source" in e for e in report["errors"]), report)
+
+    def test_non_table_selector_requires_exact_kind_document_and_digest(self):
+        for field, value in (("kind", "table"), ("kind", ["request-source"]),
+                             ("document", "docs/roadmap/Complete.md"),
+                             ("document", "../Working.md"), ("document", None),
+                             ("sha256", "0" * 64), ("sha256", "not-a-digest")):
+            with self.subTest(field=field, value=value):
+                self.f = Fixture(Path(self.temp.name) / (field + hashlib.sha256(str(value).encode()).hexdigest()))
+                self.f.non_table()
+                self.f.policy["selected"][-1]["identity"][field] = value
+                self.f.bind_policy()
+                self.reject()
+
+    def test_non_table_identity_malformed_object_is_structurally_rejected(self):
+        for value in (None, [], "request-source"):
+            with self.subTest(value=value):
+                self.f = Fixture(Path(self.temp.name) / hashlib.sha256(str(value).encode()).hexdigest())
+                self.f.non_table()
+                self.f.policy["selected"][-1]["identity"] = value
+                self.f.bind_policy()
+                self.reject()
+
+    def test_identity_and_table_selectors_cannot_be_mixed_even_when_null(self):
+        for key, value in (("source_section", SOURCE_SECTION), ("row", "COMP1"),
+                           ("source_section", None), ("row", None)):
+            with self.subTest(key=key, value=value):
+                self.f = Fixture(Path(self.temp.name) / hashlib.sha256(str((key, value)).encode()).hexdigest())
+                self.f.non_table()
+                self.f.policy["selected"][-1][key] = value
+                self.f.bind_policy()
+                self.reject()
+
+    def test_request_source_cannot_downgrade_preserved_table_identity(self):
+        self.f.non_table()
+        self.f.policy["selected"][-1]["request_id"] = "#1"
+        self.f.policy["selected"][-1]["identity"]["document"] = "docs/roadmap/Complete.md"
+        self.f.policy["selected"].pop(0)
+        path = "docs/roadmap/Complete.md"
+        self.f.documents[path] += ("**Request/source:** " + REQUEST_SOURCE + "\n\n").encode()
+        self.f.bind_documents()
+        report = self.reject()
+        self.assertTrue(any("preserved table" in e for e in report["errors"]), report)
+
+    def test_non_table_cannot_hide_empty_preserved_source_metadata(self):
+        self.f.non_table("## COMP1\n\n**Request/source:** " + REQUEST_SOURCE +
+                         "\n\n**Preserved source section:**\n\n| # | Item |\n|---|---|\n| COMP1 | Original row. |\n")
+        report = self.reject()
+        self.assertTrue(any("preserved table" in e for e in report["errors"]), report)
+
+    def test_non_table_cannot_downgrade_indented_or_orphan_table_provenance(self):
+        table = "| # | Item |\n|---|---|\n| COMP1 | Original row. |\n"
+        for marker in ("", " **Preserved source section:** " + SOURCE_SECTION + "\n\n",
+                       "\t**Preserved source section:** " + SOURCE_SECTION + "\n\n",
+                       " **Preserved source section:**\n\n"):
+            with self.subTest(marker=marker):
+                self.f = Fixture(Path(self.temp.name) / hashlib.sha256(marker.encode()).hexdigest())
+                self.f.non_table("## COMP1\n\n**Request/source:** " + REQUEST_SOURCE +
+                                 "\n\n" + marker + table)
+                self.reject()
+
+    def test_non_table_indented_source_cannot_hide_duplicate_or_supply_identity(self):
+        for prefix in (" ", "\t"):
+            for duplicate in (False, True):
+                with self.subTest(prefix=prefix, duplicate=duplicate):
+                    self.f = Fixture(Path(self.temp.name) / hashlib.sha256(str((prefix, duplicate)).encode()).hexdigest())
+                    metadata = prefix + "**Request/source:** " + REQUEST_SOURCE + "\n\n"
+                    if duplicate:
+                        metadata = "**Request/source:** " + REQUEST_SOURCE + "\n\n" + metadata
+                    self.f.non_table("## COMP1\n\n" + metadata)
+                    self.reject()
+
+    def test_non_table_digest_covers_unicode_and_control_separators_without_truncation(self):
+        for separator in ("\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+            with self.subTest(separator=repr(separator)):
+                self.f = Fixture(Path(self.temp.name) / separator.encode().hex())
+                value = REQUEST_SOURCE + separator + "unhashed suffix"
+                self.f.non_table("## COMP1\n\n**Request/source:** " + value + "\n\n")
+                self.reject()  # The prefix-only digest must not authenticate the exact source value.
+                self.f.policy["selected"][-1]["identity"]["sha256"] = hashlib.sha256(value.encode()).hexdigest()
+                self.f.bind_policy()
+                self.accept()  # LF-delimited UTF-8 value is hashed without normalization.
+
+    def test_non_table_crlf_line_ending_is_not_part_of_source_value(self):
+        self.f.non_table("## COMP1\r\n\r\n**Request/source:** " + REQUEST_SOURCE + "\r\n\r\n")
+        self.accept()
+
+    def test_non_table_accepts_only_independently_pinned_non_source_receipt(self):
+        self.f.non_table()
+        self.f.policy["selected"].insert(0, self.f.policy["selected"].pop())
+        self.f.receipt(level="host")
+        report = self.accept()
+        self.assertEqual(report["results"][0]["request_id"], "COMP1")
+        self.assertEqual(report["results"][0]["proof_kind"], "accepted-receipt")
+        self.f.evidence["rows"][0]["receipt"]["sha256"] = "0" * 64
+        self.reject()
+
+    def test_non_table_wrong_queue_pin_still_rejects(self):
+        self.f.non_table()
+        self.f.policy["queues"][1]["blob"] = self.f.roadmap_blob
+        self.f.bind_policy()
+        self.reject()
+
+    def test_non_table_missing_or_negative_evidence_is_not_waived(self):
+        for status in (None, "FAIL", "NOT_RUN"):
+            with self.subTest(status=status):
+                self.f = Fixture(Path(self.temp.name) / str(status))
+                self.f.non_table()
+                if status is None:
+                    self.f.evidence["rows"].pop()
+                else:
+                    self.f.evidence["rows"][-1]["status"] = status
+                report = self.reject()
+                self.assertEqual(report["results"][-1]["request_id"], "COMP1")
+                self.assertEqual(report["results"][-1]["status"], status or "NOT_RUN")
+
+    def test_non_table_source_cannot_satisfy_higher_evidence_levels(self):
+        self.f.non_table()
+        for level in ("behavior", "host", "native", "device"):
+            with self.subTest(level=level):
+                self.f.policy["selected"][-1]["obligations"][0]["level"] = level
+                self.f.bind_policy()
+                report = self.reject()
+                self.assertEqual(report["results"][-1]["status"], "NOT_RUN")
+                self.assertIn("source presence is insufficient", report["results"][-1]["reason"])
 
     def test_deeply_nested_evidence_is_a_structured_rejection(self):
         raw = json.dumps(self.f.evidence).replace(

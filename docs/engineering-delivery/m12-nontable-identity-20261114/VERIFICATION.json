@@ -1,0 +1,105 @@
+{
+  "base": "0e2b7b78d223e10af1e9172db6dee657a8d590cb",
+  "branch": "wip/m12-nontable-identity-20261114",
+  "checks": {
+    "baseline": "40/40 PASS; exit 0",
+    "empty_preserved_identity_red": "53 tests: one false-acceptance regression; exit 1",
+    "final_focused_green": "57/57 PASS; exit 0",
+    "first_green": "51/51 PASS; exit 0",
+    "initial_red": "51 tests: 12 failures and 7 subtest errors because non-table selection was unsupported; exit 1",
+    "pre_review_focused_green": "53/53 PASS; exit 0",
+    "review_repairs_red": "57 tests: 14 false-acceptance failures across F1/F2/F3; exit 1",
+    "syntax": "py_compile PASS; exit 0",
+    "whitespace": "git diff --check PASS; exit 0"
+  },
+  "excluded": [
+    "actual product policy",
+    "existing release/checker/runner hooks",
+    "firmware/native/device tests",
+    "package/preview/publisher adoption",
+    "private or refused companion payloads",
+    "merge/publication/device actions"
+  ],
+  "public_metadata_exercise": {
+    "canonical_records": 187,
+    "checks": [
+      {
+        "accepted": true,
+        "case": "synthetic-source-only COMP1",
+        "exit": 0
+      },
+      {
+        "case": "required COMP1 evidence omitted",
+        "exit": 1,
+        "status": "NOT_RUN"
+      },
+      {
+        "case": "wrong source digest",
+        "errors": [
+          "request-source byte disagreement: COMP1"
+        ],
+        "exit": 1
+      },
+      {
+        "case": "wrong canonical document",
+        "errors": [
+          "request-source document disagreement: COMP1"
+        ],
+        "exit": 1
+      }
+    ],
+    "midi_device_publication_proof": false,
+    "numbered_requests": 122,
+    "package_preview_publisher_adoption": false,
+    "private_companion_payload_access": false,
+    "product_policy": false,
+    "queues": [
+      {
+        "blob": "4f43ad86cae9ea0c087501445ea0d1bf631e0bf0",
+        "path": "docs/roadmap/Complete.md"
+      },
+      {
+        "blob": "e9e8a2668169c088ee9977ec5d10445f3e3afa19",
+        "path": "docs/roadmap/Working.md"
+      },
+      {
+        "blob": "b43f0ee43547e583f5ea44ee032d8685c0a82bb9",
+        "path": "docs/roadmap/Pending.md"
+      }
+    ],
+    "request_source_sha256": "c28f9b37cae115162716c9ec28fade980044857efd11db3a6aad82cd98bda108",
+    "roadmap_blob": "ab4c130e8249833f2a1be6fff195522fb98bf670",
+    "roadmap_commit": "9ec6810ab41777feb4c44f048b1df3d550c77f86",
+    "scope": "Public canonical metadata plus synthetic source/policy/evidence; not product acceptance"
+  },
+  "review": {
+    "author_repairs": "one observed RED-to-GREEN pass; 57/57 focused PASS",
+    "effective_service_tier": "not exposed",
+    "findings": [
+      "F1 malformed/orphan table provenance",
+      "F2 visible indented duplicate source field",
+      "F3 Unicode/control separator truncates hashed value"
+    ],
+    "initial_report_sha256": "1626c307e272eaa42718be9f03ff6da129a65ff91fee369442170d612d48a79a",
+    "initial_verdict": "CHANGES REQUIRED; three P2 findings",
+    "narrow_changed_input_recheck": {
+      "exact_digest_contrast": "truncated prefix rejected; complete UTF-8 value accepted",
+      "frozen_hashes": "matched before/after; no reviewer source edits",
+      "original_probes": "12 actual CLI/real-Git cases match repaired/control expectations",
+      "remaining_findings": [],
+      "report_sha256": "24d518d7a0f09bc61b810543fe71829984983999abdeed564747694d957ca51a",
+      "selected_repair_tests": "4/4 PASS; exit 0",
+      "verdict": "ACCEPTED, SOURCE STAGE ONLY"
+    },
+    "requested_model": "GPT-6.1 Sol",
+    "requested_reasoning": "ultra"
+  },
+  "source_closure_sha256": {
+    "docs/engineering-delivery/m12-adapter-20261114/README.md": "79f63969cd10e0a7450eb392058c4fcf15ad57f1c004678401b76e52b74bd677",
+    "docs/superpowers/plans/2026-11-14-m12-nontable-identity.md": "805cb029c3a3b6a6857b7716a1dcba37e75d450f7649ae73f3601dba303187ed",
+    "docs/superpowers/specs/2026-11-14-m12-nontable-identity-design.md": "468340393d23f36aa8e1ee8626f623a7126554033d62eae492e1c24f9870c7a1",
+    "tests/host/test_m12_acceptance.py": "45b930728ad916c2b07b0b5dd0756303dc3f62467a82ee48e6cb2fe4d037ebd4",
+    "tools/m12_acceptance.py": "0b77d068b86812f56426e2fa721a0e7734642d814d1316804a5f60f846388d8a"
+  },
+  "stage": "M12 generic non-table identity source extension"
+}

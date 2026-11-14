@@ -176,7 +176,8 @@ def pinned_blob(git, commit, path, expected_blob):
 def visible_lines(text):
     """Ignore fenced examples so they cannot invent canonical records."""
     fence = None
-    for line in text.splitlines():
+    for line in text.split("\n"):
+        line = line.removesuffix("\r")  # Only LF/CRLF terminate Markdown logical lines.
         marker = re.match(r"^ {0,3}(`{3,}|~{3,})", line)
         if marker:
             run = marker.group(1)
@@ -217,13 +218,24 @@ def canonical_records(git, roadmap_commit, root_path, root_blob, queue_pins):
                 request = heading.group(1)
                 require(request not in records, f"duplicate canonical request: {request}")
                 current = {"request_id": request, "document": path, "source_section": None,
-                           "disposition": "UNKNOWN", "rows": []}
+                           "disposition": "UNKNOWN", "rows": [], "request_sources": [],
+                           "table_provenance": False}
                 records[request] = current
                 table_header, in_table = None, False
             elif current is not None:
-                source = re.fullmatch(r"\*\*Preserved source section:\*\*\s*(.+)", line)
+                stripped = line.lstrip()
+                # New-selector guard only: malformed provenance must not become a fallback.
+                if stripped.startswith("**Preserved source section:**") or stripped.startswith("|"):
+                    current["table_provenance"] = True
+                request_source = re.fullmatch(r"\*\*Request/source:\*\*(.*)", stripped)
+                source = re.fullmatch(r"\*\*Preserved source section:\*\*\s*(.*)", line)
                 disposition = re.fullmatch(r"\*\*Current disposition:\*\*\s*(.+)", line)
-                if source:
+                if request_source:
+                    suffix = request_source.group(1)
+                    current["request_sources"].append(
+                        suffix[1:] if line.startswith("**Request/source:** ") else None)
+                    table_header, in_table = None, False
+                elif source:
                     require(current["source_section"] is None, "duplicate source-section identity")
                     current["source_section"] = source.group(1)
                     table_header, in_table = None, False
@@ -318,10 +330,26 @@ def evaluate(args):
         require(request not in HELD_REQUESTS, f"owner-held request cannot be selected: {request}")
         require(request in records, f"selected request is absent from canonical queues: {request}")
         record = records[request]
-        require(string(selection.get("source_section"), "expected source section") == record["source_section"],
-                f"original source-section disagreement: {request}")
-        row_id = string(selection.get("row"), "expected original row")
-        require(record["rows"].count(row_id) == 1, f"missing or duplicate original table row: {request}")
+        if "identity" in selection:
+            require("source_section" not in selection and "row" not in selection,
+                    f"mixed request-source and table selectors: {request}")
+            require(not record["table_provenance"] and record["source_section"] is None and not record["rows"],
+                    f"request-source cannot replace preserved table identity: {request}")
+            identity = object_value(selection["identity"], "request-source identity")
+            require(identity.get("kind") == "request-source", f"unsupported request-source identity: {request}")
+            require(safe_path(identity.get("document")) == record["document"],
+                    f"request-source document disagreement: {request}")
+            sources = record["request_sources"]
+            require(len(sources) == 1 and isinstance(sources[0], str) and bool(sources[0].strip()),
+                    f"missing, duplicate or empty request-source metadata: {request}")
+            require(digest(identity.get("sha256"), "request-source SHA-256", SHA256)
+                    == hashlib.sha256(sources[0].encode("utf-8")).hexdigest(),
+                    f"request-source byte disagreement: {request}")
+        else:
+            require(string(selection.get("source_section"), "expected source section") == record["source_section"],
+                    f"original source-section disagreement: {request}")
+            row_id = string(selection.get("row"), "expected original row")
+            require(record["rows"].count(row_id) == 1, f"missing or duplicate original table row: {request}")
         obligations = list_value(selection.get("obligations"), "selected obligations")
         require(bool(obligations), f"empty selected obligations: {request}")
         for obligation in obligations:
