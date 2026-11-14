@@ -26,8 +26,8 @@ bool overlap(const void *a,size_t an,const void *b,size_t bn) {
     if(x>std::numeric_limits<uintptr_t>::max()-an || y>std::numeric_limits<uintptr_t>::max()-bn) return true;
     return x<y+bn && y<x+an;
 }
-bool payload(const float *p,size_t n,float bound,const State *self) {
-    if(!p || n!=4097 || overlap(p,n*sizeof(float),self,sizeof(State))) return false;
+bool payload(const float *p,size_t n,float bound,InstanceSpan self) {
+    if(!p || n!=4097 || overlap(p,n*sizeof(float),self.data,self.bytes)) return false;
     for(size_t i=0;i<n;++i) if(!std::isfinite(p[i]) || p[i]<-bound || p[i]>bound) return false;
     return p[4096]==0.f && !std::signbit(p[4096]);
 }
@@ -38,22 +38,24 @@ bool values_valid(const float *p,size_t n) {
     return true;
 }
 }
-bool State::init(const synthone_shared::Tables &tables,int rate,const float *values,
-                 size_t count,const float *tuning,size_t tuning_count) {
-    if((rate!=44100 && rate!=48000 && rate!=96000) || !values_valid(values,count) ||
-       overlap(values,150*sizeof(float),this,sizeof *this) ||
-       !tuning || tuning_count!=128 || overlap(tuning,128*sizeof(float),this,sizeof *this)) return false;
+bool State::valid_init(const synthone_shared::Tables &tables,int rate,const float *values,
+                       size_t count,const float *tuning,size_t tuning_count,InstanceSpan self) const {
+    if((rate!=44100 && rate!=48000 && rate!=96000) ||
+       overlap(values,150*sizeof(float),self.data,self.bytes) || !values_valid(values,count) ||
+       !tuning || tuning_count!=128 || overlap(tuning,128*sizeof(float),self.data,self.bytes) ||
+       overlap(&tables,sizeof tables,self.data,self.bytes)) return false;
     for(unsigned i=0;i<128;++i)
         if(!std::isfinite(tuning[i]) || tuning[i]<=0 || tuning[i]>rate*.5f) return false;
     for(unsigned i=0;i<52;++i) {
         const auto &r=tables.morph[i];
         if(r.band!=i/4 || static_cast<unsigned>(r.shape)!=i%4 ||
-           !payload(r.samples,r.count,2.f,this)) return false;
+           !payload(r.samples,r.count,2.f,self)) return false;
     }
     for(unsigned i=0;i<13;++i) if(tables.frequency_band[i]!=wave_frequencies[i]) return false;
-    if(!payload(tables.sine,tables.sine_count,1.f,this)) return false;
-    // Validate everything before replacing a live instance.
-    compactPorts.teardown();
+    return payload(tables.sine,tables.sine_count,1.f,self);
+}
+void State::init_graph(const synthone_shared::Tables &tables,int rate,const float *tuning) {
+    // Each concrete sibling validates all inputs before replacing a live instance.
     context_={}; context_output_=0; context_.out=&context_output_;
     context_.sr=rate; context_.nchan=1; context_.len=5ul*static_cast<unsigned>(rate);
     std::memcpy(context_.filename,"test.wav",sizeof "test.wav"); sp=&context_;
@@ -76,34 +78,36 @@ bool State::init(const synthone_shared::Tables &tables,int rate,const float *val
     poly={}; mono={}; noteStates=&poly; monoNote=&mono;
     playingNoteStatesIndex=0; heldNoteNumbers={}; heldNoteNumbersAE={};
     resetted=false; processSampleCounter=0; sequencer={};
-    for(unsigned i=0;i<150;++i) {
-        reference_ports_[i]={}; s1p[i]={};
-        s1p[i].usePortamento=synthone_ports::selected_slots[i]!=synthone_ports::unsmoothed_slot;
-        s1p[i].portamento=&reference_ports_[i];
-    }
     initialized_=true;
-    compactPorts.init(parameters,150,values,150,rate);
-    return restore(values,count);
 }
-bool State::restore(const float *values,size_t count) {
-    if(!initialized_ || !values_valid(values,count) ||
-       (values!=parameters && overlap(values,150*sizeof(float),this,sizeof *this))) return false;
-    // Snapshot accommodates parameters==values without a hidden partial overwrite.
+bool State::valid_restore(const float *values,size_t count,InstanceSpan self) const {
+    return initialized_ &&
+        (values==parameters || !overlap(values,150*sizeof(float),self.data,self.bytes)) &&
+        values_valid(values,count);
+}
+bool RuntimeState::init_runtime(const synthone_shared::Tables &tables,int rate,const float *values,
+                                size_t count,const float *tuning,size_t tuning_count,InstanceSpan self) {
+    if(!valid_init(tables,rate,values,count,tuning,tuning_count,self)) return false;
+    compactPorts.teardown();
+    init_graph(tables,rate,tuning);
+    // Validation already establishes valid disjoint outputs/controls and rate.
+    if(!compactPorts.init(parameters,150,values,150,rate)) return false;
+    restore_graph();
+    return true;
+}
+bool RuntimeState::restore_runtime(const float *values,size_t count,InstanceSpan self) {
+    if(!valid_restore(values,count,self)) return false;
     float saved[150]; std::memcpy(saved,values,sizeof saved);
     if(!compactPorts.restore(saved,150,sp->sr)) return false;
-    for(unsigned i=0;i<150;++i) {
-        if(s1p[i].usePortamento) {
-            s1p[i].portamentoTarget=saved[i];
-            sp_port_init(sp,s1p[i].portamento,saved[i]);
-            s1p[i].portamento->htime=saved[portamentoHalfTime];
-        }
-    }
+    restore_graph();
+    return true;
+}
+void State::restore_graph() {
     previousProcessMonoPolyStatus=parameters[isMono];
     initializedNoteStates=false;
     // Original restore's sequencer.init creates 1024 pending entries. The caller
     // must explicitly establish reset(true) before this direct-event domain.
     sequencer.reset(true);
-    return true;
 }
 void State::initializeNoteStates() {
     if(initializedNoteStates) return;
@@ -131,14 +135,6 @@ void State::initializeNoteStates() {
     }
 }
 double State::tuningTableNoteToHz(int note) const { return tuningTable[clamp(note,0,127)]; }
-void State::_setSynthParameter(int parameter,float value) {
-    value=clampedValue(static_cast<S1Parameter>(parameter),value);
-    if(s1p[parameter].usePortamento) s1p[parameter].portamentoTarget=value;
-    else parameters[parameter]=value;
-    if(parameter==portamentoHalfTime)
-        for(auto &p:s1p) if(p.usePortamento) p.portamento->htime=clampedValue(portamentoHalfTime,parameters[parameter]);
-}
-void State::trace(unsigned phase,unsigned frame) const { if(trace_fn) trace_fn(*this,phase,frame,trace_context); }
 bool State::valid_parameter(unsigned p,float v) const {
     return initialized_ && p<150 && std::isfinite(v) && (p!=arpIsOn || v==0.f);
 }
@@ -146,10 +142,10 @@ bool State::valid_event(int pitch,int velocity,float frequency) const {
     return initialized_ && parameters[arpIsOn]==0 && sequencer.pending_empty && pitch>=0 && pitch<128 &&
         velocity>=0 && velocity<=127 && std::isfinite(frequency) && frequency>=0 && frequency<=sp->sr*.5f;
 }
-bool State::valid_output(float *l,float *r,unsigned n,unsigned offset) const {
+bool State::valid_output_span(float *l,float *r,unsigned n,unsigned offset,InstanceSpan self) const {
     if(!initialized_ || !l || !r || n>65536 || offset>65536-n || parameters[arpIsOn]!=0 || !sequencer.pending_empty) return false;
     const size_t bytes=(static_cast<size_t>(n)+offset)*sizeof(float);
-    if(overlap(l,bytes,r,bytes) || overlap(l,bytes,this,sizeof *this) || overlap(r,bytes,this,sizeof *this) ||
+    if(overlap(l,bytes,r,bytes) || overlap(l,bytes,self.data,self.bytes) || overlap(r,bytes,self.data,self.bytes) ||
        overlap(l,bytes,tuningTable,128*sizeof(float)) || overlap(r,bytes,tuningTable,128*sizeof(float))) return false;
     for(const auto &d:descriptors_) if(overlap(l,bytes,d.tbl,4097*sizeof(float)) || overlap(r,bytes,d.tbl,4097*sizeof(float))) return false;
     return true;

@@ -1,36 +1,36 @@
 {
   "schema": 1,
-  "scope": "Portable public control-binding successor; scheduler runtime/fixture arithmetic unchanged",
+  "scope": "Runtime/oracle storage split, complete-instance alias/lifetime and typed canonical fixture; generated oracle.cpp and runtime event/render arithmetic unchanged",
   "files": [
     {
       "path": "scheduler.hpp",
-      "bytes": 4017,
-      "sha256": "d54b37188315d701d6ac3d25ea25772870795d96b66d80a66dd2a749f610a61d",
-      "git_blob_sha": "ec184ca9bb529061df895b6d84963037f247454b"
+      "bytes": 5219,
+      "sha256": "da76e5b800f092fae5bf0547dc949f9785dc3d4c6853d03b474c433e4ca4a535",
+      "git_blob_sha": "313616b9daddc9ce1a374d94bc2288e3926e9169"
     },
     {
       "path": "scheduler.cpp",
-      "bytes": 14501,
-      "sha256": "d092837529cc71a167de00f1d7861a73fceda4f03a5e72848a0013aa4c8e068b",
-      "git_blob_sha": "eb9c1ca359b887e2b27abc0a508ef79c56ba3248"
+      "bytes": 14324,
+      "sha256": "e706b7c669f52863d5fbb97677d4c8f0800fdb9c6829f81823dd483ecdc8f6b1",
+      "git_blob_sha": "a3edd161d9b6a478f77798ef2f0f3f433375a5f7"
     },
     {
       "path": "tests/scheduler_test.cpp",
-      "bytes": 16287,
-      "sha256": "23af3ec6e093215bf3f582cf193513bf40fe018811c4d5ba9d44cc0fae7d5a6f",
-      "git_blob_sha": "00a6b43d5df2de97452dc299132b3e2694d3d254"
+      "bytes": 21297,
+      "sha256": "28399895e363578e2f0a8243b68048b3cb2fa1cfb2b8165d960330b59f85f994",
+      "git_blob_sha": "3507810c6b2fb5349afe49ab12eedc25779f5cfe"
     },
     {
       "path": "run_tests.py",
-      "bytes": 8005,
-      "sha256": "e3b41c3cc62b557a9caf8de6217c37bef35303afea0b5b5675a2cf905da07e4d",
-      "git_blob_sha": "b9e7af1d33bb28d21868e8f2eed3bd4f68dbde47"
+      "bytes": 8023,
+      "sha256": "a96ae1bb1055682cf67daf90f053bb704ae1c761dfd505b2632f684c6e4fff35",
+      "git_blob_sha": "23cf06c8b1f1f8281fdb04473e6326bddbc0458b"
     },
     {
       "path": "mutation_checks.py",
-      "bytes": 4665,
-      "sha256": "5f7101d92d7a897cb96151f8ca76188c0d3d166de5b2844533b7c5392675c642",
-      "git_blob_sha": "d4054e866104bcea2582c681fcdb22b86c8f4333"
+      "bytes": 6108,
+      "sha256": "da32764a6b1d0fbc0f079e4655753fa993c3e93a62b953275d31916fd7f8a543",
+      "git_blob_sha": "4c10e56fa82f24cfdd55b36d2acdb23973685d6c"
     },
     {
       "path": "DEPENDENCIES.json",
@@ -40,21 +40,27 @@
     },
     {
       "path": "README.md",
-      "bytes": 10083,
-      "sha256": "07bb5e2608abfc720aacfb5ee49cdad353423c065df1610a131282c5097f9e05",
-      "git_blob_sha": "b8f148151136f19d1bef22ad4d5a397c82adef5e"
+      "bytes": 14014,
+      "sha256": "0120dbfb4345b28a7e3aec5e34934f02a3dc83a19a945bec0bb13bf1f631119d",
+      "git_blob_sha": "b151c31b252496f2f44ba2475a764b804c325cda"
     },
     {
       "path": "oracle/generate.py",
-      "bytes": 14643,
-      "sha256": "47ee5ef07510bc52367cda501f143f938a51bc023b71514c8afd745468b95a96",
-      "git_blob_sha": "d23d14ae9d5e823ca9a4b2fa29224d3517c08fce"
+      "bytes": 16341,
+      "sha256": "eb3194acb907950d64f635a1120cf52fb5d8b98dd65ccf4794a73a9ef0ca4175",
+      "git_blob_sha": "90838c48aafa51bf33b28b678a47204c06a46609"
+    },
+    {
+      "path": "oracle/state.hpp",
+      "bytes": 2563,
+      "sha256": "4e01c666594c785dc46fc2db05dceb858428c2fb8796af47de7ead8ece2e85c8",
+      "git_blob_sha": "419cc659262c7001317ebeb4c88e4b4236207318"
     },
     {
       "path": "oracle/oracle.hpp",
-      "bytes": 779,
-      "sha256": "c856ac499d87f24ff6d1d239ddaf333e298c486c61cf4aca9579c7d195c38b64",
-      "git_blob_sha": "c6cabf6ab493de924ed287002c691ab2f1fe16d4"
+      "bytes": 2501,
+      "sha256": "4dc52f4d47e24cc276a8b7e8a0b92d2812af0f1d5975844766b58b9c643f99e8",
+      "git_blob_sha": "5c9bdf8004a48c9c135556cb539051766bd90ed0"
     },
     {
       "path": "oracle/oracle.cpp",
@@ -64,9 +70,9 @@
     },
     {
       "path": "oracle/MANIFEST.json",
-      "bytes": 14423,
-      "sha256": "8f1e66a1165e09aefad5086923f0ef5c41afb66325cbfeb9c5b6ee91d5cad4ce",
-      "git_blob_sha": "6b4d8a8caf6c319b0592115469d6a029cb748142"
+      "bytes": 14898,
+      "sha256": "7621bc06fd13969e5ceb6a7182ee12b6760911a9c29c8de613a750caecf1060a",
+      "git_blob_sha": "964c334671c9703c90f578bdae719512c3a4301c"
     },
     {
       "path": "notices/SynthOne-MIT.txt",
@@ -87,5 +93,6 @@
       "git_blob_sha": "f5b12847bf65ebf58c92f376a2045bf10e05c7e6"
     }
   ],
-  "origin_source_manifest_sha256": "5a507c9cac27fb63f58544072dc79df85a9af8dd13eb8f53b56cff0e29c5fa59"
+  "origin_source_manifest_sha256": "635a89a453e5133c443ea2bca4a61f366748d2a87146e6cc1d471b2171eff0bc",
+  "baseline_commit": "46b06ada4009e5047cd3bd4a153b8e3b76c46713"
 }

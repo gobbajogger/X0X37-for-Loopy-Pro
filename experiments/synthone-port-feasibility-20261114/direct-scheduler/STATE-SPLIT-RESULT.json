@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "scope": "Changed runtime/oracle state split only",
+  "baseline_commit": "46b06ada4009e5047cd3bd4a153b8e3b76c46713",
+  "source_manifest_sha256": "2b7cdc90cd7f3399c0b3dd08ed32e3ec997e0d1a006caea77c19dca1c902e48f",
+  "oracle_cpp_sha256": "7526b71d59063dca29c9dbd41a64e01414f46fe31974784e3eb18e1d505e498c",
+  "baseline_o2": {
+    "exit": 0,
+    "cases": 48,
+    "frames": 17889
+  },
+  "test_first_storage_separation": {
+    "baseline_exit": 1,
+    "reason": "sizeof(Scheduler)<sizeof(Oracle) failed before split"
+  },
+  "full_changed_fixture": {
+    "o2": {
+      "exit": 0,
+      "result": {
+        "cases": 54,
+        "checks": 55654337,
+        "frames": 18162,
+        "state_snapshots": 19302,
+        "events": 648,
+        "heap_calls_during_actions": 0,
+        "failures": 0
+      }
+    },
+    "os": {
+      "exit": 0,
+      "result": {
+        "cases": 54,
+        "checks": 55654337,
+        "frames": 18162,
+        "state_snapshots": 19302,
+        "events": 648,
+        "heap_calls_during_actions": 0,
+        "failures": 0
+      }
+    },
+    "sanitize_default": {
+      "exit": 1,
+      "reason": "LeakSanitizer fatal: does not work under ptrace; not a fixture assertion failure"
+    },
+    "sanitize_no_lsan": {
+      "exit": 0,
+      "ASAN_OPTIONS": "detect_leaks=0",
+      "result": {
+        "cases": 54,
+        "checks": 55654337,
+        "frames": 18162,
+        "state_snapshots": 19302,
+        "events": 648,
+        "heap_calls_during_actions": 0,
+        "failures": 0
+      },
+      "stderr_bytes": 0,
+      "same_binary_as_failed_default": true
+    }
+  },
+  "mutations": {
+    "scope": "Synthetic scheduler negative controls only",
+    "negative_controls": [
+      {
+        "mutation": "per_frame_sparse_holes",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "release_threshold_inclusive",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "missing_poly_extra_adsr",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "normalized_mono_reset",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "fallback_noise_cleanup",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "wrong_steal_cursor",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "reset_prng",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "late_parameter_tick",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "fresh_inverse_lfo_one",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      },
+      {
+        "mutation": "unclamped_oracle_output_half_time",
+        "compiled": true,
+        "runtime_exit": 1,
+        "detected": true
+      }
+    ],
+    "all_detected": true
+  },
+  "host_layout": {
+    "pointer_bytes": 8,
+    "float_bytes": 4,
+    "State": 11064,
+    "RuntimeState": 11480,
+    "Scheduler": 11480,
+    "OracleState": 18912,
+    "Oracle": 18912
+  },
+  "not_run": [
+    "LeakSanitizer unsupported under ptrace",
+    "unchanged graph/control/bank suite replay",
+    "native target build/resource/CPU",
+    "complete-engine fidelity",
+    "device",
+    "merge/release/publication"
+  ],
+  "reviewed_initial_source_manifest_sha256": "7642c30b27fff6a0d7feb8e4f99ead5a69a39bd89a9e8fd25baabe01e43fb179",
+  "documentation_delta": "Only obsolete README baseline/current prose and matching runner comment changed after initial independent source review; implementation and compiled C++ closure unchanged."
+}
