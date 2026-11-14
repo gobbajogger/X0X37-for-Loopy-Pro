@@ -46,7 +46,8 @@ assert bass.count(credit) == 3, "bass DSP, post-DSP, and bus mix must be account
 assert bass.find(credit) < bass.find("bass_render_ok[bv]")
 assert bass.find(credit, bass.find(credit) + 1) < bass.find("stage_wait((uint32_t)(2 + bv), core)")
 assert bass.rfind(credit) > bass.find("add_glide(dly, bb[bv],")
-assert "pb = plat_cycles();" in bass, "the waits must be excluded from bass's next interval"
+assert "pb = plat_ticks24();" in bass, "the waits must be excluded from bass's next interval"
+assert job.count("p8 = plat_ticks24();") == 2, "808 restarted spans must share the 24 MHz clock"
 
 mix_anchor = "    brk_midi_drain();\n    for (j = 0; j < NBASS; j++)"
 assert SRC.count(mix_anchor) == 1
