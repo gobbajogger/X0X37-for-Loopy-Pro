@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "scope": "Read-only recomputation of completed records, no new DSP execution/tests/builds",
+  "rows": 9600,
+  "timed_legs": 38400,
+  "timed_frames": 157286400,
+  "source_driver_runner_protocol_raw_executable_hashes": "MATCH",
+  "summary_recomputed": "MATCH",
+  "same_function_controls_qualified": 0,
+  "case_configuration_count": 20,
+  "checksum_sets": {
+    "idle": [
+      1489983172
+    ],
+    "held-1": [
+      1025157888
+    ],
+    "held-6": [
+      3058067684
+    ],
+    "release-1": [
+      2917414406
+    ],
+    "release-6": [
+      2048525911
+    ]
+  },
+  "runs": [
+    {
+      "configuration": "Os-AB",
+      "rows": 2400,
+      "checks": "all input, executable and raw hashes match; identities/order/affinity/shape valid; all20 summaries independently reproduced"
+    },
+    {
+      "configuration": "O2-BA",
+      "rows": 2400,
+      "checks": "all input, executable and raw hashes match; identities/order/affinity/shape valid; all20 summaries independently reproduced"
+    },
+    {
+      "configuration": "Os-BA",
+      "rows": 2400,
+      "checks": "all input, executable and raw hashes match; identities/order/affinity/shape valid; all20 summaries independently reproduced"
+    },
+    {
+      "configuration": "O2-AB",
+      "rows": 2400,
+      "checks": "all input, executable and raw hashes match; identities/order/affinity/shape valid; all20 summaries independently reproduced"
+    }
+  ],
+  "limit": "Checksums are final-state/final-block workload guards, not new proof of all PCM samples; existing byte comparisons reused. Nominal iid intervals do not establish stationarity or hardware timing."
+}

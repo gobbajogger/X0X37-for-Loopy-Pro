@@ -56,6 +56,8 @@ def budgets(log):
     pool = re.search(r'pool (\d+) B of (\d+)', log)
     if not all((code, ram, pool)):
         raise ValueError('build log lacks code/RAM/pool budget evidence')
+    if int(code[2]) < 8192:
+        raise ValueError(f'flash headroom {code[2]} B < 8192 B')
     if int(ram[2]) < int(ram[1]) or int(pool[2]) - int(pool[1]) < 8192:
         raise ValueError('RAM or pool budget exceeded')
     return {'code_free': int(code[2]), 'ram_free': int(ram[2])-int(ram[1]),

@@ -50,7 +50,7 @@ def write_record(repo, model, fwsc, directory):
     tree = dev_validate.tree(repo, commit)
     plan = {"base": commit, "scope": "fixture behavior",
             "checks": [{"reason": "changed fixture", "argv": [sys.executable, "test.py"]}]}
-    build_log = "app code area 100 B, 40 B free\nRAM .data+.bss 40 B of 100; pool 100 B of 10000\n"
+    build_log = "app code area 100 B, 8192 B free\nRAM .data+.bss 40 B of 100; pool 100 B of 10000\n"
     (directory / "build.log").write_text(build_log)
     (directory / "check-0.log").write_text("affected test passed\n")
     inputs = {

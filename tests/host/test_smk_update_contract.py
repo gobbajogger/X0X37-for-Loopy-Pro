@@ -112,7 +112,7 @@ run() { name="$1"; shift; if "$@"; then echo "  ok   $name"; else FAIL=1; fi; }
         checks = ('failed=0\nfail() { echo "$*"; failed=1; }\n'
                   'for c in "dev:" "rel:-rel"; do' + status + '\nnum() {' + budget +
                   '\nexit "$failed"\n')
-        valid = 'app code area 1024 B, 10 B free\nRAM .data+.bss 20 B of 30\npool 100 B of 8292\n'
+        valid = 'app code area 1024 B, 8192 B free\nRAM .data+.bss 20 B of 30\npool 100 B of 8292\n'
         for name in builds:
             (logs / f'build-{name}.log').write_text(valid)
         def check():
@@ -126,7 +126,8 @@ run() { name="$1"; shift; if "$@"; then echo "  ok   $name"; else FAIL=1; fi; }
             self.assertNotEqual(check().returncode, 0)
             rc.write_text('0\n')
             log = logs / f'build-{name}.log'
-            for bad in (valid.replace('10 B free', 'over limit'),
+            for bad in (valid.replace('8192 B free', 'over limit'),
+                        *(valid.replace('8192 B free', f'{free} B free') for free in (0, 6276, 8191)),
                         valid.replace('20 B of 30', '31 B of 30'),
                         valid.replace('100 B of 8292', '101 B of 8292')):
                 log.write_text(bad)

@@ -95,6 +95,7 @@ test_class() {
     rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|freeplay-live-keys|synth-bus-mute|storage-warning|freeplay-latency|pads-in-settings|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|pattern-preset-notelock) TEST_CLASS=G ;;
+    pattern-sound-project-adoption|settings-read-recovery) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-echo-page|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage|audio-stress) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-echo-page|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|smc-remainder|smc-popup-engine|smc-audit-core|smc-audit-contract|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
@@ -365,6 +366,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh h
 run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
 run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_fx2_inserts
 run original-sound-cell sh tests/host/original_sound_cell_test.sh build/original-sound-cell
+run preset-record sh tests/host/preset_record_test.sh build/preset-record
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
 run load-guard-diagnostic python3 tests/host/test_load_guard_diagnostic.py
@@ -406,6 +408,8 @@ run editor-diagnostic-count python3 -B tests/host/editor_diagnostic_count_test.p
 run storage-scratch sh tests/host/run_storage_scratch.sh
 run project-stage sh tests/host/run_project_stage.sh
 run pattern-preset-notelock sh tests/host/pattern_preset_notelock_test.sh build/pattern-preset-notelock
+run pattern-sound-project-adoption sh tests/host/pattern_sound_project_adoption_test.sh
+run settings-read-recovery sh tests/host/settings_read_recovery_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run save-note-quiet Pillow; else run save-note-quiet sh tests/host/save_note_quiet_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run font-pack Pillow; else run font-pack python3 tests/font_pack_test.py; fi

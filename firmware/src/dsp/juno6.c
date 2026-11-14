@@ -26,6 +26,10 @@ void juno6_render(juno6_t *s, float *out, unsigned n)
  const float env=7000*s->macro[4];
  const float hp=1.0f/(1.0f+TWO_PI*(15+2000*s->hpf*s->hpf)/sr);
  const float rate=(.1f+8*s->macro[10]*s->macro[10])/sr;
+ const float level=s->macro[15]/1.85f; /* same divide as before, once per block */
+ const float pw=s->pulse_width;
+ const float res8=s->resonance*.8f;
+ const float saw_g=1-s->macro[0], pul_g=s->macro[0], sub_g=s->sub_level;
  for(unsigned k=0;k<n;k++) {
   float mix=0, lfo=1-4*fm_fabsf(s->lfo_phase-.5f);
   s->lfo_phase+=rate; if(s->lfo_phase>=1)s->lfo_phase-=1;
@@ -33,31 +37,49 @@ void juno6_render(juno6_t *s, float *out, unsigned n)
    juno6_voice_t *v=&s->voice[i];
    if(!v->stage)continue;
    float dt=clampf(v->increment,.000001f,.45f),t=v->phase;
-   float saw=2*t-1-blep(t,dt),width=clampf(s->pulse_width+lfo*s->macro[11]*.2f,.05f,.95f);
+   float saw=2*t-1-blep(t,dt),width=clampf(pw+lfo*s->macro[11]*.2f,.05f,.95f);
    float pulse=(t<width?1.0f:-1.0f)+blep(t,dt),q=t-width;
    if(q<0)q+=1;
    pulse-=blep(q,dt);
    float sub=v->subphase<.5f?1.0f:-1.0f;
-   float x=(saw*(1-s->macro[0])+pulse*s->macro[0])*.7f+sub*s->sub_level;
+   float x=(saw*saw_g+pulse*pul_g)*.7f+sub*sub_g;
    if(v->stage==1) {v->envelope+=attack;if(v->envelope>=1){v->envelope=1;v->stage=2;}}
    else if(v->stage==2){v->envelope-=decay;if(v->envelope<=s->sustain){v->envelope=s->sustain;v->stage=3;}}
-   else if(v->stage==4){v->envelope-=fm_maxf(.000001f,v->envelope)*release;if(v->envelope<.00001f){v->envelope=0;v->stage=0;}}
+   else if(v->stage==4){
+    /* Values below the old 1e-6 floor retire at 1e-5 in either form. */
+    v->envelope-=v->envelope*release;
+    if(v->envelope<.00001f){v->envelope=0;v->stage=0;}
+   }
    /* Bounded two-pole lowpass, no transcendental work per voice/sample. */
    float a=clampf(TWO_PI*(base+v->envelope*env)/sr,.001f,.75f);
-   v->filter_state+=a*(x-v->filter_state-s->resonance*.8f*v->filter);
+   v->filter_state+=a*(x-v->filter_state-res8*v->filter);
    v->filter+=a*(v->filter_state-v->filter);
    mix+=v->velocity*v->envelope*v->filter;
    v->phase+=dt;if(v->phase>=1)v->phase-=1;
    v->subphase+=dt*.5f;if(v->subphase>=1)v->subphase-=1;
   }
-  mix*=s->macro[15]/6;
+  mix*=level;
   if(s->hpf>0){float y=hp*(s->hp_state+mix-s->hp_input);s->hp_input=mix;s->hp_state=y;mix=y;}
   out[k]=mix;
  }
 }
 void juno6_chorus_init(juno6_chorus_t*c,float sr){memset(c,0,sizeof *c);c->sample_rate=sr>8000?sr:44100;c->rate_hz=.8f;c->depth_ms=3.4f;c->mix=.22f;}
 void juno6_chorus_set(juno6_chorus_t*c,float r,float d,float m){c->rate_hz=clampf(r,.1f,5);c->depth_ms=clampf(d,1.7f,5.4f);c->mix=clampf(m,0,.5f);}
-void juno6_chorus_process(juno6_chorus_t*c,float*l,float*r,unsigned n){unsigned i;float maxd=fm_minf(255,c->sample_rate*.0054f);for(i=0;i<n;i++){float in=(l[i]+r[i])*.5f,ph=(float)c->phase/4294967296.0f*TWO_PI,d=clampf(c->sample_rate*(.0017f+(c->depth_ms*.001f-.0017f)*(.5f+.5f*fm_sinf(ph))),c->sample_rate*.0017f,maxd);unsigned whole=(unsigned)d,a=(c->write+256-whole)&255,b=(a+255)&255;float frac=d-whole,del=((float)c->delay[a]*(1-frac)+(float)c->delay[b]*frac)/32768.0f,wet=del*c->mix;c->delay[c->write]=(int16_t)clampf(in*32767,-32768,32767);c->write=(c->write+1)&255;l[i]=l[i]*(1-c->mix)+wet;r[i]=r[i]*(1-c->mix)-wet;c->phase+=(uint32_t)(c->rate_hz*4294967296.0f/c->sample_rate);}}
+void juno6_chorus_process(juno6_chorus_t*c,float*l,float*r,unsigned n){
+ unsigned i;
+ float maxd=fm_minf(255,c->sample_rate*.0054f);
+ float mind=c->sample_rate*.0017f;
+ float span=c->depth_ms*.001f-.0017f;
+ float dry=1-c->mix, wetg=c->mix;
+ uint32_t phinc=(uint32_t)(c->rate_hz*4294967296.0f/c->sample_rate);
+ for(i=0;i<n;i++){
+  float in=(l[i]+r[i])*.5f,ph=(float)c->phase/4294967296.0f*TWO_PI,d=clampf(c->sample_rate*(.0017f+span*(.5f+.5f*fm_sinf(ph))),mind,maxd);
+  unsigned whole=(unsigned)d,a=(c->write+256-whole)&255,b=(a+255)&255;
+  float frac=d-whole,del=((float)c->delay[a]*(1-frac)+(float)c->delay[b]*frac)/32768.0f,wet=del*wetg;
+  c->delay[c->write]=(int16_t)clampf(in*32767,-32768,32767);c->write=(c->write+1)&255;
+  l[i]=l[i]*dry+wet;r[i]=r[i]*dry-wet;c->phase+=phinc;
+ }
+}
 
 int juno6_active(const juno6_t *s) {
  for(unsigned i=0;i<JUNO6_VOICES;i++) if(s->voice[i].stage) return 1;

@@ -56,7 +56,7 @@ if version:
 Path('build', filename + '.fwsc').write_bytes(
     ufw(b'\x00' * 1024, b'FELUCCA-LOADER-1' + b'\x00' * 128, product))
 PYMOCK
-echo 'app code area 100 B, 40 B free'
+echo 'app code area 100 B, 8192 B free'
 echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
 '''
         (self.repo/'build.sh').write_text(fixture_build.replace('__TOOL_DIR__', repr(str(ROOT/'tools'))))
@@ -119,6 +119,81 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
             })
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(ledger, indent=2) + '\n')
+
+    def test_flash_and_pool_headroom_boundaries(self):
+        sys.path.insert(0, str(ROOT/'tools'))
+        from dev_validate import budgets
+        valid = 'app code area 100 B, 8192 B free\nRAM .data+.bss 40 B of 100; pool 100 B of 8292\n'
+        self.assertEqual(budgets(valid), {'code_free': 8192, 'ram_free': 60, 'pool_free': 8192})
+        self.assertEqual(budgets(valid.replace('8192 B free', '8193 B free'))['code_free'], 8193)
+        self.assertEqual(budgets(valid.replace('100 B of 8292', '99 B of 8292'))['pool_free'], 8193)
+        self.assertEqual(budgets(valid.replace('40 B of 100', '100 B of 100'))['ram_free'], 0)
+        for free in (0, 6276, 8191):
+            with self.subTest(flash_free=free):
+                with self.assertRaisesRegex(ValueError, 'flash'):
+                    budgets(valid.replace('8192 B free', f'{free} B free'))
+        for pool in (101, 8292):
+            with self.subTest(pool_used=pool):
+                with self.assertRaises(ValueError):
+                    budgets(valid.replace('100 B of 8292', f'{pool} B of 8292'))
+        for missing in ('app code area', 'RAM .data+.bss', 'pool'):
+            with self.subTest(missing=missing):
+                with self.assertRaisesRegex(ValueError, 'evidence'):
+                    budgets(valid.replace(missing, 'missing'))
+        with self.assertRaises(ValueError):
+            budgets(valid.replace('40 B of 100', '101 B of 100'))
+
+    def test_native_budget_log_format(self):
+        sys.path.insert(0, str(ROOT/'tools'))
+        from dev_validate import budgets
+        # Logged by the retained #895 Elite/Pro native builds, not new build proof.
+        for image, free in ((544264, 8408), (544256, 8416)):
+            with self.subTest(image_bytes=image):
+                log = (f'  ok    app code area 552672 B, {free} B free (Bluetooth block at app.bin 0x86ee0)\n'
+                       f'  ok    image {image} B; RAM .data+.bss 95536 B of 98304; pool 335724 B of 344064\n')
+                self.assertEqual(budgets(log), {'code_free': free, 'ram_free': 2768, 'pool_free': 8340})
+
+    def test_low_flash_build_issues_no_record(self):
+        path = self.repo/'build.sh'
+        path.write_text(path.read_text().replace('8192 B free', '8191 B free'))
+        self.git('add', '.')
+        self.git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'low flash fixture')
+        self.commit = self.git('rev-parse', 'HEAD')
+        for model in ('elite', 'pro'):
+            with self.subTest(model=model):
+                self.out = self.root/model
+                result = self.run_validation(model=model)
+                self.assertEqual(result.returncode, 3, result.stdout+result.stderr)
+                self.assertIn('flash', result.stderr)
+                self.assertFalse((self.out/'record.json').exists())
+
+    def test_legacy_record_rechecks_current_headroom_floors(self):
+        self.ready()
+        record = self.out/'record.json'
+        data = json.loads(record.read_text())
+        # Pre-version schema-2 evidence is still usable if its budgets qualify.
+        data.pop('firmware')
+        data.pop('firmware_version')
+        record.write_text(json.dumps(data))
+        self.assertEqual(self.guard().returncode, 0)
+        log = self.out/'build.log'
+        original = log.read_text()
+        sys.path.insert(0, str(ROOT/'tools'))
+        from dev_validate import digest, verify
+        package = self.out/'x0x-smk37-elite.fwsc'
+        self.assertEqual(verify(self.repo, self.commit, record, package)['schema'], 2)
+        for free in (6276, 8191):
+            with self.subTest(flash_free=free):
+                log.write_text(original.replace('8192 B free', f'{free} B free'))
+                # Model an internally consistent old record, not a changed-log failure.
+                data['logs']['build']['sha256'] = digest(log)
+                data['budgets']['code_free'] = free
+                record.write_text(json.dumps(data))
+                with self.assertRaisesRegex(ValueError, 'flash'):
+                    verify(self.repo, self.commit, record, package)
+                refused = self.guard()
+                self.assertEqual(refused.returncode, 3, refused.stdout+refused.stderr)
+                self.assertIn('flash', refused.stderr)
 
     def test_unallocated_firmware_version_is_refused(self):
         result = self.run_validation(version='0.7.2')

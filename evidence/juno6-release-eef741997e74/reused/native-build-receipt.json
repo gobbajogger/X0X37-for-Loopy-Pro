@@ -1,0 +1,84 @@
+{
+  "source_head": "eef741997e743189f17df7e46bf881e472ad254c",
+  "source_tree": "f0e8b7d282fc57cfcae18f6f02727f7455df98e8",
+  "parent": "1322293e89c1582eecb3d9b7950e14db01722065",
+  "branch": "lane/j6-exact-release-20261113",
+  "pr": 895,
+  "sdk_tag": "AC79NN_SDK_V1.2.14_2026-10-13",
+  "sdk_archive_sha256": "929ec0b652c1e246aa066c5ff4bc6068e1fd145501adce30187b8497b93276b6",
+  "toolchain_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+  "toolchain_compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "configuration": {
+    "board": "smk37",
+    "nightly_version": "0.0.26",
+    "X0X_DEV_PADCAL": "0",
+    "X0X_ORIGINAL_SYNTH": "1 (default)",
+    "X0X_JOBS": "4",
+    "X0X_FACTORY_BREAKS": "unset (none)",
+    "JIELI_DOCKER": "unset (native Linux)",
+    "git_sha_argument": "eef741997e743189f17df7e46bf881e472ad254c"
+  },
+  "models": [
+    {
+      "model": "elite",
+      "build_exit": 0,
+      "flash_capacity": 552672,
+      "flash_free": 8408,
+      "flash_reserve": 8192,
+      "flash_margin_above_reserve": 216,
+      "pool_used": 335724,
+      "pool_capacity": 344064,
+      "pool_free": 8340,
+      "pool_reserve": 8192,
+      "ram_used": 95536,
+      "ram_capacity": 98304,
+      "app_bytes": 544264,
+      "app_sha256": "23b6680ab999762024485fc21cc8d62c312ca8785d61dddd535bda010cf7b056",
+      "package_bytes": 651732,
+      "package_sha256": "40c142cfd0e738fa339905957270a799fb132227e61aa54aa31ecfb553f5e4f1",
+      "package_check": {
+        "bytes": 651732,
+        "model": "elite",
+        "package_crc32": "ea7df9aa",
+        "payloads": [
+          "flash.bin",
+          "ota.bin"
+        ],
+        "product": "SMK-37 Elite_900",
+        "sha256_check": "package header, flash/app and OTA CRC verified"
+      }
+    },
+    {
+      "model": "pro",
+      "build_exit": 0,
+      "flash_capacity": 552672,
+      "flash_free": 8416,
+      "flash_reserve": 8192,
+      "flash_margin_above_reserve": 224,
+      "pool_used": 335724,
+      "pool_capacity": 344064,
+      "pool_free": 8340,
+      "pool_reserve": 8192,
+      "ram_used": 95536,
+      "ram_capacity": 98304,
+      "app_bytes": 544256,
+      "app_sha256": "97c07d3d1d7a7d9571ffc5cc5a778104605777561027a466bc82d9c017296544",
+      "package_bytes": 651730,
+      "package_sha256": "3327d05e77e126a40e365fbea8b85bb30c3d8e04085b62ac41b524fb0f2cdd54",
+      "package_check": {
+        "bytes": 651730,
+        "model": "pro",
+        "package_crc32": "0fc7ccfe",
+        "payloads": [
+          "flash.bin",
+          "ota.bin"
+        ],
+        "product": "SMK-37 Pro_900",
+        "sha256_check": "package header, flash/app and OTA CRC verified"
+      }
+    }
+  ],
+  "host_performance": "INCONCLUSIVE; identical-source control unstable",
+  "device_cpu": "NOT_RUN",
+  "integration_acceptance": "BLOCKED_CPU"
+}

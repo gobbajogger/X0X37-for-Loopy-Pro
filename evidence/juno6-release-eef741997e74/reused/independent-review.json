@@ -1,0 +1,62 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "verdict_reason": "No source or test defects found. The change is clear for the requested partial draft delivery; the never-slower acceptance criterion and target CPU evidence remain unqualified. This is not integration or device approval.",
+  "scope": {
+    "base": "1322293e89c1582eecb3d9b7950e14db01722065",
+    "branch": "lane/j6-exact-release-20261113",
+    "head_sha": "1322293e89c1582eecb3d9b7950e14db01722065",
+    "pr_url": null,
+    "files_changed": 5,
+    "state": "uncommitted frozen working tree; exact reviewed-input hashes attached"
+  },
+  "intent": "Remove the redundant Juno release-envelope maximum without changing PCM, engine state, approved /1.85 gain or existing hoists. Add a pinned actual-parent comparison and honest optional host timing evidence.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "performance",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [],
+  "coverage": {
+    "review": "Six independent in-process persona outcomes collected; no malformed or failed reviewers. Findings mechanics completed with zero findings.",
+    "source_proof": "For finite nonnegative envelope e >= 1e-6 the arithmetic operands are unchanged. For e < 1e-6 both forms retire to positive zero at the unchanged 1e-5 threshold before filter/mix use. Final filter, phase and subphase work remains intact. Production uses -fno-fast-math and -ffp-contract=off.",
+    "harness": "Pinned parent juno6.c and shared header bytes were checked against actual parent Git blobs. Independent translation units, complete initialized state comparisons, PCM guards, public API lifecycle and one-frame release boundary handling were inspected. The final wall/thread-CPU timing update was included.",
+    "observed_evidence": "Read root exact.jsonl and sanitized.jsonl: Os/O2 each report 19074 checks over 290875 frames PASS. Reviewers did not execute additional tests, builds or benchmarks.",
+    "performance": "Host wall/thread-CPU timing is evidence without automatic acceptance. Current measurements are inconclusive per the owning executor; no algorithmic regression or never-slower result is inferred from timer noise. Device CPU was not measured.",
+    "native_builds": "Elite/Pro flash and pool qualification is owned by the executor and was pending at review completion.",
+    "standards": "AGENTS.md fallback governs all reviewed files; latest owner scope overrides stale full-suite, stage routing and SDK text.",
+    "plan": "No matching implementation plan was discovered; settlement suppression was not evaluated.",
+    "cross_model": "External peer was not run under the caller restriction; in-process adversarial review completed. No cross-provider corroboration claimed.",
+    "validator": "No retained actionable findings; no validator batch selected.",
+    "mutations": "No production/test/source/branch/PR changes. Temporary alternate index included owner-requested untracked tests for scope; original index and worktree remained untouched.",
+    "suppressed_by_confidence": {},
+    "failed_reviewers": []
+  },
+  "reviewed_inputs_sha256": {
+    "firmware/src/dsp/juno6.c": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+    "tests/host/juno6_exact_test.c": "109ecac616e71c7fb324a9d3b46e5637134e7d7f5f1a95fdd70d49796e1b2cef",
+    "tests/host/juno6_exact_test.py": "cfcd7604c1e1b532bdc8fd0e4fb1fbf11c9e0f0a8b2dad4b6f957da6d1b46793",
+    "tests/host/fixtures/juno6-hoist-parent/juno6.c": "b9bd8324ee0c430af6976ccac596c17fbfc80a1efd000930b60b2959bf159404",
+    "tests/host/fixtures/juno6-hoist-parent/README.md": "b863bc8baa6cffbc62578a0ff8471d4de97f33b9e9bcfde1fda5b8246e4a5b69"
+  },
+  "artifact_path": "/tmp/compound-engineering-0/ce-code-review/juno-release-20261113/review.json",
+  "run_id": "juno-release-20261113",
+  "delivery_binding": {
+    "head": "eef741997e743189f17df7e46bf881e472ad254c",
+    "tree": "f0e8b7d282fc57cfcae18f6f02727f7455df98e8",
+    "method": "All five reviewed SHA256s match delivered files; review captured working tree before connector commit."
+  }
+}
