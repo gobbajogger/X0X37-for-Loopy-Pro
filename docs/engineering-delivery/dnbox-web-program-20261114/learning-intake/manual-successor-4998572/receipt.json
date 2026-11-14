@@ -1,0 +1,16 @@
+{
+  "commit": "4998572bcc06676f08a7875ca49fb2a56358eff6",
+  "parent": "a19da721c25ab2323bb818851ab4d92e8ca3aa15",
+  "path": "web/MANUAL.md",
+  "git_blob": "a7f36a186659304340bbdadb2338cd8b3c94702a",
+  "sha256": "51b2906afe94aa51ebf5cc1d94924d17bfcb214c24afa9fe5726f8035e17b89b",
+  "bytes": 13276,
+  "relative_legacy_links": 0,
+  "immutable_keyboard_links": 4,
+  "keyboard_document_unchanged": true,
+  "changed_files": [
+    "web/MANUAL.md",
+    "docs/evidence/musician-manual-20261114.md"
+  ],
+  "applied_to_site_manifest": "ed518381e86d16fa2a104d156912b5da11d4c180b9f02764e45d4c89554ee00a"
+}

@@ -1,0 +1,91 @@
+{
+  "manifest": "cb7b5b4d18fa7f1656b6ec99fc163d444599c4fe474a0bd660c2a7771a08a5da",
+  "steps": [
+    {
+      "label": "start",
+      "hash": "#home",
+      "h1": "A whole track.\nUnder your hands.",
+      "focus": "BODY"
+    },
+    {
+      "label": "Hear length, motion, BREAK & SONG",
+      "hash": "#listen",
+      "h1": "Hear what changes.",
+      "focus": "H1"
+    },
+    {
+      "label": "return to instrument",
+      "hash": "#home",
+      "h1": "A whole track.\nUnder your hands.",
+      "focus": "H1"
+    },
+    {
+      "label": "Add a bass pulse",
+      "hash": "#learn/bass",
+      "h1": "Give the beat a bassline.",
+      "focus": "H1"
+    },
+    {
+      "label": "Give the line movement",
+      "hash": "#learn/movement",
+      "h1": "Make a movement return.",
+      "focus": "H1"
+    },
+    {
+      "label": "Turn the groove into an arrangement",
+      "hash": "#learn/arrangement",
+      "h1": "Make the drop. Keep the shape.",
+      "focus": "H1"
+    },
+    {
+      "label": "Keep the arrangement",
+      "hash": "#learn/save",
+      "h1": "This one’s\nworth keeping.",
+      "focus": "H1"
+    },
+    {
+      "label": "Keep both backups",
+      "hash": "#files",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "focus": "H1"
+    },
+    {
+      "label": "Match your firmware & files",
+      "hash": "#learn/versions",
+      "h1": "Play the version you have.",
+      "focus": "H1"
+    },
+    {
+      "label": "Install & recovery guidance",
+      "hash": "#install",
+      "h1": "Make your SMK-37 a DnBOX.",
+      "focus": "H1"
+    },
+    {
+      "label": "Update or recovery help",
+      "hash": "#help/recover",
+      "h1": "Find your next recovery step.",
+      "focus": "H1"
+    },
+    {
+      "label": "hardware MIDI",
+      "hash": "#companion",
+      "h1": "More room to play your DnBOX.",
+      "focus": "H1"
+    },
+    {
+      "label": "read actual MIDI profile limits",
+      "hash": "#companion",
+      "h1": "More room to play your DnBOX.",
+      "focus": "SUMMARY"
+    },
+    {
+      "label": "Working project & sample tools",
+      "hash": "#files",
+      "h1": "Keep the sounds. Move the whole idea.",
+      "focus": "H1"
+    }
+  ],
+  "errors": [],
+  "deviceActions": "none; local website links only"
+}

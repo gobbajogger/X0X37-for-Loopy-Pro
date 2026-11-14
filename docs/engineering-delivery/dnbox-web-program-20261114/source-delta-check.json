@@ -1,0 +1,11 @@
+{
+  "changed": [
+    "MANIFEST.sha256",
+    "journeys.js",
+    "product.js",
+    "provenance/integration-20261114.md"
+  ],
+  "base_immutable": true,
+  "manifest_entries_verified": 69,
+  "unchanged_audio_images_and_navigation": true
+}

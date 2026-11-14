@@ -1,0 +1,13 @@
+# Web and learning integration — 14 November 2026
+
+Historical input: the unchanged 69-file website with manifest a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f. Its source overlay and review evidence are preserved in canonical non-main commit 530a56ca86a9780a59b2a097829973752b3cb436.
+
+This integration changes only journeys.js and product.js and adds this provenance file. It links the revised keyboard and browser manuals at a19da721c25ab2323bb818851ab4d92e8ca3aa15. That manual describes firmware candidate 94197fc839b00aff47b98ca02f3c6396e4a6eabf, not the 0.0.25.1 recordings/tasks. The delivered UTF8 manual/scenario/evidence sources and three simulator PNGs were independently byte-consumed. The underlying reported independent-review and browser raw logs were not part of that Git delivery and are not claimed consumed. No simulator image is a physical-device result.
+
+The file page distinguishes local offline-editor preparation source from project/sample backup tools and from a working deployed editor. Its source adapter admits a narrower raw revision-13 subset, not portable bundles or newer revision-14/15 files. The current published project validators and draft manual differ; compatibility needs the actual tool's acceptance. DNPR and corrected editor component writers retain their work. Their public editor/preset routes returned 404 during normal HTTPS intake.
+
+TouchOSC source/setup is linked at source 035026fe70059af35e25c7c121b40f318b732fe3: twelve keys, four drum pads, note messages only. No packaged layout, application or physical MIDI result is implied. The browser companion remains separately owned, with profile-dependent capabilities and no qualified device connection here.
+
+Navigation.js, every audio file, the 0.0.25.1 task controls and all firmware captures are byte-unchanged. Their existing source/capture, keyboard-history and Pattern-5/mixed-part continuity evidence remains applicable. No firmware, importer, codec, MIDI adapter, device write or public deployment is performed by this integration. The sole publisher owns shared refs; existing publication/export denials remain binding.
+
+Independent integration review found four browser-manual keyboard/task/panel links at source lines 3, 11 and 70 resolve to missing web/legacy.html at a19da721 (normal TLS HTTP404). The website now provides an explicit adjacent working keyboard-manual route and discloses the draft-link limitation. The canonical manual source remains its original owner’s responsibility; no fix to that source is claimed.

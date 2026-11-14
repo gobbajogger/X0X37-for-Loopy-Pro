@@ -1,0 +1,98 @@
+[
+  {
+    "case": "fresh-direct-hash",
+    "route": "files",
+    "initial": {
+      "tag": "BODY",
+      "y": 0,
+      "hash": "#files"
+    },
+    "firstTab": {
+      "tag": "A",
+      "href": "#main",
+      "text": "Skip to content"
+    }
+  },
+  {
+    "case": "fresh-direct-hash",
+    "route": "learn/versions",
+    "initial": {
+      "tag": "BODY",
+      "y": 0,
+      "hash": "#learn/versions"
+    },
+    "firstTab": {
+      "tag": "A",
+      "href": "#main",
+      "text": "Skip to content"
+    }
+  },
+  {
+    "case": "fresh-direct-hash",
+    "route": "companion",
+    "initial": {
+      "tag": "BODY",
+      "y": 0,
+      "hash": "#companion"
+    },
+    "firstTab": {
+      "tag": "A",
+      "href": "#main",
+      "text": "Skip to content"
+    }
+  },
+  {
+    "case": "keyboard-history-exact",
+    "before": {
+      "y": 2634,
+      "focus": "Match your firmware & files→",
+      "open": true
+    },
+    "navigated": {
+      "hash": "#learn/versions",
+      "y": 0,
+      "active": "H1"
+    },
+    "back": {
+      "y": 2634,
+      "focus": "Match your firmware & files→",
+      "open": true
+    }
+  },
+  {
+    "case": "external-link",
+    "label": "keyboard manual",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md",
+    "error": "page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md\nCall log:\n\u001b[2m  - navigating to \"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "case": "external-link",
+    "label": "browser manual",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/MANUAL.md",
+    "error": "page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/MANUAL.md\nCall log:\n\u001b[2m  - navigating to \"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/MANUAL.md\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "case": "external-link",
+    "label": "offline editor source",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer",
+    "error": "page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer\nCall log:\n\u001b[2m  - navigating to \"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "case": "external-link",
+    "label": "TouchOSC source",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md",
+    "error": "page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md\nCall log:\n\u001b[2m  - navigating to \"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/035026fe70059af35e25c7c121b40f318b732fe3/web/offline-sequencer/touchosc/README.md\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "case": "external-link",
+    "label": "capability contract",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/CAPABILITIES.md",
+    "error": "page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/CAPABILITIES.md\nCall log:\n\u001b[2m  - navigating to \"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/CAPABILITIES.md\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "case": "external-link",
+    "label": "browser manual keyboard link",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html",
+    "error": "page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html\nCall log:\n\u001b[2m  - navigating to \"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/web/legacy.html\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  }
+]

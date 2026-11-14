@@ -1,0 +1,35 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/img/manual-song-candidate.png",
+    "path": "docs/dnbox-web-program-20261114/learning-intake/manual-song-candidate.png",
+    "status": 200,
+    "bytes": 173118,
+    "sha256": "4141e77229d8c2aeb0f721e0f35d575ce0625e0473b30ca4415399095c161f66",
+    "matches_producer_sha256": true,
+    "git_blob": "fd6f24cb2f01aabf69e1697a73e27b94c0cc3faa",
+    "tls": "default trust verification; no bypass",
+    "utc": "2026-11-14T13:29:55.425842+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/img/manual-break-candidate.png",
+    "path": "docs/dnbox-web-program-20261114/learning-intake/manual-break-candidate.png",
+    "status": 200,
+    "bytes": 173118,
+    "sha256": "2610bebd8578be9679b3c8e390d310d14ae0b5479e0938a9918451e932df5d4b",
+    "matches_producer_sha256": true,
+    "git_blob": "41505a8dfcb1e411884b38854cc6eb34eae43e62",
+    "tls": "default trust verification; no bypass",
+    "utc": "2026-11-14T13:29:55.734772+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/img/manual-break-playing-candidate.png",
+    "path": "docs/dnbox-web-program-20261114/learning-intake/manual-break-playing-candidate.png",
+    "status": 200,
+    "bytes": 173118,
+    "sha256": "45f4a7ed00dfbb91910f7e106abb38e52f5a4edf990a3db9dc89eab504a26ed0",
+    "matches_producer_sha256": true,
+    "git_blob": "2b46bd32dcea9326f8936dda5e0e6e5bbb7fa84f",
+    "tls": "default trust verification; no bypass",
+    "utc": "2026-11-14T13:29:56.119755+00:00"
+  }
+]

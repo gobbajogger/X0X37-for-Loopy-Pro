@@ -1,0 +1,15 @@
+# Exact candidate intake for the sole publisher
+
+The receiving publisher is existing owner `6af84797`. This handoff requests read-only materialization, exact hash verification and local usability intake. It does not authorize public publication or a shared-ref update. PR #130's two explicit publication denials remain binding; do not retry, change actor or route around them.
+
+Use `integrated-web-learning/site/` from the paired Library packet. It contains the complete 70-file runnable website. Its manifest SHA-256 is `ed518381e86d16fa2a104d156912b5da11d4c180b9f02764e45d4c89554ee00a`; all-file list SHA-256 is `7f32e599b7262a3da0c9a41044c5727b128dd5be2de79f27e56f3d68d672999d`. Run `sha256sum -c MANIFEST.sha256` from that directory: 69 entries must match. Serve the directory on localhost with an ordinary static server. It has no build or device connection.
+
+The historical accepted website remains separately available in `accepted-website/site/`, manifest `a82e16b041a9be6cf290546f0336657bce5913e3afb5fefbcce843ce367d4a2f`. Its canonical Git source/evidence commit is `530a56ca86a9780a59b2a097829973752b3cb436`. The new integrated source/evidence commit and archive identity are supplied in the final delivery receipt. Neither an archive nor a source commit is a live deployment.
+
+The changed version integrates manual delivery `a19da721c25ab2323bb818851ab4d92e8ca3aa15` through direct revised keyboard/browser manual access, a version-specific file compatibility warning, source-only offline-editor discovery and TouchOSC source/setup access. The original manual writer corrected the four stale keyboard links at successor `4998572bcc06676f08a7875ca49fb2a56358eff6`. That exact successor is consumed and linked; obsolete warning text is removed and changed-link/layout requalification accepted. All nine new host-rendered firmware recordings, raw PCM, controls/events, unchanged LCDs and provenance are retained in the accepted-website evidence. No audio is physical-device capture.
+
+Reuse unchanged acceptance only after hash verification. The local integration review records the exact changed candidate consumed and tested, while the historical fresh assessment and Pattern-5/mixed-part evidence qualify the unchanged base. Component source/preview status is recorded in the learning and tools intake reports; an unreceived companion R4, undeployed editor/librarian, unqualified realtime emulator or TouchOSC layout must stay labelled accordingly.
+
+Return an actual intake receipt: archive/Library identity consumed, observed archive and candidate hashes, all 69 manifest results, and the first local route/action actually exercised. A pointer acknowledgment alone is not byte consumption. Include any mismatch or access failure without retrying a denied route. Public availability and physical-device results remain separate gates.
+
+This executor exposes no cross-thread send tool for the publisher. The parent coordinator must relay this immutable packet and return the receiving owner's actual evidence; no consumption is claimed before that receipt arrives.
