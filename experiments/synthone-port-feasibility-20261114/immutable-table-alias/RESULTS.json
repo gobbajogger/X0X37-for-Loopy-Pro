@@ -1,0 +1,82 @@
+{
+  "scope": "source-only exact immutable alias host boundary; not target or whole-engine acceptance",
+  "packer_focused_cases": 29,
+  "packer_status": "PASS; unchanged packer proof reused after compiler binding repair",
+  "compile_binding_checks": 7,
+  "compiler_binding_status": "PASS; graph-header and ambient-header RED controls detected, repaired staging/clean environment excludes both",
+  "graph_runs": [
+    {
+      "cases": 4,
+      "frames_pcm_bitwise": 5322,
+      "six_note_state_snapshots": 5391,
+      "voice_calls_per_graph": 31626,
+      "checks": 6991308,
+      "protected_write_probes": 7,
+      "wrong_nonduplicate_alias_detected": true,
+      "logical_rows": 52,
+      "unique_morph_rows": 50,
+      "guarded_morph_bytes": 819400,
+      "separate_sine_bytes": 16388,
+      "target_qualified": false,
+      "variant": "o2",
+      "raw_input_sha256": "874b3167827dbd7e07125afc0cf9cf4b4a642790b572878fdb9bd14544184979",
+      "packed_sha256": "5e174ae6d1e4c13726831d505fe4c32609c87ff78d80b6b2b9264a0d3464e595",
+      "payload_hashes_unchanged": true,
+      "source_dependencies_unchanged": true,
+      "compile_from_verified_allowlist": true,
+      "ambient_include_paths_removed": true,
+      "compilers": [
+        "cc (Debian 14.2.0-19) 14.2.0",
+        "c++ (Debian 14.2.0-19) 14.2.0"
+      ],
+      "graph_commit": "a0c8698f724e28ec6275307525933c195817b3c5"
+    },
+    {
+      "cases": 4,
+      "frames_pcm_bitwise": 5322,
+      "six_note_state_snapshots": 5391,
+      "voice_calls_per_graph": 31626,
+      "checks": 6991308,
+      "protected_write_probes": 7,
+      "wrong_nonduplicate_alias_detected": true,
+      "logical_rows": 52,
+      "unique_morph_rows": 50,
+      "guarded_morph_bytes": 819400,
+      "separate_sine_bytes": 16388,
+      "target_qualified": false,
+      "variant": "sanitize",
+      "raw_input_sha256": "874b3167827dbd7e07125afc0cf9cf4b4a642790b572878fdb9bd14544184979",
+      "packed_sha256": "5e174ae6d1e4c13726831d505fe4c32609c87ff78d80b6b2b9264a0d3464e595",
+      "payload_hashes_unchanged": true,
+      "source_dependencies_unchanged": true,
+      "compile_from_verified_allowlist": true,
+      "ambient_include_paths_removed": true,
+      "compilers": [
+        "cc (Debian 14.2.0-19) 14.2.0",
+        "c++ (Debian 14.2.0-19) 14.2.0"
+      ],
+      "graph_commit": "a0c8698f724e28ec6275307525933c195817b3c5"
+    }
+  ],
+  "review_repair": {
+    "finding": "intended dependency hashes alone did not exclude header shadowing that can alter both graphs equally",
+    "correction": "stage only exact allowlisted inputs plus harness into a fresh compiler tree; verify copied closure; remove ambient include variables",
+    "retained_setup_failure": "new preprocessor regression initially omitted pinned dr_wav include directory; harness include path corrected; no DSP source changed"
+  },
+  "storage": {
+    "original_guarded_morph_bytes": 852176,
+    "packed_guarded_morph_bytes": 819400,
+    "unchanged_separate_sine_bytes": 16388,
+    "original_total_bytes": 868564,
+    "packed_total_bytes": 835788,
+    "raw_saving_before_metadata_bytes": 32776
+  },
+  "not_run": [
+    "existing shared-graph full suite",
+    "storage profile suite",
+    "906-preset suite",
+    "target compile/link",
+    "target table access/timing/workload",
+    "device or release qualification"
+  ]
+}

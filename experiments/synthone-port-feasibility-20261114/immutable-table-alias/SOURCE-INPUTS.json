@@ -1,0 +1,482 @@
+[
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.mm",
+    "size": 6707,
+    "blob_sha": "273d9e83c14f6427d89f49099e2c7c6589109683",
+    "sha256": "f62a68604d430eea47c4bc50b1f77570b4ef32e269c88c2afd125862418013d4"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+setup.mm",
+    "size": 1929,
+    "blob_sha": "47601f81c79a141aa702031a468e9bacad58e55b",
+    "sha256": "76038a633b0e9dffd96347be33746ef9301e47519064c060404e55a61addf3d1"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+process.mm",
+    "size": 13463,
+    "blob_sha": "4299be29a55fd89d5f264bce28bfe155307c3ca6",
+    "sha256": "3fa142e20a4e51869b796743a61e58e04c34e73f81ca6736f5c456a81cadce53"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/bandlimitedWaveforms.json",
+    "size": 743,
+    "blob_sha": "0961ab71921b0c742d2e7e06e42f037d21f7d946",
+    "sha256": "a46969217263aac85fb0c53d3a4bda9c33b8b9c8dc8db059fb3ed9fcddc76a7f"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/bandlimitedWaveformFrequencies.json",
+    "size": 168,
+    "blob_sha": "c9932e41e22ecd3e569f998679f88e3e0ed16baf",
+    "sha256": "5f17f17d8e34bc75d669f677fb142ebe137c61ba9bf23aa180ade0ee54529d6b"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0042.json",
+    "size": 117870,
+    "blob_sha": "510c701b699f018166acec59ba737457bcf3dc26",
+    "sha256": "1084fcc19af1e29a103f2e65fef78dcb0b2789f406453a7e9d02caebf5e1e83b"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0674.json",
+    "size": 117810,
+    "blob_sha": "7f4bd0c9568ac49321e26e5cc8cd69e259a66d6f",
+    "sha256": "cf9496d909ef98bda80aa1a9fa2e65f9cce802353221216979b1a846c88afaf6"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_1348.json",
+    "size": 117835,
+    "blob_sha": "eb26876abdf04df0f7e363555a920943e828a251",
+    "sha256": "228087c9ef81aa5eb3c7fdbe9156e27ace180538c0a48b0fa02fba2e62a387d3"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0021.json",
+    "size": 117884,
+    "blob_sha": "a0d44934099ff9878fc3999c615fa5685da49308",
+    "sha256": "93beabbe0690e06c434a60119159e335a73d3110b44fd922cad32f77f31e7bd1"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0010.json",
+    "size": 117860,
+    "blob_sha": "09b2311f2cd59d7beeed2789804c46a4c8f3dc25",
+    "sha256": "79fa2881d9d201ecf6dfd64305d13f75aa5c79e90bce306fae07bd7ff88a04cf"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0168.json",
+    "size": 117775,
+    "blob_sha": "391bf198fd95f3edecdeb1b52c4b898d1a5855f8",
+    "sha256": "ce7afee140d3e0d42996e62f79070dcf40384d76eba8d37bde3ce3d05fb85110"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0000.json",
+    "size": 51231,
+    "blob_sha": "09715c184266f3097347514f31d5c11ba07746f7",
+    "sha256": "c778f45d0df831524c03280269768a55316bf2c5da351b8ba3da7c691d3e74fa"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0084.json",
+    "size": 117875,
+    "blob_sha": "17df9809deef301ddc9996cd1384969f3a9d1b87",
+    "sha256": "fefa9c6a1f53cf2edabc922608f8b00f512ea4efb2a79e01a60198b87a0c1752"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0005.json",
+    "size": 117875,
+    "blob_sha": "71d45da6af567da73d738aa19a54683beaebcd5b",
+    "sha256": "9ee2cc4c518796fe64cd227d0fc147d9b334f11904af753f2d0f23045f261db0"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_2696.json",
+    "size": 117829,
+    "blob_sha": "cf8927a24ababcc3e50471f42f87a24c8ac49a50",
+    "sha256": "3f178656b97aff9aecc6fd1e70b85f3d861b61098ea90b9c344e712b61db9dc2"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0002.json",
+    "size": 117562,
+    "blob_sha": "b62bc8850f854509f80d21a47eb11870af5cbd73",
+    "sha256": "06a045384d29a5daa26a3a75504fe814e170cd93696b00cf4eea8272de8de633"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0337.json",
+    "size": 117808,
+    "blob_sha": "9a5c4d4a9a5d662228ffc000f7a68964d4452fcd",
+    "sha256": "255d6e99e9876be3be8716ce7dc3c9eacce92cdaf65c3cfda928084545814e62"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Triangle/triangle_0001.json",
+    "size": 117562,
+    "blob_sha": "b62bc8850f854509f80d21a47eb11870af5cbd73",
+    "sha256": "06a045384d29a5daa26a3a75504fe814e170cd93696b00cf4eea8272de8de633"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0002.json",
+    "size": 115625,
+    "blob_sha": "5eec2d62a27e6163be646f918cf165de42b649ca",
+    "sha256": "b557baf6b654c02f9f77cc1fda5b081293e08d5e9c8999c3badfa6f7e2d5ebd8"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0010.json",
+    "size": 114683,
+    "blob_sha": "6b49670518a9ec4e8610ad969586e009edadaf13",
+    "sha256": "5a72faec5632607b9d7f78367d6482463aa3c6d06e92e754df1e680f29b2649d"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0001.json",
+    "size": 114785,
+    "blob_sha": "93454b56cdf15adc183874424d72841d0f5e521f",
+    "sha256": "21e860abece6e482ee3e9c07492b68bdbfd589ea7b080e763a1e82409337e992"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0084.json",
+    "size": 114548,
+    "blob_sha": "d00db0c882f4cc04090c54fa6f57de2654119adf",
+    "sha256": "3c167c1601afcf6fbc3f1fd53883f27729f266b822201d827b86499ed9feac42"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_2696.json",
+    "size": 114538,
+    "blob_sha": "458f6573bc46780e9ba5e92785dc5eb24daab541",
+    "sha256": "7183eb7b4dbf553047fa5d2f7a99a6a7a95ec0b2607f8824d0031980e877ea50"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0042.json",
+    "size": 114600,
+    "blob_sha": "bb163edb2cdc1ecd66a134a2e3a7ff1619e3f827",
+    "sha256": "fb2a8cb1ea7dccca4f907dcdf25ba910491a234c5a38dd21479dc7819b4a4a5f"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0021.json",
+    "size": 114567,
+    "blob_sha": "0ff9ed0608a9b586fb73ed3ee05958ba14be40ce",
+    "sha256": "2dad4b7153a4d93d195017710aa0485a4658dc2df44bd2e5d6a285f8b1dc0502"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0005.json",
+    "size": 114761,
+    "blob_sha": "8ca68730d0f86e51744cc7e0a9efa9d1bd40e7c6",
+    "sha256": "788b5be507d86087b8a1a93ec30596d88daf443f4873769b7ba7c7517bce142a"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0000.json",
+    "size": 8736,
+    "blob_sha": "34a9836c31fa77c2dcda8478deeba3373fddd7a7",
+    "sha256": "b34675fb6c8942debd75115b70c9308debdf816f52b28529a55f47f698198600"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0337.json",
+    "size": 114524,
+    "blob_sha": "8084e3811b4f9d66a29877efff564c52cfafc084",
+    "sha256": "d2bed3a8bf0632a6b123e784fe26ab6175c5f34063b1b97bd889792edfd007a8"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_1348.json",
+    "size": 114543,
+    "blob_sha": "dff77bb1adae52d0fcc266853fdb4c704bbf2e26",
+    "sha256": "08a7ae7139ef05ad2935682c14fd87d3b9a79ae8529c71999c7cdca8fd9e12bc"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0674.json",
+    "size": 114499,
+    "blob_sha": "86e62bac01de5d24bb0cf30d3476c361102edf49",
+    "sha256": "6a7c41491d01666d21225dfd48be810aae8f99364dbe0d0cf327b7e1d5020490"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/PWM/pwm_0168.json",
+    "size": 114482,
+    "blob_sha": "70076dd5499499dd45c9b4e535e08a2a8942c4b0",
+    "sha256": "45f6e48f95aa02b682ce7ce78724e3e6cd9562db4c9b37da07204b5c421915ea"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0001.json",
+    "size": 118127,
+    "blob_sha": "b46fb831d1412c79492af4cfe11f1560da76d798",
+    "sha256": "917a64a6a229496c0014516d36eb35c86dbefd31dcc3310385c8994bb9f3acfd"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0337.json",
+    "size": 117852,
+    "blob_sha": "c5c789e50adaacd4a7ace6274de7c13b217699b6",
+    "sha256": "3ed5e1d7f024be053ec8fc03a9e0dccb959ccc67bc1d63bbe479308474987d06"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0021.json",
+    "size": 117916,
+    "blob_sha": "c120043748805f837bca25d7c5bf1fb45d1027c5",
+    "sha256": "d69563408b09b1c099f0a3a5ad6e0398cd2cfc50f2074b7366f7e6ee24e2cd93"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0005.json",
+    "size": 117852,
+    "blob_sha": "9da5b2c68630c3b42e27e0a5efc729641e312ffa",
+    "sha256": "bd3c7f48e9aa739e8512fd6513fd5c70f5e0091628d0fe59cfc7bb5ceed4416b"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0084.json",
+    "size": 117901,
+    "blob_sha": "7b88cffcc70d81924257f5967e21ab4ca929b66b",
+    "sha256": "5dba4c93448db87ef4eccfd5693fe74824b2b4bac2994c99c3b7dd278f6c8900"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0002.json",
+    "size": 119215,
+    "blob_sha": "9a2913ea0610c61518c649d6bd7dc16007a1ebb8",
+    "sha256": "5f86a488249113f0e1a4029e4f0d8bb897929ac6ff94177847635d0b2753da64"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0042.json",
+    "size": 117913,
+    "blob_sha": "1882fa60e7e4a347bc41ccca9297bd3853a99ae1",
+    "sha256": "c2611a57aaa707ba24a5075f8a4aabab30ae807a8672de00164bb964bb1caeda"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_1348.json",
+    "size": 117936,
+    "blob_sha": "32f428755ef71a721067386c9b5ddd415f2b834d",
+    "sha256": "d48641b1ceda2af75c206ee7c20bdc20d89536f5f256c43c0aa01901a6d96489"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0000.json",
+    "size": 55328,
+    "blob_sha": "e95b66977b233851412677748252432770069129",
+    "sha256": "853f4082be07961f13c3d1f9e35a2a3d8fb458d98a635981c7fef685d9ce6665"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0010.json",
+    "size": 118195,
+    "blob_sha": "23f21ae6ca03ce761866af6b2a29d0af5d6fe62d",
+    "sha256": "09a3645bacc820236a7bb06207ece5b4585af67404f7de11ab204801c38ac3e6"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_2696.json",
+    "size": 117863,
+    "blob_sha": "07a2cbb673d8eb627684bc7c3a598033eba437e1",
+    "sha256": "004fdda07df9f801bd27f10d4ab9e07cb009b819431674662806a489a437e35a"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0674.json",
+    "size": 117920,
+    "blob_sha": "52c97059ff130696941c9f7c4eadd15dde6deeea",
+    "sha256": "985fc5e72af0c117d0204cf8ebb2ab4a9c1938e67c6cec24ed32dc54e9f440db"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Sawtooth/sawtooth_0168.json",
+    "size": 117945,
+    "blob_sha": "c0239bcea139a71b7cf90d688154c3fd1968fe3a",
+    "sha256": "bfe4e89d8feaa8938202bb164698ce97c2b61b5f8e62b6dd248675fd7d4f25ce"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0337.json",
+    "size": 115858,
+    "blob_sha": "4635292dc20ab958a058798133b0272da1bdd0c8",
+    "sha256": "fc68e5a2828cb186be885621da2ee6ae9f316cb826b260c8e1f4d538e53965c1"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_2696.json",
+    "size": 115774,
+    "blob_sha": "ae234837a2c25596cf172fdd07eafd6010edfa2b",
+    "sha256": "14675ccae2358fc540739a61b868c61fea9d328875089275deafddc8cfb55246"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0021.json",
+    "size": 116098,
+    "blob_sha": "998150a42c826e1954ba8d52a71d6b2feec57bdd",
+    "sha256": "35587450501e64b0d571bebb5c203238d071cb612a08ca09e3ad739ad9ddf945"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0084.json",
+    "size": 115974,
+    "blob_sha": "9df5bfe1bdeeac197d1489e522c03db0c925bc5f",
+    "sha256": "db011eb46fcab01efa7428d0c6259ec2b30cfc3b29536be19e42574a19e255ff"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0674.json",
+    "size": 115810,
+    "blob_sha": "650ed085dc30ae204d207694e303291e5601b9d0",
+    "sha256": "361c84aad4044eb560ed5be8b96336881ef38b4f3a0a42d365d85f05eabd845f"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0168.json",
+    "size": 115872,
+    "blob_sha": "94ee87b424458699f23348b82fc5951ad0677672",
+    "sha256": "3b0f2f07921bce8504ee187aee1a89579440c80126ac88d0ecfb75681964ee2d"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0042.json",
+    "size": 116095,
+    "blob_sha": "6be722d132a151508b0556d13a883843ae750802",
+    "sha256": "877830f5b5ff3ebac13d92addcdced6534f9e4a222853f9ab291831028842ea7"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0001.json",
+    "size": 116964,
+    "blob_sha": "09e5f8522d2ae4f2566c07cc205f0327e042e679",
+    "sha256": "60e59c059c13f6db09efd53e411005102349039e6a2b47968cf40538cbc3e983"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_1348.json",
+    "size": 115761,
+    "blob_sha": "8440abff2c28a4e22b6adcfad8a34692f05e7baa",
+    "sha256": "f6b3bb76a199620ceeb770c7466cf6c54a4d08d85dfd87036213e39cf5991543"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0005.json",
+    "size": 116279,
+    "blob_sha": "90ced464552388728aaa4c39959c20f3ce825912",
+    "sha256": "c532367429733bb0dc60bbf964e66b14a3ee4d7f29a2ca643913d1f227260064"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0000.json",
+    "size": 10272,
+    "blob_sha": "51ba01e8812dc1ad6de343e1dab8416cb940cfea",
+    "sha256": "893d3884890117619fb5e3c3b8b5e17a8919030e6fdf2d8b83be729f303cdc7d"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0010.json",
+    "size": 116187,
+    "blob_sha": "48d1b8180de454fc07bd00f1073368f91f991372",
+    "sha256": "58c4f348c28414e2902f088adefa99ee182529f2682d59fc1ef46da430636403"
+  },
+  {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "path": "AudioKitSynthOne/DSP/BandlimitedWavetables/Square/square_0002.json",
+    "size": 116964,
+    "blob_sha": "09e5f8522d2ae4f2566c07cc205f0327e042e679",
+    "sha256": "60e59c059c13f6db09efd53e411005102349039e6a2b47968cf40538cbc3e983"
+  },
+  {
+    "path": "AudioKitSynthOne/DSP/AKSynthOne.swift",
+    "blob_sha": "9431ae5e5b2e80e61a4ae7df210a262b76d28082",
+    "size": 12360,
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "sha256": "6559a67d77d3563403bd343ef33103b8daa941b1abeba5c581fd1c3ad22c346b"
+  },
+  {
+    "path": "AudioKitSynthOne/DSP/AKTable+AKSynthOne.swift",
+    "blob_sha": "38cccc5a5eb670288209aba142079b9a604257ae",
+    "size": 3108,
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+    "sha256": "8cc9882bdac87eecda41d5d290ce77a242dfd1aff783966d01ffd793e035a896"
+  },
+  {
+    "repository": "AudioKit/AudioKit",
+    "commit": "03fecf80a66be88f6ac0356cd532c72dbe09922d",
+    "path": "AudioKit/Common/Internals/Table/AKTable.swift",
+    "size": 7256,
+    "blob_sha": "cc8daab460393774557057bf4e95974cfc50ce4a",
+    "sha256": "d0d6e90d375a6e559f491ace1ef83cfabbea26b7b09a1f049c8719ca9eda8931"
+  }
+]
