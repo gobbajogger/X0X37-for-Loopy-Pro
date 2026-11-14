@@ -1,6 +1,6 @@
 # DnBOX website v2: six real review directions
 
-**Status:** unapproved design studies on PR #890, not a published site and not a live installer. [Open the six-direction gallery](../concepts/index.html). Product landing, installation, preset file tools, recovery and a future real emulator remain separate. No claimed users, analytics, conversion, popularity, hardware actions or musician tests.
+**Status:** owner-rejected, preserved design studies on PR #890. **None is approved** for implementation or publication; they are not the final aesthetic. Firmware UI #891 must be approved before the website borrows an instrument design language. [Current task-based journey plan](journeys-20261114.md) supersedes their choice framework. These were never a live installer. [Open the six-direction gallery](../concepts/index.html). Product landing, installation, preset file tools, recovery and a future real emulator remain separate. No claimed users, analytics, conversion, popularity, hardware actions or musician tests.
 
 ## Actual original reference flows inspected (November 13, 2026)
 
