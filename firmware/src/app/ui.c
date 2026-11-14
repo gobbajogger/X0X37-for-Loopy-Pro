@@ -847,11 +847,11 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
         else if (project_device_bt_pending()) say("BT SAVE PENDING", 0);
         break;
     case R_SMC_ROLE:
-        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));
+        project_device_roles_set(PROJ_BT_SMC_CENTRAL, v ? PROJ_BT_SMC_CENTRAL : 0u);
         say(v ? "BLUETOOTH HOST" : "BLUETOOTH DEVICE", 0);
         break;
     case R_SMC_MAP:
-        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_USER) | (v ? PROJ_BT_SMC_USER : 0u));
+        project_device_roles_set(PROJ_BT_SMC_USER, v ? PROJ_BT_SMC_USER : 0u);
         say(v ? "USER: CH16 + MMC" : "DAW: MACKIE MODE", 0);
         break;
     case R_FREEPLAY:
