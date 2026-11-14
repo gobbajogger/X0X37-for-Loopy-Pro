@@ -1,5 +1,7 @@
 # DnBOX website v2 — self-critique (historical, superseded)
 
+**Review status: REJECTED / NOT ACCEPTED.** Every “pass (self-check)” or visual/layout assertion below is only a historical author self-assessment, **never independent acceptance**. The owner rejected the six later directions as well; no concept is approved. The active research-only acceptance and firmware handoff now live in [journeys-20261114.md](journeys-20261114.md). No historical test result is automatically reused to qualify new visual designs.
+
 This historical self-critique describes the earlier task-hub direction in `/workspace/website-ux/v2/`. **It is superseded for owner visual review by the six distinct HTML/CSS directions in [design-directions.md](design-directions.md) and [the review gallery](../concepts/index.html).** No visual direction has been owner-approved. The newer installer states are documented in [flow.md](flow.md). This is not user testing, not an aesthetic approval, and not a device test. Self-checks below are labelled as self-checks against the eight-criterion rubric used on options A, B and C.
 
 ## Why this is not another option in a pick, and not a generic template
