@@ -236,46 +236,93 @@ def main():
     for i, (n, lo, hi) in enumerate(EXP_RANGES):
         t.append(f"#define X0X_EXP_{n} {i}   /* {lo:g} .. {hi:g} */")
     t.append(f"#define X0X_EXP_COUNT {len(EXP_RANGES)}")
-    # All variable bits are contiguous low bits. Encode their exact binary32
-    # representation, never recompute a curve in the runtime setter.
+    # IEEE-bit linear predictor plus a packed unsigned residual.
+    # bits = origin + pot*step + residual. A least-squares integer step,
+    # with the minimum residual folded into origin, leaves a residual of
+    # at most 21 bits on every curve (19 or 20 on 18 of 19). A uniform
+    # width of 21 gives a constant stride (84 words), a constant mask,
+    # and an 8-byte row {origin, step} — the same addressing width as
+    # the previous O(1) pack. The decoder is loop-free: one dual-word
+    # load and one 64-bit shift (native on pi32v2, including 4-mod-8
+    # addresses already used in the production image) plus origin+pot*step.
+    # All 19*128 values are bit-exact vs pot_exp(). Callers are the cold
+    # pot setters, not the audio render path. No curve is a duplicate or
+    # a constant IEEE-bit offset of another.
+    EXP_WIDTH = 21
+    EXP_STRIDE = (128 * EXP_WIDTH + 31) // 32  # 84
+    def _best_linear(vals, radius=128):
+        first = vals[0]
+        numer = sum(i * (vals[i] - first) for i in range(128))
+        denom = sum(i * i for i in range(128))
+        approx = int(round(numer / denom))
+        best = None
+        for step in range(approx - radius, approx + radius + 1):
+            res = [vals[i] - (first + i * step) for i in range(128)]
+            mn, mx = min(res), max(res)
+            uw = (mx - mn).bit_length() if mx != mn else 0
+            key = (uw, mx - mn, abs(step - approx), step, mn)
+            if best is None or key < best:
+                best = key
+        uw, span, _, step, mn = best
+        origin = first + mn
+        residuals = [vals[i] - (origin + i * step) for i in range(128)]
+        return origin, step, uw, residuals
     words, rows = [], []
     for n, lo, hi in EXP_RANGES:
         vals = [bits32(pot_exp(lo, hi, p)) for p in range(128)]
-        mask = 0
-        for v in vals:
-            mask |= v ^ vals[0]
-        width = mask.bit_length()
-        assert 0 < width < 32 and mask == (1 << width) - 1
-        base = vals[0] & ~mask
-        rows.append((base, len(words), width))
-        stream = sum((v & mask) << (p * width) for p, v in enumerate(vals))
-        words.extend((stream >> bit) & 0xffffffff
-                     for bit in range(0, 128 * width, 32))
-    words.append(0)  # final aligned high-word read; no out-of-bounds load
-    t += ["typedef struct { uint32_t base; uint16_t offset; uint8_t width; uint8_t reserved; } x0x_exp_row_t;",
+        origin, step, nat_w, residuals = _best_linear(vals)
+        assert 0 < nat_w <= EXP_WIDTH, (n, nat_w)
+        assert all(0 <= r < (1 << EXP_WIDTH) for r in residuals)
+        assert all(origin + i * step + residuals[i] == vals[i] for i in range(128))
+        rows.append((origin, step, n, nat_w))
+        stream = sum(r << (i * EXP_WIDTH) for i, r in enumerate(residuals))
+        chunk = [(stream >> bit) & 0xffffffff
+                 for bit in range(0, 128 * EXP_WIDTH, 32)]
+        assert len(chunk) == EXP_STRIDE
+        words.extend(chunk)
+    words.append(0)  # final dual-word read; no out-of-bounds load
+    def _unp(origin, step, row_i, pot):
+        bit = pot * EXP_WIDTH
+        sh = bit & 31
+        idx = row_i * EXP_STRIDE + (bit >> 5)
+        w = words[idx] | (words[idx + 1] << 32)
+        return origin + pot * step + ((w >> sh) & ((1 << EXP_WIDTH) - 1))
+    for row_i, ((n, lo, hi), (origin, step, _nm, _nw)) in enumerate(zip(EXP_RANGES, rows)):
+        vals = [bits32(pot_exp(lo, hi, p)) for p in range(128)]
+        for p in range(128):
+            assert _unp(origin, step, row_i, p) == vals[p], (n, p)
+    t += [f"#define X0X_EXP_WIDTH {EXP_WIDTH}u",
+          f"#define X0X_EXP_STRIDE {EXP_STRIDE}u",
+          "typedef struct { uint32_t origin; uint32_t step; } x0x_exp_row_t;",
           "#ifdef X0X_DRUM_TABLES_DEFINE",
           "static const x0x_exp_row_t x0x_exp_rows[X0X_EXP_COUNT] = {"]
-    t += [f"    {{0x{base:08x}u, {offset}, {width}, 0}},"
-          for base, offset, width in rows]
+    t += [f"    {{0x{origin:08x}u, {step}u}},  /* {n} natw={nat_w} */"
+          for origin, step, n, nat_w in rows]
     t += ["};", arr("uint32_t", "x0x_exp_words", words,
                      lambda v: f"0x{v:08x}u", per=8),
           "/* row < X0X_EXP_COUNT, pot < 128: callers retain their domain checks.",
-          " * At most two aligned XIP payload loads plus row metadata; no cache or FP arithmetic. */",
+          " * Predict IEEE bits as origin + pot*step, then add a packed unsigned",
+          " * residual of uniform width X0X_EXP_WIDTH. One dual-word load and one",
+          " * 64-bit shift; no loop, no FP, no recomputed pow. Cold pot setters. */",
           "__attribute__((noinline)) float x0x_pot_exp_value(unsigned row, unsigned pot)",
           "{",
           "    const x0x_exp_row_t *r = &x0x_exp_rows[row];",
-          "    unsigned bit = pot * r->width, shift = bit & 31u;",
-          "    const uint32_t *p = &x0x_exp_words[r->offset + (bit >> 5)];",
-          "    uint32_t v = p[0] >> shift;",
-          "    if (shift) v |= p[1] << (32u - shift);",
+          "    uint32_t pred = r->origin + pot * r->step;",
+          "    unsigned bit = pot * X0X_EXP_WIDTH, shift = bit & 31u;",
+          "    const uint32_t *p = &x0x_exp_words[row * X0X_EXP_STRIDE + (bit >> 5)];",
+          "    uint64_t w = (uint64_t)p[0] | ((uint64_t)p[1] << 32);",
           "    union { uint32_t u; float f; } result;",
-          "    result.u = r->base | (v & ((1u << r->width) - 1u));",
+          "    result.u = pred + (uint32_t)((w >> shift) & ((1u << X0X_EXP_WIDTH) - 1u));",
           "    return result.f;",
           "}", "#else",
           "float x0x_pot_exp_value(unsigned row, unsigned pot);", "#endif", ""]
     out_t.write_text("\n".join(t))
+    raw_exp_b = len(EXP_RANGES) * 128 * 4
+    packed_exp_b = len(rows) * 8 + len(words) * 4
     print(f"gen_drum_samples: {total} frames ({nbytes} bytes of ADPCM, {total * 2} as int16) -> {out_s.name}; "
-          f"tanh {TANH_N + 2} packed {tanh_raw_b}->{tanh_packed_b} B + {len(EXP_RANGES)} pot curves -> {out_t.name}")
+          f"tanh {TANH_N + 2} packed {tanh_raw_b}->{tanh_packed_b} B + {len(EXP_RANGES)} pot curves "
+          f"linear-packed {raw_exp_b}->{packed_exp_b} B -> {out_t.name}")
+
 
 
 if __name__ == "__main__":
