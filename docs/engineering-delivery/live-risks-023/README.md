@@ -57,7 +57,7 @@ object rewrite assertion, blocked damaged SAVE gestures without a banner, and
 extended the test cases. Reviewers performed no builds, tests or edits.
 
 The original independent QA later ran the exact `94a7a609` candidate and
-[reported](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/810#issuecomment-6548391398)
+[reported](https://github.com/gobbajogger/DnBOX/pull/810#issuecomment-6548391398)
 `project-stage` PASS (25,843 checks), `synth-bus-mute` PASS (144 checks), and
 `storage-warning` PASS (15 checks), including ASan+UBSan. Free Play failed to
 compile because its serial-injection helper lacked a visible declaration;

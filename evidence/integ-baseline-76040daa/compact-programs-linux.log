@@ -1,0 +1,29 @@
+Consolidated firmware 76040daa5b52d686a8b7b544296ba5d79610a95d
+Stock Debian Linux x86_64 in QEMU TCG, network disabled, GCC 14.2.0, one vCPU.
+Kernel SHA256 2b2358b37674d2505350528875bb17afae2a36522a9e8a9417eaca65a7da0e08
+
+Input Git blobs
+3df812480220b65074e76dc7466354e25a288cbc  tests/program_values_compact_test.py
+fac379241427a2de5054b9252a0db97022abc391  tests/host/program_values_compact_test.c
+7932afef273e80b1bf92531e418001cd1665e265  tools/gen_program_values_compact.py
+2e8862e18076e6fd92211fc5a2b185701f46a53c  experiments/original_synth/program_values_compact.h
+4f386aa0be5aee61744964bfa0c7214940b0b655  experiments/original_synth/chicago_program_private.h
+0e6589f19b24afee30ea2220f0dca0baee79534d  experiments/original_synth/miami_program_private.h
+
+Clean control: cc -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all clean.c -o /tmp/clean
+#include <stdlib.h>
+int main(void){char *volatile p=malloc(123); if(!p) abort(); p[0]=1; free(p);}
+ASAN_OPTIONS=detect_leaks=1:exitcode=23:halt_on_error=1 LSAN_OPTIONS=detect_leaks=1:exitcode=23 /tmp/clean
+Test command: python3 /src/tests/program_values_compact_test.py
+
+Linux (none) 6.12.107+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.107-1 (2026-08-29) x86_64 GNU/Linux
+uid=1000(runner) gid=1000(runner) groups=1000(runner)
+TracerPid:	0
+CLEAN_EXIT=0
+program values: 1614 B + names 399 B; raw values/names3784 B; all words exact
+PASS genuine 123-byte LeakSanitizer negative control rejected
+PASS compact program metadata: 796 exact binary32/name checks
+PASS compact program metadata: 796 exact binary32/name checks
+PASS metadata corruption negative control rejected
+DNB_GUEST_EXIT=0
+[   30.159617] reboot: Power down

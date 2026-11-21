@@ -1,0 +1,23 @@
+{
+  "commit": "b51a352f10e371911c36faffffdaacf0137ea081",
+  "tree": "b469f59b5bbeb963e6d4ec899d03399fabb6fc71",
+  "parents": [
+    "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54",
+    "f013ecc653f2b9f0006e976a1097250e9356ce14"
+  ],
+  "tested": "45b09b2deffd4a03d8cfe390a92fa1ca5ef163bd",
+  "equal_inputs": {
+    "assets": "57547b7d3b20afa1da540c05282ce58fdf525bc8",
+    "ble": "0d4304546a60f22a06271b22b4881f6304ad439c",
+    "build.sh": "7d13fcb6c33cee8f8f58676a2ce5357f265ec7d7",
+    "tools": "ef0061805a3580dff2a46cbfcc2eb249f9e3f9ea",
+    "firmware": "87f3f53f8c9525878f7bb7f1ce142ac6eee0a5dd",
+    "experiments/original_synth": "6e6e7013758f8fed43135d5aff7b03fc8cd8d759",
+    "experiments/wobble": "3889200753296b5a72752a427787d865c94d15ac",
+    "host": "221036362f85278bb85fa0d692bced3bdb1b9d89"
+  },
+  "missing_parent_paths": {
+    "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54": 0,
+    "f013ecc653f2b9f0006e976a1097250e9356ce14": 0
+  }
+}

@@ -1,0 +1,26 @@
+case	scope	independent_status	source	line
+lsan-control	clean=0 and leak=23 required	PASS	2643d690-retained-host-guest.log	16
+original-release-integration	12 PNGs, mode/host SHA agreement=True, mode/host stdout identical=True	PASS	2643d690-retained-host-guest.log	21
+original-release-ui	99 PNGs, mode/host SHA agreement=True, mode/host stdout identical=True	PASS	2643d690-retained-host-guest.log	26
+ui-theme	259 PNGs, mode/host SHA agreement=True, mode/host stdout identical=True	PASS	2643d690-retained-host-guest.log	35
+composed-midi-epoch	four compiled targets x two compiler modes	PASS	2643d690-retained-host-guest.log	52
+chicago-span-hold	both wrapper executions	PASS	2643d690-retained-host-guest.log	57
+fma-exact-identity	both wrapper executions	PASS	2643d690-retained-host-guest.log	62
+pattern-preset-notelock	sole wrapper execution	PASS	2643d690-retained-host-guest.log	67
+chicago-fx2-inserts	retained sanitized binary; parent normal execution passed	PASS	2643d690-retained-host-guest.log	77
+original-sound-cell	native modes only; soft variants absent from parent run	PASS	2643d690-retained-host-guest.log	82
+ble-capture-replay	fresh compile from same source fixture	PASS	2643d690-retained-host-guest.log	89
+offline-browser-safety	unchanged source wrapper in stock guest	PASS	2643d690-stock-fixtures-guest.log	10
+ble-device-setting-flow	unchanged source wrapper in stock guest	PASS	2643d690-stock-fixtures-guest.log	14
+ble-toggle-persistence-gate	unchanged source wrapper in stock guest	PASS	2643d690-stock-fixtures-guest.log	17
+ble-role-switch	unchanged source wrapper in stock guest	PASS	2643d690-stock-fixtures-guest.log	20
+original-sound-cell	unchanged source wrapper in stock guest	PASS	2643d690-stock-fixtures-guest.log	23
+ble-midi-receive	unchanged source wrapper in stock guest	PASS	2643d690-stock-fixtures-guest.log	31
+breaks-silent-skip-retained	retained failing executable only	PASS	2643d690-remaining-fixtures-guest.log	5
+sound-reset-retained	retained failing executable only	PASS	2643d690-remaining-fixtures-guest.log	8
+panic-notes	unchanged source wrapper in stock guest	PASS	2643d690-remaining-fixtures-guest.log	12
+drum-fill	unchanged source wrapper in stock guest	PASS	2643d690-remaining-fixtures-guest.log	16
+sound-reset	unchanged source wrapper in stock guest	PASS	2643d690-remaining-fixtures-guest.log	25
+compact-programs	unchanged source wrapper in stock guest with deliberate leak control	PASS	stock-guest.log	21
+offline-sequencer-browser	native dedicated external profile root	PASS	976-browser-e2e-replay.exit	1
+offline-browser-safety	native dedicated external profile root, parent /tmp absent	FAIL	976-browser-replay.exit	1

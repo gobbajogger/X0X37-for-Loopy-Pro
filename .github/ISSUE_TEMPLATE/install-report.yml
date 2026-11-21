@@ -1,0 +1,70 @@
+name: Install report
+description: Record an installer result for a specific DnBOX build and keyboard.
+title: "[Install report] "
+body:
+  - type: input
+    id: build_id
+    attributes:
+      label: Build ID
+      description: Copy the release tag, nightly build ID or source commit shown by the installer.
+      placeholder: "v0.0.26 (94197fc8)"
+    validations:
+      required: true
+  - type: dropdown
+    id: model
+    attributes:
+      label: Keyboard model
+      options:
+        - SMK-37 Elite
+        - SMK-37 Pro
+        - Other or unidentified
+    validations:
+      required: true
+  - type: input
+    id: sha256
+    attributes:
+      label: Firmware package SHA-256
+      description: Copy the 64-character package checksum. Enter “Not shown” if the installer did not display it.
+    validations:
+      required: true
+  - type: input
+    id: port_name
+    attributes:
+      label: Port name
+      description: Copy the port name shown by the browser or installer. Enter “None shown” if detection failed.
+    validations:
+      required: true
+  - type: dropdown
+    id: startup_ok
+    attributes:
+      label: Did startup succeed?
+      options:
+        - "Yes"
+        - "No"
+        - "Not tested"
+    validations:
+      required: true
+  - type: dropdown
+    id: restart_ok
+    attributes:
+      label: Did restart succeed?
+      options:
+        - "Yes"
+        - "No"
+        - "Not tested"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      description: Enter the browser name and version used with the installer.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Describe what happened or include any installer message that helps explain the result.
+    validations:
+      required: false

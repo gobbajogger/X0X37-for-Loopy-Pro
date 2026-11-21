@@ -1,0 +1,18 @@
+{
+  "elite": {
+    "product": "SMK-37 Elite_900",
+    "app_bytes": 546480,
+    "usable": 5168,
+    "bank_bytes": 109394,
+    "shortfall": 104226,
+    "native_placement": "loop pack needs 109394 bytes, 5168 free"
+  },
+  "pro": {
+    "product": "SMK-37 Pro_900",
+    "app_bytes": 546472,
+    "usable": 5168,
+    "bank_bytes": 109394,
+    "shortfall": 104226,
+    "native_placement": "loop pack needs 109394 bytes, 5168 free"
+  }
+}

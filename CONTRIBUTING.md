@@ -4,14 +4,16 @@ Thanks for your interest in DnBOX. By taking part in this repository you agree t
 
 ## Using the firmware
 
-Install from the [web installer](https://gobbajogger.github.io/DnBOX/install/) or the [latest GitHub release](https://github.com/gobbajogger/DnBOX/releases/latest) (v0.0.25.1). Pick the Elite or Pro package that matches your keyboard, back up sample slots first, and do not unplug USB while writing. See the [README](README.md) and the [manual](https://gobbajogger.github.io/DnBOX/manual/).
+Find the owner-tested v0.0.26 packages in the [nightly installer](https://gobbajogger.github.io/DnBOX-nightly/install/) and [GitHub release](https://github.com/gobbajogger/DnBOX/releases/tag/v0.0.26). The [stable installer](https://gobbajogger.github.io/DnBOX/install/) lists its current build on the page. Pick the Elite or Pro package that matches your keyboard, back up sample slots first, and do not unplug USB while writing. See the [README](README.md) and the [manual](https://gobbajogger.github.io/DnBOX/manual/).
+
+After an install attempt, record the build, package checksum and what happened on your keyboard. [Open an install report](https://github.com/gobbajogger/DnBOX/issues/new?template=install-report.yml).
 
 ## Reporting a problem or idea
 
 Please use the issue forms:
 
 - Bug report: keyboard model (Elite / Pro), firmware version, steps to reproduce, and whether you backed up sample slots
-- Feature request
+- [Feature request](https://github.com/gobbajogger/DnBOX/issues/new?template=feature_request.yml) — describe the change, the keyboard model and what it would let you do. To vote on a proposal, add 👍 to its opening post. GitHub keeps the votes with the issue.
 
 Do not attach private backups, credentials, or raw captures that you do not want public.
 

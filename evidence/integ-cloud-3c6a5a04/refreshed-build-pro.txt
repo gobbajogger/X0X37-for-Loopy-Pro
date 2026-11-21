@@ -1,0 +1,36 @@
+check_locked_settings: 20 settings ok
+firmware/src/dsp/juno6.c:98:29: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+ juno6_envelope_snapshot v={0};
+                            ^
+                            {}
+1 warning generated.
+firmware/src/dsp/s1_dry_voice.c:85:29: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+    s1_dry_prepared next = {0};
+                            ^
+                            {}
+firmware/src/dsp/s1_dry_voice.c:85:29: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+    s1_dry_prepared next = {0};
+                            ^
+                            {}
+2 warnings generated.
+In file included from firmware/src/x0x.c:209:
+In file included from firmware/src/app/ui.c:8707:
+firmware/hal/../src/app/ui_drum_voice.inc:740:44: warning: unused variable 'dimc' [-Wunused-variable]
+    uint16_t ink = col, gray = SOUND_GRAY, dimc = SOUND_DIM;
+                                           ^
+1 warning generated.
+generate: cached font, drums, and break bank
+loader: image 8676 B at 0x1c0a800, bss end 0x1c0f810
+loader: ota.bin 7614 B
+XIP free: 6180 B
+pool raw free: 8972 B
+pool reserve: 8192 B
+pool margin: 780 B
+  ok    .ram_text: 843 insns, no calls
+  ok    app code area 552672 B, 6180 B free (Bluetooth block at app.bin 0x86ee0)
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 546492 B; RAM .data+.bss 97156 B of 98304; pool 335092 B of 344064
+  ok    register access: hal/ only (src/, loader/ clean)
+app      <workspace>/runner/rebuild-current/work/build/smk37/x0x.bin  546492 B
+loader   <workspace>/runner/rebuild-current/work/build/smk37/loader/ota.bin  7614 B
+package  <workspace>/runner/rebuild-current/work/build/x0x-smk37.fwsc  651730 B, identity SMK-37 Pro_900, board smk37

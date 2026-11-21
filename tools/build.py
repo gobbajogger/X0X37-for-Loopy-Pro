@@ -40,6 +40,7 @@ GEN = OUT / "gen"
 LDR = OUT / "loader"
 sys.path.insert(0, str(SRC / "tools"))
 import fm1pkg_make  # noqa: E402
+import break_pack  # noqa: E402
 import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
 import rom_guard  # noqa: E402
@@ -438,7 +439,7 @@ def app_compile_commands(flags, original_synth, wobble):
     return units, objs
 
 
-def build_app():
+def build_app(starting_breaks=False):
     original_synth, wobble = synth_build_config()
     if original_synth:
         require_original_synth_sources()
@@ -553,6 +554,11 @@ def build_app():
     # A 0x00 mark, then pad back to a word. The optional break pack sits after this
     # mark, in the 0xFF tail, and does not overwrite the image.
     img += b"\x00\xff\xff\xff"
+    if starting_breaks:
+        try:
+            img = break_pack.embed_starting_breaks(img, APP_CODE_MAX)
+        except ValueError as exc:
+            raise SystemExit(f"build: starting BREAK bank: {exc}") from exc
     (OUT / "x0x.bin").write_bytes(img)
     return bytes(img), syms, dis, rt
 
@@ -712,6 +718,7 @@ def main():
     ap.add_argument("--model", choices=sorted(MODELS), default=None,
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
+    ap.add_argument("--starting-breaks", action="store_true", help="embed the five original BREAK zones on SMK Elite/Pro")
     a = ap.parse_args()
     nightly = None
     if a.git_sha is not None and a.nightly_version is None:
@@ -740,6 +747,11 @@ def main():
     if model not in MODELS or (model != "pro" and BOARD != "smk37"):
         raise SystemExit(f"MODEL={model}: pro, elite or mke, with BOARD=smk37")
     MODEL = model
+    if a.starting_breaks:
+        if BOARD != "smk37" or model not in ("elite", "pro"):
+            ap.error("--starting-breaks requires an SMK-37 Elite or Pro build")
+        if os.environ.get("X0X_BREAK_BANK") or os.environ.get("X0X_FACTORY_BREAKS") == "1":
+            ap.error("--starting-breaks cannot be combined with a compiled BREAK bank")
     fm1pkg_make.set_board(BOARD)
     APP_SLOT = fm1pkg_make.APP_SLOT
     APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX
@@ -784,7 +796,7 @@ def main():
         gen, ldr = ex.submit(generate), ex.submit(build_loader)
         gen.result()
         ota = ldr.result()
-    img, syms, dis, rt = build_app()
+    img, syms, dis, rt = build_app(starting_breaks=a.starting_breaks)
     errors, notes = check(img, syms, dis, rt)
     hal_err = mmio_check()
     errors += hal_err

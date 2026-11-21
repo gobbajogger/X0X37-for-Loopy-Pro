@@ -1,0 +1,33 @@
+Linux (none) 6.12.117+deb13-cloud-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.117-1 (2026-11-12) x86_64 GNU/Linux
+uid=1000 gid=1000
+FIXTURE_HASHES_VERIFIED
+BEGIN offline-browser-safety
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 1.280s
+
+OK
+FIXTURE offline-browser-safety exit=0
+BEGIN ble-device-setting-flow
+PASS 31 actual UI/project flow checks: autosave-off, byte-isolated save, busy/race no-hold, first-safe-idle, retry, reload and short/unknown payloads refused
+PASS 31 actual UI/project flow checks: autosave-off, byte-isolated save, busy/race no-hold, first-safe-idle, retry, reload and short/unknown payloads refused
+FIXTURE ble-device-setting-flow exit=0
+BEGIN ble-toggle-persistence-gate
+PASS actual UI device save: no hold while already busy, held race recheck, retry and first safe flush
+FIXTURE ble-toggle-persistence-gate exit=0
+BEGIN ble-role-switch
+PASS Bluetooth runtime role transitions, stop acknowledgement, release backpressure, reversal, OFF and timeout
+FIXTURE ble-role-switch exit=0
+BEGIN original-sound-cell
+PASS compact32-byte patch cell: 111 exact factory programs, 259404 single-control edits, 1110 malformed transactions; 28416 performance edits refused and 28416 stale performance restores neutral; twelve FX and all 81 factory programs (55 compact + 26 restored inserts); schema1 rejected; no factory float round-trip
+FIXTURE original-sound-cell exit=0
+BEGIN ble-midi-receive
+PASS: HCI fragments 1-8, malformed assembly, bounds, rejection and lifecycle
+LE signaling, bounds, priority, backpressure, lifecycle: PASS
+Reconnect credits: PASS
+Disconnect retry, acceptance, deadline, events and lifecycle: PASS
+Disconnect cutoff, production service time and cancel race: PASS
+Stop acceptance, status, original cutoff, late events and production service: PASS
+FIXTURE ble-midi-receive exit=0
+DNBOX_GUEST_RESULT=0
+[  823.340929] reboot: Power down

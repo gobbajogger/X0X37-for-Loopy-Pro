@@ -401,6 +401,18 @@ the same stock bytes for the installer. `tools/package_stock_loops.py` or the in
 them in the free app-code tail without recompiling. `X0X_FACTORY_BREAKS=1` explicitly compiles
 these stock bytes into the image. `X0X_BREAK_BANK=DIR` uses another bank instead (`tools/gen_break_bank.py`).
 `tools/import_breaks.py` makes such a folder from BB Gen's samples, in `build/breaks/` (README.md, Breaks).
+
+For the owner's five original 22,050 Hz zones, use `MODEL=elite ./build.sh --starting-breaks`
+or `MODEL=pro ./build.sh --starting-breaks`. These builds append the pinned
+[five-zone bank](assets/starting-breaks/NOTICE.md) to the linked application and require
+1,024 erased bytes below the Bluetooth block. A build with insufficient room
+reports the bank size and available bytes. In the measured combination with
+Sound #973 and FWUI #975, the 109,394-byte bank exceeds the available 5,168
+bytes on Elite and 5,184 bytes on Pro. [Stock fit measurements](docs/lanes/integ.md).
+The same `--starting-breaks` option
+on `tools/package_stock_loops.py` composes the bank into a compatible checked
+package. Existing applications built with a compiled BREAK bank use that bank
+in preference to a tail pack.
 The build fails if it links a soft-double routine (a `double` crept in). It also checks the image, RAM
 and pool sizes.
 

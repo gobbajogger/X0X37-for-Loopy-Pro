@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Add the designated stock bank to a checked package without recompiling firmware.
+"""Add the legacy stock bank or five owner-selected starting breaks to a checked package.
 
 Input package and controller pins are mandatory. This is local composition only:
 no catalog update, publication, device access or hardware-validation claim.
@@ -15,17 +15,19 @@ import break_pack as bp
 import package_nightly as pn
 
 STOCK_SHA256 = 'cbfe682a9c69b51dac4ee96db7ab4605c8ecdb2839230efcc5445aa0a8fe199e'
+ASSETS = Path(__file__).resolve().parents[1] / 'assets'
 
 def compose(raw, model, package_sha256, controller_sha256, controller_size, bank, ledger=None):
     if hashlib.sha256(raw).hexdigest() != package_sha256:
         raise ValueError('input package pin mismatch')
-    if hashlib.sha256(bank).hexdigest() != STOCK_SHA256:
+    bank_sha256 = hashlib.sha256(bank).hexdigest()
+    if bank_sha256 not in (STOCK_SHA256, bp.STARTING_SHA256):
         raise ValueError('designated stock bank pin mismatch')
     before = pn.inspect(raw, model, controller_sha256, controller_size, ledger=ledger)
     product, logical, state = pn._package(raw, model, ledger=ledger)
     original = bytes(state['area'])
     app = original[0x120:0x120 + ctl.CODE_MAX]
-    placed = bp.place_pack(app, bank, ctl.CODE_MAX)
+    placed = bp.place_pack(app, bank, ctl.CODE_MAX, reserve=bp.SMK_XIP_RESERVE)
     positions = [i for i in range(0, ctl.CODE_MAX - 20, 16) if bp._valid_at(placed, i, ctl.CODE_MAX)]
     if len(positions) != 1:
         raise ValueError('expected exactly one valid stock bank')
@@ -36,6 +38,10 @@ def compose(raw, model, package_sha256, controller_sha256, controller_size, bank
     final = ctl.fwsc_of(ctl._close(state), product)
     after = pn.inspect(final, model, controller_sha256, controller_size, ledger=ledger)
     _, final_logical, checked = pn._package(final, model, ledger=ledger)
+    saved_app = checked['area'][0x120:0x120 + ctl.CODE_MAX]
+    if (saved_app[offset:offset + len(bank)] != bank or
+            saved_app[-bp.SMK_XIP_RESERVE:] != b'\xff' * bp.SMK_XIP_RESERVE):
+        raise ValueError('stock bank or reserved tail differs in the final package')
     allowed = set(range(0x120 + offset, 0x120 + ctl.CODE_MAX)) | {0, 1, 2, 3, 32, 33, 34, 35}
     if len(final) != len(raw) or len(checked['area']) != len(original):
         raise ValueError('package size changed')
@@ -43,8 +49,9 @@ def compose(raw, model, package_sha256, controller_sha256, controller_size, bank
         raise ValueError('bytes outside bank tail/checksums changed')
     if ctl.controller_of(final_logical) != ctl.controller_of(logical):
         raise ValueError('controller bytes changed')
-    return final, {'input': before, 'output': after, 'bank_sha256': STOCK_SHA256,
+    return final, {'input': before, 'output': after, 'bank_sha256': bank_sha256,
                    'bank_bytes': len(bank), 'bank_offset': offset,
+                   'xip_reserve': bp.SMK_XIP_RESERVE,
                    'remaining_code_tail': ctl.CODE_MAX - offset - len(bank),
                    'compiled_app_preserved': True, 'controller_preserved': True,
                    'other_package_regions_preserved': True,
@@ -58,12 +65,14 @@ def main():
     p.add_argument('--controller-sha256', required=True)
     p.add_argument('--controller-size', type=int, required=True)
     p.add_argument('--ledger', type=Path)
+    p.add_argument('--starting-breaks', action='store_true',
+                   help='embed all five 22,050 Hz owner-selected zones instead of the legacy stock bank')
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--receipt', type=Path, required=True)
     a = p.parse_args()
     if a.output.exists() or a.receipt.exists():
         p.error('never overwrite package or receipt')
-    bank = Path(__file__).resolve().parents[1] / 'assets/factory-breaks/factory-break-pack.bin'
+    bank = bp.STARTING_PACK if a.starting_breaks else ASSETS / 'factory-breaks/factory-break-pack.bin'
     result, receipt = compose(a.package.read_bytes(), a.model, a.package_sha256,
                               a.controller_sha256, a.controller_size, bank.read_bytes(), a.ledger)
     ctl.write_package(a.output, result)

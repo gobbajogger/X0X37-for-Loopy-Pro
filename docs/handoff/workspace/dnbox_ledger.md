@@ -4,7 +4,7 @@ Note: box clock is UTC+10; all times below converted to PT. Stall = no progress 
 | Item | Owner | Stage | Last progress (PT) | Stalled | Next step |
 |---|---|---|---|---|---|
 | Nightly nightly-20261029 @5ed2693d (local) | Merge Integrator | merged to nightly (local only, 19 ahead) ; SMC fix 33df71bf verified ancestor | 05:25 | no | push needs user (no write access) |
-| #684 Chicago/Miami release UI (draft) https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/684 | Merge Integrator (engine.c, project.c, rest); Firmware Main Builder (ui.c, main_fm1.c) | hand-merge; trial branch merge-trial-20261029 | GitHub 04:07; local 05:36 | no | finish hand-merge, build/tests |
+| #684 Chicago/Miami release UI (draft) https://github.com/gobbajogger/DnBOX/pull/684 | Merge Integrator (engine.c, project.c, rest); Firmware Main Builder (ui.c, main_fm1.c) | hand-merge; trial branch merge-trial-20261029 | GitHub 04:07; local 05:36 | no | finish hand-merge, build/tests |
 | synth684-opt (Chicago engine opt) | Second Builder | code + host harness | 05:36 | no | benchmark vs synth684-harness |
 | Build/tests/benchmark (build/smk37-elite *.bin, build/host/*.log) | Build and Test Runner | build/tests | 05:35 | no | size check, review logs |
 | Package / CRCs | Release Packager | not started (no CRC outputs found; only firmware/src/crc32_nibble.h) | — | waiting | package CRCs after build |

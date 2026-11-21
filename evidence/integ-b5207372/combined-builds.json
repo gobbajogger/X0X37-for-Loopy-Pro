@@ -1,0 +1,63 @@
+{
+  "source_commit": "b5207372b5d342575b70b651b7dd413527c2f161",
+  "source_tree": "d7251b5b31a40097ff604b7d4da443d86eca9d64",
+  "inputs": {
+    "integration": "bdef4bcab365d99d65cde22b10d3d607d1ad96ad",
+    "sound": "63278e3322aefa89b25f129ca2fccc35ef3b3b3d",
+    "fwui": "9dd6f2df020340f7a82ab241ef07c6ec16195ebc",
+    "firmware_base": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+    "sdk": "AC79NN_SDK_V1.2.14_2026-10-13",
+    "toolchain": "jieli-linux-toolchains-20260730.1"
+  },
+  "scope": "Local diagnostic composition of open source lanes. Stock Elite and Pro separately built and package-tested.",
+  "models": {
+    "elite": {
+      "command": "MODEL=elite ./build.sh",
+      "package_test": "PASS",
+      "xip_free": 6172,
+      "pool_margin": 780,
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546500,
+          "sha256": "4796c95c61ffea4215c2a57d01e8151d850d7c9a99fbb35c725abb6e35e77b24"
+        },
+        "x0x.elf": {
+          "bytes": 634588,
+          "sha256": "ef80c69d375c33853858966c890b2945edd1e11ae72ed366b90df6eb60805b40"
+        },
+        "ota.bin": {
+          "bytes": 7616,
+          "sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03"
+        },
+        "x0x-smk37-elite.fwsc": {
+          "bytes": 651732,
+          "sha256": "19248494a8af9a4525aa83ee81e518e2ef137bee7a6f2f403ae5d53a3d46ebe6"
+        }
+      }
+    },
+    "pro": {
+      "command": "MODEL=pro ./build.sh",
+      "package_test": "PASS",
+      "xip_free": 6180,
+      "pool_margin": 780,
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546492,
+          "sha256": "4f17b107ed9b5c7bb0a6039cf00d342e01f6bded8140964daef86d994664e451"
+        },
+        "x0x.elf": {
+          "bytes": 634584,
+          "sha256": "1793a7b659459736215f1a4942da17ff0b89b33421c046e40b99963a176d571c"
+        },
+        "ota.bin": {
+          "bytes": 7614,
+          "sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5"
+        },
+        "x0x-smk37.fwsc": {
+          "bytes": 651730,
+          "sha256": "bcd5c17838935c8fe9bac33ad9861b3b19cae3b05492b2e07b376a1118c6fe8d"
+        }
+      }
+    }
+  }
+}

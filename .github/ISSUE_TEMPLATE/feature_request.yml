@@ -1,6 +1,7 @@
 name: Feature request
 description: Suggest an improvement to DnBOX.
 title: "[Feature]: "
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:

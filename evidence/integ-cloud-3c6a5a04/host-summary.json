@@ -1,0 +1,23 @@
+{
+  "commit": "2643d690fa13b56ed4c2c5355ad2321d724d2e9f",
+  "sampled_utc": "2026-11-21T12:38:37.889492+00:00",
+  "expected_cases": 501,
+  "terminal_receipts": 326,
+  "counts": {
+    "ok": 300,
+    "unreported": 175,
+    "FAIL": 26
+  },
+  "failures_by_evidence": {
+    "tmpfile-failed": 1,
+    "lsan-runtime": 19,
+    "compiler-killed": 3,
+    "child-exit-cause-unreported": 1,
+    "browser-temp-contract": 1,
+    "browser-override": 1
+  },
+  "extra_names": [],
+  "duplicate_names": [],
+  "unmatched_marker_lines": [],
+  "terminal_gate_verdict": "absent"
+}

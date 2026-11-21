@@ -14,7 +14,7 @@
 - Owned branch `lane/installer-nightly-download-guard-20261024`, started **directly from nightly** so the safety repair does not wait behind existing UX PRs #20/#24/#31–34/#39/#44/#52/#59/#67/#77/#83/#92/#97/#100. The existing UX stack remains separately open; this does **not** supersede or auto-merge it.
 - Checked installer Git blob `4a4d56013ef4183e28cec5c4b0c2248a99021afa`; new source-excerpt regression `web/test_install_nightly_download_guard.mjs`, blob `a67fce5e1c9bd884fdb6734fba40c0322709bf52`; existing simulated OTA sample-slot test updated and registered to run the new regression, blob `4891a101f38993ec28c0fb141d87cc9db0e9533b`.
 - At code/registered test HEAD `614d66a6ace7ef62d64eca4ac1230eabef8e67e9`, full root tree `e11b488ec675a396d8f380c612b160d6355a30a2`, the `firmware/` subtree remains **identical** at `19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf`.
-- Consumed cross-repo review: firmware PR #92 comment [6367240651](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/92#issuecomment-6367240651), NIGHTLY website PR #3 Chromium finding [6366881761](https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/3#issuecomment-6366881761), and existing production-only fail-closed source draft #52. Separate production gh-pages PR #46 is **not** NIGHTLY website remediation.
+- Consumed cross-repo review: firmware PR #92 comment [6367240651](https://github.com/gobbajogger/DnBOX/pull/92#issuecomment-6367240651), NIGHTLY website PR #3 Chromium finding [6366881761](https://github.com/gobbajogger/DnBOX-nightly/pull/3#issuecomment-6366881761), and existing production-only fail-closed source draft #52. Separate production gh-pages PR #46 is **not** NIGHTLY website remediation.
 
 ## Actually executed checks, with scope and result
 

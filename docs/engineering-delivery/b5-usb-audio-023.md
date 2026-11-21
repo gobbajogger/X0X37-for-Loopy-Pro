@@ -9,7 +9,7 @@ and test execution in Codex; the Orchestrator runs them on the box.
 `6b4ca63fb7d43b9c2f653cf2f2c5503ee41e2b6e` is already an ancestor of this
 base. No port is required and no part was dropped. The unchanged USB source
 matches blob `fcd961f909c7d405e5a32a25ed1aa950669b8b4f` from the
-[independent QA finding on #779](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/779#issuecomment-6541904178).
+[independent QA finding on #779](https://github.com/gobbajogger/DnBOX/pull/779#issuecomment-6541904178).
 
 The mixer consumes ring frames through a local reader index but previously
 published that index only at the end of a 256-frame block. Nested TIMER5 receive

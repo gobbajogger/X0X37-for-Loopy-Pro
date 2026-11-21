@@ -1,0 +1,31 @@
+{
+  "candidate": "061e9521",
+  "browser": "sandboxed Chromium",
+  "network": "TLS-verified live GitHub GET responses relayed unchanged",
+  "initial_and_refresh": [
+    "#984 [Feature]: Temporary integration check for feature votes \u00b7 0 votes",
+    "#984 [Feature]: Temporary integration check for feature votes \u00b7 0 votes"
+  ],
+  "requests": [
+    {
+      "status": 200,
+      "url": "https://api.github.com/repos/gobbajogger/DnBOX",
+      "etag": "W/\"c209555f77fd2f2e4baa8eb189a22b8b6cdd7ccc4c2be8587e6f5158efaf2755\""
+    },
+    {
+      "status": 200,
+      "url": "https://api.github.com/repos/gobbajogger/DnBOX/issues?state=open&per_page=100&page=1",
+      "etag": "W/\"ff5b9162d0d1b998920a2af25bb1b4d7136ff7d8efa1b6a9a1e495530eb2e3d1\""
+    },
+    {
+      "status": 200,
+      "url": "https://api.github.com/repos/gobbajogger/DnBOX",
+      "etag": "W/\"c209555f77fd2f2e4baa8eb189a22b8b6cdd7ccc4c2be8587e6f5158efaf2755\""
+    },
+    {
+      "status": 200,
+      "url": "https://api.github.com/repos/gobbajogger/DnBOX/issues?state=open&per_page=100&page=1",
+      "etag": "W/\"ff5b9162d0d1b998920a2af25bb1b4d7136ff7d8efa1b6a9a1e495530eb2e3d1\""
+    }
+  ]
+}

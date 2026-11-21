@@ -8,7 +8,7 @@
 Two distinct production input queues discard release events when intentionally filled to capacity, potentially leaving a bass note or mixer Solo held.
 Source-extracted C reproductions completed successfully, but no evidence currently shows that a real performance reaches either saturation condition.
 
-**Revision:** [`main` c9718ae](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c9718ae833eb64a5191c350922593df8a36017c9) · **Targets:** SMK-37 Elite/Pro · **Runner:** isolated Linux x86_64, GCC 14.2.0, Python 3.13.5.
+**Revision:** [`main` c9718ae](https://github.com/gobbajogger/DnBOX/commit/c9718ae833eb64a5191c350922593df8a36017c9) · **Targets:** SMK-37 Elite/Pro · **Runner:** isolated Linux x86_64, GCC 14.2.0, Python 3.13.5.
 
 | Priority | New evidence | Status | Risk / receiving owner |
 | --- | --- | --- | --- |
@@ -18,20 +18,20 @@ Source-extracted C reproductions completed successfully, but no evidence current
 
 ## 1. Audio command queue — lost note-off under forced saturation
 
-- [Source insertion logic](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L130-L146) uses `CQ = 1024` and unconditionally drops a new command when full. The enqueue function is shared by [parameter edits, bass note-on, bass note-off and break commands](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L230-L361).
-- [Audio render drain](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L643-L668) consumes the retained commands, so the queued note-on is applied without the attempted dropped note-off in this constructed case.
+- [Source insertion logic](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L130-L146) uses `CQ = 1024` and unconditionally drops a new command when full. The enqueue function is shared by [parameter edits, bass note-on, bass note-off and break commands](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L230-L361).
+- [Audio render drain](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L643-L668) consumes the retained commands, so the queued note-on is applied without the attempted dropped note-off in this constructed case.
 - **Exact fixture:** enqueue `C_BON` for bass 0; then 1,023 `C_PARAM_T0` writes without a drain; then enqueue `C_BOFF` for bass 0.
 - **Observed:** `ring=1024 on=1 off=0 attempted_off_dropped=YES`; source-extracted C harness returned exit code 0 when this loss condition was detected.
 - **Limitation:** Reproduction deliberately stalls the consumer until the ring is full. It does **not** establish that a normal UI/project workload can enqueue 1,024 commands between audio drains. Do not call this a field-reproduced stuck note.
 
 ## 2. SMC ingress ring — dropped Solo release
 
-- [SMC BLE input](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L7-L29) keeps a 32-message ring and drop counter. The [enqueue operation](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L94-L106) rejects **all** message kinds while full.
-- A press on SMC Solo note 8 can set a held solo, and its [MIDI note-off release handler](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L529-L579) is the corresponding clear; reconnect or project transitions provide some independent clears. [Main-loop dispatch](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L581-L654) cannot apply an event that the ISR did not retain.
+- [SMC BLE input](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L7-L29) keeps a 32-message ring and drop counter. The [enqueue operation](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L94-L106) rejects **all** message kinds while full.
+- A press on SMC Solo note 8 can set a held solo, and its [MIDI note-off release handler](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L529-L579) is the corresponding clear; reconnect or project transitions provide some independent clears. [Main-loop dispatch](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L581-L654) cannot apply an event that the ISR did not retain.
 - **Exact fixture:** enqueue a note-on `[0x90, 8, 127]`, 31 CC messages, then note-off `[0x80, 8, 0]` before polling.
 - **Observed:** `smc_ring=32 press=1 release=0 dropped=1 attempted_release_lost=YES`; isolated C harness returned exit code 0 for detecting loss.
 - **Limitation:** The SMC file differs between historical snapshot and current main, but the 379-byte extracted `smc_ble_midi()` function was byte-compared using FNV-1a32 `63d3acd2` and is identical. This is not an end-to-end SMC Solo, Bluetooth or physical controller test.
-- **Current ownership:** [draft PR #18](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18) owns dual-SMC changes, and [draft PR #19](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19) owns popup transition repairs. Do not patch either branch from this audit lane.
+- **Current ownership:** [draft PR #18](https://github.com/gobbajogger/DnBOX/pull/18) owns dual-SMC changes, and [draft PR #19](https://github.com/gobbajogger/DnBOX/pull/19) owns popup transition repairs. Do not patch either branch from this audit lane.
 
 ## 3. Reproduce the two queue-only cases
 
@@ -99,7 +99,7 @@ PY
 | `python3 tests/x0x_slots_test.py` | PASS: synthetic backup/restore, CRC, 2- and 3-slot cases | Test and relevant helper blobs match main; no device writes. |
 | `python3 tests/install_slots_test.py` | PASS: synthetic downgrade, backup-before-write, interrupted restore and fail-closed cases | Test, mock and installer blobs match main; no physical install. |
 
-**CI:** [SMC run 39820154010](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/actions/runs/39820154010) reports `failure` for one job but exposes zero step records, and fetching its job logs returned HTTP 404; test execution and cause remain **UNKNOWN**. [Main Pages run 39816499153](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/actions/runs/39816499153) likewise reports build failure with no job steps; a distinct [gh-pages deployment 39822941019](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/actions/runs/39822941019) reports completed jobs and success, which is not a firmware test.
+**CI:** [SMC run 39820154010](https://github.com/gobbajogger/DnBOX/actions/runs/39820154010) reports `failure` for one job but exposes zero step records, and fetching its job logs returned HTTP 404; test execution and cause remain **UNKNOWN**. [Main Pages run 39816499153](https://github.com/gobbajogger/DnBOX/actions/runs/39816499153) likewise reports build failure with no job steps; a distinct [gh-pages deployment 39822941019](https://github.com/gobbajogger/DnBOX/actions/runs/39822941019) reports completed jobs and success, which is not a firmware test.
 
 ## 5. Required follow-up before changing firmware
 

@@ -12,10 +12,10 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-WORKER = '''import os, pathlib, sys, time
+WORKER = '''import os, pathlib, select, sys, time
 name = sys.argv[1]
 if os.environ["X0X_TEST_JOBS"] != "1":
-    assert pathlib.Path("build/host/iso/.lock-gen").is_dir(), "shared generator lock not held"
+    assert not select.select([4], [], [], 0)[0], "shared generator token not held"
 lock = pathlib.Path("shared-generator")
 try:
     lock.mkdir()

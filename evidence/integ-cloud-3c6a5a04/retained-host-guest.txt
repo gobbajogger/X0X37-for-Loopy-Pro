@@ -1,0 +1,92 @@
+Linux (none) 6.12.117+deb13-cloud-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.117-1 (2026-11-12) x86_64 GNU/Linux
+INPUT_HASHES_VERIFIED 28
+EXEC lsan-clean exit 0 stdout/stderr sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+EXEC lsan-leak exit 23 stdout/stderr sha256 44695a2a1768e03a6e28d29d964fa2ddd883bfd3c9a30ebad53ac2ea406f8a63
+
+=================================================================
+==145==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 123 byte(s) in 1 object(s) allocated from:
+    #0 0x7f7f06216c25 in malloc ../../../../src/libsanitizer/lsan/lsan_interceptors.cpp:75
+    #1 0x55955178f14a in main (/work/lsan1+0x114a) (BuildId: 80b9fb48bc1b65c34e191a10ec4af64ec54f348b)
+    #2 0x7f7f06035ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+
+SUMMARY: LeakSanitizer: 123 byte(s) leaked in 1 allocation(s).
+REPLAY lsan-control PASS clean=0 and leak=23 required
+EXEC original-release-integration-normal exit 0 stdout/stderr sha256 6c2d66648fbcb59f68514293e41bfd7fb827fa79516767041652eba21aba6229
+PASS compact firmware integration: 337747 checks;81 Chicago/30 Miami factories in each independent part; twelve Chicago FX and Miami audibly rendered on each part; two simultaneous Chicago owners; named UI, schema2/revision13/project roundtrip; MIDI/all-key releases, source/channel retirement, physical tokens, exact base/motion restore, sustain/bend/Stop, guarded output; audio hash6b3c76e678693efb
+EXEC original-release-integration-sanitized exit 0 stdout/stderr sha256 6c2d66648fbcb59f68514293e41bfd7fb827fa79516767041652eba21aba6229
+PASS compact firmware integration: 337747 checks;81 Chicago/30 Miami factories in each independent part; twelve Chicago FX and Miami audibly rendered on each part; two simultaneous Chicago owners; named UI, schema2/revision13/project roundtrip; MIDI/all-key releases, source/channel retirement, physical tokens, exact base/motion restore, sustain/bend/Stop, guarded output; audio hash6b3c76e678693efb
+REPLAY original-release-integration PASS 12 PNGs, mode/host SHA agreement=True, mode/host stdout identical=True
+EXEC original-release-ui-normal exit 0 stdout/stderr sha256 41bc47e8f8889075bad1708fb7e9f22650e219edd78184e083c8e4aa817338cb
+PASS original_release_ui checks=35689 captures=99 cache=92 view=32 ui=628 pages=472 freeplay=656
+EXEC original-release-ui-sanitized exit 0 stdout/stderr sha256 41bc47e8f8889075bad1708fb7e9f22650e219edd78184e083c8e4aa817338cb
+PASS original_release_ui checks=35689 captures=99 cache=92 view=32 ui=628 pages=472 freeplay=656
+REPLAY original-release-ui PASS 99 PNGs, mode/host SHA agreement=True, mode/host stdout identical=True
+EXEC ui-theme-normal exit 0 stdout/stderr sha256 fba0dac44c48b2d789598e5089c9d85960c5e92d2d436265a4b4dfa88bbb8e01
+tail_switch kind=0 quiet_samples=512 threshold=1/65536 tail_blocks=3 total_blocks=9 cancellation=1
+tail_switch kind=1 quiet_samples=512 threshold=1/65536 tail_blocks=0 total_blocks=4 cancellation=0
+PASS ui_theme checks=15032750 captures=259; production SMK renderer, no hardware
+EXEC ui-theme-sanitized exit 0 stdout/stderr sha256 fba0dac44c48b2d789598e5089c9d85960c5e92d2d436265a4b4dfa88bbb8e01
+tail_switch kind=0 quiet_samples=512 threshold=1/65536 tail_blocks=3 total_blocks=9 cancellation=1
+tail_switch kind=1 quiet_samples=512 threshold=1/65536 tail_blocks=0 total_blocks=4 cancellation=0
+PASS ui_theme checks=15032750 captures=259; production SMK renderer, no hardware
+REPLAY ui-theme PASS 259 PNGs, mode/host SHA agreement=True, mode/host stdout identical=True
+EXEC midi-epoch-host-strict exit 0 stdout/stderr sha256 f110d8a86ce37e274c0f5ebc13939e22d5c065e5a6bc7c7d352c0b769909b003
+PASS production MIDI epoch: checks=10163 failures=0
+EXEC midi-epoch-host-asan-ubsan exit 0 stdout/stderr sha256 f110d8a86ce37e274c0f5ebc13939e22d5c065e5a6bc7c7d352c0b769909b003
+PASS production MIDI epoch: checks=10163 failures=0
+EXEC midi-epoch-native-raw-strict exit 0 stdout/stderr sha256 2e72f2ae1f4cc2f16a46c4f8265d3103edea28f1d3ac03bac9c56de1a7f442e1
+PASS production MIDI epoch: checks=467645 failures=0
+EXEC midi-epoch-native-raw-asan-ubsan exit 0 stdout/stderr sha256 2e72f2ae1f4cc2f16a46c4f8265d3103edea28f1d3ac03bac9c56de1a7f442e1
+PASS production MIDI epoch: checks=467645 failures=0
+EXEC midi-epoch-native-scheduled-strict exit 0 stdout/stderr sha256 2e72f2ae1f4cc2f16a46c4f8265d3103edea28f1d3ac03bac9c56de1a7f442e1
+PASS production MIDI epoch: checks=467645 failures=0
+EXEC midi-epoch-native-scheduled-asan-ubsan exit 0 stdout/stderr sha256 2e72f2ae1f4cc2f16a46c4f8265d3103edea28f1d3ac03bac9c56de1a7f442e1
+PASS production MIDI epoch: checks=467645 failures=0
+EXEC midi-epoch-loader-strict exit 0 stdout/stderr sha256 6a9a68a56dc3aee2a52491f11aad77e3d18d1e405330d9a86fba1c1261f13e17
+PASS production MIDI epoch: checks=12290 failures=0
+EXEC midi-epoch-loader-asan-ubsan exit 0 stdout/stderr sha256 6a9a68a56dc3aee2a52491f11aad77e3d18d1e405330d9a86fba1c1261f13e17
+PASS production MIDI epoch: checks=12290 failures=0
+REPLAY composed-midi-epoch PASS four compiled targets x two compiler modes
+EXEC chicago-span-hold-normal exit 0 stdout/stderr sha256 c30cd7f28e410b5385cb7e413a661ad1c94bf1e2b07d7f671fa835d6d922c6eb
+Chicago span hold identity: 4344 exact comparisons PASS
+EXEC chicago-span-hold-sanitized exit 0 stdout/stderr sha256 c30cd7f28e410b5385cb7e413a661ad1c94bf1e2b07d7f671fa835d6d922c6eb
+Chicago span hold identity: 4344 exact comparisons PASS
+REPLAY chicago-span-hold PASS both wrapper executions
+EXEC fma-exact-identity-normal exit 0 stdout/stderr sha256 4843ff2f801bead3304418ad2af1ec99c2e9341c209cbd131f413af30178bbe1
+FMA exact identity: 313807 finite triples PASS (compact hit 221354 miss 92453)
+EXEC fma-exact-identity-sanitized exit 0 stdout/stderr sha256 4843ff2f801bead3304418ad2af1ec99c2e9341c209cbd131f413af30178bbe1
+FMA exact identity: 313807 finite triples PASS (compact hit 221354 miss 92453)
+REPLAY fma-exact-identity PASS both wrapper executions
+EXEC pattern-preset-notelock-test exit 0 stdout/stderr sha256 e512c6cdcfdd0d1d785a4aeccc4f364ef8727424bc44fac4d2e623deecbfb908
+storage: stream 13 unset, 14 set, rev-13 bytes forced to 0
+preset recall: gated to the pattern, applied when it plays, cancelled with its cue\nnote lock: off stores nothing; a lock plays at its onset only; save/load keeps it
+pattern-preset-notelock: 77 checks passed
+REPLAY pattern-preset-notelock PASS sole wrapper execution
+EXEC chicago-fx2-inserts-t exit 0 stdout/stderr sha256 ef325d4d5bc91a8f3ed0af7d93e0ea3eb36693c87b29008606b4b5fe01134c9c
+ENSEM      type  3 late-energy 8.76e+08 tail-energy 0 first-echo 310
+SH DLY     type 12 late-energy 2.01e+10 tail-energy 4e+09 first-echo 794
+BPM DL     type 13 late-energy 1.61e+10 tail-energy 2.19e+10 first-echo 2067
+HALL       type 15 late-energy 6.26e+09 tail-energy 7.98e+08 first-echo 379
+GT REV     type 16 late-energy 1.55e+08 tail-energy 148 first-echo 182
+BPM DELAY 1/8 beat: 2756.3 samples @120, 1378.1 @240
+BPM DELAY first echo @240: 1378
+chicago_fx2_inserts: ok
+REPLAY chicago-fx2-inserts PASS retained sanitized binary; parent normal execution passed
+EXEC original-sound-cell-cell-native-normal exit 0 stdout/stderr sha256 cd6a9e1f0cfc1699a957986240b0a685c078b1d12a4f14288e361983c5eb2840
+PASS compact32-byte patch cell: 111 exact factory programs, 259404 single-control edits, 1110 malformed transactions; 28416 performance edits refused and 28416 stale performance restores neutral; twelve FX and all 81 factory programs (55 compact + 26 restored inserts); schema1 rejected; no factory float round-trip
+EXEC original-sound-cell-cell-native-sanitized exit 0 stdout/stderr sha256 cd6a9e1f0cfc1699a957986240b0a685c078b1d12a4f14288e361983c5eb2840
+PASS compact32-byte patch cell: 111 exact factory programs, 259404 single-control edits, 1110 malformed transactions; 28416 performance edits refused and 28416 stale performance restores neutral; twelve FX and all 81 factory programs (55 compact + 26 restored inserts); schema1 rejected; no factory float round-trip
+REPLAY original-sound-cell PASS native modes only; soft variants absent from parent run
+EXEC ble-capture-replay-wrapper exit 0 stdout/stderr sha256 c2a1e9c256f264926f1d12ce33eac0c110fc94609e1961d1ffb128441958852e
+PASS synthetic payloads / simulated HCI: 240 payloads, 3525 MIDI, 3 size rejections
+PASS synthetic payloads / simulated fragmented HCI tails 1-8: 240 payloads, 3525 MIDI, 3 size rejections
+PASS resegmented MTU-23 / simulated fragmented HCI: 568 payloads, 3645 MIDI, 0 size rejections
+Synthetic fixture SHA-256: 2fa86a0a634a26f743b39db04db8f71595a66d32892d0512e8c5df25aef0fe2b
+Physical device behavior: NOT TESTED
+REPLAY ble-capture-replay PASS fresh compile from same source fixture
+FAILED_REPLAYS []
+DNBOX_GUEST_RESULT=0
+[  242.758295] reboot: Power down

@@ -1,0 +1,93 @@
+{
+  "application": "Diagnostic parent-relative production-source composition. No merge or commit.",
+  "starting_commit": "402576cd6303a3f1b60e98b1aac2f0769f9432f3",
+  "consolidated": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+  "integ": "8911d62c6d1ea5f95fe043bf7681a10ef82b85f9",
+  "sound": "364271ad54fc36b8d6a7dbe0f1bdc13edbe4df52",
+  "fwui": "7d3bd621d1bdbbf63aee5ad577e49e11afe1a4dc",
+  "updates": {
+    "sound": {
+      "from": "4c1f758931f4c57381ccfde22ed46abc60c0d591",
+      "to": "364271ad54fc36b8d6a7dbe0f1bdc13edbe4df52",
+      "patch_sha256": "c6c2becd199b1186c62a49485a9e5c6b5bfca24db43a258c10ece4311ab35d43",
+      "paths": [
+        "experiments/sound-hardware-v1/sj6-factory/firmware/verification.json",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/README.md",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/admission.c",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/break-results.json",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/break_words.c",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/compare.sh",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/from-compact.patch.gz",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/render_typed.c",
+        "experiments/sound-hardware-v1/sj6-factory/native-dual/results.json",
+        "experiments/sound-hardware-v1/sj6-factory/native/README.md",
+        "experiments/sound-hardware-v1/sj6-factory/native/results.json",
+        "experiments/sound-hardware-v1/sj6-factory/native/score_scene.py",
+        "experiments/sound-hardware-v1/sj6-factory/oscillator/candidate.c",
+        "experiments/sound-hardware-v1/sj6-factory/oscillator/replay.py",
+        "experiments/sound-hardware-v1/strict-timing/replay.py",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/README.md",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/detent-clock.patch",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/field-layout.json",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/replay-results.json",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/replay.py",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/restored-irq-snapshots.csv",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/restored-observer-check.json",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/shared-table.patch",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/stock-fader-observer-check.json",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/stock-fader-snapshots.csv",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/stock-irq-snapshots.csv",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/stock-observer-check.json",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/table-fader-observer-check.json",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/table-fader-snapshots.csv",
+        "experiments/sound-hardware-v1/strict-timing/scan-time/trace.py",
+        "experiments/sound-hardware-v1/strict-timing/test_replay.py",
+        "firmware/src/app/engine.c",
+        "firmware/src/app/engine.h",
+        "firmware/src/app/original_runtime.c",
+        "firmware/src/app/superj6_factory.h",
+        "firmware/src/dsp/break_retrigger_packed.h",
+        "firmware/src/dsp/break_retrigger_pairs.inc",
+        "firmware/src/dsp/breaks.c",
+        "firmware/src/dsp/dnbx_core.c",
+        "firmware/src/dsp/dnbx_core.h",
+        "firmware/src/dsp/juno6.c",
+        "firmware/src/dsp/juno6.h",
+        "firmware/src/dsp/juno6_factory.inc",
+        "host/build_host.sh",
+        "tools/build.py"
+      ],
+      "overlapping_paths": [
+        "firmware/src/app/engine.c",
+        "firmware/src/app/engine.h",
+        "firmware/src/app/original_runtime.c",
+        "firmware/src/dsp/breaks.c",
+        "firmware/src/dsp/juno6.c"
+      ],
+      "explicit_reconciliation": [
+        "firmware/src/app/original_runtime.c"
+      ]
+    },
+    "fwui": {
+      "from": "a0d49bb8ef6abe20e99ca5eb50b9f638bf1aaa9a",
+      "to": "7d3bd621d1bdbbf63aee5ad577e49e11afe1a4dc",
+      "patch_sha256": "26517f3942dcef63d237da1155ea236d85bcf5e43600312572c9bf34764151cb",
+      "paths": [
+        "firmware/src/app/ui.c",
+        "firmware/src/dsp/original_backend_pitch.h",
+        "firmware/src/dsp/original_chicago_backend.c",
+        "firmware/src/dsp/original_miami_backend.c"
+      ],
+      "overlapping_paths": [],
+      "explicit_reconciliation": []
+    }
+  },
+  "consolidated_production_changes_vs_prior": 0,
+  "tree": "3c6a5a0478cd482aa61bdfe45c4e13298b7abeea",
+  "firmware_tree": "4b7985998344499df9a80d974d7458e6efb88521",
+  "verified_paths": 1962,
+  "unresolved_conflicts": 0,
+  "explicit_reconciliations": 1,
+  "previous_tree": "12266ef6a63c55c1a3d0058714d2f69afe73bf89",
+  "previous_firmware_tree": "a659963e8c444abe26983e82e1c9d2dd4c96c188"
+}

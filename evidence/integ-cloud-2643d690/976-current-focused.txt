@@ -1,0 +1,14 @@
+8911d62c6d1ea5f95fe043bf7681a10ef82b85f9
+....
+----------------------------------------------------------------------
+Ran 4 tests in 1.356s
+
+OK
+runner admission: 13 cases passed
+candidate jobs=1 selected='fastmath': 0.372s, scenario mkdir=0, scratch writes=0, key formats=0
+candidate jobs=1 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 3.580s, scenario mkdir=4, scratch writes=1, key formats=0
+candidate jobs=4 selected='fastmath': 0.748s, scenario mkdir=0, scratch writes=0, key formats=2
+candidate jobs=4 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 3.067s, scenario mkdir=4, scratch writes=1, key formats=14
+candidate jobs=2 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 3.125s, scenario mkdir=4, scratch writes=1, key formats=14
+overlay selector: 14 cases passed (scheduler only)
+original inputs: PASS (10 active, manifest 9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc)

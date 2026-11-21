@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23  ·  **Scope:** documented research only; no firmware, hardware, or Pages changes.
 
-**Baseline:** [`main@c9718ae`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c9718ae833eb64a5191c350922593df8a36017c9), before the open SMC/installer changes. **Targets:** Pro / Elite shared BLE implementation.
+**Baseline:** [`main@c9718ae`](https://github.com/gobbajogger/DnBOX/commit/c9718ae833eb64a5191c350922593df8a36017c9), before the open SMC/installer changes. **Targets:** Pro / Elite shared BLE implementation.
 
 ## Executive summary
 
@@ -15,10 +15,10 @@ Two independent host experiments confirm that the peripheral BLE output path can
 
 ## 1. Unobserved overflow can discard a critical outbound MIDI event
 
-- [`BLE_OQ=64` and the ring storage](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L22-L35) are independent of the separate 32-message BLE host queue.
-- [`ble_out()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L342-L350) enqueues only when the role is peripheral, notifications are enabled and the ring has free space. It returns no failure and does not increment an outbound-drop counter if full.
-- [`ble_service()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L461-L471) drains into `bleh_midi_send()`, waiting for downstream room when it returns -2. That backpressure can keep mirror messages pending; [the BLE host's second 32-entry queue](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L488-L501) is a separate capacity limit.
-- [The clip/APC MIDI output path](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/main_fm1.c#L202-L225) mirrors UI MIDI packets to BLE. An outbound lost packet could therefore affect performance controls; the experiment does **not** establish that a human can normally produce 65 packets before a drain.
+- [`BLE_OQ=64` and the ring storage](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L22-L35) are independent of the separate 32-message BLE host queue.
+- [`ble_out()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L342-L350) enqueues only when the role is peripheral, notifications are enabled and the ring has free space. It returns no failure and does not increment an outbound-drop counter if full.
+- [`ble_service()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L461-L471) drains into `bleh_midi_send()`, waiting for downstream room when it returns -2. That backpressure can keep mirror messages pending; [the BLE host's second 32-entry queue](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L488-L501) is a separate capacity limit.
+- [The clip/APC MIDI output path](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/main_fm1.c#L202-L225) mirrors UI MIDI packets to BLE. An outbound lost packet could therefore affect performance controls; the experiment does **not** establish that a human can normally produce 65 packets before a drain.
 
 ### Host boundary reproduction
 
@@ -36,8 +36,8 @@ The test extracted **the actual `ble_out()` function** from `firmware/src/ble.c`
 
 ## 2. Measurable unused outbound compression option
 
-- [The host definition includes `tx_running`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.h#L47-L53) and [the packetizer uses it to suppress repeated MIDI status bytes](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L551-L589).
-- In the production-matching source, `bleh_init()` zeroes the state and no runtime writer sets `tx_running=1`; [the host test explicitly exercises it](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/tests/ble_test.c#L248-L265). This is an **unselected optional behavior**, not a defect by itself.
+- [The host definition includes `tx_running`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.h#L47-L53) and [the packetizer uses it to suppress repeated MIDI status bytes](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L551-L589).
+- In the production-matching source, `bleh_init()` zeroes the state and no runtime writer sets `tx_running=1`; [the host test explicitly exercises it](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/tests/ble_test.c#L248-L265). This is an **unselected optional behavior**, not a defect by itself.
 
 **Repeatable isolated experiment:** An unchanged `ble_midi_host.c`/`.h` host implementation was linked to a send callback that counts outgoing HCI ACL packets. It queued twelve consecutive channel-1 Note Ons at timestamp 1024 ms, all with the same MIDI status, and called `bleh_poll()` until the queue emptied with ample simulated credits.
 
@@ -63,6 +63,6 @@ gcc -O2 -Wall -Ifirmware/hal -Ifirmware/src/ble tests/ble_test.c -lpthread -o /t
 - **MIDI compatibility reviewer:** before proposing `tx_running=1`, verify the same Note On/Off, real-time clock, SysEx and status ordering against Loopy on iOS and the transport parser. Compare actual packet counts, worst delivery latency, queue drops and XRUNs; revert compression if an interoperability issue is detected.
 - **Firmware integrator:** any future implementation belongs in an independently owned source lane with Elite **and** Pro target builds, flash/RAM/pool guard checks (minimum 8192 bytes free pool), affected MIDI/host regressions and independent pre-hardware review; do not merge a report as if it fixed anything.
 - **Installer/sample safety:** no writes or reads of physical sample slots occurred here. Previously verified mocked backup/restore tests remain separate; no new sample safety PASS is inferred.
-- Active firmware owner work: [dual-SMC PR #18](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18), [SMC repair PR #19](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19), [sanitizer repair PR #28](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/28). Do not edit their branches or duplicate those fixes.
+- Active firmware owner work: [dual-SMC PR #18](https://github.com/gobbajogger/DnBOX/pull/18), [SMC repair PR #19](https://github.com/gobbajogger/DnBOX/pull/19), [sanitizer repair PR #28](https://github.com/gobbajogger/DnBOX/pull/28). Do not edit their branches or duplicate those fixes.
 
 **No user-visible firmware change or physical-device improvement was delivered in this research cycle.** No firmware build, installer publication, flash or release performed; `main` and `gh-pages` are untouched.

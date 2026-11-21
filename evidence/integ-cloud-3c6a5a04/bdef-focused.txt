@@ -1,0 +1,19 @@
+bdef4bcab365d99d65cde22b10d3d607d1ad96ad
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 3.798s
+
+OK
+PASS enhancement issue form and eight-field installer report, including distinct startup and restart outcomes
+....
+----------------------------------------------------------------------
+Ran 4 tests in 1.902s
+
+OK
+runner admission: 13 cases passed
+candidate jobs=1 selected='fastmath': 0.274s, scenario mkdir=0, scratch writes=0, key formats=0
+candidate jobs=1 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 3.567s, scenario mkdir=4, scratch writes=1, key formats=0
+candidate jobs=4 selected='fastmath': 0.799s, scenario mkdir=0, scratch writes=0, key formats=2
+candidate jobs=4 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 5.068s, scenario mkdir=4, scratch writes=1, key formats=14
+candidate jobs=2 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 3.983s, scenario mkdir=4, scratch writes=1, key formats=14
+overlay selector: 14 cases passed (scheduler only)

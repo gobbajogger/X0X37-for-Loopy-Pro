@@ -36,14 +36,20 @@ if n == "stereo":
 def event(kind):
     fd = os.open("events", os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     os.write(fd, (json.dumps([n, kind, time.time_ns()]) + "\\n").encode()); os.close(fd)
-if n == "fastmath" and "install-slots-web" in os.environ["X0X_TESTS"].split() and os.environ["X0X_TEST_JOBS"] != "1":
-    deadline = time.time() + 5
-    while not pathlib.Path("w-start").exists():
-        assert time.time() < deadline
-        time.sleep(.01)
+# Keep both workers alive until each has recorded its start. A fixed sleep
+# can expire before the other interpreter starts on a loaded host.
 event("start")
-if n == "install-slots-web": pathlib.Path("w-start").touch()
-time.sleep({"install-slots-web": .7, "host-build": .15, "stereo": .07, "fastmath": .15}.get(n, .01))
+peers = ("install-slots-web", "fastmath")
+if (n in peers and os.environ["X0X_TEST_JOBS"] != "1" and
+        set(peers).issubset(os.environ["X0X_TESTS"].split())):
+    pathlib.Path(n + ".started").touch()
+    peer = peers[1] if n == peers[0] else peers[0]
+    deadline = time.monotonic() + 5
+    while not pathlib.Path(peer + ".started").exists():
+        if time.monotonic() >= deadline:
+            raise RuntimeError(n + " never overlapped " + peer)
+        time.sleep(.01)
+time.sleep({"host-build": .15, "stereo": .07}.get(n, .01))
 if n == "host-build": pathlib.Path("generated").touch()
 event("end")
 sys.exit(7 if os.environ.get("FAIL_TEST") == n else 0)

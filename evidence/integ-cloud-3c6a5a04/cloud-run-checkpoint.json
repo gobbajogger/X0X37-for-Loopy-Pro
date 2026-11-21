@@ -1,0 +1,71 @@
+{
+  "canonical_gate": {
+    "command": "bash tools/dnbox-gate.sh integ",
+    "source": "2643d690fa13b56ed4c2c5355ad2321d724d2e9f",
+    "requested_cases": 501,
+    "preflight_passed": 16,
+    "last_readable_utc": "2026-11-21T12:49:19Z",
+    "terminal_receipts": 329,
+    "passed": 303,
+    "failed": 26,
+    "unreported": 172,
+    "full_gate_exit": null,
+    "status": "Cloud executor unavailable before terminal verdict. The earlier tracked TSV has 326 receipts."
+  },
+  "separate_stock_linux": {
+    "complete_replays_observed": [
+      "sound-reset",
+      "panic-notes",
+      "drum-fill"
+    ],
+    "optimization_terminal_exit": null
+  },
+  "branch_state_at_readback": [
+    {
+      "repo": "DnBOX",
+      "pr": 973,
+      "head": "63278e3322aefa89b25f129ca2fccc35ef3b3b3d",
+      "base": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit": null,
+      "url": "https://github.com/gobbajogger/DnBOX/pull/973"
+    },
+    {
+      "repo": "DnBOX",
+      "pr": 975,
+      "head": "9dd6f2df020340f7a82ab241ef07c6ec16195ebc",
+      "base": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-21T12:38:20Z",
+      "merge_commit": "3e307cfa455d22dfca5e4ef439080816b4e4f859",
+      "url": "https://github.com/gobbajogger/DnBOX/pull/975"
+    },
+    {
+      "repo": "DnBOX",
+      "pr": 976,
+      "head": "2c16e15f4d3a6cc98f650b1eb8415899210182d1",
+      "base": "468744971720a81a536308e3bd84bd8766a5ed0f",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit": "50eeb1ccaeeed0d034cc5d85a00c04c57a4464fa",
+      "url": "https://github.com/gobbajogger/DnBOX/pull/976"
+    },
+    {
+      "repo": "DnBOX-nightly",
+      "pr": 170,
+      "head": "aba00927e0504148a482d38bea998747f90e6828",
+      "base": "583f622961fc9975fac746592ce6c483073c4170",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit": "34dd8926da39b775bdb195300ac2e0c14ab1b987",
+      "url": "https://github.com/gobbajogger/DnBOX-nightly/pull/170"
+    }
+  ],
+  "final_merged_run": null,
+  "merge_performed_by_this_run": false
+}

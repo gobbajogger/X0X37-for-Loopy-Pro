@@ -1,0 +1,1010 @@
+{
+  "nightly": "b6c3ea4d6bc3838469c67bba822b372ac0a07a0c",
+  "generated_catalog_sha256": "39ad711aba505308d6dd1fcb1765edd2a8cff69ebcc26f1cd8a1f34b6fca5365",
+  "listed_versions": 37,
+  "model_rows": 74,
+  "github_release_assets": 4,
+  "matching_release_rows": 4,
+  "catalog_rows_verified": 74,
+  "fully_verified_release_rows": 4,
+  "checks": [
+    {
+      "version": "0.0.26",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc",
+      "catalog_bytes": 651732,
+      "catalog_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+      "release": {
+        "tag": "v0.0.26",
+        "asset_id": 774113308,
+        "url": "https://github.com/gobbajogger/DnBOX/releases/download/v0.0.26/dnbox-x0x37-0.0.26-elite.fwsc",
+        "bytes": 651732,
+        "crc32": "a5953c62",
+        "sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6"
+      },
+      "from_catalog_url": {
+        "bytes": 651732,
+        "crc32": "a5953c62",
+        "sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6"
+      },
+      "catalog_verified": true,
+      "release_bytes_verified": true
+    },
+    {
+      "version": "0.0.26",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8/DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc",
+      "catalog_bytes": 651730,
+      "catalog_sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8",
+      "release": {
+        "tag": "v0.0.26",
+        "asset_id": 774113318,
+        "url": "https://github.com/gobbajogger/DnBOX/releases/download/v0.0.26/dnbox-x0x37-0.0.26-pro.fwsc",
+        "bytes": 651730,
+        "crc32": "d8957148",
+        "sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8"
+      },
+      "from_catalog_url": {
+        "bytes": 651730,
+        "crc32": "d8957148",
+        "sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8"
+      },
+      "catalog_verified": true,
+      "release_bytes_verified": true
+    },
+    {
+      "version": "0.0.25.1",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651721,
+      "catalog_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "release": {
+        "tag": "v0.0.25.1",
+        "asset_id": 742871658,
+        "url": "https://github.com/gobbajogger/DnBOX/releases/download/v0.0.25.1/dnbox-x0x37-0.0.25.1-elite.fwsc",
+        "bytes": 651721,
+        "crc32": "8ff3ba29",
+        "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a"
+      },
+      "from_catalog_url": {
+        "bytes": 651721,
+        "crc32": "8ff3ba29",
+        "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a"
+      },
+      "catalog_verified": true,
+      "release_bytes_verified": true
+    },
+    {
+      "version": "0.0.25.1",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651721,
+      "catalog_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "release": {
+        "tag": "v0.0.25.1",
+        "asset_id": 742871959,
+        "url": "https://github.com/gobbajogger/DnBOX/releases/download/v0.0.25.1/dnbox-x0x37-0.0.25.1-pro.fwsc",
+        "bytes": 651721,
+        "crc32": "45560337",
+        "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf"
+      },
+      "from_catalog_url": {
+        "bytes": 651721,
+        "crc32": "45560337",
+        "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf"
+      },
+      "catalog_verified": true,
+      "release_bytes_verified": true
+    },
+    {
+      "version": "0.0.25",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/11b0795fce853bd2ca648a8afe399ce84bf25c572796840ebc9b08581528039a/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651721,
+      "catalog_sha256": "11b0795fce853bd2ca648a8afe399ce84bf25c572796840ebc9b08581528039a",
+      "from_catalog_url": {
+        "bytes": 651721,
+        "crc32": "70d6d539",
+        "sha256": "11b0795fce853bd2ca648a8afe399ce84bf25c572796840ebc9b08581528039a"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.25",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/f8b2aa2e1f27ea0fc8a1a4f818bffa2bd188f7a1eaa62788c1787c67c0c75d1b/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651721,
+      "catalog_sha256": "f8b2aa2e1f27ea0fc8a1a4f818bffa2bd188f7a1eaa62788c1787c67c0c75d1b",
+      "from_catalog_url": {
+        "bytes": 651721,
+        "crc32": "277bd478",
+        "sha256": "f8b2aa2e1f27ea0fc8a1a4f818bffa2bd188f7a1eaa62788c1787c67c0c75d1b"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.11",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/268882188b5e694547dc56d234705c6a546dc2ca39acc5cb6e854650a71747d2/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651721,
+      "catalog_sha256": "268882188b5e694547dc56d234705c6a546dc2ca39acc5cb6e854650a71747d2",
+      "from_catalog_url": {
+        "bytes": 651721,
+        "crc32": "1e0ac7f4",
+        "sha256": "268882188b5e694547dc56d234705c6a546dc2ca39acc5cb6e854650a71747d2"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.11",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/ffa446e58c74b9f01e95ad928b548a98b50c33d5acb73e192df05b0ecd83d49d/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651721,
+      "catalog_sha256": "ffa446e58c74b9f01e95ad928b548a98b50c33d5acb73e192df05b0ecd83d49d",
+      "from_catalog_url": {
+        "bytes": 651721,
+        "crc32": "2fabad85",
+        "sha256": "ffa446e58c74b9f01e95ad928b548a98b50c33d5acb73e192df05b0ecd83d49d"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.10",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/8997b5e437892bb0c543702c042ff304f924f860c272a15b88a42182130b36c2/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651667,
+      "catalog_sha256": "8997b5e437892bb0c543702c042ff304f924f860c272a15b88a42182130b36c2",
+      "from_catalog_url": {
+        "bytes": 651667,
+        "crc32": "0305ccc1",
+        "sha256": "8997b5e437892bb0c543702c042ff304f924f860c272a15b88a42182130b36c2"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.10",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/0ff74548a1a83ead811b5c5d6780df47788947877c948ffac800f955815cb8fd/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651667,
+      "catalog_sha256": "0ff74548a1a83ead811b5c5d6780df47788947877c948ffac800f955815cb8fd",
+      "from_catalog_url": {
+        "bytes": 651667,
+        "crc32": "783ccffb",
+        "sha256": "0ff74548a1a83ead811b5c5d6780df47788947877c948ffac800f955815cb8fd"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.9",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/1e6d56a3c4d4bf8d90c8a04f32abadb0b7ca58f5523f45c3036a7d05f8cefbb7/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "1e6d56a3c4d4bf8d90c8a04f32abadb0b7ca58f5523f45c3036a7d05f8cefbb7",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "19f37c01",
+        "sha256": "1e6d56a3c4d4bf8d90c8a04f32abadb0b7ca58f5523f45c3036a7d05f8cefbb7"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.9",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/d997fea7b95e157f5c35271c95087d37abab7904668714631162250e8ea867db/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "d997fea7b95e157f5c35271c95087d37abab7904668714631162250e8ea867db",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "1a02dd11",
+        "sha256": "d997fea7b95e157f5c35271c95087d37abab7904668714631162250e8ea867db"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.8",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/a79a26b7b2bd14e3e32e2234c076fcd8275788ec2d8f77dfa371ac46c8be570f/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "a79a26b7b2bd14e3e32e2234c076fcd8275788ec2d8f77dfa371ac46c8be570f",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "fce1b01a",
+        "sha256": "a79a26b7b2bd14e3e32e2234c076fcd8275788ec2d8f77dfa371ac46c8be570f"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.8",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/a4f93edb6a963e6797e3e12aabc3cca62cc653e6fa8f2a23f3017425de823752/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "a4f93edb6a963e6797e3e12aabc3cca62cc653e6fa8f2a23f3017425de823752",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "d79a85a2",
+        "sha256": "a4f93edb6a963e6797e3e12aabc3cca62cc653e6fa8f2a23f3017425de823752"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.7",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/df0b1f82ffd374ee1628e7cd1b9f0276a761abeb45770f06616bbceb7838560a/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "df0b1f82ffd374ee1628e7cd1b9f0276a761abeb45770f06616bbceb7838560a",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "7658b15e",
+        "sha256": "df0b1f82ffd374ee1628e7cd1b9f0276a761abeb45770f06616bbceb7838560a"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.7",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/2a7ddfcab3299367354f4263efa5ec93710c494f9895362f9f418948b033a770/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "2a7ddfcab3299367354f4263efa5ec93710c494f9895362f9f418948b033a770",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "f53600d5",
+        "sha256": "2a7ddfcab3299367354f4263efa5ec93710c494f9895362f9f418948b033a770"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.6",
+      "model": "elite",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651570,
+      "catalog_sha256": "4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb",
+      "from_catalog_url": {
+        "bytes": 651570,
+        "crc32": "856ed4e1",
+        "sha256": "4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.6",
+      "model": "pro",
+      "catalog_url": "https://gobbajogger.github.io/DnBOX-nightly/artifacts/nightly-dev/cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651566,
+      "catalog_sha256": "cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7",
+      "from_catalog_url": {
+        "bytes": 651566,
+        "crc32": "f6c7c0d3",
+        "sha256": "cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.5",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/f857ffbb369e0ab7e4aca5109b8334cb3a490557/artifacts/nightly/dev-20261101-8be16486/d0080061064a66b9d203dd9e75956cd59ab9372c2f4fd15769fa9b06b5f2073f/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651570,
+      "catalog_sha256": "d0080061064a66b9d203dd9e75956cd59ab9372c2f4fd15769fa9b06b5f2073f",
+      "from_catalog_url": {
+        "bytes": 651570,
+        "crc32": "b339892c",
+        "sha256": "d0080061064a66b9d203dd9e75956cd59ab9372c2f4fd15769fa9b06b5f2073f"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.5",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/f857ffbb369e0ab7e4aca5109b8334cb3a490557/artifacts/nightly/dev-20261101-8be16486/9ae7214baa0dd79a3709f3845da4481b15311d40c37a8be033dce07c95475dcd/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651566,
+      "catalog_sha256": "9ae7214baa0dd79a3709f3845da4481b15311d40c37a8be033dce07c95475dcd",
+      "from_catalog_url": {
+        "bytes": 651566,
+        "crc32": "77e932a1",
+        "sha256": "9ae7214baa0dd79a3709f3845da4481b15311d40c37a8be033dce07c95475dcd"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.3",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/8200d95c9cb116e54d5a31a1a6b7c4d95fe505d2/artifacts/nightly/dev-20261101-179ab384/7187cdf57161f21aecb1cd576f27fe21d1094212be0fffe3dd491d05ecc07679/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651570,
+      "catalog_sha256": "7187cdf57161f21aecb1cd576f27fe21d1094212be0fffe3dd491d05ecc07679",
+      "from_catalog_url": {
+        "bytes": 651570,
+        "crc32": "c7000492",
+        "sha256": "7187cdf57161f21aecb1cd576f27fe21d1094212be0fffe3dd491d05ecc07679"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.3",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/8200d95c9cb116e54d5a31a1a6b7c4d95fe505d2/artifacts/nightly/dev-20261101-179ab384/8ae1ee345d1324968e563af45b97c6a95ba8cea83a1500b372415ca41d16f18c/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651566,
+      "catalog_sha256": "8ae1ee345d1324968e563af45b97c6a95ba8cea83a1500b372415ca41d16f18c",
+      "from_catalog_url": {
+        "bytes": 651566,
+        "crc32": "7898ca3b",
+        "sha256": "8ae1ee345d1324968e563af45b97c6a95ba8cea83a1500b372415ca41d16f18c"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.1",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/130220e1d1f30413439c1e9cd618066569f8805c/artifacts/nightly/dev-20261101-3d8131f7/13231af941bfbbad7a7669379f9a34388139ec593cd97848bf36dcaf4ed267db/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651570,
+      "catalog_sha256": "13231af941bfbbad7a7669379f9a34388139ec593cd97848bf36dcaf4ed267db",
+      "from_catalog_url": {
+        "bytes": 651570,
+        "crc32": "2016649c",
+        "sha256": "13231af941bfbbad7a7669379f9a34388139ec593cd97848bf36dcaf4ed267db"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.24.1",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/130220e1d1f30413439c1e9cd618066569f8805c/artifacts/nightly/dev-20261101-3d8131f7/d98a634542cefe483793f677dcbac07a223b47adb6747c8dd3ddf25dc4190ac2/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651566,
+      "catalog_sha256": "d98a634542cefe483793f677dcbac07a223b47adb6747c8dd3ddf25dc4190ac2",
+      "from_catalog_url": {
+        "bytes": 651566,
+        "crc32": "f26af916",
+        "sha256": "d98a634542cefe483793f677dcbac07a223b47adb6747c8dd3ddf25dc4190ac2"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-d8086cc0-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/7a3d50951ab23a56823fc5d2a9963a9edf0a5b99/artifacts/nightly/dev-20261101-d8086cc0/de00013dfe988f66855a7e7cbac392813bb6b711e63a1b7effc90e4911074b0d/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651570,
+      "catalog_sha256": "de00013dfe988f66855a7e7cbac392813bb6b711e63a1b7effc90e4911074b0d",
+      "from_catalog_url": {
+        "bytes": 651570,
+        "crc32": "9bb1de35",
+        "sha256": "de00013dfe988f66855a7e7cbac392813bb6b711e63a1b7effc90e4911074b0d"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-d8086cc0-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/7a3d50951ab23a56823fc5d2a9963a9edf0a5b99/artifacts/nightly/dev-20261101-d8086cc0/97b8708a608a6f3ed379bd2bf4151b474e6037ae2706b1fc414a582d58290f32/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651566,
+      "catalog_sha256": "97b8708a608a6f3ed379bd2bf4151b474e6037ae2706b1fc414a582d58290f32",
+      "from_catalog_url": {
+        "bytes": 651566,
+        "crc32": "8dca80f6",
+        "sha256": "97b8708a608a6f3ed379bd2bf4151b474e6037ae2706b1fc414a582d58290f32"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-bb190749-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/28da4323c2f14b0741dcf9b51ec3e5af10cf3ee3/artifacts/nightly/dev-20261031-bb190749/cf89c1e4d4845644e1ca834f9a3f6e04a89e5650c5c4fa41f58c68f0ae5b384e/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "cf89c1e4d4845644e1ca834f9a3f6e04a89e5650c5c4fa41f58c68f0ae5b384e",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "e4edf63a",
+        "sha256": "cf89c1e4d4845644e1ca834f9a3f6e04a89e5650c5c4fa41f58c68f0ae5b384e"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-bb190749-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/28da4323c2f14b0741dcf9b51ec3e5af10cf3ee3/artifacts/nightly/dev-20261031-bb190749/cf9312a418e38cb65af3697fbcb23f8a30fbf8096770faaea7e51d0851beb52f/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "cf9312a418e38cb65af3697fbcb23f8a30fbf8096770faaea7e51d0851beb52f",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "f2ace7ee",
+        "sha256": "cf9312a418e38cb65af3697fbcb23f8a30fbf8096770faaea7e51d0851beb52f"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-2456968b-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/0fd51894c7a3ac7db1c85207a416b09eb22d1347/artifacts/nightly/dev-20261031-2456968b/e4af37f9ee4ef06db1f61de50b3390cbd63a2ae35a38ae69f137a03fd9c80032/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "e4af37f9ee4ef06db1f61de50b3390cbd63a2ae35a38ae69f137a03fd9c80032",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "571f9204",
+        "sha256": "e4af37f9ee4ef06db1f61de50b3390cbd63a2ae35a38ae69f137a03fd9c80032"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-2456968b-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/0fd51894c7a3ac7db1c85207a416b09eb22d1347/artifacts/nightly/dev-20261031-2456968b/332b695d9ebc5eefd5c71865cb13d45088975e92466490ffa67472062f85606f/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "332b695d9ebc5eefd5c71865cb13d45088975e92466490ffa67472062f85606f",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "a45d883b",
+        "sha256": "332b695d9ebc5eefd5c71865cb13d45088975e92466490ffa67472062f85606f"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-dd442625-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/7b572ba76aa46ccf947a0994fe1c364c901afe0e/artifacts/nightly/dev-20261031-dd442625/4b7e46fd758327cf17fdab818a30afa24c21e06c0d37f81abc2bd61e449b39ba/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "4b7e46fd758327cf17fdab818a30afa24c21e06c0d37f81abc2bd61e449b39ba",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "db4914bb",
+        "sha256": "4b7e46fd758327cf17fdab818a30afa24c21e06c0d37f81abc2bd61e449b39ba"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-dd442625-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/7b572ba76aa46ccf947a0994fe1c364c901afe0e/artifacts/nightly/dev-20261031-dd442625/5608eab00eb47fd34a2c9cd14a1b276215854b7877231038a7da300447a13f9c/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "5608eab00eb47fd34a2c9cd14a1b276215854b7877231038a7da300447a13f9c",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "a12adfcf",
+        "sha256": "5608eab00eb47fd34a2c9cd14a1b276215854b7877231038a7da300447a13f9c"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-bed393e1-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/1cb839c85654510f3645946cbe765f1050f77ab9/artifacts/nightly/dev-20261031-bed393e1/33ae9075cd8bea7df3b0c193aa62b3e950b77d11da8b2dc8c65038ddcfd88dc6/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "33ae9075cd8bea7df3b0c193aa62b3e950b77d11da8b2dc8c65038ddcfd88dc6",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "2c34c436",
+        "sha256": "33ae9075cd8bea7df3b0c193aa62b3e950b77d11da8b2dc8c65038ddcfd88dc6"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-bed393e1-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/1cb839c85654510f3645946cbe765f1050f77ab9/artifacts/nightly/dev-20261031-bed393e1/3e5b606c9a382e015c321d0684954d34e9874e89f414da312bc509d918ba90ef/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "3e5b606c9a382e015c321d0684954d34e9874e89f414da312bc509d918ba90ef",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "47dd7e41",
+        "sha256": "3e5b606c9a382e015c321d0684954d34e9874e89f414da312bc509d918ba90ef"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-ed85f5a6-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/45a6100d7294bd3ea87d9ce1a4c18d8e1b7cb0f3/artifacts/nightly/dev-20261031-ed85f5a6/426667e3488773f4f55e6955354553cd10a0eb0fc8bf6a944c4cf0ff035dc6f0/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "426667e3488773f4f55e6955354553cd10a0eb0fc8bf6a944c4cf0ff035dc6f0",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "8dd49e6d",
+        "sha256": "426667e3488773f4f55e6955354553cd10a0eb0fc8bf6a944c4cf0ff035dc6f0"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-ed85f5a6-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/45a6100d7294bd3ea87d9ce1a4c18d8e1b7cb0f3/artifacts/nightly/dev-20261031-ed85f5a6/98629a8dd0a53d09547ed9ae43ee27e2877f5df65d07edb417d94f4407a096ac/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "98629a8dd0a53d09547ed9ae43ee27e2877f5df65d07edb417d94f4407a096ac",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "7ceb5047",
+        "sha256": "98629a8dd0a53d09547ed9ae43ee27e2877f5df65d07edb417d94f4407a096ac"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-dffd05f0-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/e7f5f96ce468a26ae26656074ebcc8296695e7f2/artifacts/nightly/dev-20261031-dffd05f0/cf21ce1c901ca22dc4f2a671c82ebe86d1fa26090e1f4f4fb90fb99cea7fa990/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "cf21ce1c901ca22dc4f2a671c82ebe86d1fa26090e1f4f4fb90fb99cea7fa990",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "d51c2984",
+        "sha256": "cf21ce1c901ca22dc4f2a671c82ebe86d1fa26090e1f4f4fb90fb99cea7fa990"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-dffd05f0-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/e7f5f96ce468a26ae26656074ebcc8296695e7f2/artifacts/nightly/dev-20261031-dffd05f0/ee2c99755331c49135e62348c61a0aaae00b64038b81833324e9143faf0a78ae/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "ee2c99755331c49135e62348c61a0aaae00b64038b81833324e9143faf0a78ae",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "3c4f9089",
+        "sha256": "ee2c99755331c49135e62348c61a0aaae00b64038b81833324e9143faf0a78ae"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-6319ffec-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/cbc0892874d9b8db74ad212c4eccf4ad9d8644ed/artifacts/nightly/dev-20261031-6319ffec/5207dc012c44360c209629e6b6ed80452c3fb8ee260e5c894a9f9e545d8e329e/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "5207dc012c44360c209629e6b6ed80452c3fb8ee260e5c894a9f9e545d8e329e",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "01794e97",
+        "sha256": "5207dc012c44360c209629e6b6ed80452c3fb8ee260e5c894a9f9e545d8e329e"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-6319ffec-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/cbc0892874d9b8db74ad212c4eccf4ad9d8644ed/artifacts/nightly/dev-20261031-6319ffec/80ed187001a059996ebee596bf8fd881687b753b7262f0118ecda9a288ba7b45/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "80ed187001a059996ebee596bf8fd881687b753b7262f0118ecda9a288ba7b45",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "9879f972",
+        "sha256": "80ed187001a059996ebee596bf8fd881687b753b7262f0118ecda9a288ba7b45"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-2ad1b517-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/46323823a65ecc1c65269f6ece2937df9abc0ba8/artifacts/nightly/dev-20261031-2ad1b517/2093edc109136fc58b1a51e1f94da3f3fbe18c7b620de73e5b50e73d8f6c462d/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "2093edc109136fc58b1a51e1f94da3f3fbe18c7b620de73e5b50e73d8f6c462d",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "327b5343",
+        "sha256": "2093edc109136fc58b1a51e1f94da3f3fbe18c7b620de73e5b50e73d8f6c462d"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-2ad1b517-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/46323823a65ecc1c65269f6ece2937df9abc0ba8/artifacts/nightly/dev-20261031-2ad1b517/cf57c7c1fc67809e9f3f7a201ddcf291a3a29df118e56c8b41e8390739ae6d78/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "cf57c7c1fc67809e9f3f7a201ddcf291a3a29df118e56c8b41e8390739ae6d78",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "bb6f8a69",
+        "sha256": "cf57c7c1fc67809e9f3f7a201ddcf291a3a29df118e56c8b41e8390739ae6d78"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-5ae6265e-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/151656c3010b2c17eafc87fff9fb2f3d921acce6/artifacts/nightly/dev-20261031-5ae6265e/c36b3c86cd797fc817f8ed1f793aca73277ea2e69ff0cb6563bb6883b2b51a37/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "c36b3c86cd797fc817f8ed1f793aca73277ea2e69ff0cb6563bb6883b2b51a37",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "d5f7ac06",
+        "sha256": "c36b3c86cd797fc817f8ed1f793aca73277ea2e69ff0cb6563bb6883b2b51a37"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-5ae6265e-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/151656c3010b2c17eafc87fff9fb2f3d921acce6/artifacts/nightly/dev-20261031-5ae6265e/1598e6634525f20601d6394daae6ffbe0ee27f83155cce717b3896b610fd7d2d/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "1598e6634525f20601d6394daae6ffbe0ee27f83155cce717b3896b610fd7d2d",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "f3447365",
+        "sha256": "1598e6634525f20601d6394daae6ffbe0ee27f83155cce717b3896b610fd7d2d"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-8424c3bb-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/34309997968b92a16f0ef1e3f1e99e6b38890552/artifacts/nightly/dev-20261031-8424c3bb/2bf69b09afbad9cb094279b79891c6f7938a1b4bd28a4b91dac2a08f8f96579c/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "2bf69b09afbad9cb094279b79891c6f7938a1b4bd28a4b91dac2a08f8f96579c",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "4081580f",
+        "sha256": "2bf69b09afbad9cb094279b79891c6f7938a1b4bd28a4b91dac2a08f8f96579c"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-8424c3bb-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/34309997968b92a16f0ef1e3f1e99e6b38890552/artifacts/nightly/dev-20261031-8424c3bb/c43d64f8a4ab4ae1aef88941df1f6c366b4cdecf1697f65fdca7742637c06936/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "c43d64f8a4ab4ae1aef88941df1f6c366b4cdecf1697f65fdca7742637c06936",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "67c7b93c",
+        "sha256": "c43d64f8a4ab4ae1aef88941df1f6c366b4cdecf1697f65fdca7742637c06936"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-bb33a8fe-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/a0e7b14f14d0a8292d97c6a650803a8ee36cde7a/artifacts/nightly/dev-20261031-bb33a8fe/da044b62c9079bfd3592fb90eb417168470d2efb097322b908a15eee385c8139/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "da044b62c9079bfd3592fb90eb417168470d2efb097322b908a15eee385c8139",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "a4c37749",
+        "sha256": "da044b62c9079bfd3592fb90eb417168470d2efb097322b908a15eee385c8139"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-bb33a8fe-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/a0e7b14f14d0a8292d97c6a650803a8ee36cde7a/artifacts/nightly/dev-20261031-bb33a8fe/3bf33b161a393888af64b396ebf0afd88765808f5833c2d1e65d00c5147bb08e/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "3bf33b161a393888af64b396ebf0afd88765808f5833c2d1e65d00c5147bb08e",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "fcb15471",
+        "sha256": "3bf33b161a393888af64b396ebf0afd88765808f5833c2d1e65d00c5147bb08e"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.12.1",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/469ad3b459321e297cdee1077cdcf6038f00d9c1/artifacts/nightly/dev-20261031-c8e1599b-bt/27788268f57fcd6d53c690ced54cd1907d427798fadd73dad785e206d8b4f615/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "27788268f57fcd6d53c690ced54cd1907d427798fadd73dad785e206d8b4f615",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "8bb8bd24",
+        "sha256": "27788268f57fcd6d53c690ced54cd1907d427798fadd73dad785e206d8b4f615"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "0.0.12.1",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/469ad3b459321e297cdee1077cdcf6038f00d9c1/artifacts/nightly/dev-20261031-c8e1599b-bt/dffb6a5e0f319f02ead442fea3e8c5ec59f0f212215eb107e5d2c7005ff22bb7/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "dffb6a5e0f319f02ead442fea3e8c5ec59f0f212215eb107e5d2c7005ff22bb7",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "65eab985",
+        "sha256": "dffb6a5e0f319f02ead442fea3e8c5ec59f0f212215eb107e5d2c7005ff22bb7"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-c8e1599b-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/637798e077fd0896ad467152f8fd71e57c6927ce/artifacts/nightly/dev-20261031-c8e1599b/395cc75fd50a66b2b72ada97ab19bd84982cd5cf9038fe73564e53a46502e2fa/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "395cc75fd50a66b2b72ada97ab19bd84982cd5cf9038fe73564e53a46502e2fa",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "c0f6ccf5",
+        "sha256": "395cc75fd50a66b2b72ada97ab19bd84982cd5cf9038fe73564e53a46502e2fa"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-c8e1599b-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/637798e077fd0896ad467152f8fd71e57c6927ce/artifacts/nightly/dev-20261031-c8e1599b/c89cd42438bf149cb51a03a6ed70cd7c4c087e0459ce674ee9488af49e790f98/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "c89cd42438bf149cb51a03a6ed70cd7c4c087e0459ce674ee9488af49e790f98",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "2ea4c854",
+        "sha256": "c89cd42438bf149cb51a03a6ed70cd7c4c087e0459ce674ee9488af49e790f98"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-02cc7d10-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/4c592b4a04de146bc4b9caa56b0c97e604d8e3c7/artifacts/nightly/dev-20261031-02cc7d10/61c9e8be681be2442b47f3e1184661b7a0afb6bbd61dd6f364d727b553207b34/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "61c9e8be681be2442b47f3e1184661b7a0afb6bbd61dd6f364d727b553207b34",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "0f4f0654",
+        "sha256": "61c9e8be681be2442b47f3e1184661b7a0afb6bbd61dd6f364d727b553207b34"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-02cc7d10-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/4c592b4a04de146bc4b9caa56b0c97e604d8e3c7/artifacts/nightly/dev-20261031-02cc7d10/92c43ac0efd2450a5929da0eef4aa25c1f287076e2b817b775569bb5a8d91fad/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "92c43ac0efd2450a5929da0eef4aa25c1f287076e2b817b775569bb5a8d91fad",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "4e7a4fdd",
+        "sha256": "92c43ac0efd2450a5929da0eef4aa25c1f287076e2b817b775569bb5a8d91fad"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-5bff28ca-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/a03bb93f97786bdd9fa71d8a80351489ea915aac/artifacts/nightly/dev-20261031-5bff28ca/b9a2370557e73ea9373a642f0e67d776e9e0d0dd84813f76fa532fb967c07dcf/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "b9a2370557e73ea9373a642f0e67d776e9e0d0dd84813f76fa532fb967c07dcf",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "c1fc30bc",
+        "sha256": "b9a2370557e73ea9373a642f0e67d776e9e0d0dd84813f76fa532fb967c07dcf"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-5bff28ca-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/a03bb93f97786bdd9fa71d8a80351489ea915aac/artifacts/nightly/dev-20261031-5bff28ca/965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651457,
+      "catalog_sha256": "965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b",
+      "from_catalog_url": {
+        "bytes": 651457,
+        "crc32": "727f27dd",
+        "sha256": "965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-0e77d923-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/5f48ec6541ca670739574ce3dae217b4b39d223e/artifacts/nightly/dev-20261026-0e77d923/afea412ddfe07388be6644f203288ee8afd525b96b3709a03980b6dc17875725/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651414,
+      "catalog_sha256": "afea412ddfe07388be6644f203288ee8afd525b96b3709a03980b6dc17875725",
+      "from_catalog_url": {
+        "bytes": 651414,
+        "crc32": "f21f7d33",
+        "sha256": "afea412ddfe07388be6644f203288ee8afd525b96b3709a03980b6dc17875725"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-0e77d923-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/5f48ec6541ca670739574ce3dae217b4b39d223e/artifacts/nightly/dev-20261026-0e77d923/d05bf2afb76039a2f74d6053afcb228495bb4d90fd87b5404d8bb90ce4dc26b4/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651414,
+      "catalog_sha256": "d05bf2afb76039a2f74d6053afcb228495bb4d90fd87b5404d8bb90ce4dc26b4",
+      "from_catalog_url": {
+        "bytes": 651414,
+        "crc32": "1d17e535",
+        "sha256": "d05bf2afb76039a2f74d6053afcb228495bb4d90fd87b5404d8bb90ce4dc26b4"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-b48cd800-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/646631f5a8b534a483f2fe484054440ea03c8228/artifacts/nightly/dev-20261025-b48cd800/81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "ec0f8f2b",
+        "sha256": "81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-b48cd800-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/646631f5a8b534a483f2fe484054440ea03c8228/artifacts/nightly/dev-20261025-b48cd800/e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "4fc4a7cd",
+        "sha256": "e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-092589b8-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/bb8543371761e75b7a89a422f00f9fe501bb338f/artifacts/nightly/dev-20261025-092589b8/3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "064bc132",
+        "sha256": "3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-092589b8-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/bb8543371761e75b7a89a422f00f9fe501bb338f/artifacts/nightly/dev-20261025-092589b8/60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "11406f3c",
+        "sha256": "60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-b42bcba4-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/d8a03d45881ea0d26eedddcc30ffd71a94f42374/artifacts/nightly/dev-20261026-b42bcba4/82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "f14e2570",
+        "sha256": "82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-b42bcba4-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/d8a03d45881ea0d26eedddcc30ffd71a94f42374/artifacts/nightly/dev-20261026-b42bcba4/bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "f79c4992",
+        "sha256": "bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-de11b6d7-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/02f4f4f48408db96e01b143d5410b7fb00a5a70a/artifacts/nightly/dev-20261025-4f96b0d9/4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "bf1ed250",
+        "sha256": "4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-de11b6d7-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/02f4f4f48408db96e01b143d5410b7fb00a5a70a/artifacts/nightly/dev-20261025-4f96b0d9/b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "341023b9",
+        "sha256": "b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-af494784-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/2363c07f334747208831923a4f9fa4332cbbe472/artifacts/nightly/dev-20261025-d0d00da2/9cba1f3d0bebc2113d59b9bbb3f1ca1a67bb396183be279b74486319ddae8e11/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "9cba1f3d0bebc2113d59b9bbb3f1ca1a67bb396183be279b74486319ddae8e11",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "dc8cccb1",
+        "sha256": "9cba1f3d0bebc2113d59b9bbb3f1ca1a67bb396183be279b74486319ddae8e11"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-af494784-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/2363c07f334747208831923a4f9fa4332cbbe472/artifacts/nightly/dev-20261025-d0d00da2/5dda4eecd74d96237a3d457a026d7bc04eb3ed570705179ab8e6c15a198fa739/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "5dda4eecd74d96237a3d457a026d7bc04eb3ed570705179ab8e6c15a198fa739",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "2ed7499a",
+        "sha256": "5dda4eecd74d96237a3d457a026d7bc04eb3ed570705179ab8e6c15a198fa739"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-8a74ff52-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/82622c1f9561bd23bbf785c165d66e11e68820ca/artifacts/nightly/dev-20261025-8a74ff52/d7767bebf1413b5d6fb918ba3893335a7b9fae86078ce895aa3b72df48bedb93/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "d7767bebf1413b5d6fb918ba3893335a7b9fae86078ce895aa3b72df48bedb93",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "5b9ace8a",
+        "sha256": "d7767bebf1413b5d6fb918ba3893335a7b9fae86078ce895aa3b72df48bedb93"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-8a74ff52-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/82622c1f9561bd23bbf785c165d66e11e68820ca/artifacts/nightly/dev-20261025-8a74ff52/b0cecbcff42589cdc71231a16098b7cfc8301a8562aba25362d552b3dcdc5fa0/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "b0cecbcff42589cdc71231a16098b7cfc8301a8562aba25362d552b3dcdc5fa0",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "4863161f",
+        "sha256": "b0cecbcff42589cdc71231a16098b7cfc8301a8562aba25362d552b3dcdc5fa0"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-6df0f81f-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/f917b636ba00d7dbef18fd00d1f0af15299a0a24/artifacts/nightly/dev-20261025-4ee8f377/8ba23a89f50c70b631927077ec4cfe7c98593870035455261842f1b245b82278/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "8ba23a89f50c70b631927077ec4cfe7c98593870035455261842f1b245b82278",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "1eb9547c",
+        "sha256": "8ba23a89f50c70b631927077ec4cfe7c98593870035455261842f1b245b82278"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-6df0f81f-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/f917b636ba00d7dbef18fd00d1f0af15299a0a24/artifacts/nightly/dev-20261025-4ee8f377/d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "ea0af2ae",
+        "sha256": "d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-54f2ffbc-dev",
+      "model": "elite",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/172d99d6d417d72bbd8f473ec1c66d5994c3d0c3/artifacts/nightly/dev-20261024-dc466908/d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c/x0x37-elite-dev.fwsc",
+      "catalog_bytes": 651396,
+      "catalog_sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+      "from_catalog_url": {
+        "bytes": 651396,
+        "crc32": "8f8447bb",
+        "sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c"
+      },
+      "catalog_verified": true
+    },
+    {
+      "version": "nightly-54f2ffbc-dev",
+      "model": "pro",
+      "catalog_url": "https://raw.githubusercontent.com/gobbajogger/DnBOX/172d99d6d417d72bbd8f473ec1c66d5994c3d0c3/artifacts/nightly/dev-20261024-dc466908/cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c/x0x37-pro-dev.fwsc",
+      "catalog_bytes": 651392,
+      "catalog_sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+      "from_catalog_url": {
+        "bytes": 651392,
+        "crc32": "cfae5bf9",
+        "sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c"
+      },
+      "catalog_verified": true
+    }
+  ]
+}

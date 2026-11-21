@@ -1,0 +1,42 @@
+check_locked_settings: 20 settings ok
+firmware/src/dsp/juno6.c:90:29: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+ juno6_envelope_snapshot v={0};
+                            ^
+                            {}
+1 warning generated.
+In file included from firmware/src/x0x.c:209:
+firmware/src/app/ui.c:5938:32: warning: unused variable 'gray' [-Wunused-variable]
+    uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
+                               ^
+firmware/src/app/ui.c:5938:62: warning: unused variable 'hint' [-Wunused-variable]
+    uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
+                                                             ^
+In file included from firmware/src/x0x.c:209:
+In file included from firmware/src/app/ui.c:8311:
+firmware/hal/../src/app/ui_drum_voice.inc:553:44: warning: unused variable 'dimc' [-Wunused-variable]
+    uint16_t ink = col, gray = SOUND_GRAY, dimc = SOUND_DIM;
+                                           ^
+3 warnings generated.
+loader: image 8680 B at 0x1c0a800, bss end 0x1c0f810
+loader: ota.bin 7616 B
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 1400 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 1959 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 2592 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 2680 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 2854 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 2467 B
+font set barlow: 14243 B (approx)
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves lossless-predictor 9728->1387 B -> x0x_drum_tables.h
+break bank: none (factory loops are an optional install)
+XIP free: 1180 B
+pool raw free: 8972 B
+pool reserve: 8192 B
+pool margin: 780 B
+  ok    .ram_text: 843 insns, no calls
+  ok    app code area 552672 B, 1180 B free (Bluetooth block at app.bin 0x86ee0)
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 551492 B; RAM .data+.bss 97204 B of 98304; pool 335092 B of 344064
+  ok    register access: hal/ only (src/, loader/ clean)
+app      <workspace>/integ/build/smk37-elite/x0x.bin  551492 B
+loader   <workspace>/integ/build/smk37-elite/loader/ota.bin  7616 B
+package  <workspace>/integ/build/x0x-smk37-elite.fwsc  651732 B, identity SMK-37 Elite_900, board smk37

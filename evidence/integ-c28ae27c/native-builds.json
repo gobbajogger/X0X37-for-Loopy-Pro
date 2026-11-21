@@ -1,0 +1,138 @@
+{
+  "source_commit": "c28ae27c2c6a1afb70086c32a0ad321927e3dc25",
+  "source_tree": "a8ae61e48df54788e56a448b12413c71d0782d99",
+  "parents": [
+    "2c16e15f4d3a6cc98f650b1eb8415899210182d1",
+    "63278e3322aefa89b25f129ca2fccc35ef3b3b3d"
+  ],
+  "native_baseline": "b5207372b5d342575b70b651b7dd413527c2f161",
+  "sdk": {
+    "uboot.boot": {
+      "bytes": 14444,
+      "sha256": "64ccc63e4df3238046fadb200f1b134311d8fe6ec6e3ccb8c8b81379231b867e"
+    },
+    "cfg_tool.bin": {
+      "bytes": 383,
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+    },
+    "cfg/eq_cfg_hw.bin": {
+      "bytes": 1278,
+      "sha256": "179ac9f4501d2cf8c3bdbc06fcda1e46228b7ace7e339342c767bb6568de57d8"
+    }
+  },
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "compiler_version": "clang version 4.0.1 () ()",
+  "original_inputs": true,
+  "models": {
+    "elite": {
+      "command": "MODEL=elite ./build.sh",
+      "product": "SMK-37 Elite_900",
+      "native_build_exit": 0,
+      "package_test_exit": 0,
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546500,
+          "sha256": "4796c95c61ffea4215c2a57d01e8151d850d7c9a99fbb35c725abb6e35e77b24"
+        },
+        "x0x.elf": {
+          "bytes": 634588,
+          "sha256": "ef80c69d375c33853858966c890b2945edd1e11ae72ed366b90df6eb60805b40"
+        },
+        "ota.bin": {
+          "bytes": 7616,
+          "sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03"
+        },
+        "x0x-smk37-elite.fwsc": {
+          "bytes": 651732,
+          "sha256": "19248494a8af9a4525aa83ee81e518e2ef137bee7a6f2f403ae5d53a3d46ebe6"
+        }
+      },
+      "stock_memory_bytes": {
+        "xip_free": 6172,
+        "pool_margin": 780,
+        "pool_reserve": 8192,
+        "pool_raw_free": 8972
+      },
+      "readback": {
+        "github_package_identical": true,
+        "github_blob_id": "e21fad9a16f89d46c50a56e95272689351ca74f4",
+        "app_identical": true,
+        "ota_identical": true,
+        "logical_blocks": 20
+      },
+      "all_four_outputs_match_prior": true,
+      "started_utc": "2026-11-21T13:08:46Z",
+      "finished_utc": "2026-11-21T13:11:02Z"
+    },
+    "pro": {
+      "command": "MODEL=pro ./build.sh",
+      "product": "SMK-37 Pro_900",
+      "native_build_exit": 0,
+      "package_test_exit": 0,
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546492,
+          "sha256": "4f17b107ed9b5c7bb0a6039cf00d342e01f6bded8140964daef86d994664e451"
+        },
+        "x0x.elf": {
+          "bytes": 634584,
+          "sha256": "1793a7b659459736215f1a4942da17ff0b89b33421c046e40b99963a176d571c"
+        },
+        "ota.bin": {
+          "bytes": 7614,
+          "sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5"
+        },
+        "x0x-smk37.fwsc": {
+          "bytes": 651730,
+          "sha256": "bcd5c17838935c8fe9bac33ad9861b3b19cae3b05492b2e07b376a1118c6fe8d"
+        }
+      },
+      "stock_memory_bytes": {
+        "xip_free": 6180,
+        "pool_margin": 780,
+        "pool_reserve": 8192,
+        "pool_raw_free": 8972
+      },
+      "readback": {
+        "github_package_identical": true,
+        "github_blob_id": "263a134391c127e25f0829324feb2a8a0793bfe7",
+        "app_identical": true,
+        "ota_identical": true,
+        "logical_blocks": 20
+      },
+      "all_four_outputs_match_prior": true,
+      "started_utc": "2026-11-21T13:11:02Z",
+      "finished_utc": "2026-11-21T13:15:15Z"
+    }
+  },
+  "combined_build_inputs_match_prior": {
+    "build.sh": "7d13fcb6c33cee8f8f58676a2ce5357f265ec7d7",
+    "firmware": "4f0bb9df6e55cbf38295132ba041b028417f8495",
+    "ble": "0d4304546a60f22a06271b22b4881f6304ad439c",
+    "experiments": "92ce2da841b9c24c24885c086a3f3212b3eadad3",
+    "assets": "160d68356fc165ac934d4891bad60fecb4b5db9d",
+    "tools": "3bd6b8b9b6930d45ff34bda0570d6e7ed1aa7fa1",
+    "reference": "92e242c69f647ea3e174dd8e07d07dfdf6632255",
+    "host": "f15571483bc5d821b081433f2b71433e1739bcb6"
+  },
+  "later_integration_head_check": {
+    "before": "2c16e15f4d3a6cc98f650b1eb8415899210182d1",
+    "after": "2d9f05d6b7368b9e240d3b019934ebf9c1efc080",
+    "after_tree": "2980a906c53b4befad7e6de8e60e08d120866e5e",
+    "changed_paths": [
+      "M\tdocs/lanes/integ.md",
+      "A\tevidence/integ-cloud-3c6a5a04/cloud-run-checkpoint.json"
+    ],
+    "matching_integration_inputs": {
+      "build.sh": "7d13fcb6c33cee8f8f58676a2ce5357f265ec7d7",
+      "firmware": "3a81c6fea62686041a2959fa06fd5189759d2eef",
+      "ble": "0d4304546a60f22a06271b22b4881f6304ad439c",
+      "experiments": "c7eb8703996eda5849db1b516759a2e5cb92a1da",
+      "assets": "c3f4f03b55dffddbc0f0de5f7e14fc5c62f81671",
+      "tools": "0990667da09769a02c8f86a285903cdaaf91b086",
+      "reference": "92e242c69f647ea3e174dd8e07d07dfdf6632255",
+      "host": "79483183292b47483b677767dc00ba4910a96a20"
+    },
+    "unchanged_sound_parent": "63278e3322aefa89b25f129ca2fccc35ef3b3b3d"
+  }
+}

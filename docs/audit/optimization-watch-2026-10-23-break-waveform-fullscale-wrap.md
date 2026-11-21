@@ -10,10 +10,10 @@ The synthetic extreme input is valid for the decoder's saturation arithmetic. **
 
 ## Exact source, ownership and reachability
 
-- Checked live production **`main@c9718ae833eb64a5191c350922593df8a36017c9`**; [`firmware/src/app/engine.c` lines 1042–1082](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L1042-L1082), Git blob `555480d9c81ca8b088842bfa6bac93e85865d49a`.
+- Checked live production **`main@c9718ae833eb64a5191c350922593df8a36017c9`**; [`firmware/src/app/engine.c` lines 1042–1082](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L1042-L1082), Git blob `555480d9c81ca8b088842bfa6bac93e85865d49a`.
 - The `engine_brk_outline()` code explicitly clamps negative decoded IMA values to **-32768**, accumulates positive absolute peak magnitude in signed 32-bit `pk`, and writes `(uint8_t)(pk >> 7)` at **both** intermediate and final column paths (lines 1072 and 1079). `32768 >> 7 == 256`; unsigned 8-bit narrowing maps 256 to zero. The opposite extreme +32767 maps to 255.
-- The live [BREAK UI](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/ui.c#L3567-L3591) requests `engine_brk_outline(0, ui.outline, 232)` and draws a column only when `h = ui.outline[x] * 26 / 255` is nonzero; `ui.c` Git blob `0c661c870f537348070fd3aaff665ced3bc97cd0`.
-- [`brk_bank_t`'s consumed layout](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/dsp/breaks.h#L44-L55) confirms the test stubs only the required `adpcm` and `n` fields; header blob `094af6650333e844311a8806145a6177a0318225`.
+- The live [BREAK UI](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/ui.c#L3567-L3591) requests `engine_brk_outline(0, ui.outline, 232)` and draws a column only when `h = ui.outline[x] * 26 / 255` is nonzero; `ui.c` Git blob `0c661c870f537348070fd3aaff665ced3bc97cd0`.
+- [`brk_bank_t`'s consumed layout](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/dsp/breaks.h#L44-L55) confirms the test stubs only the required `adpcm` and `n` fields; header blob `094af6650333e844311a8806145a6177a0318225`.
 - Searched open/closed repository PR titles for `outline`, `waveform`, `peak`, and `ADPCM`: no matching report/repair identified. Existing Bugfinder and DSP source branches remain independently owned. This report changes **no firmware/installer source**.
 
 ## Reproduction and actual native check exits

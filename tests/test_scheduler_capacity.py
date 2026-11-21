@@ -54,4 +54,35 @@ spawn(){ cls=$1;name=$2;key=$2;gw=$3;shift 3
  def test_old_order_mutant_demonstrates_starvation(self):
   e=self.run_case(True);self.assertGreater(e.index('P'),e.index('G1end'))
  def test_generation_failure_no_token_leak(self):self.assertEqual(self.run_case(gen_fail=True),['P'])
+ def test_generator_waiters_block_under_contention(self):
+  source = (HERE / 'run_tests.sh').read_text()
+  locks = source[source.index('gen_lock()'):source.index('asan_links()')]
+  script = """set -eu
+OUT=build/host
+mkdir -p "$OUT/iso"
+mkfifo generator
+exec 4<>generator
+echo >&4
+mkdir() {
+ if command mkdir "$@"; then return 0; fi
+ echo retry >> retries
+ return 1
+}
+""" + locks + """
+gen_lock
+for worker in 1 2 3 4 5 6 7 8; do
+ (touch "ready-$worker"; gen_lock; echo "$worker" >> finished; gen_unlock) &
+done
+while [ "$#" -ne 8 ]; do set -- ready-*; sleep .01; done
+sleep .35
+test ! -e finished
+gen_unlock
+wait
+test "$(sort -u finished | wc -l)" -eq 8
+if [ -e retries ]; then echo "generator lock polled mkdir $(wc -l < retries) times"; exit 1; fi
+"""
+  with tempfile.TemporaryDirectory() as directory:
+   result = subprocess.run(['sh', '-c', script], cwd=directory, capture_output=True,
+                           text=True, timeout=8)
+   self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 if __name__=='__main__':unittest.main()

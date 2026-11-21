@@ -1,0 +1,71 @@
+{
+  "fetched_utc": "2026-11-21T12:32:34.029203+00:00",
+  "readback": [
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br1-zone1",
+      "http_status": 200,
+      "sha256": "06ee634369363b5019453f66c9178f781e24371675636e47c66875bdf662187a",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br1-zone1.wav",
+      "http_status": 200,
+      "sha256": "06ee634369363b5019453f66c9178f781e24371675636e47c66875bdf662187a",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br1-zone2",
+      "http_status": 200,
+      "sha256": "b0f072a149e2dafe6c4bfe58ddb036c82a1beb04a7e96f397ee405248fabc514",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br1-zone2.wav",
+      "http_status": 200,
+      "sha256": "b0f072a149e2dafe6c4bfe58ddb036c82a1beb04a7e96f397ee405248fabc514",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br1-zone3",
+      "http_status": 200,
+      "sha256": "06d3cf354ce390e6656df07bee889ce8aff46c479a9edd2e3c752cdc6ea88845",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br1-zone3.wav",
+      "http_status": 200,
+      "sha256": "06d3cf354ce390e6656df07bee889ce8aff46c479a9edd2e3c752cdc6ea88845",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br2-zone1",
+      "http_status": 200,
+      "sha256": "acb6d13f270ac562b0be0819b3e3f56b31d406281c841fe08c18284432804661",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br2-zone1.wav",
+      "http_status": 200,
+      "sha256": "acb6d13f270ac562b0be0819b3e3f56b31d406281c841fe08c18284432804661",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br2-zone2",
+      "http_status": 200,
+      "sha256": "3ea78e9a407e1c8e0b45e8979d2ba43efaabc2de8e82098c901fd69e90ad2cf1",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br2-zone2.wav",
+      "http_status": 200,
+      "sha256": "3ea78e9a407e1c8e0b45e8979d2ba43efaabc2de8e82098c901fd69e90ad2cf1",
+      "pass": true
+    },
+    {
+      "url": "https://gobbajogger.github.io/DnBOX-nightly/private-audio/personal-br2-zone3",
+      "http_status": 404,
+      "sha256": null,
+      "pass": true
+    }
+  ]
+}

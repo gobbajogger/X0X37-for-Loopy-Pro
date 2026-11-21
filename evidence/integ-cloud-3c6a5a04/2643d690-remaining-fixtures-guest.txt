@@ -1,0 +1,91 @@
+[    0.044000] ..MP-BIOS bug: 8254 timer not connected to IO-APIC
+Linux (none) 6.12.117+deb13-cloud-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.117-1 (2026-11-12) x86_64 GNU/Linux
+BEGIN breaks-silent-skip-retained
+breaks_silent_skip: ok
+REMAINDER breaks-silent-skip-retained exit=0
+BEGIN sound-reset-retained
+sound-reset: ok
+REMAINDER sound-reset-retained exit=0
+BEGIN panic-notes
+panic notes: 142 checks, 0 failures
+panic notes: 142 checks, 0 failures
+REMAINDER panic-notes exit=0
+BEGIN drum-fill
+drum fill: 100 checks
+drum fill: 100 checks
+REMAINDER drum-fill exit=0
+BEGIN sound-reset
+sound-reset: ok
+sound-reset: ok
+sound-reset mutant: pan failed as required
+sound-reset mutant: last failed as required
+sound-reset mutant: tag failed as required
+sound-reset mutant: restore failed as required
+sound-reset: ok
+REMAINDER sound-reset exit=0
+BEGIN optimization-equivalence
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/lz_max_match_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/lz-max-match
+CHECK build/optimization-equivalence/lz-max-match
+  ok empty                             0 ->      0
+  ok one byte                          1 ->      2
+  ok zeros                         30000 ->    695
+  ok random (incompressible)       30000 ->  30235
+  ok random, near the limit        60000 ->  60474
+  ok small alphabet 1..399           399 ->    336
+  ok structured                    30000 ->   1265
+lz: all ok
+lz maximum-match differential: 20300 cases ok
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/undo_word_scan_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/undo-word-scan
+CHECK build/optimization-equivalence/undo-word-scan
+GREEN undo-word-scan: bit-identical undo entries (2107 cases)
+CHECK sh tests/host/breaks_silent_skip_test.sh
+breaks_silent_skip: ok
+breaks_silent_skip: ok
+CHECK sh tests/host/clip_latency_equivalence_test.sh
+PASS: 20459520 key cases; counts and all output bytes equal; raw path calls no helpers
+PASS: 414720 arp cases; list/event/state bytes equal; max 4 expansions saved
+CHECK sh tests/host/run_project_stream_copy.sh
+GREEN project-stream-copy: bit-identical save_stream output (274 chunk cases, 15 projects)
+CHECK python3 tests/host/run_a3_dsp_equivalence.py master
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-tmv164e_ -O0 -Dmaster_comp1_pots=reference_master_comp1_pots -Dmaster_djf_pots=reference_master_djf_pots -Dmaster_format=reference_master_format -Dmaster_get=reference_master_get -Dmaster_init=reference_master_init -Dmaster_key=reference_master_key -Dmaster_nparams=reference_master_nparams -Dmaster_param=reference_master_param -Dmaster_process=reference_master_process -Dmaster_process_st=reference_master_process_st -Dmaster_set=reference_master_set -c /tmp/a3-master-tmv164e_/reference.c -o /tmp/a3-master-tmv164e_/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-tmv164e_ -O0 -c /tmp/a3-master-tmv164e_/candidate.c -o /tmp/a3-master-tmv164e_/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-tmv164e_ -O0 tests/host/a3_master_equivalence_test.c /tmp/a3-master-tmv164e_/ref.o /tmp/a3-master-tmv164e_/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-master-tmv164e_/test
+/tmp/a3-master-tmv164e_/test
+master state/audio silence-tail-restart equivalence: PASS
+master -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-tmv164e_ -O2 -Dmaster_comp1_pots=reference_master_comp1_pots -Dmaster_djf_pots=reference_master_djf_pots -Dmaster_format=reference_master_format -Dmaster_get=reference_master_get -Dmaster_init=reference_master_init -Dmaster_key=reference_master_key -Dmaster_nparams=reference_master_nparams -Dmaster_param=reference_master_param -Dmaster_process=reference_master_process -Dmaster_process_st=reference_master_process_st -Dmaster_set=reference_master_set -c /tmp/a3-master-tmv164e_/reference.c -o /tmp/a3-master-tmv164e_/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-tmv164e_ -O2 -c /tmp/a3-master-tmv164e_/candidate.c -o /tmp/a3-master-tmv164e_/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-tmv164e_ -O2 tests/host/a3_master_equivalence_test.c /tmp/a3-master-tmv164e_/ref.o /tmp/a3-master-tmv164e_/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-master-tmv164e_/test
+/tmp/a3-master-tmv164e_/test
+master state/audio silence-tail-restart equivalence: PASS
+master -O2: PASS
+CHECK python3 tests/host/run_a3_dsp_equivalence.py drum808
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-drum808-60qz11je -O0 -Ddrum808_active=reference_drum808_active -Ddrum808_env=reference_drum808_env -Ddrum808_get=reference_drum808_get -Ddrum808_init=reference_drum808_init -Ddrum808_nparams=reference_drum808_nparams -Ddrum808_pan_settle=reference_drum808_pan_settle -Ddrum808_param=reference_drum808_param -Ddrum808_param_si=reference_drum808_param_si -Ddrum808_quiet=reference_drum808_quiet -Ddrum808_render=reference_drum808_render -Ddrum808_render_st=reference_drum808_render_st -Ddrum808_render_st_masked=reference_drum808_render_st_masked -Ddrum808_set=reference_drum808_set -Ddrum808_trigger=reference_drum808_trigger -c /tmp/a3-drum808-60qz11je/reference.c -o /tmp/a3-drum808-60qz11je/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-drum808-60qz11je -O0 -c /tmp/a3-drum808-60qz11je/candidate.c -o /tmp/a3-drum808-60qz11je/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-drum808-60qz11je -O0 tests/host/a3_drum808_equivalence_test.c /tmp/a3-drum808-60qz11je/ref.o /tmp/a3-drum808-60qz11je/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-drum808-60qz11je/test
+/tmp/a3-drum808-60qz11je/test
+808 threshold/state/audio silence-tail-restart equivalence: PASS
+drum808 -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-drum808-60qz11je -O2 -Ddrum808_active=reference_drum808_active -Ddrum808_env=reference_drum808_env -Ddrum808_get=reference_drum808_get -Ddrum808_init=reference_drum808_init -Ddrum808_nparams=reference_drum808_nparams -Ddrum808_pan_settle=reference_drum808_pan_settle -Ddrum808_param=reference_drum808_param -Ddrum808_param_si=reference_drum808_param_si -Ddrum808_quiet=reference_drum808_quiet -Ddrum808_render=reference_drum808_render -Ddrum808_render_st=reference_drum808_render_st -Ddrum808_render_st_masked=reference_drum808_render_st_masked -Ddrum808_set=reference_drum808_set -Ddrum808_trigger=reference_drum808_trigger -c /tmp/a3-drum808-60qz11je/reference.c -o /tmp/a3-drum808-60qz11je/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-drum808-60qz11je -O2 -c /tmp/a3-drum808-60qz11je/candidate.c -o /tmp/a3-drum808-60qz11je/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-drum808-60qz11je -O2 tests/host/a3_drum808_equivalence_test.c /tmp/a3-drum808-60qz11je/ref.o /tmp/a3-drum808-60qz11je/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-drum808-60qz11je/test
+/tmp/a3-drum808-60qz11je/test
+808 threshold/state/audio silence-tail-restart equivalence: PASS
+drum808 -O2: PASS
+CHECK python3 tests/host/run_a3_dsp_equivalence.py fxbus
+python3 tools/gen_drum_samples.py /tmp/a3-fxbus-ujjpz2_z/x0x_drum_samples.h
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves lossless-predictor 9728->1387 B -> x0x_drum_tables.h
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-ujjpz2_z -O0 -Dfxbus_get=reference_fxbus_get -Dfxbus_init=reference_fxbus_init -Dfxbus_nparams=reference_fxbus_nparams -Dfxbus_param=reference_fxbus_param -Dfxbus_param_si=reference_fxbus_param_si -Dfxbus_process=reference_fxbus_process -Dfxbus_process_st=reference_fxbus_process_st -Dfxbus_set=reference_fxbus_set -Dfxbus_set_bpm=reference_fxbus_set_bpm -c /tmp/a3-fxbus-ujjpz2_z/reference.c -o /tmp/a3-fxbus-ujjpz2_z/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-ujjpz2_z -O0 -c /tmp/a3-fxbus-ujjpz2_z/candidate.c -o /tmp/a3-fxbus-ujjpz2_z/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-ujjpz2_z -O0 tests/host/a3_fxbus_equivalence_test.c /tmp/a3-fxbus-ujjpz2_z/ref.o /tmp/a3-fxbus-ujjpz2_z/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-fxbus-ujjpz2_z/test
+/tmp/a3-fxbus-ujjpz2_z/test
+FX bus state/line/audio silence-tail-restart equivalence: PASS
+fxbus -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-ujjpz2_z -O2 -Dfxbus_get=reference_fxbus_get -Dfxbus_init=reference_fxbus_init -Dfxbus_nparams=reference_fxbus_nparams -Dfxbus_param=reference_fxbus_param -Dfxbus_param_si=reference_fxbus_param_si -Dfxbus_process=reference_fxbus_process -Dfxbus_process_st=reference_fxbus_process_st -Dfxbus_set=reference_fxbus_set -Dfxbus_set_bpm=reference_fxbus_set_bpm -c /tmp/a3-fxbus-ujjpz2_z/reference.c -o /tmp/a3-fxbus-ujjpz2_z/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-ujjpz2_z -O2 -c /tmp/a3-fxbus-ujjpz2_z/candidate.c -o /tmp/a3-fxbus-ujjpz2_z/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-ujjpz2_z -O2 tests/host/a3_fxbus_equivalence_test.c /tmp/a3-fxbus-ujjpz2_z/ref.o /tmp/a3-fxbus-ujjpz2_z/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-fxbus-ujjpz2_z/test
+/tmp/a3-fxbus-ujjpz2_z/test
+FX bus state/line/audio silence-tail-restart equivalence: PASS
+fxbus -O2: PASS
+CHECK sh tests/host/master_idle_identity_test.sh build/optimization-equivalence/master-idle
+Master idle identity PASS: silence, tail, volume slew, filter/comp/pump, limiter, restart; all state/audio bytes equal

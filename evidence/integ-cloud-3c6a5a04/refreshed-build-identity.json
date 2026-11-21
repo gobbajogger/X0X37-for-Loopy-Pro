@@ -1,0 +1,36 @@
+{
+  "elite": {
+    "inputs": {
+      "app": {
+        "bytes": 546500,
+        "sha256": "4796c95c61ffea4215c2a57d01e8151d850d7c9a99fbb35c725abb6e35e77b24"
+      },
+      "elf": {
+        "bytes": 634588,
+        "sha256": "ef80c69d375c33853858966c890b2945edd1e11ae72ed366b90df6eb60805b40"
+      },
+      "fwsc": {
+        "bytes": 651732,
+        "sha256": "19248494a8af9a4525aa83ee81e518e2ef137bee7a6f2f403ae5d53a3d46ebe6"
+      }
+    },
+    "all_native_bytes_match_preceding_build": true
+  },
+  "pro": {
+    "inputs": {
+      "app": {
+        "bytes": 546492,
+        "sha256": "4f17b107ed9b5c7bb0a6039cf00d342e01f6bded8140964daef86d994664e451"
+      },
+      "elf": {
+        "bytes": 634584,
+        "sha256": "1793a7b659459736215f1a4942da17ff0b89b33421c046e40b99963a176d571c"
+      },
+      "fwsc": {
+        "bytes": 651730,
+        "sha256": "bcd5c17838935c8fe9bac33ad9861b3b19cae3b05492b2e07b376a1118c6fe8d"
+      }
+    },
+    "all_native_bytes_match_preceding_build": true
+  }
+}

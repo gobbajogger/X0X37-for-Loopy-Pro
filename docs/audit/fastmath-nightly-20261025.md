@@ -16,7 +16,7 @@ No polynomial, clamping, DSP algorithm, SMC source, or controller source changes
 - Reviewed source/test commit: `6eddf7f7233eb7bd18133e312e16fa41dc4b41ed`.
   Root tree `232524cabe9ec8c8f6e4daf7255dc301c0209919`;
   firmware tree `7136e814b39db845b1f6946b4349933615833f2e`.
-- [Original PR28](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/28)
+- [Original PR28](https://github.com/gobbajogger/DnBOX/pull/28)
   remains open and draft at `832f8dbb0655cba8b9fd512be34c1e89ace185aa`,
   targeting old overlay branch `lane/smc-peek-overlay-guard-20261023`
   at `2b310479c73c1c7dad8feb64c94109fd757c6110`.
@@ -149,5 +149,5 @@ and several SMC tests changed, so the 14-suite and 191-check evidence above rema
 at the reviewed source commit, not the newly combined SMC tree. Integration owner
 `01a1720a` must run applicable combined-source checks before the combined native
 build. The isolated source branch intentionally does not import PR160 or old PR28
-SMC ancestry. [Draft PR161](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/161)
+SMC ancestry. [Draft PR161](https://github.com/gobbajogger/DnBOX/pull/161)
 provides the replacement; original PR28 remains open.

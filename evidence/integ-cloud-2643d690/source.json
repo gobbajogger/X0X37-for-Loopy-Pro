@@ -1,0 +1,36 @@
+{
+  "base": "402576cd6303a3f1b60e98b1aac2f0769f9432f3",
+  "integ": "8911d62c6d1ea5f95fe043bf7681a10ef82b85f9",
+  "sound": "e54266813039f5d23dcd4d834ea0ca16f4487d9f",
+  "fwui": "b7b91c8b78f572bf69dacc74eabc97ff92879187",
+  "updates": {
+    "sound": {
+      "from": "4c1f758931f4c57381ccfde22ed46abc60c0d591",
+      "to": "e54266813039f5d23dcd4d834ea0ca16f4487d9f",
+      "patch_sha256": "6410f9d604a72da65752e81b4f39a5ec45f74929dba08e0f49c049767b574fb2",
+      "paths": [
+        "experiments/sound-hardware-v1/sj6-factory/native/README.md",
+        "experiments/sound-hardware-v1/sj6-factory/native/results.json",
+        "experiments/sound-hardware-v1/sj6-factory/native/score_scene.py",
+        "experiments/sound-hardware-v1/strict-timing/replay.py",
+        "experiments/sound-hardware-v1/strict-timing/test_replay.py"
+      ]
+    },
+    "fwui": {
+      "from": "a0d49bb8ef6abe20e99ca5eb50b9f638bf1aaa9a",
+      "to": "b7b91c8b78f572bf69dacc74eabc97ff92879187",
+      "patch_sha256": "d087d011c49f7f857ee8c6d06c995ebf9d3933cbecb624bb14926c8595c4d09b",
+      "paths": [
+        "firmware/src/app/ui.c",
+        "firmware/src/dsp/original_backend_pitch.h",
+        "firmware/src/dsp/original_chicago_backend.c",
+        "firmware/src/dsp/original_miami_backend.c"
+      ]
+    }
+  },
+  "application": "diagnostic production-source patch composition; no new commit or branch",
+  "tree": "12266ef6a63c55c1a3d0058714d2f69afe73bf89",
+  "firmware_tree": "a659963e8c444abe26983e82e1c9d2dd4c96c188",
+  "verified_paths": 1932,
+  "conflicts": 0
+}

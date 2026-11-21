@@ -1,0 +1,64 @@
+{
+  "commit": "45b09b2deffd4a03d8cfe390a92fa1ca5ef163bd",
+  "tree": "82ff730f7f9cd5d4c5abb98e7df8b2886dc02083",
+  "parents": [
+    "711df7b3c416ddea7649242fc9a328ce974599f8",
+    "2fe5930c161a30c907a4b91991ab3c9724380b10"
+  ],
+  "FWUI": "9dd6f2df020340f7a82ab241ef07c6ec16195ebc",
+  "base": "468744971720a81a536308e3bd84bd8766a5ed0f",
+  "models": {
+    "elite": {
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546468,
+          "sha256": "1bfe6ebdab3250053eb55486663f6af8fa3dd945732d2308201ff1814edfcc65"
+        },
+        "x0x.elf": {
+          "bytes": 634472,
+          "sha256": "9c3f54b53ceac680aef213367487dc4b0475aa65a22c8fdee1c65548d66c0547"
+        },
+        "ota.bin": {
+          "bytes": 7616,
+          "sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03"
+        },
+        "x0x-smk37-elite.fwsc": {
+          "bytes": 651732,
+          "sha256": "765777742a9cf6b0dac086c0ddd248b9037b661a42100c8bfd1c869d69e7b67d"
+        }
+      },
+      "memory_bytes": {
+        "XIP free": 6204,
+        "pool margin": 832,
+        "pool reserve": 8192,
+        "pool raw free": 9024
+      }
+    },
+    "pro": {
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546460,
+          "sha256": "bd44e4757ad29c16d91c6999fe5208470c205a9fb65dca65cd34db7555003ff7"
+        },
+        "x0x.elf": {
+          "bytes": 634468,
+          "sha256": "5e499d61dfa7f75d39765940a1aaf7ef09b3eaeb232d93e1918bfd917af9f734"
+        },
+        "ota.bin": {
+          "bytes": 7614,
+          "sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5"
+        },
+        "x0x-smk37.fwsc": {
+          "bytes": 651730,
+          "sha256": "c67d8c231bd45b9581da67fe508ddf7142a4f1c26ef1eecfb921d25c04475bc6"
+        }
+      },
+      "memory_bytes": {
+        "XIP free": 6212,
+        "pool margin": 832,
+        "pool reserve": 8192,
+        "pool raw free": 9024
+      }
+    }
+  }
+}

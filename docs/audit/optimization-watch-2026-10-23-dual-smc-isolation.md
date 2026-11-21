@@ -2,8 +2,8 @@
 
 **Date:** 2026-10-23 · **Scope:** audit only, no firmware/installer changes.
 
-**Current main:** [`c9718ae8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c9718ae833eb64a5191c350922593df8a36017c9).
-**Examined proposal:** [PR #18](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18) at [`d29f365d`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/d29f365df8b60436749b6712ca9d605d2f912708), not yet in main.
+**Current main:** [`c9718ae8`](https://github.com/gobbajogger/DnBOX/commit/c9718ae833eb64a5191c350922593df8a36017c9).
+**Examined proposal:** [PR #18](https://github.com/gobbajogger/DnBOX/pull/18) at [`d29f365d`](https://github.com/gobbajogger/DnBOX/commit/d29f365df8b60436749b6712ca9d605d2f912708), not yet in main.
 
 ## Executive summary
 
@@ -16,9 +16,9 @@ An exact-source, sanitizer-enabled C experiment shows that the proposed second S
 
 ## Evidence
 
-- [PR #18 input queue and producer](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L7-L23) and [slot-tagged enqueue](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L48-L64) show a **shared** `smc_q` and a capacity test against `SMC_Q=32`, without per-slot reserves.
-- [PR #18 dispatch](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L538-L598) routes each queued event to its slot; [Solo release handling](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L486-L491) needs the Note Off to reach dispatch.
-- [PR #18 reachability checks](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d29f365df8b60436749b6712ca9d605d2f912708/tests/host/smc_reachability_test.c#L209-L248) exercise an overflow and two SMC state records **separately**, not a one-SMC-flood/other-SMC-release interleaving.
+- [PR #18 input queue and producer](https://github.com/gobbajogger/DnBOX/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L7-L23) and [slot-tagged enqueue](https://github.com/gobbajogger/DnBOX/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L48-L64) show a **shared** `smc_q` and a capacity test against `SMC_Q=32`, without per-slot reserves.
+- [PR #18 dispatch](https://github.com/gobbajogger/DnBOX/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L538-L598) routes each queued event to its slot; [Solo release handling](https://github.com/gobbajogger/DnBOX/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L486-L491) needs the Note Off to reach dispatch.
+- [PR #18 reachability checks](https://github.com/gobbajogger/DnBOX/blob/d29f365df8b60436749b6712ca9d605d2f912708/tests/host/smc_reachability_test.c#L209-L248) exercise an overflow and two SMC state records **separately**, not a one-SMC-flood/other-SMC-release interleaving.
 - **Exact source identity:** PR #18's `smc_mixer.c` Git blob `2405976eb2842f4a26a0cb2b0c3dbe91027c21cb`; the extracted 472-character `smc_ble_midi_slot()` function has FNV-1a32 `32149eda` (checked before compilation).
 - **Host runner:** Linux x86_64; GCC 14.2.0, `-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -Wall -Wextra -Werror`.
 - **Forced input:** slot 1 queues `90 08 7F` (Solo press); slot 0 queues 31 CC events; slot 1 then sends `80 08 00` (Solo release) without a consumer drain.
@@ -87,8 +87,8 @@ PY
 
 ## Merge-specific project-reset risk (not a merged-build finding)
 
-- [Current main's project-drop guard](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L77-L92) sets `smc_qr=smc_qw`; [main dispatch](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L581-L626) takes a local copy and releases the slot *before* processing a message.
-- [PR #18 dispatch](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L569-L579) instead advances `smc_qr` *after* processing `smc_message()` and omits the newer project's busy/reset functions (its base diverges from main).
+- [Current main's project-drop guard](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L77-L92) sets `smc_qr=smc_qw`; [main dispatch](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L581-L626) takes a local copy and releases the slot *before* processing a message.
+- [PR #18 dispatch](https://github.com/gobbajogger/DnBOX/blob/d29f365df8b60436749b6712ca9d605d2f912708/firmware/src/app/smc_mixer.c#L569-L579) instead advances `smc_qr` *after* processing `smc_message()` and omits the newer project's busy/reset functions (its base diverges from main).
 - A small bounded C model with `write=3`, an action that sets `read=write`, and a delayed `read=old_read+1` reports **2 invalidated entries visible again** versus **0** with main's ordering. The model is a conditional integration counterexample, not an execution of a merged firmware.
 
 ## Safe follow-up
@@ -99,4 +99,4 @@ PY
 
 ## Disposition
 
-**Research evidence checked; device behavior untested.** No CI pass, firmware target build, sample backup/write, merge or `gh-pages` publication is claimed for this audit. [PR #28](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/28) owns a separate DSP undefined-shift sanitizer repair; [PR #26](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/26) and [PR #27](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/27) own unrelated bugfinder/installer research. This report changes only independent Markdown evidence and does not authorize a code patch or bypass the firmware integrator.
+**Research evidence checked; device behavior untested.** No CI pass, firmware target build, sample backup/write, merge or `gh-pages` publication is claimed for this audit. [PR #28](https://github.com/gobbajogger/DnBOX/pull/28) owns a separate DSP undefined-shift sanitizer repair; [PR #26](https://github.com/gobbajogger/DnBOX/pull/26) and [PR #27](https://github.com/gobbajogger/DnBOX/pull/27) own unrelated bugfinder/installer research. This report changes only independent Markdown evidence and does not authorize a code patch or bypass the firmware integrator.

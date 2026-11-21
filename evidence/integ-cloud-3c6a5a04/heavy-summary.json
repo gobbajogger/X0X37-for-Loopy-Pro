@@ -1,0 +1,42 @@
+{
+  "tree": "3c6a5a0478cd482aa61bdfe45c4e13298b7abeea",
+  "clock": "CLOCK_THREAD_CPUTIME_ID",
+  "cpu_affinity": [
+    8
+  ],
+  "deadline_us": 11609,
+  "all": {
+    "cases": 32,
+    "blocks": 32768,
+    "CPU_misses": 88,
+    "wall_misses": 819,
+    "CPU_peak_us": 102843.648,
+    "wall_peak_us": 157731.826
+  },
+  "sweeps": {
+    "1": {
+      "cases": 16,
+      "blocks": 16384,
+      "CPU_misses": 22,
+      "wall_misses": 283,
+      "CPU_peak_us": 68869.874,
+      "wall_peak_us": 73601.411
+    },
+    "2": {
+      "cases": 16,
+      "blocks": 16384,
+      "CPU_misses": 66,
+      "wall_misses": 536,
+      "CPU_peak_us": 102843.648,
+      "wall_peak_us": 157731.826
+    }
+  },
+  "negative_control_exit": 3,
+  "negative_audible_mask": 23,
+  "compiled_runner_sha256": "d701412905bad584ed9ace89d370ecde6cf14a816ac0ab06c2673e98d22514bd",
+  "checked_stock_header_sha256": "b114be3c1c1f2019f6b920a732a17d4ce47ba203ac3505a93c65c67da1e2a3f0",
+  "identical_to_12266ef6": {
+    "audio.i32": 32,
+    "peak-scope.bin": 32
+  }
+}

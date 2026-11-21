@@ -4,7 +4,7 @@
 **Integration base:** `wip/one-build@cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`
 **Proposed code HEAD before this evidence note:** `ccc073071c653295ad917f49ea7939408c6a0b8a`
 **Current code tree before this note:** `d1f84cebbcc4b5bb90d21083331a5bf70ce9b87d`
-**PR:** [#715](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/715)
+**PR:** [#715](https://github.com/gobbajogger/DnBOX/pull/715)
 
 ## Executed exact-scope tests
 

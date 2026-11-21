@@ -2,7 +2,7 @@
 
 **State: INCOMPLETE.** This is a source-and-test checkpoint, not an exact-HEAD full-suite or firmware-build PASS.
 
-- Repository: `gobbajogger/X0X37-for-Loopy-Pro`; existing draft PR [#708](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/708).
+- Repository: `gobbajogger/X0X37-for-Loopy-Pro`; existing draft PR [#708](https://github.com/gobbajogger/DnBOX/pull/708).
 - Isolated branch: `chat/guards-slots`; stage input head: `bb8f0d262feace536f63a5e6f190ff476250d69d`.
 - **Base**: `wip/one-build` at `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`.
 - Scope: Chicago/Miami original engines, stable 303 slots, project revision 13 only. No main/nightly merge, firmware publish or device operation.

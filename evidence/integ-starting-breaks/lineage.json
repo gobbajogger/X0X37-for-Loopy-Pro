@@ -1,0 +1,22 @@
+{
+  "combined": "bbef756236ddf54cebaf8ccf9071b8975e7e8839",
+  "tree": "b469f59b5bbeb963e6d4ec899d03399fabb6fc71",
+  "parents": [
+    "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54",
+    "f013ecc653f2b9f0006e976a1097250e9356ce14"
+  ],
+  "integrationBase": "468744971720a81a536308e3bd84bd8766a5ed0f",
+  "mergesVerified": 16,
+  "allLedgerMergesInBase": true,
+  "fwuiInTree": true,
+  "missingFromParents": {
+    "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54": [],
+    "f013ecc653f2b9f0006e976a1097250e9356ce14": []
+  },
+  "inputRetention": {
+    "468744971720a81a536308e3bd84bd8766a5ed0f": true,
+    "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54": true,
+    "f013ecc653f2b9f0006e976a1097250e9356ce14": true
+  },
+  "combinedFiles": 6949
+}

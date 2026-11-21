@@ -5,9 +5,9 @@ LX-REQ-028 in tracker commit `ce8bfd4a40179590485ecf35e6bb0be2d652e602`.
 Inspected NIGHTLY source: `58e2c5205a02836df678083eaa8db9994b6192e8`.
 This is source reconciliation and a bounded legacy-load repair, not delivery of
 new reset/save/load/export systems or device qualification. Issues
-[#2](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2),
-[#3](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/3) and
-[#4](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/4) were read in full.
+[#2](https://github.com/gobbajogger/DnBOX/issues/2),
+[#3](https://github.com/gobbajogger/DnBOX/issues/3) and
+[#4](https://github.com/gobbajogger/DnBOX/issues/4) were read in full.
 Their original source audits are not implementation receipts.
 
 ## Existing functionality

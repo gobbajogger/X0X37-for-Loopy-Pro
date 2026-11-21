@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23 · **Scope:** documentation-only, source-backed transport audit.
 
-**Reviewed live source:** [`main@c9718ae8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c9718ae833eb64a5191c350922593df8a36017c9).
+**Reviewed live source:** [`main@c9718ae8`](https://github.com/gobbajogger/DnBOX/commit/c9718ae833eb64a5191c350922593df8a36017c9).
 **Finding status:** SOURCE CONFIRMED / FORCED HOST REPRODUCED. Hardware incidence and performance impact UNTESTED.
 
 ## Executive summary
@@ -19,13 +19,13 @@ This is distinct from the previously reported 64-message peripheral BLE mirror o
 
 ## Immutable source evidence
 
-- [Send callback contract](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.h#L30-L36) specifies return `0` when sent; the firmware's [actual callback](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L101-L106) returns `xb_frame_put()`.
-- [Mailbox producer](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/hal/x0x_ble_abi.h#L85-L141) is finite (1,024-byte ring), with `xb_frame_put()` returning `-1` when there is insufficient space.
-- [L2CAP send](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L111-L125) decrements `h->credits` before calling `h->send()` and discards the return value.
-- [MIDI notification queue drain](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L551-L589) increments `h->q_r` for messages added to a pending notification **before** sending the assembled frame.
-- [SysEx packet assembler](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L520-L538) advances its stream position and completion state ahead of the transport call.
-- [HCI command helper](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L52-L62) marks `cmd_wait` and does not inspect a failed send.
-- [Original host regression](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/tests/ble_test.c#L103-L109) uses a send callback that always returns success, so this negative condition is outside that test's documented coverage.
+- [Send callback contract](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.h#L30-L36) specifies return `0` when sent; the firmware's [actual callback](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble.c#L101-L106) returns `xb_frame_put()`.
+- [Mailbox producer](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/hal/x0x_ble_abi.h#L85-L141) is finite (1,024-byte ring), with `xb_frame_put()` returning `-1` when there is insufficient space.
+- [L2CAP send](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L111-L125) decrements `h->credits` before calling `h->send()` and discards the return value.
+- [MIDI notification queue drain](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L551-L589) increments `h->q_r` for messages added to a pending notification **before** sending the assembled frame.
+- [SysEx packet assembler](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L520-L538) advances its stream position and completion state ahead of the transport call.
+- [HCI command helper](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L52-L62) marks `cmd_wait` and does not inspect a failed send.
+- [Original host regression](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/tests/ble_test.c#L103-L109) uses a send callback that always returns success, so this negative condition is outside that test's documented coverage.
 
 **Exact source Git blobs independently compared with the working source files** (not a claim of complete-main checkout equivalence):
 

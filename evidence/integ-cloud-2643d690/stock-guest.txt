@@ -1,0 +1,23 @@
+[    0.024000] ..MP-BIOS bug: 8254 timer not connected to IO-APIC
+Linux (none) 6.12.117+deb13-cloud-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.117-1 (2026-11-12) x86_64 GNU/Linux
+uid=1000 gid=1000
+cc (Debian 14.2.0-19) 14.2.0
+
+=================================================================
+==146==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 123 byte(s) in 1 object(s) allocated from:
+    #0 0x7fc442816c25 in malloc ../../../../src/libsanitizer/lsan/lsan_interceptors.cpp:75
+    #1 0x55c3af66914a in main (/work/lsan1+0x114a) (BuildId: 80b9fb48bc1b65c34e191a10ec4af64ec54f348b)
+    #2 0x7fc442635ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+
+SUMMARY: LeakSanitizer: 123 byte(s) leaked in 1 allocation(s).
+CLEAN=0 LEAK=23
+program values: 1614 B + names 399 B; raw values/names3784 B; all words exact
+PASS genuine 123-byte LeakSanitizer negative control rejected
+PASS compact program metadata: 796 exact binary32/name checks
+PASS compact program metadata: 796 exact binary32/name checks
+PASS metadata corruption negative control rejected
+COMPACT=0
+DNBOX_GUEST_RESULT=0
+[  135.234242] reboot: Power down

@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-**Source reviewed:** [`main` at `c9718ae`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c9718ae833eb64a5191c350922593df8a36017c9).
+**Source reviewed:** [`main` at `c9718ae`](https://github.com/gobbajogger/DnBOX/commit/c9718ae833eb64a5191c350922593df8a36017c9).
 **Targets affected by future shared-firmware patches:** SMK-37 Pro and Elite.
 
 The current code already has dual-core audio rendering, silence fast paths, an overload
@@ -23,13 +23,13 @@ These are **investigation candidates, not confirmed defects or proposed patches*
 
 ### 1. Audio command backlog — investigate first
 
-- **Observed:** [`engine.c`, command ring](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L130-L146)
-  uses `CQ = 1024`. [`drain()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L643-L668)
+- **Observed:** [`engine.c`, command ring](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L130-L146)
+  uses `CQ = 1024`. [`drain()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L643-L668)
   consumes pending command entries until read catches up with write. The queue is finite;
   **this is not an infinite loop finding**. A large queued parameter burst may still
   consume variable render time.
-- **Deadline context:** [`engine_render()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L889-L927)
-  calls `drain()`; [`render_block()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/main_fm1.c#L9-L81)
+- **Deadline context:** [`engine_render()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c#L889-L927)
+  calls `drain()`; [`render_block()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/main_fm1.c#L9-L81)
   renders 512-frame audio DMA halves as two 256-frame calls.
 - **Probe:** record max queue occupancy, command types, time spent draining,
   maximum render-half duration and audio XRUN count under realistic controller floods.
@@ -40,9 +40,9 @@ These are **investigation candidates, not confirmed defects or proposed patches*
 
 ### 2. BLE-central feedback batching — investigate after active SMC work
 
-- **Observed:** [`blec_poll()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_central.c#L594-L655)
+- **Observed:** [`blec_poll()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_central.c#L594-L655)
   sends one queued MIDI message per ATT Write Command when connected and credited.
-  The [peripheral BLE-MIDI path](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L551-L589)
+  The [peripheral BLE-MIDI path](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_host.c#L551-L589)
   already packs multiple MIDI messages into a notification, so that path must not
   be treated as missing batching.
 - **Probe:** capture real SMC LED/fader feedback bursts, elapsed send time,
@@ -50,18 +50,18 @@ These are **investigation candidates, not confirmed defects or proposed patches*
 - **Possible experiment:** group complete timestamped BLE-MIDI messages within
   negotiated ATT/ACL and controller credit limits; preserve message ordering and
   correct parsing under fragmentation, reconnect, pause/page-lock and link loss.
-- **Ownership guard:** [PR #18](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18)
+- **Ownership guard:** [PR #18](https://github.com/gobbajogger/DnBOX/pull/18)
   already owns dual-SMC/page-lock changes; inspect its tip and coordinate with the
   designated integration owner. Do not modify that live branch from this report lane.
 - **Status:** SOURCE CONFIRMED / BOTTLENECK UNTESTED.
 
 ### 3. SMC ingress and pad-feedback cost — measure, do not guess
 
-- **SMC:** [`smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L7-L29)
+- **SMC:** [`smc_mixer.c`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L7-L29)
   defines a 32-entry receive queue and enqueued/dropped/dispatched diagnostic bytes;
-  [`smc_poll()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L581-L653)
+  [`smc_poll()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L581-L653)
   consumes queued messages in a bounded batch. Use counters with actual MIDI captures.
-- **Pads:** [`padled_flush()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/lcd.c#L169-L218)
+- **Pads:** [`padled_flush()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/lcd.c#L169-L218)
   is change-gated but performs a blocking LED transfer, described in the code as
   approximately 0.8 ms. Measure UI activity effects before altering the transfer path.
 - **Status:** SOURCE CONFIRMED / DEVICE IMPACT UNTESTED.
@@ -88,13 +88,13 @@ These are **investigation candidates, not confirmed defects or proposed patches*
 
 ## Previously implemented work / coordination
 
-- [`docs/plans/2026-10-04-performance.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/docs/plans/2026-10-04-performance.md#L72-L115)
+- [`docs/plans/2026-10-04-performance.md`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/docs/plans/2026-10-04-performance.md#L72-L115)
   records earlier silent-part, master and DSP-maths optimizations.
-- [`docs/plans/2026-10-04-dual-core-and-clock.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/docs/plans/2026-10-04-dual-core-and-clock.md#L1-L35)
+- [`docs/plans/2026-10-04-dual-core-and-clock.md`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/docs/plans/2026-10-04-dual-core-and-clock.md#L1-L35)
   contains **historical FM-1** dual-core measurements; not a current Pro/Elite benchmark.
-- Active owner work: [PR #18](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18)
-  (dual-SMC), [PR #19](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19)
-  (popup guard), [PR #20](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/20)
+- Active owner work: [PR #18](https://github.com/gobbajogger/DnBOX/pull/18)
+  (dual-SMC), [PR #19](https://github.com/gobbajogger/DnBOX/pull/19)
+  (popup guard), [PR #20](https://github.com/gobbajogger/DnBOX/pull/20)
   (installer catalog). These features are not changed here.
 
 ## Report and merge contract for hourly updates

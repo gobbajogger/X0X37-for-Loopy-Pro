@@ -1,6 +1,6 @@
 # Release tags on the integration branch
 
-Public, user-facing firmware packages stay on the `v*` tags (currently v0.0.25.1) and are published from `main` / `gh-pages` only after the owner's sign-off.
+The Latest public firmware is [v0.0.26](https://github.com/gobbajogger/DnBOX/releases/tag/v0.0.26), tagged at `94197fc8`. The owner tested startup and restart on the SMK-37 Elite and Pro. Public packages use `v*` tags and require owner sign-off. [Stable installer](https://gobbajogger.github.io/DnBOX/install/) · [Nightly installer](https://gobbajogger.github.io/DnBOX-nightly/install/).
 
 Work toward the final build is tagged on `integration/dnbox-consolidated` as prereleases:
 

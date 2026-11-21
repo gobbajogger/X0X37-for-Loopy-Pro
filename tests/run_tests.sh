@@ -148,8 +148,8 @@ gen_wait() {            # name: 0 if the test must wait for host-build (host-bui
     [ -z "$X0X_TESTS" ] && return 0
     case " $X0X_TESTS " in *" host-build "*) return 0 ;; *) return 1 ;; esac
 }
-gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
-gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
+gen_lock() { read -r _ <&4; }
+gen_unlock() { echo >&4; }
 asan_links() {      # 0 if ${CC} can link the sanitizers the BLE host tests use
     d=$(mktemp -d "${TMPDIR:-/tmp}/x0x-asan.XXXXXX") || return 1
     printf 'int main(void){return 0;}\n' > "$d/t.c" || { rm -rf "$d"; return 1; }
@@ -843,13 +843,16 @@ if [ "$JOBS" -le 1 ]; then
 else
     rm -rf "$RES" "$OUT/iso"; mkdir -p "$RES" "$OUT/iso"
     fifo="$OUT/iso/.jobs"; mkfifo "$fifo"; exec 3<>"$fifo"; rm -f "$fifo"
+    # One generator at a time; waiters block without consuming ordinary job slots.
+    fifo="$OUT/iso/.generator"; mkfifo "$fifo" || exit 1
+    exec 4<>"$fifo"; rm -f "$fifo"; echo >&4
     i=0; while [ $i -lt "$JOBS" ]; do echo >&3; i=$((i + 1)); done
     for PHASE in W 1 2 3; do      # no wait after W: class W runs beside phase 1, and the wait of phase 1 ends it
         T_SEQ=0
         tests_body
         [ "$PHASE" = W ] || wait
     done
-    exec 3>&-
+    exec 4>&- 3>&-
     for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
     ls "$RES" | grep -q '\.fail$' && FAIL=1
 fi

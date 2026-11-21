@@ -4,9 +4,9 @@
 
 **Source checked:** public `gobbajogger/X0X37-for-Loopy-Pro` `main` at `c9718ae833eb64a5191c350922593df8a36017c9` (unchanged), relevant Git blobs:
 
-- [`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c) `b89e5c12062a3dc3459eeb660d205f607273aab6`: the complete historical file **does not** match live main. The two extracted functions **do** match live text: `smc_midi_host()` 519 characters / FNV-1a32 `82d4835c`; `smc_mmc_host()` 321 characters / FNV-1a32 `c4de5e76`.
-- [`firmware/src/app/smc_protocol.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_protocol.h) `03a642226aae01ffb9bc29888e0f5802d72ced26`: full-file match, only opted-in channel 16 qualifies for User-mode SMC input.
-- [`firmware/src/app/engine.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c) `555480d9c81ca8b088842bfa6bac93e85865d49a`: full-file match; consumed SMC User-mode messages are not forwarded into the ordinary instrument path.
+- [`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c) `b89e5c12062a3dc3459eeb660d205f607273aab6`: the complete historical file **does not** match live main. The two extracted functions **do** match live text: `smc_midi_host()` 519 characters / FNV-1a32 `82d4835c`; `smc_mmc_host()` 321 characters / FNV-1a32 `c4de5e76`.
+- [`firmware/src/app/smc_protocol.h`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_protocol.h) `03a642226aae01ffb9bc29888e0f5802d72ced26`: full-file match, only opted-in channel 16 qualifies for User-mode SMC input.
+- [`firmware/src/app/engine.c`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/engine.c) `555480d9c81ca8b088842bfa6bac93e85865d49a`: full-file match; consumed SMC User-mode messages are not forwarded into the ordinary instrument path.
 
 | Priority | Source-backed / tested behavior | Practical possible effect | Evidence classification |
 | --- | --- | --- | --- |

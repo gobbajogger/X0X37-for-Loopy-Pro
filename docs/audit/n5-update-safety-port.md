@@ -42,7 +42,7 @@ No existing check, assertion or compiler flag is removed or weakened.
 
 ## Verification
 
-Source PR: [#795](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/795).
+Source PR: [#795](https://github.com/gobbajogger/DnBOX/pull/795).
 Independent Compound Engineering correctness, standards, testing, security,
 adversarial and reliability reviews found no actionable code findings.
 

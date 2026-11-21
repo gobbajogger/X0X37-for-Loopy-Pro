@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23 · **Scope:** documentation-only research; no firmware, web, site or physical-device changes.
 
-**Baseline:** [`main@c9718ae`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c9718ae833eb64a5191c350922593df8a36017c9), **not** the entire historical offline checkout. This is new verification of the *central outbound* path; it does not duplicate the previously documented audio command, direct-SMC ingress, dual-SMC ingress, or Loopy peripheral mirror overflow probes.
+**Baseline:** [`main@c9718ae`](https://github.com/gobbajogger/DnBOX/commit/c9718ae833eb64a5191c350922593df8a36017c9), **not** the entire historical offline checkout. This is new verification of the *central outbound* path; it does not duplicate the previously documented audio command, direct-SMC ingress, dual-SMC ingress, or Loopy peripheral mirror overflow probes.
 
 ## Practical finding
 
@@ -18,9 +18,9 @@ This means **central-TX queue-full is not by itself proof of a permanently stale
 
 ## Exact source identity and replay
 
-- [`ble_midi_central.c` `blec_midi_send()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_central.c#L594-L604): live main Git blob `9afc57c6cf19e42f3e66ff7c1aa9201c89e1939a`; source function length **352** bytes/chars and FNV-1a32 **`9be5ddf0`**.
-- [`smc_mixer.c` `smc_frame()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L698-L725): live main Git blob `b89e5c12062a3dc3459eeb660d205f607273aab6`; function length **966** and FNV-1a32 **`656e63f2`**.
-- [`ui_frame()`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/ui.c#L4795-L4807) invokes `smc_frame()` on SMK37 when not in a project transaction; this provides the subsequent retry opportunity.
+- [`ble_midi_central.c` `blec_midi_send()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/ble/ble_midi_central.c#L594-L604): live main Git blob `9afc57c6cf19e42f3e66ff7c1aa9201c89e1939a`; source function length **352** bytes/chars and FNV-1a32 **`9be5ddf0`**.
+- [`smc_mixer.c` `smc_frame()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/smc_mixer.c#L698-L725): live main Git blob `b89e5c12062a3dc3459eeb660d205f607273aab6`; function length **966** and FNV-1a32 **`656e63f2`**.
+- [`ui_frame()`](https://github.com/gobbajogger/DnBOX/blob/c9718ae833eb64a5191c350922593df8a36017c9/firmware/src/app/ui.c#L4795-L4807) invokes `smc_frame()` on SMK37 when not in a project transaction; this provides the subsequent retry opportunity.
 - The historical offline Git source tree was **not** mistaken for current `main`: these *two extracted functions only* were independently compared with the exact current GitHub source text and passed the lengths/hashes above. No whole-main-tree equivalence is implied.
 
 **Runner:** native ChatGPT Linux x86-64 container, GCC 14.2.0, `-std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer`, with minimal stubs for the transport and UI state. The local harness extracted the unmodified production functions by their signatures, asserted both FNV hashes, then tested the three forced cases. Final C harness SHA-256 `0dbf4699befada0e36b35e50b9597c6de02121f17b16d68b894cf2f24f92220d`. **Compile exit 0, run exit 0**, all three assertions passed, no sanitizer diagnostics. An initial harness compile failed due to the fixture's missing forward declaration; the fixture was corrected and successfully recompiled; firmware source was never changed. Consumer drain was simulated by advancing `qr`; no actual ATT/HCI packets were sent. **GitHub Actions was not used as an execution runner.**

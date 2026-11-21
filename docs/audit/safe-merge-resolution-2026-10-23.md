@@ -5,8 +5,8 @@
 ## Live source and ownership
 - Public repo: `gobbajogger/X0X37-for-Loopy-Pro`.
 - Remote main: `c9718ae833eb64a5191c350922593df8a36017c9`; remote gh-pages: `dcb41f2ead9e2166ec3dddcd658e445d22a5fac9`. Both unchanged at report submission.
-- Draft [PR #35](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/35): clock fix lane `lane/safe-merge-clock-handover-20261023` commit `32364a9524dd1ac6857d46b409af66029805d4ce`, parented to main. Does not integrate other SMC PRs.
-- Draft [PR #36](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/36): Pages guard lane `lane/safe-merge-publisher-hardening-20261023` commit `30e86dc49214ce534e0f12515e4389ec861c95c5`, stacked on publisher owner PR #30 head `a0d738c9ef5f904250ca21292c3adc5031697d50`; no edit to that owner's branch.
+- Draft [PR #35](https://github.com/gobbajogger/DnBOX/pull/35): clock fix lane `lane/safe-merge-clock-handover-20261023` commit `32364a9524dd1ac6857d46b409af66029805d4ce`, parented to main. Does not integrate other SMC PRs.
+- Draft [PR #36](https://github.com/gobbajogger/DnBOX/pull/36): Pages guard lane `lane/safe-merge-publisher-hardening-20261023` commit `30e86dc49214ce534e0f12515e4389ec861c95c5`, stacked on publisher owner PR #30 head `a0d738c9ef5f904250ca21292c3adc5031697d50`; no edit to that owner's branch.
 
 ## Verified corrections and tests
 1. **BF-005 MIDI Clock handover:** main-matching `sequencer.c` Git blob `83b03f73139d8e679c94526c66b390b6e5bc2f39` reproduced old USB pending ticks causing early 909 step after Bluetooth Start. GCC UBSan baseline exited 1 as expected. Isolated patch clears `ext_pending` only when the disconnected input owns clock. New blob `7345cab17c29ba3c26f58d1b2c042b05c1b55ef4`, imported bugfinder #26 regression blob `cf877263dc3ba8e987bdfa59a09ac7c1cf603b33`: GCC UBSan and Clang ASan+UBSan now PASS; unchanged MID-15 clock-lock regression PASS with both. Other serial/C/H inputs were Git blob matched to main. No whole firmware runtime assertion.

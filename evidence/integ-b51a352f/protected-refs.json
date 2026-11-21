@@ -1,0 +1,122 @@
+{
+  "prior_audit": "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54",
+  "readback": "2026-11-21 UTC",
+  "method": "Compared live Git branches, tags and pull heads with audited witnesses. Reused unchanged branch ancestry proofs. GitHub REST verified PR status and compared each moved lane.",
+  "repositories": {
+    "DnBOX": {
+      "base": "468744971720a81a536308e3bd84bd8766a5ed0f",
+      "base_unchanged": true,
+      "historical_witnesses_unchanged": 357,
+      "branch_count": 12,
+      "branch_names_unchanged": true,
+      "open_prs": [
+        973,
+        976,
+        985
+      ],
+      "exact_protected_pull_and_archive_heads": [
+        {
+          "pr": 951,
+          "head": "37c780cdf4b18e824c863d7cc2982792882f61cb",
+          "state": "closed_unmerged"
+        },
+        {
+          "pr": 869,
+          "head": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "state": "closed_unmerged"
+        },
+        {
+          "pr": 944,
+          "head": "d0ace9fa28703fccf598120ba542517f71042d75",
+          "state": "closed_unmerged"
+        },
+        {
+          "pr": 947,
+          "head": "74b50bdfe2e1d9ac7f22445cdf5ab3726bb85272",
+          "state": "closed_unmerged"
+        },
+        {
+          "pr": 948,
+          "head": "820edc7bae28a53e642fe53761a2fb90d5975804",
+          "state": "closed_unmerged"
+        },
+        {
+          "pr": 887,
+          "head": "e8f2f1f6eb2918e37d9e01ffd584e893f3aa81a4",
+          "state": "closed_unmerged"
+        }
+      ],
+      "fast_forwards": [
+        {
+          "branch": "lane/integ",
+          "old": "711df7b3c416ddea7649242fc9a328ce974599f8",
+          "new": "cfbdb7ae1592edbb7ec96b6f9fcd00f26bd37e54",
+          "ahead": 3,
+          "behind": 0
+        },
+        {
+          "branch": "lane/sound",
+          "old": "2fe5930c161a30c907a4b91991ab3c9724380b10",
+          "new": "f013ecc653f2b9f0006e976a1097250e9356ce14",
+          "ahead": 2,
+          "behind": 0
+        },
+        {
+          "branch": "lane/sound-engine-qualification",
+          "old": "7597ce1ca32c188d4bb8c44acbdf4823391c1538",
+          "new": "6c91d26ecb621b023334900c09e3705d2a91d86e",
+          "ahead": 1,
+          "behind": 0
+        }
+      ],
+      "merged_lane": {
+        "number": 975,
+        "merge": "3e307cfa455d22dfca5e4ef439080816b4e4f859"
+      }
+    },
+    "DnBOX-nightly": {
+      "base": "583f622961fc9975fac746592ce6c483073c4170",
+      "base_unchanged": true,
+      "historical_witnesses_unchanged": 131,
+      "branch_count": 7,
+      "branch_names_unchanged": true,
+      "open_prs": [
+        169,
+        170
+      ],
+      "exact_protected_pull_and_archive_heads": [
+        {
+          "pr": 132,
+          "head": "3f22e000ad17456318cde997067c7fd45dd7e3b3",
+          "state": "closed_unmerged"
+        },
+        {
+          "pr": 131,
+          "head": "22ac90332b5f6511387caaa791fc386bfc9c381d",
+          "state": "closed_unmerged"
+        }
+      ],
+      "fast_forwards": [
+        {
+          "branch": "lane/integ",
+          "old": "d7f8206e3f03e5d014410cb5994ff10990e1ba26",
+          "new": "6ec5f5ba3f78a85b84d46679b302cb8880986bf6",
+          "ahead": 2,
+          "behind": 0
+        },
+        {
+          "branch": "lane/remote",
+          "old": "08fd065316c2234b77f9cac2050414dc18b54cb7",
+          "new": "242f0189af17d7c48b3b7274dea064a84dbc6664",
+          "ahead": 5,
+          "behind": 0
+        }
+      ],
+      "merged_lane": {
+        "number": 156,
+        "merge": "b3868da0df1237d86d442cb9259262ee90a13dcb"
+      }
+    }
+  },
+  "final_lane_merge_observed": false
+}

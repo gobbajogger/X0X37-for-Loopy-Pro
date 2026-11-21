@@ -1,0 +1,3520 @@
+{
+  "verified_utc": "2026-11-21T12:05:18.545423+00:00",
+  "repositories": [
+    {
+      "repo": "DnBOX",
+      "tally": {
+        "other exact archive": 17,
+        "same-name archive": 337,
+        "ancestor of live branch": 2,
+        "exact live branch": 1
+      },
+      "current_branches": 12,
+      "current_open_prs": [
+        973,
+        975,
+        976
+      ],
+      "witnesses": [
+        {
+          "branch": "archive/box-20261112/wip-aio-688",
+          "original_tip": "3e7c6c2970f2276ff08662b5c97451c0ac3eda7f",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-aio-688-3e7c6c29",
+          "witness_tip": "3e7c6c2970f2276ff08662b5c97451c0ac3eda7f",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-dnbox-side-736",
+          "original_tip": "9ab4725431efa193fefbdab003a026fef4b25e39",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-dnbox-side-736-9ab47254",
+          "witness_tip": "9ab4725431efa193fefbdab003a026fef4b25e39",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-fplat-old-8424c3bb9",
+          "original_tip": "df12900a4d8e305eaf928e76e0deba028f0827b7",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-fplat-old-8424c3bb9-df12900a",
+          "witness_tip": "df12900a4d8e305eaf928e76e0deba028f0827b7",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-fplat-old-c8e1599b3",
+          "original_tip": "0d8333f7b26731747d3718083fc4dbece17df0db",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-fplat-old-c8e1599b3-0d8333f7",
+          "witness_tip": "0d8333f7b26731747d3718083fc4dbece17df0db",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-fplat-old-ed85f5a6f",
+          "original_tip": "39f9385d64f56e6e7b142bdd678cbf2d0a765e92",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-fplat-old-ed85f5a6f-39f9385d",
+          "witness_tip": "39f9385d64f56e6e7b142bdd678cbf2d0a765e92",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-integ6",
+          "original_tip": "bf300ba0bf244dee934a759367863cf37261071b",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-integ6-bf300ba0",
+          "witness_tip": "bf300ba0bf244dee934a759367863cf37261071b",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-proof-2a3807f",
+          "original_tip": "4df73dc5b77f84d1fbe515e9d847f4d274c75b00",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-proof-2a3807f-4df73dc5",
+          "witness_tip": "4df73dc5b77f84d1fbe515e9d847f4d274c75b00",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-repo",
+          "original_tip": "e47d8f91b417db2dd57d1336505eee67cc16d934",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-repo-e47d8f91",
+          "witness_tip": "e47d8f91b417db2dd57d1336505eee67cc16d934",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-rw734",
+          "original_tip": "05c2a141186dc08b67a0560335d15e95b64a21f8",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-rw734-05c2a141",
+          "witness_tip": "05c2a141186dc08b67a0560335d15e95b64a21f8",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-wt",
+          "original_tip": "5d942ce589f97b4a75485d836ef029505058ff63",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-wt-5d942ce5",
+          "witness_tip": "5d942ce589f97b4a75485d836ef029505058ff63",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-wt-fpwob-pro",
+          "original_tip": "f672cb5a8bb4411db0b09805a198c8b7ca29786a",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-wt-fpwob-pro-f672cb5a",
+          "witness_tip": "f672cb5a8bb4411db0b09805a198c8b7ca29786a",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-wt-fpwob-suite",
+          "original_tip": "ce613ba4d5b8dcf33a52ca50a869037f5b2e4603",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-wt-fpwob-suite-ce613ba4",
+          "witness_tip": "ce613ba4d5b8dcf33a52ca50a869037f5b2e4603",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-wt-port-688-mixer-ux",
+          "original_tip": "d0b97f700274c2d6c1c29ca5327b33f1e0f3cb7b",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-wt-port-688-mixer-ux-d0b97f70",
+          "witness_tip": "d0b97f700274c2d6c1c29ca5327b33f1e0f3cb7b",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-wtfx",
+          "original_tip": "f0ef6844ebb05980376494adb28e1d019dc4605e",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-wtfx-f0ef6844",
+          "witness_tip": "f0ef6844ebb05980376494adb28e1d019dc4605e",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-x",
+          "original_tip": "7fd9b96caa6ccf24cac170a8ae663a2c8d11906c",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-x-7fd9b96c",
+          "witness_tip": "7fd9b96caa6ccf24cac170a8ae663a2c8d11906c",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-x0x37-babysit",
+          "original_tip": "52e9b50038d50636649f1fe96260359b61ef4a2e",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-x0x37-babysit-52e9b500",
+          "witness_tip": "52e9b50038d50636649f1fe96260359b61ef4a2e",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261112/wip-x0x-docs",
+          "original_tip": "ea44f76804ca0d636ecfdae08b8e13a7d6f5b5f2",
+          "witness": "refs/tags/archive/archive/box-20261112/wip-x0x-docs-ea44f768",
+          "witness_tip": "ea44f76804ca0d636ecfdae08b8e13a7d6f5b5f2",
+          "proof": "other exact archive"
+        },
+        {
+          "branch": "archive/box-20261114/lane-fmb-combined-026-measure",
+          "original_tip": "6ba857f86b00330e04cbe7d0c0d4f46603305f10",
+          "witness": "refs/tags/archive/archive/box-20261114/lane-fmb-combined-026-measure",
+          "witness_tip": "6ba857f86b00330e04cbe7d0c0d4f46603305f10",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/lane-fmb-gain-juno-drone",
+          "original_tip": "7dad9a27ab4f8a49bd3925b8c394b4b17496cfe5",
+          "witness": "refs/tags/archive/archive/box-20261114/lane-fmb-gain-juno-drone",
+          "witness_tip": "7dad9a27ab4f8a49bd3925b8c394b4b17496cfe5",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/lane-fmb-naming-026-oldclone",
+          "original_tip": "8fbd0f7956f99f306a04cd430c6abfc3050c03cf",
+          "witness": "refs/tags/archive/archive/box-20261114/lane-fmb-naming-026-oldclone",
+          "witness_tip": "8fbd0f7956f99f306a04cd430c6abfc3050c03cf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/lane-fmb-presets-format",
+          "original_tip": "8e1a1773452d109501c626a791933833534c82d0",
+          "witness": "refs/tags/archive/archive/box-20261114/lane-fmb-presets-format",
+          "witness_tip": "8e1a1773452d109501c626a791933833534c82d0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/lane-fmb-seq-chord-display",
+          "original_tip": "f22fd1b7b9cd409a6c91e4c33b87d010e26e2397",
+          "witness": "refs/tags/archive/archive/box-20261114/lane-fmb-seq-chord-display",
+          "witness_tip": "f22fd1b7b9cd409a6c91e4c33b87d010e26e2397",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/lane-fmb-ui-flash-shrink",
+          "original_tip": "95868026394f1859919cbc97dc9e7767e01fc2b4",
+          "witness": "refs/tags/archive/archive/box-20261114/lane-fmb-ui-flash-shrink",
+          "witness_tip": "95868026394f1859919cbc97dc9e7767e01fc2b4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/measure-stack-A-no-modwheel",
+          "original_tip": "6ba857f86b00330e04cbe7d0c0d4f46603305f10",
+          "witness": "refs/tags/archive/archive/box-20261114/measure-stack-A-no-modwheel",
+          "witness_tip": "6ba857f86b00330e04cbe7d0c0d4f46603305f10",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/measure-stack-A-remeasure",
+          "original_tip": "bc49bf5f14bb32e71b8027c1c1754b8b1a4cfcaf",
+          "witness": "refs/tags/archive/archive/box-20261114/measure-stack-A-remeasure",
+          "witness_tip": "bc49bf5f14bb32e71b8027c1c1754b8b1a4cfcaf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/measure-stack-B-from-rec",
+          "original_tip": "e0cfe46eb638d0cbb848c6c7cd0b54cb5e5ea27b",
+          "witness": "refs/tags/archive/archive/box-20261114/measure-stack-B-from-rec",
+          "witness_tip": "e0cfe46eb638d0cbb848c6c7cd0b54cb5e5ea27b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/measure-stack-B-modwheel",
+          "original_tip": "a11c0a6f0067e566076b4418e1f2062b3487d294",
+          "witness": "refs/tags/archive/archive/box-20261114/measure-stack-B-modwheel",
+          "witness_tip": "a11c0a6f0067e566076b4418e1f2062b3487d294",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/measure-stack-B-remeasure",
+          "original_tip": "abdebbea5a20373b6e363354e6171b53e2ec4b88",
+          "witness": "refs/tags/archive/archive/box-20261114/measure-stack-B-remeasure",
+          "witness_tip": "abdebbea5a20373b6e363354e6171b53e2ec4b88",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/measure-step4-rec",
+          "original_tip": "e0cfe46eb638d0cbb848c6c7cd0b54cb5e5ea27b",
+          "witness": "refs/tags/archive/archive/box-20261114/measure-step4-rec",
+          "witness_tip": "e0cfe46eb638d0cbb848c6c7cd0b54cb5e5ea27b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/presets-001-master",
+          "original_tip": "e08e3e4852996ee6526d6f4c4c43180de86d80a4",
+          "witness": "refs/tags/archive/archive/box-20261114/presets-001-master",
+          "witness_tip": "e08e3e4852996ee6526d6f4c4c43180de86d80a4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-nchk",
+          "original_tip": "3dadd33b7cb12bbc88154e5e0a82122d95808766",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-nchk",
+          "witness_tip": "3dadd33b7cb12bbc88154e5e0a82122d95808766",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zc1-f2",
+          "original_tip": "b03ce63f0dd49e26877795c7a35f87afc0a4327f",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zc1-f2",
+          "witness_tip": "b03ce63f0dd49e26877795c7a35f87afc0a4327f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zc1v-n4",
+          "original_tip": "83a9331ad82bf5b22ea57c0fa060722181433018",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zc1v-n4",
+          "witness_tip": "83a9331ad82bf5b22ea57c0fa060722181433018",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zc1v-s9",
+          "original_tip": "9077b2025c1d3fe0237fac26c8ba9199e6796469",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zc1v-s9",
+          "witness_tip": "9077b2025c1d3fe0237fac26c8ba9199e6796469",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zp-pa",
+          "original_tip": "24a09b19ababcec5ca85d71e4b6d94d5317d2277",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zp-pa",
+          "witness_tip": "24a09b19ababcec5ca85d71e4b6d94d5317d2277",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zp-pb",
+          "original_tip": "6223b3198a8d1aeeb2b1157c569bae4e8833381c",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zp-pb",
+          "witness_tip": "6223b3198a8d1aeeb2b1157c569bae4e8833381c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zp-pc1",
+          "original_tip": "68be5f6f3f5ba2fe31600da7c5f8a4df18517a1f",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zp-pc1",
+          "witness_tip": "68be5f6f3f5ba2fe31600da7c5f8a4df18517a1f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zp-pc2",
+          "original_tip": "2fd96f078d920948aa4281eeaad21ac57ec05bd7",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zp-pc2",
+          "witness_tip": "2fd96f078d920948aa4281eeaad21ac57ec05bd7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zp-pold",
+          "original_tip": "55d82b58849339dfe0ab8c41ba7088fa30c03792",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zp-pold",
+          "witness_tip": "55d82b58849339dfe0ab8c41ba7088fa30c03792",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s3b",
+          "original_tip": "c4b1854baf3ba524700cffbbeccad7e242432716",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s3b",
+          "witness_tip": "c4b1854baf3ba524700cffbbeccad7e242432716",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s3c",
+          "original_tip": "c0348ae2def8538a2b32eadfb73b23fc87217145",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s3c",
+          "witness_tip": "c0348ae2def8538a2b32eadfb73b23fc87217145",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s3e",
+          "original_tip": "59c9966cad1a87dbb2cefddeee46d2ea106b1758",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s3e",
+          "witness_tip": "59c9966cad1a87dbb2cefddeee46d2ea106b1758",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s3f",
+          "original_tip": "125711b940dab724ee6b506013837e47d22686d6",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s3f",
+          "witness_tip": "125711b940dab724ee6b506013837e47d22686d6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s3g",
+          "original_tip": "7f2564ef7aef471bb7551e28d1bb7a511bc51bdd",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s3g",
+          "witness_tip": "7f2564ef7aef471bb7551e28d1bb7a511bc51bdd",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s3",
+          "original_tip": "38f5d89f832c8b9a90954d1ccfc8324f75c0027c",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s3",
+          "witness_tip": "38f5d89f832c8b9a90954d1ccfc8324f75c0027c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s4m",
+          "original_tip": "06968aeed7a8f183c4d465a51849750269182d19",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s4m",
+          "witness_tip": "06968aeed7a8f183c4d465a51849750269182d19",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-s5",
+          "original_tip": "991e278fc25c69449e8b8fb5d3b4f3399bbe0355",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-s5",
+          "witness_tip": "991e278fc25c69449e8b8fb5d3b4f3399bbe0355",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sK",
+          "original_tip": "b911ed47cf2194ee294f83c3d31c385bc487c9aa",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sK",
+          "witness_tip": "b911ed47cf2194ee294f83c3d31c385bc487c9aa",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sM",
+          "original_tip": "476ed0f0851aa39f249f36443c8a1228ca951666",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sM",
+          "witness_tip": "476ed0f0851aa39f249f36443c8a1228ca951666",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sN",
+          "original_tip": "42a67d5ed7f0d52ef0c59d80a24ea5e4dddcf923",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sN",
+          "witness_tip": "42a67d5ed7f0d52ef0c59d80a24ea5e4dddcf923",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sO",
+          "original_tip": "92d06896a8332e6299557c93e8ea3b57e2807aaf",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sO",
+          "witness_tip": "92d06896a8332e6299557c93e8ea3b57e2807aaf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sP",
+          "original_tip": "89b1a6dbf9e756df48a6103c0eaeb104246673dc",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sP",
+          "witness_tip": "89b1a6dbf9e756df48a6103c0eaeb104246673dc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sQ",
+          "original_tip": "155f8e154b2a342c0c03a0b773aa07576347f97c",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sQ",
+          "witness_tip": "155f8e154b2a342c0c03a0b773aa07576347f97c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sR",
+          "original_tip": "0bcb0868f0793307b4051c571e3ed20fff3ff44c",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sR",
+          "witness_tip": "0bcb0868f0793307b4051c571e3ed20fff3ff44c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zt-sS",
+          "original_tip": "bb05ba2e2e571b8ff499b909979d1b4b097721b1",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zt-sS",
+          "witness_tip": "bb05ba2e2e571b8ff499b909979d1b4b097721b1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/tmp-zv-c1big",
+          "original_tip": "5608fe9babce8ffa24992e2f029496337860a129",
+          "witness": "refs/tags/archive/archive/box-20261114/tmp-zv-c1big",
+          "witness_tip": "5608fe9babce8ffa24992e2f029496337860a129",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-aio-688-t0430",
+          "original_tip": "ec109865f99a9aa4abea0da7d50112a6ba9cd859",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-aio-688-t0430",
+          "witness_tip": "ec109865f99a9aa4abea0da7d50112a6ba9cd859",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-aio-688",
+          "original_tip": "0f1e0cfc978e593df18026ff695ff724f78a5569",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-aio-688",
+          "witness_tip": "0f1e0cfc978e593df18026ff695ff724f78a5569",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-be-src",
+          "original_tip": "3bb2548cd60898b391cd68fe0e8a6f2f074f8516",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-be-src",
+          "witness_tip": "3bb2548cd60898b391cd68fe0e8a6f2f074f8516",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-build-1214-modwheel-measure",
+          "original_tip": "bcdd47f928e4cee40e15eda55b0ac97c8c705f7d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-build-1214-modwheel-measure",
+          "witness_tip": "bcdd47f928e4cee40e15eda55b0ac97c8c705f7d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-combined-measure",
+          "original_tip": "a045443055042b38d9d1d7850db035b0f3dd0e46",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-combined-measure",
+          "witness_tip": "a045443055042b38d9d1d7850db035b0f3dd0e46",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-d5-e",
+          "original_tip": "139f172c8eb6dcbf8aeda955d19a66c9cd11a97b",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-d5-e",
+          "witness_tip": "139f172c8eb6dcbf8aeda955d19a66c9cd11a97b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-d5-e-0502",
+          "original_tip": "3e458d63b5a756b4d8030be7b98d7d78e459edf6",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-d5-e-0502",
+          "witness_tip": "3e458d63b5a756b4d8030be7b98d7d78e459edf6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-d5-e-t0400",
+          "original_tip": "70a934c4a70969a8b7bc07d7d7a60515168db101",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-d5-e-t0400",
+          "witness_tip": "70a934c4a70969a8b7bc07d7d7a60515168db101",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-d5-p",
+          "original_tip": "5775823aee17afbf84f4255d1d27d50fe982acef",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-d5-p",
+          "witness_tip": "5775823aee17afbf84f4255d1d27d50fe982acef",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-d5-p-0502",
+          "original_tip": "b1b799a2fbd07f9ffa54b918a26b23f1b63b4af1",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-d5-p-0502",
+          "witness_tip": "b1b799a2fbd07f9ffa54b918a26b23f1b63b4af1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-d5-p-t0400",
+          "original_tip": "a08f5b4642f68c641e6a56cd3cea53c4c2152f9f",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-d5-p-t0400",
+          "witness_tip": "a08f5b4642f68c641e6a56cd3cea53c4c2152f9f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-dnbox-734b-wtfx",
+          "original_tip": "fbf3d8bd521fbb13bf345ebeceabc484dad036bf",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-dnbox-734b-wtfx",
+          "witness_tip": "fbf3d8bd521fbb13bf345ebeceabc484dad036bf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-dnbox-batch-elite",
+          "original_tip": "64282d17ad8f0e44e69ccc936af1b7ce9a9fff9c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-dnbox-batch-elite",
+          "witness_tip": "64282d17ad8f0e44e69ccc936af1b7ce9a9fff9c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-dnbox-batch-pro",
+          "original_tip": "27050abd1254c3f520f0c386fad1ecf029f2ee57",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-dnbox-batch-pro",
+          "witness_tip": "27050abd1254c3f520f0c386fad1ecf029f2ee57",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-dnbox-side-736",
+          "original_tip": "c7b9585126fd8cf82a23e607f4d7f97ec57518fa",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-dnbox-side-736",
+          "witness_tip": "c7b9585126fd8cf82a23e607f4d7f97ec57518fa",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-eng-ec-wt",
+          "original_tip": "26d821690562cc634d35593b267d9ef712abf05a",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-eng-ec-wt",
+          "witness_tip": "26d821690562cc634d35593b267d9ef712abf05a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-eng-ec-wt-t0430",
+          "original_tip": "add909eccc5ceae22e1bbac2521cde491bb7d1c6",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-eng-ec-wt-t0430",
+          "witness_tip": "add909eccc5ceae22e1bbac2521cde491bb7d1c6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fmb-fix-unborn",
+          "original_tip": "788fab3e8a9bf5437c2913026ab401873942d417",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fmb-fix-unborn",
+          "witness_tip": "788fab3e8a9bf5437c2913026ab401873942d417",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fmb-juno-hoist",
+          "original_tip": "0b3c552793843ca2f938b7848bbd201fdd20e25b",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fmb-juno-hoist",
+          "witness_tip": "0b3c552793843ca2f938b7848bbd201fdd20e25b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fmb-rec-full-keybed",
+          "original_tip": "b3618e316c98a646f316c30b6a14e3db5f615c22",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fmb-rec-full-keybed",
+          "witness_tip": "b3618e316c98a646f316c30b6a14e3db5f615c22",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fmb-rec-full-keybed-0502",
+          "original_tip": "4980cd1f60af4f3cb702dc9c655ed38a0c631c6d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fmb-rec-full-keybed-0502",
+          "witness_tip": "4980cd1f60af4f3cb702dc9c655ed38a0c631c6d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fplat-old-8424c3bb9-t0430",
+          "original_tip": "ebe6a6d81bc8a02a3dcf42c1a4d16bf658b96eb3",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fplat-old-8424c3bb9-t0430",
+          "witness_tip": "ebe6a6d81bc8a02a3dcf42c1a4d16bf658b96eb3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fplat-old-8424c3bb9",
+          "original_tip": "6fd7dfef3e8ca8156027c0269b1ff5252863d7cc",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fplat-old-8424c3bb9",
+          "witness_tip": "6fd7dfef3e8ca8156027c0269b1ff5252863d7cc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fplat-old-c8e1599b3-t0430",
+          "original_tip": "790d6a18839fafccffee841f9b3e722ce28ba6bc",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fplat-old-c8e1599b3-t0430",
+          "witness_tip": "790d6a18839fafccffee841f9b3e722ce28ba6bc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fplat-old-c8e1599b3",
+          "original_tip": "2d4d4ad68c7bb3264e17731f657d792869d8ace2",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fplat-old-c8e1599b3",
+          "witness_tip": "2d4d4ad68c7bb3264e17731f657d792869d8ace2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fplat-old-ed85f5a6f",
+          "original_tip": "e1a34a55d157e6bf2650e9ab9ac08e58c27eb179",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fplat-old-ed85f5a6f",
+          "witness_tip": "e1a34a55d157e6bf2650e9ab9ac08e58c27eb179",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-fplat-old-ed85f5a6f-t0430",
+          "original_tip": "0b3556b90df751fe28da189fe85f3b25ef70761d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-fplat-old-ed85f5a6f-t0430",
+          "witness_tip": "0b3556b90df751fe28da189fe85f3b25ef70761d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-mac-x0x37-scratch-box",
+          "original_tip": "8a5e6b7f59205074e1ae9fcd0bb9c4c947d7511c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-mac-x0x37-scratch-box",
+          "witness_tip": "8a5e6b7f59205074e1ae9fcd0bb9c4c947d7511c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-mb-lane-1030-repo",
+          "original_tip": "3e28da4a133c854e5a7249ef1e3ed0c878b10af8",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-mb-lane-1030-repo",
+          "witness_tip": "3e28da4a133c854e5a7249ef1e3ed0c878b10af8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-modwheel-ui",
+          "original_tip": "3d1353be74e75f382ae306341b49b87d7712166f",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-modwheel-ui",
+          "witness_tip": "3d1353be74e75f382ae306341b49b87d7712166f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-naming-026-oldclone",
+          "original_tip": "4b0e6fe42a64c4bc5722d23b0e3550e439e73d8d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-naming-026-oldclone",
+          "witness_tip": "4b0e6fe42a64c4bc5722d23b0e3550e439e73d8d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-naming-026-treechk",
+          "original_tip": "b307fb3cb236f919d67a3af884f87cd9c25323c6",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-naming-026-treechk",
+          "witness_tip": "b307fb3cb236f919d67a3af884f87cd9c25323c6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-naming-026",
+          "original_tip": "5a520f59946e96f98bb366bed7a9870915291342",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-naming-026",
+          "witness_tip": "5a520f59946e96f98bb366bed7a9870915291342",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-nsck",
+          "original_tip": "613533e01e151e1a76c80cbf2aeac0ab82777158",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-nsck",
+          "witness_tip": "613533e01e151e1a76c80cbf2aeac0ab82777158",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-padinv",
+          "original_tip": "be93067cbfa26c67c0788dd412af6fd19fea98ae",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-padinv",
+          "witness_tip": "be93067cbfa26c67c0788dd412af6fd19fea98ae",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-qa-runs-014e1b67",
+          "original_tip": "18fb0fcf938260757048d66a6f4057ee1aebb02c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-qa-runs-014e1b67",
+          "witness_tip": "18fb0fcf938260757048d66a6f4057ee1aebb02c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-qa-runs-5849cb11",
+          "original_tip": "a7b42180ebe3f68ddd0f8ee18f3a24c0dc4d145a",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-qa-runs-5849cb11",
+          "witness_tip": "a7b42180ebe3f68ddd0f8ee18f3a24c0dc4d145a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-qa-runs-7173c8fe",
+          "original_tip": "107dfcce0d766c6c52e7019e930b3dd03543e7fd",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-qa-runs-7173c8fe",
+          "witness_tip": "107dfcce0d766c6c52e7019e930b3dd03543e7fd",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-qa-runs-354564c3",
+          "original_tip": "2c6e47a6125626593ca871857a1dd4218fb5e7f1",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-qa-runs-354564c3",
+          "witness_tip": "2c6e47a6125626593ca871857a1dd4218fb5e7f1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-qa-runs-cd9a1948",
+          "original_tip": "f88b311282d0f627f5a26998926b39a3e4a1743a",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-qa-runs-cd9a1948",
+          "witness_tip": "f88b311282d0f627f5a26998926b39a3e4a1743a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-qa-runs-de4c13c4",
+          "original_tip": "c1505137b3ac01a275197bf96d060e9726acaaf6",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-qa-runs-de4c13c4",
+          "witness_tip": "c1505137b3ac01a275197bf96d060e9726acaaf6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-r025-probe",
+          "original_tip": "e04c70a8fe664b92edab598295fa21670a814e8b",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-r025-probe",
+          "witness_tip": "e04c70a8fe664b92edab598295fa21670a814e8b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-repo",
+          "original_tip": "f4be2ed309e29cba82b3d5842cf16a1546c406e0",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-repo",
+          "witness_tip": "f4be2ed309e29cba82b3d5842cf16a1546c406e0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-repo-t0400",
+          "original_tip": "f124a37df6eeb13bcaee4eae1efd263ec457d801",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-repo-t0400",
+          "witness_tip": "f124a37df6eeb13bcaee4eae1efd263ec457d801",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-repo-t0430",
+          "original_tip": "ffc78cbb84535584159c6de8cac127c903538503",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-repo-t0430",
+          "witness_tip": "ffc78cbb84535584159c6de8cac127c903538503",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-rw734-0502",
+          "original_tip": "d0e7d187b2f69e58abe6467419281e391efaaac3",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-rw734-0502",
+          "witness_tip": "d0e7d187b2f69e58abe6467419281e391efaaac3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-rw734-e",
+          "original_tip": "42188ca02ccbc944937836e4c3e7d4acbc4ccbb0",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-rw734-e",
+          "witness_tip": "42188ca02ccbc944937836e4c3e7d4acbc4ccbb0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-rw734-p",
+          "original_tip": "557280ff1672e1b54ecab366ae6f8e8b36f442a4",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-rw734-p",
+          "witness_tip": "557280ff1672e1b54ecab366ae6f8e8b36f442a4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-rw734-t0400",
+          "original_tip": "5f7a75147fc24f57bc633b69eb1b81061982f1d6",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-rw734-t0400",
+          "witness_tip": "5f7a75147fc24f57bc633b69eb1b81061982f1d6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-rw734",
+          "original_tip": "ccc4ba81321e09e707b0f9d581cd3ce6dd4568db",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-rw734",
+          "witness_tip": "ccc4ba81321e09e707b0f9d581cd3ce6dd4568db",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-sb-aio-fce4dd5",
+          "original_tip": "df0a901df005ef84d500c2b88c6855dc76f40a4e",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-sb-aio-fce4dd5",
+          "witness_tip": "df0a901df005ef84d500c2b88c6855dc76f40a4e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-seq-chord-001",
+          "original_tip": "ffa323a5fa3ef486b98a2251579c146577714187",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-seq-chord-001",
+          "witness_tip": "ffa323a5fa3ef486b98a2251579c146577714187",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-t02cc7d10",
+          "original_tip": "a25050f1004ae52405faf41b9af57eeace7fb56c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-t02cc7d10",
+          "witness_tip": "a25050f1004ae52405faf41b9af57eeace7fb56c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-usbaudio-wt-pro",
+          "original_tip": "7a8b3c529cc46eb8788bedaac5bc59757dd1096c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-usbaudio-wt-pro",
+          "witness_tip": "7a8b3c529cc46eb8788bedaac5bc59757dd1096c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-wt",
+          "original_tip": "501e59b2839fcc7bc552846b50584ae1a69b523d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-wt",
+          "witness_tip": "501e59b2839fcc7bc552846b50584ae1a69b523d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-wt-fpwob-pro",
+          "original_tip": "e4be96cb56c437d1a34c0e942f3b9be8236fa548",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-wt-fpwob-pro",
+          "witness_tip": "e4be96cb56c437d1a34c0e942f3b9be8236fa548",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-wt-fpwob-suite",
+          "original_tip": "0caf6c8ca85c735fbd19f615c6b7530d0c9b6c73",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-wt-fpwob-suite",
+          "witness_tip": "0caf6c8ca85c735fbd19f615c6b7530d0c9b6c73",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-wt-port-688-mixer-ux",
+          "original_tip": "7b3376f7522eb188ecaf458a5072eea81d65e1b1",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-wt-port-688-mixer-ux",
+          "witness_tip": "7b3376f7522eb188ecaf458a5072eea81d65e1b1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-wt-port-688-mixer-ux-t0430",
+          "original_tip": "81a4373c16896b18cd37b21b2120bb2a2f0fe4f4",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-wt-port-688-mixer-ux-t0430",
+          "witness_tip": "81a4373c16896b18cd37b21b2120bb2a2f0fe4f4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-wtfx",
+          "original_tip": "3ee288cc615602a0c49956c1a3d3df2bd7d26e5c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-wtfx",
+          "witness_tip": "3ee288cc615602a0c49956c1a3d3df2bd7d26e5c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x",
+          "original_tip": "5391099c3134a0f9733a7ccc0ec80407315274cc",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x",
+          "witness_tip": "5391099c3134a0f9733a7ccc0ec80407315274cc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-babysit",
+          "original_tip": "af209301ff8e65325f233f404b7f206c881ea3f7",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-babysit",
+          "witness_tip": "af209301ff8e65325f233f404b7f206c881ea3f7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-babysit-t0430",
+          "original_tip": "9bbb5ebfecff3a5f15bd37be85483a3c2baceee9",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-babysit-t0430",
+          "witness_tip": "9bbb5ebfecff3a5f15bd37be85483a3c2baceee9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-build-and-test-runner-rulesv4-lane-batch13-stack",
+          "original_tip": "c507532aae080752efe5740d270ff504cb12e48f",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-build-and-test-runner-rulesv4-lane-batch13-stack",
+          "witness_tip": "c507532aae080752efe5740d270ff504cb12e48f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-build-and-test-runner-speed-proof-2a3807f",
+          "original_tip": "bf1c40a780861813efde9060d0b6a052ae29662c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-build-and-test-runner-speed-proof-2a3807f",
+          "witness_tip": "bf1c40a780861813efde9060d0b6a052ae29662c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-build-and-test-runner-speed-proof-02cac96",
+          "original_tip": "e4e6df1a276527c254234a879bcf79b814f7ddb9",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-build-and-test-runner-speed-proof-02cac96",
+          "witness_tip": "e4e6df1a276527c254234a879bcf79b814f7ddb9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-build-and-test-runner-speed-proof-6b5bc43",
+          "original_tip": "5fb246ce16595f6b9ec6a4dc5f244b2bee143054",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-build-and-test-runner-speed-proof-6b5bc43",
+          "witness_tip": "5fb246ce16595f6b9ec6a4dc5f244b2bee143054",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x37-firmware-main-builder-fix",
+          "original_tip": "0906fed47159cdf9bcc109dfc7b76c8102c922cc",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x37-firmware-main-builder-fix",
+          "witness_tip": "0906fed47159cdf9bcc109dfc7b76c8102c922cc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0x-docs",
+          "original_tip": "bc67c18157c8f2f53acc8bfc98ac5509b4b1481d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0x-docs",
+          "witness_tip": "bc67c18157c8f2f53acc8bfc98ac5509b4b1481d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x0",
+          "original_tip": "4c514574c092d4b304eefd23d6eced4a5957503a",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x0",
+          "witness_tip": "4c514574c092d4b304eefd23d6eced4a5957503a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x-t0430b",
+          "original_tip": "0d3c5e2dd843ff5a8fc61fc42e2b83d65e3e5e2c",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x-t0430b",
+          "witness_tip": "0d3c5e2dd843ff5a8fc61fc42e2b83d65e3e5e2c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-x-t0430",
+          "original_tip": "e0dde6745f8a691f4c8ddc0f5f71e009423e6c4d",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-x-t0430",
+          "witness_tip": "e0dde6745f8a691f4c8ddc0f5f71e009423e6c4d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-zt-sNp",
+          "original_tip": "d0a711f5e135d6599e429fdb790c9250a3f654e1",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-zt-sNp",
+          "witness_tip": "d0a711f5e135d6599e429fdb790c9250a3f654e1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/wip-one-build-337a02fa2",
+          "original_tip": "337a02fa2a7bbb03a6996bdc10e91a2d7f737b42",
+          "witness": "refs/tags/archive/archive/wip-one-build-337a02fa2",
+          "witness_tip": "337a02fa2a7bbb03a6996bdc10e91a2d7f737b42",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "assets/dnbox-box-entry-preview-20261113",
+          "original_tip": "21261737ed2118b73253e974a50d00f8f79b3331",
+          "witness": "refs/tags/archive/assets/dnbox-box-entry-preview-20261113",
+          "witness_tip": "21261737ed2118b73253e974a50d00f8f79b3331",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/btr-qc-proof",
+          "original_tip": "55ce99da92f7c0992a802bb214b331ec2be7f9f7",
+          "witness": "refs/tags/archive/backup/box-20261114/btr-qc-proof",
+          "witness_tip": "55ce99da92f7c0992a802bb214b331ec2be7f9f7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-fix-worktree",
+          "original_tip": "7a255c0bd47bb1989cba32ee25d306254f977fdd",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-fix-worktree",
+          "witness_tip": "7a255c0bd47bb1989cba32ee25d306254f977fdd",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/apc-colors",
+          "original_tip": "0b15d4ef747f1e48d02c4a6fb34ad7665dfd4204",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/apc-colors",
+          "witness_tip": "0b15d4ef747f1e48d02c4a6fb34ad7665dfd4204",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/apc-colors-int",
+          "original_tip": "f175c30c29123444db3648b6bf737034c4509024",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/apc-colors-int",
+          "witness_tip": "f175c30c29123444db3648b6bf737034c4509024",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/apc-palette",
+          "original_tip": "1a79eb89c9419c7ffa4abf56efcecf7a651da553",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/apc-palette",
+          "witness_tip": "1a79eb89c9419c7ffa4abf56efcecf7a651da553",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/ble-a56",
+          "original_tip": "0b809948fdc656d5d49bd78df9030244541d77f2",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/ble-a56",
+          "witness_tip": "0b809948fdc656d5d49bd78df9030244541d77f2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/ble-a65",
+          "original_tip": "4d1608a2ea60ab2d1c931458ace271ded52aa4a3",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/ble-a65",
+          "witness_tip": "4d1608a2ea60ab2d1c931458ace271ded52aa4a3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/ble-a72",
+          "original_tip": "fb5d720ba157095d055008c5cf2377ae9246d632",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/ble-a72",
+          "witness_tip": "fb5d720ba157095d055008c5cf2377ae9246d632",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/ble-a73",
+          "original_tip": "c3ee3ef834c95e736ec41c1d5b068cbffd934650",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/ble-a73",
+          "witness_tip": "c3ee3ef834c95e736ec41c1d5b068cbffd934650",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/ble-stage3",
+          "original_tip": "a43425b8822f0ff88423ef84f1a1e75176562cfb",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/ble-stage3",
+          "witness_tip": "a43425b8822f0ff88423ef84f1a1e75176562cfb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/clip-keys",
+          "original_tip": "ce5236eba45c0c0a8d3b32445c6a5da9bfba29f6",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/clip-keys",
+          "witness_tip": "ce5236eba45c0c0a8d3b32445c6a5da9bfba29f6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/integration-ce5236e",
+          "original_tip": "ce5236eba45c0c0a8d3b32445c6a5da9bfba29f6",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/integration-ce5236e",
+          "witness_tip": "ce5236eba45c0c0a8d3b32445c6a5da9bfba29f6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/integration-stale-02ae8b8",
+          "original_tip": "02ae8b864f0c719b7a376e9d86add46696192b46",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/integration-stale-02ae8b8",
+          "witness_tip": "02ae8b864f0c719b7a376e9d86add46696192b46",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-batch11-stack",
+          "original_tip": "aa7f666f5dc8a829672f49ee5a2cd0ee68fa013a",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-batch11-stack",
+          "witness_tip": "aa7f666f5dc8a829672f49ee5a2cd0ee68fa013a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-batch12-stack",
+          "original_tip": "84a46d53034efac2451bfa8827dabe0d0754d097",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-batch12-stack",
+          "witness_tip": "84a46d53034efac2451bfa8827dabe0d0754d097",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-checklist-lint",
+          "original_tip": "2c646c0fdbefb60fac5a410afb31f5d8f11662b3",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-checklist-lint",
+          "witness_tip": "2c646c0fdbefb60fac5a410afb31f5d8f11662b3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-checklist-lint-r2",
+          "original_tip": "8ce04449437e303d18e239c184da846977d5f3a8",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-checklist-lint-r2",
+          "witness_tip": "8ce04449437e303d18e239c184da846977d5f3a8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-devbug",
+          "original_tip": "7bbc4b580c58bc6fba2490b71d85bdf1d8f43e8f",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-devbug",
+          "witness_tip": "7bbc4b580c58bc6fba2490b71d85bdf1d8f43e8f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-devbug-r2",
+          "original_tip": "94802ff1263d58a24b90c949be7c75c4af79b873",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-devbug-r2",
+          "witness_tip": "94802ff1263d58a24b90c949be7c75c4af79b873",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-gate-comment",
+          "original_tip": "08b699f2cc56beb5d163da50fc2581152179a3aa",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-gate-comment",
+          "witness_tip": "08b699f2cc56beb5d163da50fc2581152179a3aa",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-gate-trap",
+          "original_tip": "1ef9a58a532fe8ae1a1c1c0b324313e26aec3a14",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-gate-trap",
+          "witness_tip": "1ef9a58a532fe8ae1a1c1c0b324313e26aec3a14",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-gen-race",
+          "original_tip": "4767d4073d84d775dc65c8a81f278745825e43c3",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-gen-race",
+          "witness_tip": "4767d4073d84d775dc65c8a81f278745825e43c3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-hook-names",
+          "original_tip": "c17b42d44e91baf412833f277cee289003f32e45",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-hook-names",
+          "witness_tip": "c17b42d44e91baf412833f277cee289003f32e45",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-install-guards",
+          "original_tip": "dab3518bb27554332bb140e82d378a7fd0309217",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-install-guards",
+          "witness_tip": "dab3518bb27554332bb140e82d378a7fd0309217",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-install-guards-r2",
+          "original_tip": "39d594aa3d9570fded8c34c9e2d934da63dbb730",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-install-guards-r2",
+          "witness_tip": "39d594aa3d9570fded8c34c9e2d934da63dbb730",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-owner-msg",
+          "original_tip": "a9705d4c7fa8c1d89793caba3faec79a2a48f4fc",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-owner-msg",
+          "witness_tip": "a9705d4c7fa8c1d89793caba3faec79a2a48f4fc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-owner-msg-r2",
+          "original_tip": "b1d373c8f276df5ccc3d520f0a7d671e7a267597",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-owner-msg-r2",
+          "witness_tip": "b1d373c8f276df5ccc3d520f0a7d671e7a267597",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-prepush-allow",
+          "original_tip": "890b29842bc7d2c20297ce46c820f4a30fad2d6e",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-prepush-allow",
+          "witness_tip": "890b29842bc7d2c20297ce46c820f4a30fad2d6e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-prepush-allow-r2",
+          "original_tip": "7ba36f37373df095d13500a959e2e479a875cb7a",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-prepush-allow-r2",
+          "witness_tip": "7ba36f37373df095d13500a959e2e479a875cb7a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-queue-guard",
+          "original_tip": "8eb399b547e2b0f0811b93b48b5ed97a3698080c",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-queue-guard",
+          "witness_tip": "8eb399b547e2b0f0811b93b48b5ed97a3698080c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-queue-guard-r2",
+          "original_tip": "e0ab953f112861fa879be83e36ab146788386dab",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-queue-guard-r2",
+          "witness_tip": "e0ab953f112861fa879be83e36ab146788386dab",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-queue-iso",
+          "original_tip": "aeb6a0f8fbd6a717d904a949b8ff46ed71e8bab2",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-queue-iso",
+          "witness_tip": "aeb6a0f8fbd6a717d904a949b8ff46ed71e8bab2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-release-tree",
+          "original_tip": "e3c519705996b59e666007e2dd5a58156930af66",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-release-tree",
+          "witness_tip": "e3c519705996b59e666007e2dd5a58156930af66",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-release-tree-r2",
+          "original_tip": "7ca9093f89fc3eba6822a170cb7ec4e816b66717",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-release-tree-r2",
+          "witness_tip": "7ca9093f89fc3eba6822a170cb7ec4e816b66717",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-status",
+          "original_tip": "bb13f39ab01d685e78e1972c99056568906269c7",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-status",
+          "witness_tip": "bb13f39ab01d685e78e1972c99056568906269c7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/btr-status-r2",
+          "original_tip": "67053999952d449ab2c20855081b0e3a9578f65d",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/btr-status-r2",
+          "witness_tip": "67053999952d449ab2c20855081b0e3a9578f65d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/mb-clip-knobs-fix",
+          "original_tip": "8bfac120d3aa78ad2e8aa3dd645d1a16f8ccbfe4",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/mb-clip-knobs-fix",
+          "witness_tip": "8bfac120d3aa78ad2e8aa3dd645d1a16f8ccbfe4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/sb-clip-wait",
+          "original_tip": "c0fe20b2c606046b2267ecfde5350aa04dc6b6d2",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/sb-clip-wait",
+          "witness_tip": "c0fe20b2c606046b2267ecfde5350aa04dc6b6d2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/archive/lane/sb-mode-latch",
+          "original_tip": "943e2da788b4cd774a058aac249473ed607e4f90",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/archive/lane/sb-mode-latch",
+          "witness_tip": "943e2da788b4cd774a058aac249473ed607e4f90",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-a68-opt",
+          "original_tip": "a1d8ea1d708db02887ae4e87906f0f881842a84c",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-a68-opt",
+          "witness_tip": "a1d8ea1d708db02887ae4e87906f0f881842a84c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-a69-readback",
+          "original_tip": "75c42e15651f0c49399e61bad3f62e8fae169934",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-a69-readback",
+          "witness_tip": "75c42e15651f0c49399e61bad3f62e8fae169934",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-a70",
+          "original_tip": "77fa06723e9bf71fbf8cc60245dcec654fe12e80",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-a70",
+          "witness_tip": "77fa06723e9bf71fbf8cc60245dcec654fe12e80",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-a71",
+          "original_tip": "9ef7bc2ef4714105a2015c8866be1fe266f2388e",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-a71",
+          "witness_tip": "9ef7bc2ef4714105a2015c8866be1fe266f2388e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-a74",
+          "original_tip": "11d81a7b9c512c624f1e7ba7cb5f5385523f6a5b",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-a74",
+          "witness_tip": "11d81a7b9c512c624f1e7ba7cb5f5385523f6a5b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-a75",
+          "original_tip": "38af0a0b04cd4342849b833dbec24f8a5c10ca1f",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-a75",
+          "witness_tip": "38af0a0b04cd4342849b833dbec24f8a5c10ca1f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-arrows-a77",
+          "original_tip": "59ddadd1bbb5537fc3b4fce231dc67b3d1716b74",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-arrows-a77",
+          "witness_tip": "59ddadd1bbb5537fc3b4fce231dc67b3d1716b74",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/ble-pad-a76",
+          "original_tip": "1c45b4b3012c35eecd6f1dd3af4a10bce7324a58",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/ble-pad-a76",
+          "witness_tip": "1c45b4b3012c35eecd6f1dd3af4a10bce7324a58",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/clip-keys-a65",
+          "original_tip": "5a89b76f42138248fc009bffc68bfa806e4f1c13",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/clip-keys-a65",
+          "witness_tip": "5a89b76f42138248fc009bffc68bfa806e4f1c13",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/gate-padcal-both",
+          "original_tip": "7cef9e49a3e74035ba59997ecc1750be9170251a",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/gate-padcal-both",
+          "witness_tip": "7cef9e49a3e74035ba59997ecc1750be9170251a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/hook-strict-fix",
+          "original_tip": "d370174c7528ae176584674f09f6aa0016e021b1",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/hook-strict-fix",
+          "witness_tip": "d370174c7528ae176584674f09f6aa0016e021b1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/install-gate-guard",
+          "original_tip": "557cc96dbffc4ac19097cecc3ebbc7ff16cd3266",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/install-gate-guard",
+          "witness_tip": "557cc96dbffc4ac19097cecc3ebbc7ff16cd3266",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/integration",
+          "original_tip": "08b699f2cc56beb5d163da50fc2581152179a3aa",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/integration",
+          "witness_tip": "08b699f2cc56beb5d163da50fc2581152179a3aa",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-flaky-guard",
+          "original_tip": "bd837b34e3f3d69527b4fb56a2e6619933b876f2",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-flaky-guard",
+          "witness_tip": "bd837b34e3f3d69527b4fb56a2e6619933b876f2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-gate-trap-r2",
+          "original_tip": "c8e72f1e3fc6966aa3a106cec352bb4ccade1975",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-gate-trap-r2",
+          "witness_tip": "c8e72f1e3fc6966aa3a106cec352bb4ccade1975",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-golive-cases",
+          "original_tip": "0e90133f7baacdbf9e3c3f09845c8f7028937d1d",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-golive-cases",
+          "witness_tip": "0e90133f7baacdbf9e3c3f09845c8f7028937d1d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-hook-env",
+          "original_tip": "34e7508a7063fa12878de0ef8d64ac11d36fee55",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-hook-env",
+          "witness_tip": "34e7508a7063fa12878de0ef8d64ac11d36fee55",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-hook-names-golive",
+          "original_tip": "745c127dd3c7f934cc4780319ead4f729085478c",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-hook-names-golive",
+          "witness_tip": "745c127dd3c7f934cc4780319ead4f729085478c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-qc-trim",
+          "original_tip": "feb17b8b9b239b630eedb84d356a5ace105612e3",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-qc-trim",
+          "witness_tip": "feb17b8b9b239b630eedb84d356a5ace105612e3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/btr-rules-code",
+          "original_tip": "e5700aefa00f9f539bbeb7cbc3d1e55736a03843",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/btr-rules-code",
+          "witness_tip": "e5700aefa00f9f539bbeb7cbc3d1e55736a03843",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/dk-behavior",
+          "original_tip": "79a9b22700bea753a4f3bb1b2b1368dbd00b0195",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/dk-behavior",
+          "witness_tip": "79a9b22700bea753a4f3bb1b2b1368dbd00b0195",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/dk-rules-fresh-helper",
+          "original_tip": "410f32268b6103e7c8ecdd798ad3630b527d0380",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/dk-rules-fresh-helper",
+          "witness_tip": "410f32268b6103e7c8ecdd798ad3630b527d0380",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/dk-rules-keybed",
+          "original_tip": "a3f14489aba034f7c0f872f6b43af14ee9678200",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/dk-rules-keybed",
+          "witness_tip": "a3f14489aba034f7c0f872f6b43af14ee9678200",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/dk-rules-lane-paths",
+          "original_tip": "38ff65dc7e283b0d9660e1f92317bc8c3fb8007b",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/dk-rules-lane-paths",
+          "witness_tip": "38ff65dc7e283b0d9660e1f92317bc8c3fb8007b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/dk-rules-v3",
+          "original_tip": "8e2035bd16cbd00bafb81169f801e8a645041c26",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/dk-rules-v3",
+          "witness_tip": "8e2035bd16cbd00bafb81169f801e8a645041c26",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/dk-ste-strict",
+          "original_tip": "b4a6af9a5157db01aee53c4791659176728350be",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/dk-ste-strict",
+          "witness_tip": "b4a6af9a5157db01aee53c4791659176728350be",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/fmb-juno-hoist",
+          "original_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/fmb-juno-hoist",
+          "witness_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/fmb-modwheel-ui",
+          "original_tip": "da0001635e287df381f0b60b9ac023dbdf7b9fdb",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/fmb-modwheel-ui",
+          "witness_tip": "da0001635e287df381f0b60b9ac023dbdf7b9fdb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/fmb-perf-meter-c1",
+          "original_tip": "b5a022beca9ec652065b2f1cb77632dd0543d1ee",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/fmb-perf-meter-c1",
+          "witness_tip": "b5a022beca9ec652065b2f1cb77632dd0543d1ee",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/fmb-rec-full-keybed",
+          "original_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/fmb-rec-full-keybed",
+          "witness_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/mb-batch5-comments",
+          "original_tip": "02126da959ba1b7354e17168a1eee460e7c5906b",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/mb-batch5-comments",
+          "witness_tip": "02126da959ba1b7354e17168a1eee460e7c5906b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/mb-clip-knobs-test",
+          "original_tip": "2dfda65108c24086c31539b61bf71fe235c4f988",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/mb-clip-knobs-test",
+          "witness_tip": "2dfda65108c24086c31539b61bf71fe235c4f988",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/fmb-wt/lane/mb-clp50-test",
+          "original_tip": "e4cbaf91c463203413c145b9684f9cface84bf26",
+          "witness": "refs/tags/archive/backup/box-20261114/fmb-wt/lane/mb-clp50-test",
+          "witness_tip": "e4cbaf91c463203413c145b9684f9cface84bf26",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/lane/dk-rules-handoff-fields",
+          "original_tip": "49281685e15f91f0601e142fe7086bf0d2bf0ab0",
+          "witness": "refs/tags/archive/backup/box-20261114/lane/dk-rules-handoff-fields",
+          "witness_tip": "49281685e15f91f0601e142fe7086bf0d2bf0ab0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/lane/fmb-chicago-ui-lag",
+          "original_tip": "a3a068ffa46faaf8a20c1b4258c804a41dea6c50",
+          "witness": "refs/tags/archive/backup/box-20261114/lane/fmb-chicago-ui-lag",
+          "witness_tip": "a3a068ffa46faaf8a20c1b4258c804a41dea6c50",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-20261114/lane/opt-flash-savings-026",
+          "original_tip": "354564c3c282477ab3ccc7b09a0f446583746814",
+          "witness": "refs/tags/archive/backup/box-20261114/lane/opt-flash-savings-026",
+          "witness_tip": "354564c3c282477ab3ccc7b09a0f446583746814",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/box-notes-20261114",
+          "original_tip": "56337359ed175801dd44f364180060b6d41bf235",
+          "witness": "refs/tags/archive/backup/box-notes-20261114",
+          "witness_tip": "56337359ed175801dd44f364180060b6d41bf235",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.22",
+          "original_tip": "2456968ba39b521610364f3ea17a118b456269c0",
+          "witness": "refs/tags/archive/build/0.0.22",
+          "witness_tip": "2456968ba39b521610364f3ea17a118b456269c0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.23",
+          "original_tip": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+          "witness": "refs/tags/archive/build/0.0.23",
+          "witness_tip": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.24",
+          "original_tip": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+          "witness": "refs/tags/archive/build/0.0.24",
+          "witness_tip": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.24.1",
+          "original_tip": "c20943a75d9e680a64e0384458245db4d7999e05",
+          "witness": "refs/tags/archive/build/0.0.24.1",
+          "witness_tip": "c20943a75d9e680a64e0384458245db4d7999e05",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.24.2",
+          "original_tip": "c68824fcb4d9f731a8dbeb15fb291413346f0f7c",
+          "witness": "refs/tags/archive/build/0.0.24.2",
+          "witness_tip": "c68824fcb4d9f731a8dbeb15fb291413346f0f7c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.24.3",
+          "original_tip": "179ab3840b8db7f5c5fc80fe5dc507ecdba42bf5",
+          "witness": "refs/tags/archive/build/0.0.24.3",
+          "witness_tip": "179ab3840b8db7f5c5fc80fe5dc507ecdba42bf5",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.24.4",
+          "original_tip": "bcf1e06d0a94cf0944fb01fcd6a114c4d95a1823",
+          "witness": "refs/tags/archive/build/0.0.24.4",
+          "witness_tip": "bcf1e06d0a94cf0944fb01fcd6a114c4d95a1823",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "build/0.0.24.5",
+          "original_tip": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+          "witness": "refs/tags/archive/build/0.0.24.5",
+          "witness_tip": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/a4-j37-settings-design-20261114",
+          "original_tip": "5fb481fc27d162331c21517d6d69d33d4811cc93",
+          "witness": "refs/tags/archive/chat/a4-j37-settings-design-20261114",
+          "witness_tip": "5fb481fc27d162331c21517d6d69d33d4811cc93",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/clip-question-cues-20261114",
+          "original_tip": "e581333f1ef2586c6c37f72e80d0b51fe5a00723",
+          "witness": "refs/tags/archive/chat/clip-question-cues-20261114",
+          "witness_tip": "e581333f1ef2586c6c37f72e80d0b51fe5a00723",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/dnbox-website-proposal-20261114-01a1af1b",
+          "original_tip": "34c321466ca3ccb5b7f125c3513cebf4ec76640c",
+          "witness": "refs/tags/archive/chat/dnbox-website-proposal-20261114-01a1af1b",
+          "witness_tip": "34c321466ca3ccb5b7f125c3513cebf4ec76640c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/drone-profile-core-20261114",
+          "original_tip": "ea10fb1492527932476b0ecfa668348f5c1a8a03",
+          "witness": "refs/tags/archive/chat/drone-profile-core-20261114",
+          "witness_tip": "ea10fb1492527932476b0ecfa668348f5c1a8a03",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/drone-unavailable-composition-20261114",
+          "original_tip": "c291ef4556752a04fad4a3bac8880a6693f9ed0e",
+          "witness": "refs/tags/archive/chat/drone-unavailable-composition-20261114",
+          "witness_tip": "c291ef4556752a04fad4a3bac8880a6693f9ed0e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/evidence-f4-host-qualification-94197fc8-20261114",
+          "original_tip": "74771ad8da9bc711749d05c86f63421d7d064a3e",
+          "witness": "refs/tags/archive/chat/evidence-f4-host-qualification-94197fc8-20261114",
+          "witness_tip": "74771ad8da9bc711749d05c86f63421d7d064a3e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/f2-15-16-evidence-export-20261114T072609Z",
+          "original_tip": "7fe5eca0608294f96229eeb0221a00329707987b",
+          "witness": "refs/tags/archive/chat/f2-15-16-evidence-export-20261114T072609Z",
+          "witness_tip": "7fe5eca0608294f96229eeb0221a00329707987b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/f2-navigation-repair-20261114",
+          "original_tip": "7ce2fbd1783acd6b02f6c72e67da043fdd21a135",
+          "witness": "refs/tags/archive/chat/f2-navigation-repair-20261114",
+          "witness_tip": "7ce2fbd1783acd6b02f6c72e67da043fdd21a135",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/feature-intake-integration-20261114",
+          "original_tip": "a82d247017826c41c6cb48c25765ba5a613f58c3",
+          "witness": "refs/tags/archive/chat/feature-intake-integration-20261114",
+          "witness_tip": "a82d247017826c41c6cb48c25765ba5a613f58c3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/feature-intake-observer-20261114",
+          "original_tip": "7f27a97bed3d123a5e0b0bb02e9a5a9250737626",
+          "witness": "refs/tags/archive/chat/feature-intake-observer-20261114",
+          "witness_tip": "7f27a97bed3d123a5e0b0bb02e9a5a9250737626",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/firmware-manual-20261106",
+          "original_tip": "56cd3d8aec13d0f7eb66cd826294f02d0bef2a96",
+          "witness": "refs/tags/archive/chat/firmware-manual-20261106",
+          "witness_tip": "56cd3d8aec13d0f7eb66cd826294f02d0bef2a96",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/instrument-budget-floor-20261114",
+          "original_tip": "ad4b7b69386e79295aadbc3396b43bf7877f47a4",
+          "witness": "refs/tags/archive/chat/instrument-budget-floor-20261114",
+          "witness_tip": "ad4b7b69386e79295aadbc3396b43bf7877f47a4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/instrument-j1-headroom-20261114",
+          "original_tip": "73361f1a16f3407aaa6044960331d78c4253cf6b",
+          "witness": "refs/tags/archive/chat/instrument-j1-headroom-20261114",
+          "witness_tip": "73361f1a16f3407aaa6044960331d78c4253cf6b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/instrument-preset-origin-count-20261114",
+          "original_tip": "4368b7538af1937f043373105a4ceb938d2966f0",
+          "witness": "refs/tags/archive/chat/instrument-preset-origin-count-20261114",
+          "witness_tip": "4368b7538af1937f043373105a4ceb938d2966f0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/issue2-reset-coverage-20261114",
+          "original_tip": "7724398a86e45eb8f660daee34338db61a5ef17f",
+          "witness": "refs/tags/archive/chat/issue2-reset-coverage-20261114",
+          "witness_tip": "7724398a86e45eb8f660daee34338db61a5ef17f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/j1-247dd262-host-qualification-20261114",
+          "original_tip": "2d4fd0f906b263a35ffedfe7bb0c01220170e7d2",
+          "witness": "refs/tags/archive/chat/j1-247dd262-host-qualification-20261114",
+          "witness_tip": "2d4fd0f906b263a35ffedfe7bb0c01220170e7d2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/j6-schema-mapping-20261114",
+          "original_tip": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+          "witness": "refs/tags/archive/chat/j6-schema-mapping-20261114",
+          "witness_tip": "3eaf1ad2d4de3c181e628916f64a3186baf0e7c7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/main-site-smk-guide-20261113",
+          "original_tip": "c0086fd5969ced836a88cba9612743e5203eae9b",
+          "witness": "refs/tags/archive/chat/main-site-smk-guide-20261113",
+          "witness_tip": "c0086fd5969ced836a88cba9612743e5203eae9b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/modwheel-compact-026-20261113",
+          "original_tip": "bc54e1b2440759f5f9d1c550b31e8cd57281dca1",
+          "witness": "refs/tags/archive/chat/modwheel-compact-026-20261113",
+          "witness_tip": "bc54e1b2440759f5f9d1c550b31e8cd57281dca1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/offline-sound-parity-evidence-20261114",
+          "original_tip": "f65de4148cdbbadefa896f2b59f6c156f7e5ed74",
+          "witness": "refs/tags/archive/chat/offline-sound-parity-evidence-20261114",
+          "witness_tip": "f65de4148cdbbadefa896f2b59f6c156f7e5ed74",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/preset-adoption-sharing-20261114",
+          "original_tip": "ffd31a735acc5721d1f90a30fc1ceb283aad6fc5",
+          "witness": "refs/tags/archive/chat/preset-adoption-sharing-20261114",
+          "witness_tip": "ffd31a735acc5721d1f90a30fc1ceb283aad6fc5",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/project-client-isolation-repro-20261114",
+          "original_tip": "0c2d16eeaea4893b8d2ccb18c312cf5c21b4413b",
+          "witness": "refs/tags/archive/chat/project-client-isolation-repro-20261114",
+          "witness_tip": "0c2d16eeaea4893b8d2ccb18c312cf5c21b4413b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/project-pattern-cache-reset-20261114",
+          "original_tip": "c18a8f8b5e7ac06b0c4ebefd33120f771c4ed6a4",
+          "witness": "refs/tags/archive/chat/project-pattern-cache-reset-20261114",
+          "witness_tip": "c18a8f8b5e7ac06b0c4ebefd33120f771c4ed6a4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/rec37-f1-evidence-20261114",
+          "original_tip": "beb4f2d54ccb068f604773fd5a4fce390c089266",
+          "witness": "refs/tags/archive/chat/rec37-f1-evidence-20261114",
+          "witness_tip": "beb4f2d54ccb068f604773fd5a4fce390c089266",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/roadmap-122-evidence-20261114",
+          "original_tip": "d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6",
+          "witness": "refs/tags/archive/chat/roadmap-122-evidence-20261114",
+          "witness_tip": "d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/roadmap-122-f5-provenance-20261114",
+          "original_tip": "76860bd1c693bf2fb6370703fda7ae92e122200d",
+          "witness": "refs/tags/archive/chat/roadmap-122-f5-provenance-20261114",
+          "witness_tip": "76860bd1c693bf2fb6370703fda7ae92e122200d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/settings-role-recovery-20261114",
+          "original_tip": "f1f78229cf9f7a76d3a000391e828fe09ca98cc8",
+          "witness": "refs/tags/archive/chat/settings-role-recovery-20261114",
+          "witness_tip": "f1f78229cf9f7a76d3a000391e828fe09ca98cc8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/smc-capture-bounds-20261114",
+          "original_tip": "0106345a6ca4967adb8da5e62ec2e68ce3021416",
+          "witness": "refs/tags/archive/chat/smc-capture-bounds-20261114",
+          "witness_tip": "0106345a6ca4967adb8da5e62ec2e68ce3021416",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/storage-read-error-safety-20261114",
+          "original_tip": "1d00977d53e8841c8a587e770d70aa109b69def9",
+          "witness": "refs/tags/archive/chat/storage-read-error-safety-20261114",
+          "witness_tip": "1d00977d53e8841c8a587e770d70aa109b69def9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/touchosc-feedback-lifetime-20261114",
+          "original_tip": "679a2c947db6a5296810190a99148f9edb05cc5d",
+          "witness": "refs/tags/archive/chat/touchosc-feedback-lifetime-20261114",
+          "witness_tip": "679a2c947db6a5296810190a99148f9edb05cc5d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/touchosc-lifecycle-d1-d2-20261114",
+          "original_tip": "807f4ef1d59338222d136c140338f803981cdc0b",
+          "witness": "refs/tags/archive/chat/touchosc-lifecycle-d1-d2-20261114",
+          "witness_tip": "807f4ef1d59338222d136c140338f803981cdc0b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/ux-musician-research-20261113",
+          "original_tip": "29caa76690366455abadbf1d17f9943bac901c80",
+          "witness": "refs/tags/archive/chat/ux-musician-research-20261113",
+          "witness_tip": "29caa76690366455abadbf1d17f9943bac901c80",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/whole-instrument-opt-composition-20261114",
+          "original_tip": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+          "witness": "refs/tags/archive/chat/whole-instrument-opt-composition-20261114",
+          "witness_tip": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/whole-instrument-source-checkpoint-20261114",
+          "original_tip": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "witness": "refs/tags/archive/chat/whole-instrument-source-checkpoint-20261114",
+          "witness_tip": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "cursor/restore-tool-exec-bits-f6c2",
+          "original_tip": "fadb862cbde461508646a71797da80f356d20aa6",
+          "witness": "refs/tags/archive/cursor/restore-tool-exec-bits-f6c2",
+          "witness_tip": "fadb862cbde461508646a71797da80f356d20aa6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "design/dnbox-ui-model-settings-20261115",
+          "original_tip": "d0ace9fa28703fccf598120ba542517f71042d75",
+          "witness": "refs/tags/archive/design/dnbox-ui-model-settings-20261115",
+          "witness_tip": "d0ace9fa28703fccf598120ba542517f71042d75",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "design/dnbox-whole-instrument-20261114",
+          "original_tip": "e9d54a43b8b3f853bfcbc2bd1698e8e8830acb18",
+          "witness": "refs/tags/archive/design/dnbox-whole-instrument-20261114",
+          "witness_tip": "e9d54a43b8b3f853bfcbc2bd1698e8e8830acb18",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "design/firmware-ux-overhaul-20261113",
+          "original_tip": "362b61ccf831458986b782442d2a1253ee731494",
+          "witness": "refs/tags/archive/design/firmware-ux-overhaul-20261113",
+          "witness_tip": "362b61ccf831458986b782442d2a1253ee731494",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "diag/dropout-observer-20261113",
+          "original_tip": "ba83317aa55cbcdb2830c5da97d5f64b763499e2",
+          "witness": "refs/tags/archive/diag/dropout-observer-20261113",
+          "witness_tip": "ba83317aa55cbcdb2830c5da97d5f64b763499e2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "docs/dnbox-design-skills-20261113",
+          "original_tip": "c765fcb069d21aff711b6a61c716d9c0df993715",
+          "witness": "refs/tags/archive/docs/dnbox-design-skills-20261113",
+          "witness_tip": "c765fcb069d21aff711b6a61c716d9c0df993715",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "docs/manual-94197fc8",
+          "original_tip": "97a88b44539110ded82257ebb20b0444ba4b8b8f",
+          "witness": "refs/tags/archive/docs/manual-94197fc8",
+          "witness_tip": "97a88b44539110ded82257ebb20b0444ba4b8b8f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "docs/readme-audit-main",
+          "original_tip": "82abc7de807a1faff74c12ceaa268adc517257d2",
+          "witness": "refs/tags/archive/docs/readme-audit-main",
+          "witness_tip": "82abc7de807a1faff74c12ceaa268adc517257d2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "docs/readme-audit-nightly",
+          "original_tip": "0b54e7d1d0688dd6d2911ac0a3468dd328c5f9b0",
+          "witness": "refs/tags/archive/docs/readme-audit-nightly",
+          "witness_tip": "0b54e7d1d0688dd6d2911ac0a3468dd328c5f9b0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "docs/roadmap-owner-sync-20261113",
+          "original_tip": "e8f2f1f6eb2918e37d9e01ffd584e893f3aa81a4",
+          "witness": "refs/tags/archive/docs/roadmap-owner-sync-20261113",
+          "witness_tip": "e8f2f1f6eb2918e37d9e01ffd584e893f3aa81a4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "emu/fm1-emu-360mhz",
+          "original_tip": "6b60618c8bf344d65a166905fb746f46ab708fcb",
+          "witness": "refs/tags/archive/emu/fm1-emu-360mhz",
+          "witness_tip": "6b60618c8bf344d65a166905fb746f46ab708fcb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "emulator/dnbox-public-try-20261113",
+          "original_tip": "431d0db82cbadca761fb32c6548ca4765875324f",
+          "witness": "refs/tags/archive/emulator/dnbox-public-try-20261113",
+          "witness_tip": "431d0db82cbadca761fb32c6548ca4765875324f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "feature/box-entry-u3-nonblocking-20261113",
+          "original_tip": "098ee9a98fde0c15b238429ae36a7321d980d6a7",
+          "witness": "refs/tags/archive/feature/box-entry-u3-nonblocking-20261113",
+          "witness_tip": "098ee9a98fde0c15b238429ae36a7321d980d6a7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "feature/rp-release-status-workflow-20261113",
+          "original_tip": "b5cd0cdf025bab455e01bb3905a5bfc60a47762f",
+          "witness": "refs/tags/archive/feature/rp-release-status-workflow-20261113",
+          "witness_tip": "b5cd0cdf025bab455e01bb3905a5bfc60a47762f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/host-slot-q16-rate-600b",
+          "original_tip": "15f23cc9a12d7c75a526f20ccd7f6e8696230eab",
+          "witness": "refs/tags/archive/fix/host-slot-q16-rate-600b",
+          "witness_tip": "15f23cc9a12d7c75a526f20ccd7f6e8696230eab",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/pages-no-usb-name-gate",
+          "original_tip": "0741791fd0aec0a3474874aff1ff7d70aadd915a",
+          "witness": "refs/tags/archive/fix/pages-no-usb-name-gate",
+          "witness_tip": "0741791fd0aec0a3474874aff1ff7d70aadd915a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/smk-identity-fallback-20261113",
+          "original_tip": "7a5a41a847238976587511bd4854d50dab39fd42",
+          "witness": "refs/tags/archive/fix/smk-identity-fallback-20261113",
+          "witness_tip": "7a5a41a847238976587511bd4854d50dab39fd42",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ui-defect-gate",
+          "original_tip": "37c780cdf4b18e824c863d7cc2982792882f61cb",
+          "witness": "refs/tags/archive/fix/ui-defect-gate",
+          "witness_tip": "37c780cdf4b18e824c863d7cc2982792882f61cb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/026-chain-live-edges",
+          "original_tip": "7268e9a55847048c5991914bc33ae792a8e70d9f",
+          "witness": "refs/tags/archive/fix/026-chain-live-edges",
+          "witness_tip": "7268e9a55847048c5991914bc33ae792a8e70d9f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/026-project-format2",
+          "original_tip": "0af6d8d59d00db5ebc4214de287271840e799fa2",
+          "witness": "refs/tags/archive/fix/026-project-format2",
+          "witness_tip": "0af6d8d59d00db5ebc4214de287271840e799fa2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/026-retained-bootguard-lto",
+          "original_tip": "01c2673a7e3b7e1f7e79f3640b0ae006fadb5de6",
+          "witness": "refs/tags/archive/fix/026-retained-bootguard-lto",
+          "witness_tip": "01c2673a7e3b7e1f7e79f3640b0ae006fadb5de6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/026-sample-integrity-20261113",
+          "original_tip": "d6d35c12d3edaa3ac72a51d32cc378ae07e4a844",
+          "witness": "refs/tags/archive/fix/026-sample-integrity-20261113",
+          "witness_tip": "d6d35c12d3edaa3ac72a51d32cc378ae07e4a844",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/026-uac-irq-fixture-headers",
+          "original_tip": "d5f2e3e92430cb233870117394e1afc53b1a1a91",
+          "witness": "refs/tags/archive/fix/026-uac-irq-fixture-headers",
+          "witness_tip": "d5f2e3e92430cb233870117394e1afc53b1a1a91",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "gh-pages",
+          "original_tip": "cd345c949da096ee093dfd70bfadc6b185f6e2ed",
+          "witness": "refs/heads/gh-pages",
+          "witness_tip": "c656bb5434fd1246f6a69fe4890ab81570228076",
+          "proof": "ancestor of live branch"
+        },
+        {
+          "branch": "handoff/dot-20261116/optional-receipt-guard-wip",
+          "original_tip": "0d9c7f5a0aee983fb2934bbdba71176d0d221e4d",
+          "witness": "refs/tags/archive/handoff/dot-20261116/optional-receipt-guard-wip",
+          "witness_tip": "0d9c7f5a0aee983fb2934bbdba71176d0d221e4d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "handoff/dot-20261116/950-capacity-fix",
+          "original_tip": "ce458c65ed43a76b0edca639c6ab93a2c8e83001",
+          "witness": "refs/tags/archive/handoff/dot-20261116/950-capacity-fix",
+          "witness_tip": "ce458c65ed43a76b0edca639c6ab93a2c8e83001",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/btr-batch13-stack",
+          "original_tip": "e863757184512b4822cdcfa98863d624499b28c4",
+          "witness": "refs/tags/archive/lane/btr-batch13-stack",
+          "witness_tip": "e863757184512b4822cdcfa98863d624499b28c4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/btr-lane-files",
+          "original_tip": "3c04e23eb1cedf5dfedaaa5158d643dfe3014ec7",
+          "witness": "refs/tags/archive/lane/btr-lane-files",
+          "witness_tip": "3c04e23eb1cedf5dfedaaa5158d643dfe3014ec7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/chicago-og-states-qual-20261113",
+          "original_tip": "02121895e268e08d8809e55f9e881dc1baaf8fe6",
+          "witness": "refs/tags/archive/lane/chicago-og-states-qual-20261113",
+          "witness_tip": "02121895e268e08d8809e55f9e881dc1baaf8fe6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dk-rules-grok-main-20261105",
+          "original_tip": "6f027cf4154be451357ee9f663df9c064e3eb08a",
+          "witness": "refs/tags/archive/lane/dk-rules-grok-main-20261105",
+          "witness_tip": "6f027cf4154be451357ee9f663df9c064e3eb08a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dk-rules-grok-nightly-20261105",
+          "original_tip": "f14ed88126dafd79467c44b0fb19a6cb059f02f8",
+          "witness": "refs/tags/archive/lane/dk-rules-grok-nightly-20261105",
+          "witness_tip": "f14ed88126dafd79467c44b0fb19a6cb059f02f8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-chicago-ui-lag",
+          "original_tip": "4b663ba299bec435a7f6f09e5a19870dc2f9e17f",
+          "witness": "refs/tags/archive/lane/fmb-chicago-ui-lag",
+          "witness_tip": "4b663ba299bec435a7f6f09e5a19870dc2f9e17f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-combined-026-measure",
+          "original_tip": "527f41eb357cced97d81516db2e41708f552b5d8",
+          "witness": "refs/tags/archive/lane/fmb-combined-026-measure",
+          "witness_tip": "527f41eb357cced97d81516db2e41708f552b5d8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-gain-juno-drone",
+          "original_tip": "d451ab10f8bfb761a92f1028ea23b0ee4627b4e5",
+          "witness": "refs/tags/archive/lane/fmb-gain-juno-drone",
+          "witness_tip": "d451ab10f8bfb761a92f1028ea23b0ee4627b4e5",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-juno-hoist",
+          "original_tip": "e3e2fafadf29ad6024082ee4e93486a2398b860d",
+          "witness": "refs/tags/archive/lane/fmb-juno-hoist",
+          "witness_tip": "e3e2fafadf29ad6024082ee4e93486a2398b860d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-juno-hoist-v2",
+          "original_tip": "1322293e89c1582eecb3d9b7950e14db01722065",
+          "witness": "refs/tags/archive/lane/fmb-juno-hoist-v2",
+          "witness_tip": "1322293e89c1582eecb3d9b7950e14db01722065",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-modwheel-ui",
+          "original_tip": "df08c572363add8082bb1bc4a65560ece80258d7",
+          "witness": "refs/tags/archive/lane/fmb-modwheel-ui",
+          "witness_tip": "df08c572363add8082bb1bc4a65560ece80258d7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-naming-026",
+          "original_tip": "83103085a7910ec40af9b562a5ac011fbdfd2817",
+          "witness": "refs/tags/archive/lane/fmb-naming-026",
+          "witness_tip": "83103085a7910ec40af9b562a5ac011fbdfd2817",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-perf-meter-c1",
+          "original_tip": "be8a8e4d4c71448c6909fcf015730f1bcaec5b99",
+          "witness": "refs/tags/archive/lane/fmb-perf-meter-c1",
+          "witness_tip": "be8a8e4d4c71448c6909fcf015730f1bcaec5b99",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-presets-format",
+          "original_tip": "d963c3925a5b05f329e24c1a793a6326118fa466",
+          "witness": "refs/tags/archive/lane/fmb-presets-format",
+          "witness_tip": "d963c3925a5b05f329e24c1a793a6326118fa466",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-rec-full-keybed",
+          "original_tip": "e81b2cf6d2eb322d697a0a45b0b98c68c9d757c3",
+          "witness": "refs/tags/archive/lane/fmb-rec-full-keybed",
+          "witness_tip": "e81b2cf6d2eb322d697a0a45b0b98c68c9d757c3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-seq-chord-display",
+          "original_tip": "7129d48ca2c03a0753121c8e24bd8a73964b581d",
+          "witness": "refs/tags/archive/lane/fmb-seq-chord-display",
+          "witness_tip": "7129d48ca2c03a0753121c8e24bd8a73964b581d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/fmb-ui-flash-shrink",
+          "original_tip": "8d0097f84e3d8fb37020ab6d0abc405659abe333",
+          "witness": "refs/tags/archive/lane/fmb-ui-flash-shrink",
+          "witness_tip": "8d0097f84e3d8fb37020ab6d0abc405659abe333",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/j1-juno-stock-curated-20261113",
+          "original_tip": "247dd2621068906d47e90056100f9193bd318cb1",
+          "witness": "refs/tags/archive/lane/j1-juno-stock-curated-20261113",
+          "witness_tip": "247dd2621068906d47e90056100f9193bd318cb1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/j6-exact-release-20261113",
+          "original_tip": "c23402c05fa83ef5b1de66f8876feafb1d33953e",
+          "witness": "refs/tags/archive/lane/j6-exact-release-20261113",
+          "witness_tip": "c23402c05fa83ef5b1de66f8876feafb1d33953e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/n1-dnbox-package-names-20261113",
+          "original_tip": "3d7c7c9cc1f8d09e92a52aa835bcf3d8ada3f03b",
+          "witness": "refs/tags/archive/lane/n1-dnbox-package-names-20261113",
+          "witness_tip": "3d7c7c9cc1f8d09e92a52aa835bcf3d8ada3f03b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/opt-flash-savings-026-r2-w35",
+          "original_tip": "8d44c49e1890ea01f4a074b6a4d914d80209aa55",
+          "witness": "refs/tags/archive/lane/opt-flash-savings-026-r2-w35",
+          "witness_tip": "8d44c49e1890ea01f4a074b6a4d914d80209aa55",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/opt-flash-savings-026",
+          "original_tip": "ac675fdde2ce354305d74130321ccca04e7b2526",
+          "witness": "refs/tags/archive/lane/opt-flash-savings-026",
+          "witness_tip": "ac675fdde2ce354305d74130321ccca04e7b2526",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/recovery-diagnostic-synthetic-20261114",
+          "original_tip": "aacb03d5d014b32597fd625742922b9c67aff360",
+          "witness": "refs/tags/archive/lane/recovery-diagnostic-synthetic-20261114",
+          "witness_tip": "aacb03d5d014b32597fd625742922b9c67aff360",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/rp-release-status-workflow-20261113",
+          "original_tip": "e439f2a82932558a8a99747a3febf83c1c6be363",
+          "witness": "refs/tags/archive/lane/rp-release-status-workflow-20261113",
+          "witness_tip": "e439f2a82932558a8a99747a3febf83c1c6be363",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/w3-web-dnpr-20261113",
+          "original_tip": "7bece9b819790600bb755e2900817b249d875567",
+          "witness": "refs/tags/archive/lane/w3-web-dnpr-20261113",
+          "witness_tip": "7bece9b819790600bb755e2900817b249d875567",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/025-zero-dropout",
+          "original_tip": "78f81bad07b8e53161326c056a2111c663349772",
+          "witness": "refs/tags/archive/lane/025-zero-dropout",
+          "witness_tip": "78f81bad07b8e53161326c056a2111c663349772",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/026-combined-20261112",
+          "original_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "witness": "refs/tags/archive/lane/026-combined-20261112",
+          "witness_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/026-flash-no-unroll-10a",
+          "original_tip": "eb652e499b0ad9f267b89611657e752d64c73ef7",
+          "witness": "refs/tags/archive/lane/026-flash-no-unroll-10a",
+          "witness_tip": "eb652e499b0ad9f267b89611657e752d64c73ef7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/ctl-compile-sighup-root-cause-20261116",
+          "original_tip": "e3cc9f51650540b69641c54458d1b86cff2239fd",
+          "witness": "refs/tags/archive/lead/ctl-compile-sighup-root-cause-20261116",
+          "witness_tip": "e3cc9f51650540b69641c54458d1b86cff2239fd",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/drum-para-r22-20261116",
+          "original_tip": "f254bf2c890623d6d543ed3b874ea225117f1290",
+          "witness": "refs/tags/archive/lead/drum-para-r22-20261116",
+          "witness_tip": "f254bf2c890623d6d543ed3b874ea225117f1290",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/glyph-aa-ease-20261116",
+          "original_tip": "b10ca4de2816ed7c8ef8a8482357e863204602c1",
+          "witness": "refs/tags/archive/lead/glyph-aa-ease-20261116",
+          "witness_tip": "b10ca4de2816ed7c8ef8a8482357e863204602c1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/pan-clip-50-20261116",
+          "original_tip": "d80423f324343491636f9903397bf636a56f0079",
+          "witness": "refs/tags/archive/lead/pan-clip-50-20261116",
+          "witness_tip": "d80423f324343491636f9903397bf636a56f0079",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/r026-home-globe-pad-clear-20261116",
+          "original_tip": "87cab6d24012c349e50a9252da925c2e914dda15",
+          "witness": "refs/tags/archive/lead/r026-home-globe-pad-clear-20261116",
+          "witness_tip": "87cab6d24012c349e50a9252da925c2e914dda15",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/r026-r014-testmerge-20261116",
+          "original_tip": "8a0ef30ca3e60e9c2c2721f1c3b7b303e12b229b",
+          "witness": "refs/tags/archive/lead/r026-r014-testmerge-20261116",
+          "witness_tip": "8a0ef30ca3e60e9c2c2721f1c3b7b303e12b229b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/r039-rename-prep-20261116",
+          "original_tip": "70ec240536c59ffafa83cbc73b1f6c304bf32abc",
+          "witness": "refs/tags/archive/lead/r039-rename-prep-20261116",
+          "witness_tip": "70ec240536c59ffafa83cbc73b1f6c304bf32abc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/ui-canonical-gate-20261116",
+          "original_tip": "805bd3e29fc24c293e99d507a1da5ab0df415b57",
+          "witness": "refs/tags/archive/lead/ui-canonical-gate-20261116",
+          "witness_tip": "805bd3e29fc24c293e99d507a1da5ab0df415b57",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "main",
+          "original_tip": "035026fe70059af35e25c7c121b40f318b732fe3",
+          "witness": "refs/heads/main",
+          "witness_tip": "f76b6c6c87230d8e61d0ae697739efcd7ce8fe61",
+          "proof": "ancestor of live branch"
+        },
+        {
+          "branch": "nightly",
+          "original_tip": "2dd06b46ff037f858765ddf40275d8da02a9066c",
+          "witness": "refs/heads/nightly",
+          "witness_tip": "2dd06b46ff037f858765ddf40275d8da02a9066c",
+          "proof": "exact live branch"
+        },
+        {
+          "branch": "qa/chicago-ui-acceptance-20261113",
+          "original_tip": "8954bc4c58a6d2ab02990dd070ea1b3e815892d8",
+          "witness": "refs/tags/archive/qa/chicago-ui-acceptance-20261113",
+          "witness_tip": "8954bc4c58a6d2ab02990dd070ea1b3e815892d8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "release/0.0.25.1",
+          "original_tip": "79280e763341d03ba43266d3e25dad66f12de860",
+          "witness": "refs/tags/archive/release/0.0.25.1",
+          "witness_tip": "79280e763341d03ba43266d3e25dad66f12de860",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "research/chicago-miami-ui-latency-20261113",
+          "original_tip": "b1888beb15724b5c57f8c18783cb57fd93d082cf",
+          "witness": "refs/tags/archive/research/chicago-miami-ui-latency-20261113",
+          "witness_tip": "b1888beb15724b5c57f8c18783cb57fd93d082cf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "research/installer-task-review-20261113",
+          "original_tip": "fa4a08d54da4c4555d897523d8dca611d6ae9e6f",
+          "witness": "refs/tags/archive/research/installer-task-review-20261113",
+          "witness_tip": "fa4a08d54da4c4555d897523d8dca611d6ae9e6f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/chicago-lag-evidence-20261116",
+          "original_tip": "afe743ebc006ef8a82b34b65732c698a842dda7d",
+          "witness": "refs/tags/archive/sound/chicago-lag-evidence-20261116",
+          "witness_tip": "afe743ebc006ef8a82b34b65732c698a842dda7d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/chicago-lag-evidence-builds-20261116",
+          "original_tip": "f6864385e59a7ed5036e7559d0c885655d9d2fe9",
+          "witness": "refs/tags/archive/sound/chicago-lag-evidence-builds-20261116",
+          "witness_tip": "f6864385e59a7ed5036e7559d0c885655d9d2fe9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/superj6-exact-fu1-20261116",
+          "original_tip": "4ea86b9e869011cae761709d13569b7bc32980a8",
+          "witness": "refs/tags/archive/sound/superj6-exact-fu1-20261116",
+          "witness_tip": "4ea86b9e869011cae761709d13569b7bc32980a8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/superj6-live-voice-20261116",
+          "original_tip": "5d18b182955d107c7f8ca09fb5b0b08a83a6adc9",
+          "witness": "refs/tags/archive/sound/superj6-live-voice-20261116",
+          "witness_tip": "5d18b182955d107c7f8ca09fb5b0b08a83a6adc9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/superj6-no-double-20261116",
+          "original_tip": "f027f7a5e15b2ac9fdaf58122329b9cb258fed4c",
+          "witness": "refs/tags/archive/sound/superj6-no-double-20261116",
+          "witness_tip": "f027f7a5e15b2ac9fdaf58122329b9cb258fed4c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/synthone-fx-bounded-memory-design-20261116",
+          "original_tip": "ceb33bff4337a8fbff23717bf1b596800fc83d4f",
+          "witness": "refs/tags/archive/sound/synthone-fx-bounded-memory-design-20261116",
+          "witness_tip": "ceb33bff4337a8fbff23717bf1b596800fc83d4f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/synthone-no-double-20261116",
+          "original_tip": "07e9ae19b6012dc3a304c2943241a8c5da8e773c",
+          "witness": "refs/tags/archive/sound/synthone-no-double-20261116",
+          "witness_tip": "07e9ae19b6012dc3a304c2943241a8c5da8e773c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/synthone-no-double-fu1-20261116",
+          "original_tip": "46310c3bdf89da06b23f30d363d3d955de80e600",
+          "witness": "refs/tags/archive/sound/synthone-no-double-fu1-20261116",
+          "witness_tip": "46310c3bdf89da06b23f30d363d3d955de80e600",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/synthone-no-double-fu2-20261116",
+          "original_tip": "26f300b04e7fe91df1aadf88167bc01f532a7358",
+          "witness": "refs/tags/archive/sound/synthone-no-double-fu2-20261116",
+          "witness_tip": "26f300b04e7fe91df1aadf88167bc01f532a7358",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "sound/synthone-nonfinite-exp-fix-20261116",
+          "original_tip": "56079bbdcb753c37d65aedd17ce49ba71c261797",
+          "witness": "refs/tags/archive/sound/synthone-nonfinite-exp-fix-20261116",
+          "witness_tip": "56079bbdcb753c37d65aedd17ce49ba71c261797",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "website-ux/v2-preview",
+          "original_tip": "34c321466ca3ccb5b7f125c3513cebf4ec76640c",
+          "witness": "refs/tags/archive/website-ux/v2-preview",
+          "witness_tip": "34c321466ca3ccb5b7f125c3513cebf4ec76640c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/current-emulator-3c41-evidence-20261114",
+          "original_tip": "4a0df553a5e8d5e87ef91f86f75fe93b3394247c",
+          "witness": "refs/tags/archive/wip/current-emulator-3c41-evidence-20261114",
+          "witness_tip": "4a0df553a5e8d5e87ef91f86f75fe93b3394247c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/dnbox-local-file-librarian-20261114",
+          "original_tip": "e1cadd027068398213e853a29498d7ee615b8375",
+          "witness": "refs/tags/archive/wip/dnbox-local-file-librarian-20261114",
+          "witness_tip": "e1cadd027068398213e853a29498d7ee615b8375",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/dnbox-product-v4-20261114",
+          "original_tip": "5fa5706b5ef27ce5f6d511a63814e09b67d491ab",
+          "witness": "refs/tags/archive/wip/dnbox-product-v4-20261114",
+          "witness_tip": "5fa5706b5ef27ce5f6d511a63814e09b67d491ab",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/dnbox-v4-corrections-20261114",
+          "original_tip": "69ad2b5b6b9f4e83e3cdacf82321e24e3c5c08f2",
+          "witness": "refs/tags/archive/wip/dnbox-v4-corrections-20261114",
+          "witness_tip": "69ad2b5b6b9f4e83e3cdacf82321e24e3c5c08f2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/drone-onset-admission-20261114",
+          "original_tip": "b4a72065548bb108c201a538abe067d175bc4552",
+          "witness": "refs/tags/archive/wip/drone-onset-admission-20261114",
+          "witness_tip": "b4a72065548bb108c201a538abe067d175bc4552",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/evidence-dnbox-52104-recovery-20261114",
+          "original_tip": "590e018f752adc11fae7ec8f62b18264c865ae47",
+          "witness": "refs/tags/archive/wip/evidence-dnbox-52104-recovery-20261114",
+          "witness_tip": "590e018f752adc11fae7ec8f62b18264c865ae47",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/m12-acceptance-20261114",
+          "original_tip": "9d00e0e0faa8e06cbf4c340b3cfc3e7993070375",
+          "witness": "refs/tags/archive/wip/m12-acceptance-20261114",
+          "witness_tip": "9d00e0e0faa8e06cbf4c340b3cfc3e7993070375",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/m12-independent-acceptance-adapter-20261114",
+          "original_tip": "0e2b7b78d223e10af1e9172db6dee657a8d590cb",
+          "witness": "refs/tags/archive/wip/m12-independent-acceptance-adapter-20261114",
+          "witness_tip": "0e2b7b78d223e10af1e9172db6dee657a8d590cb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/m12-nontable-identity-20261114",
+          "original_tip": "167373292c70d07ac6e8895bf8eb45df369c04f4",
+          "witness": "refs/tags/archive/wip/m12-nontable-identity-20261114",
+          "witness_tip": "167373292c70d07ac6e8895bf8eb45df369c04f4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/musician-manual-97a88b",
+          "original_tip": "4998572bcc06676f08a7875ca49fb2a56358eff6",
+          "witness": "refs/tags/archive/wip/musician-manual-97a88b",
+          "witness_tip": "4998572bcc06676f08a7875ca49fb2a56358eff6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/native-d158-evidence-20261114",
+          "original_tip": "8d833e2e407c33741053e9646a57b61b72b60821",
+          "witness": "refs/tags/archive/wip/native-d158-evidence-20261114",
+          "witness_tip": "8d833e2e407c33741053e9646a57b61b72b60821",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/rec37-compact-continuation-20261113",
+          "original_tip": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+          "witness": "refs/tags/archive/wip/rec37-compact-continuation-20261113",
+          "witness_tip": "8b0b6d311577fcc303212016423dd4f5ea4e8184",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/smk37-browser-contract-archive-20261114",
+          "original_tip": "e2d36dba34a2fed3bdb192d509687679674ccd7e",
+          "witness": "refs/tags/archive/wip/smk37-browser-contract-archive-20261114",
+          "witness_tip": "e2d36dba34a2fed3bdb192d509687679674ccd7e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/superj6-original-proxy-20261115",
+          "original_tip": "74b50bdfe2e1d9ac7f22445cdf5ab3726bb85272",
+          "witness": "refs/tags/archive/wip/superj6-original-proxy-20261115",
+          "witness_tip": "74b50bdfe2e1d9ac7f22445cdf5ab3726bb85272",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/sync-contract-52104-20261114",
+          "original_tip": "fde38845e7474fffae24ae835907d7ca9197b589",
+          "witness": "refs/tags/archive/wip/sync-contract-52104-20261114",
+          "witness_tip": "fde38845e7474fffae24ae835907d7ca9197b589",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-alias-scheduler-20261115",
+          "original_tip": "1c4c0fff8142226e9daee90db94b362cac40ded3",
+          "witness": "refs/tags/archive/wip/synthone-alias-scheduler-20261115",
+          "witness_tip": "1c4c0fff8142226e9daee90db94b362cac40ded3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-compact-c-reader-20261115",
+          "original_tip": "29e499596a4ee6f1e4eeac067795ec06a446a01f",
+          "witness": "refs/tags/archive/wip/synthone-compact-c-reader-20261115",
+          "witness_tip": "29e499596a4ee6f1e4eeac067795ec06a446a01f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-compact-scheduler-20261115",
+          "original_tip": "820edc7bae28a53e642fe53761a2fb90d5975804",
+          "witness": "refs/tags/archive/wip/synthone-compact-scheduler-20261115",
+          "witness_tip": "820edc7bae28a53e642fe53761a2fb90d5975804",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-direct-scheduler-20261114",
+          "original_tip": "46b06ada4009e5047cd3bd4a153b8e3b76c46713",
+          "witness": "refs/tags/archive/wip/synthone-direct-scheduler-20261114",
+          "witness_tip": "46b06ada4009e5047cd3bd4a153b8e3b76c46713",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-engine-feasibility-20261114",
+          "original_tip": "0258bfd846fdd00d5df8d4e7309b2c5888e218a3",
+          "witness": "refs/tags/archive/wip/synthone-engine-feasibility-20261114",
+          "witness_tip": "0258bfd846fdd00d5df8d4e7309b2c5888e218a3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-freestanding-target-20261114",
+          "original_tip": "bb6745d6f794d4befe6d03610e51400891bb25e1",
+          "witness": "refs/tags/archive/wip/synthone-freestanding-target-20261114",
+          "witness_tip": "bb6745d6f794d4befe6d03610e51400891bb25e1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-lossless-morph-analysis-20261115",
+          "original_tip": "1cb2782e17355ae397c53dbf2edb5d0f142e7d78",
+          "witness": "refs/tags/archive/wip/synthone-lossless-morph-analysis-20261115",
+          "witness_tip": "1cb2782e17355ae397c53dbf2edb5d0f142e7d78",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-morph-reader-20261115",
+          "original_tip": "346223e9ec6361f0d08ac72cee785a5d223d4caa",
+          "witness": "refs/tags/archive/wip/synthone-morph-reader-20261115",
+          "witness_tip": "346223e9ec6361f0d08ac72cee785a5d223d4caa",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-parameter-ports-20261114",
+          "original_tip": "3cae501c920763904908ccf991f83739af3e7689",
+          "witness": "refs/tags/archive/wip/synthone-parameter-ports-20261114",
+          "witness_tip": "3cae501c920763904908ccf991f83739af3e7689",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-runtime-state-split-20261114",
+          "original_tip": "b0013c8a8d7209a155494f5e9b4952dedde87ba2",
+          "witness": "refs/tags/archive/wip/synthone-runtime-state-split-20261114",
+          "witness_tip": "b0013c8a8d7209a155494f5e9b4952dedde87ba2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-shared-graph-portable-20261114",
+          "original_tip": "a0c8698f724e28ec6275307525933c195817b3c5",
+          "witness": "refs/tags/archive/wip/synthone-shared-graph-portable-20261114",
+          "witness_tip": "a0c8698f724e28ec6275307525933c195817b3c5",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/synthone-table-alias-20261114",
+          "original_tip": "591774bd9c18ba82ba405abe1a52e74633f0e8a7",
+          "witness": "refs/tags/archive/wip/synthone-table-alias-20261114",
+          "witness_tip": "591774bd9c18ba82ba405abe1a52e74633f0e8a7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/w3-explicit-target-parity-20261114",
+          "original_tip": "0472ca4ca75cf477be171554071f972f60dba88c",
+          "witness": "refs/tags/archive/wip/w3-explicit-target-parity-20261114",
+          "witness_tip": "0472ca4ca75cf477be171554071f972f60dba88c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/website-native37-source-20261115",
+          "original_tip": "ea7b8e7f2e13358d5df77eef35bde00ea1cda202",
+          "witness": "refs/tags/archive/wip/website-native37-source-20261115",
+          "witness_tip": "ea7b8e7f2e13358d5df77eef35bde00ea1cda202",
+          "proof": "same-name archive"
+        }
+      ],
+      "protected_prs": [
+        {
+          "pr": 951,
+          "head": "37c780cdf4b18e824c863d7cc2982792882f61cb",
+          "archive": "refs/tags/archive/fix/ui-defect-gate",
+          "archive_tip": "37c780cdf4b18e824c863d7cc2982792882f61cb",
+          "state": "closed",
+          "checked": true
+        },
+        {
+          "pr": 869,
+          "head": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "archive": "refs/tags/archive/lane/026-combined-20261112",
+          "archive_tip": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+          "state": "closed",
+          "checked": true
+        },
+        {
+          "pr": 944,
+          "head": "d0ace9fa28703fccf598120ba542517f71042d75",
+          "archive": "refs/tags/archive/design/dnbox-ui-model-settings-20261115",
+          "archive_tip": "d0ace9fa28703fccf598120ba542517f71042d75",
+          "state": "closed",
+          "checked": true
+        },
+        {
+          "pr": 947,
+          "head": "74b50bdfe2e1d9ac7f22445cdf5ab3726bb85272",
+          "archive": "refs/tags/archive/wip/superj6-original-proxy-20261115",
+          "archive_tip": "74b50bdfe2e1d9ac7f22445cdf5ab3726bb85272",
+          "state": "closed",
+          "checked": true
+        },
+        {
+          "pr": 948,
+          "head": "820edc7bae28a53e642fe53761a2fb90d5975804",
+          "archive": "refs/tags/archive/wip/synthone-compact-scheduler-20261115",
+          "archive_tip": "820edc7bae28a53e642fe53761a2fb90d5975804",
+          "state": "closed",
+          "checked": true
+        },
+        {
+          "pr": 887,
+          "head": "e8f2f1f6eb2918e37d9e01ffd584e893f3aa81a4",
+          "archive": "refs/tags/archive/docs/roadmap-owner-sync-20261113",
+          "archive_tip": "e8f2f1f6eb2918e37d9e01ffd584e893f3aa81a4",
+          "state": "closed",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "repo": "DnBOX-nightly",
+      "tally": {
+        "same-name archive": 129,
+        "ancestor of live branch": 2
+      },
+      "current_branches": 7,
+      "current_open_prs": [
+        169,
+        170
+      ],
+      "witnesses": [
+        {
+          "branch": "archive/box-20261114/wip-nightly-main",
+          "original_tip": "424f3afa121f950f0b2aa086dfa30a7bdcb4a74b",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-nightly-main",
+          "witness_tip": "424f3afa121f950f0b2aa086dfa30a7bdcb4a74b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "archive/box-20261114/wip-ns-gh",
+          "original_tip": "085483e16e33ac1698eb30ea14ccda520bb67fea",
+          "witness": "refs/tags/archive/archive/box-20261114/wip-ns-gh",
+          "witness_tip": "085483e16e33ac1698eb30ea14ccda520bb67fea",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "backup/nightly-smc-connect-fix-local-65ef47f8",
+          "original_tip": "65ef47f8850ce65a66ab386ae2bc9924bab5851d",
+          "witness": "refs/tags/archive/backup/nightly-smc-connect-fix-local-65ef47f8",
+          "witness_tip": "65ef47f8850ce65a66ab386ae2bc9924bab5851d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "chat/smc-source-export",
+          "original_tip": "cf55d5a41504843873f7264a3f6777a7c953f395",
+          "witness": "refs/tags/archive/chat/smc-source-export",
+          "witness_tip": "cf55d5a41504843873f7264a3f6777a7c953f395",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/archive-midi-preservation-20261026",
+          "original_tip": "33c316feb04717f8f2666df9d256337465f2f176",
+          "witness": "refs/tags/archive/codex/archive-midi-preservation-20261026",
+          "witness_tip": "33c316feb04717f8f2666df9d256337465f2f176",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/ec012-preflash-map-20261026",
+          "original_tip": "8f4fa6b0d58b9236fbbf5bd79dea97519da66693",
+          "witness": "refs/tags/archive/codex/ec012-preflash-map-20261026",
+          "witness_tip": "8f4fa6b0d58b9236fbbf5bd79dea97519da66693",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/nightly-installer-sample-prep-20261026",
+          "original_tip": "f10033e2cf19757452f4f9ddbe128048d9e06f4f",
+          "witness": "refs/tags/archive/codex/nightly-installer-sample-prep-20261026",
+          "witness_tip": "f10033e2cf19757452f4f9ddbe128048d9e06f4f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/oldschool-nightly-importer-scoped",
+          "original_tip": "241ddb8a2f35e1787d70a2a079d3f5987b126dd9",
+          "witness": "refs/tags/archive/codex/oldschool-nightly-importer-scoped",
+          "witness_tip": "241ddb8a2f35e1787d70a2a079d3f5987b126dd9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/ota-identity-integrity-20261026",
+          "original_tip": "a17487fe7657d891f73ad9aa369dc8cb6b0a43d9",
+          "witness": "refs/tags/archive/codex/ota-identity-integrity-20261026",
+          "witness_tip": "a17487fe7657d891f73ad9aa369dc8cb6b0a43d9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/project-export-compat-20261026",
+          "original_tip": "57124e472b96d01917770b55529df69cc20d94d7",
+          "witness": "refs/tags/archive/codex/project-export-compat-20261026",
+          "witness_tip": "57124e472b96d01917770b55529df69cc20d94d7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/restore-logical-indices-20261026",
+          "original_tip": "1b2b687b0c572602debbe2bba4cde9dfa647f774",
+          "witness": "refs/tags/archive/codex/restore-logical-indices-20261026",
+          "witness_tip": "1b2b687b0c572602debbe2bba4cde9dfa647f774",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/sample-preview-below-installer",
+          "original_tip": "3809fad332f08a0aa25c8a39cd56968e37260e21",
+          "witness": "refs/tags/archive/codex/sample-preview-below-installer",
+          "witness_tip": "3809fad332f08a0aa25c8a39cd56968e37260e21",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "codex/site-integrated-20261026",
+          "original_tip": "fa89b8381b7587c7c6320c3e5f64055e296b5f86",
+          "witness": "refs/tags/archive/codex/site-integrated-20261026",
+          "witness_tip": "fa89b8381b7587c7c6320c3e5f64055e296b5f86",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "cursor/drop-distribution-license-gate",
+          "original_tip": "8ee089485aeaf8b19376b19a359fee9252f69e7a",
+          "witness": "refs/tags/archive/cursor/drop-distribution-license-gate",
+          "witness_tip": "8ee089485aeaf8b19376b19a359fee9252f69e7a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "cursor/nb-edge-archive-midi-fix-edd1",
+          "original_tip": "bb6279dc895932c15022eb7102bfb76c7125e75c",
+          "witness": "refs/tags/archive/cursor/nb-edge-archive-midi-fix-edd1",
+          "witness_tip": "bb6279dc895932c15022eb7102bfb76c7125e75c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "cursor/qualified-admission-bridge-rebased-535f",
+          "original_tip": "feeedeafceaaf471c80cab3137c295d57e5ea802",
+          "witness": "refs/tags/archive/cursor/qualified-admission-bridge-rebased-535f",
+          "witness_tip": "feeedeafceaaf471c80cab3137c295d57e5ea802",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "cursor/remote-parameter-lane-bdb9",
+          "original_tip": "3f22e000ad17456318cde997067c7fd45dd7e3b3",
+          "witness": "refs/tags/archive/cursor/remote-parameter-lane-bdb9",
+          "witness_tip": "3f22e000ad17456318cde997067c7fd45dd7e3b3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "delivery/reviewed-version-labels-e8578ce",
+          "original_tip": "ad4bc9fd236448cfa02654070440a0cffc6ca24f",
+          "witness": "refs/tags/archive/delivery/reviewed-version-labels-e8578ce",
+          "witness_tip": "ad4bc9fd236448cfa02654070440a0cffc6ca24f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "dnbox-base-smc-20261029",
+          "original_tip": "77b1ba80102d9d8c9e2dfcebb439c4703fc51cba",
+          "witness": "refs/tags/archive/dnbox-base-smc-20261029",
+          "witness_tip": "77b1ba80102d9d8c9e2dfcebb439c4703fc51cba",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "edgecase/ec013-zero-count-smp-info-20261026",
+          "original_tip": "3b40dd1001b320a66a0891e6a327ff811a3855e2",
+          "witness": "refs/tags/archive/edgecase/ec013-zero-count-smp-info-20261026",
+          "witness_tip": "3b40dd1001b320a66a0891e6a327ff811a3855e2",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-42de2893-20261110",
+          "original_tip": "fc42a402f01e90338bf86d9f560875002139d6db",
+          "witness": "refs/tags/archive/evidence/d6n-42de2893-20261110",
+          "witness_tip": "fc42a402f01e90338bf86d9f560875002139d6db",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-42de2893-catalog-dryrun-20261110",
+          "original_tip": "d9180ca6dd7608fa7eac38604ae9762cd8baaebc",
+          "witness": "refs/tags/archive/evidence/d6n-42de2893-catalog-dryrun-20261110",
+          "witness_tip": "d9180ca6dd7608fa7eac38604ae9762cd8baaebc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-617c0ff1-20261109",
+          "original_tip": "699ff769dafa1c8a59fe2800082d8a78970a0faf",
+          "witness": "refs/tags/archive/evidence/d6n-617c0ff1-20261109",
+          "witness_tip": "699ff769dafa1c8a59fe2800082d8a78970a0faf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-617c0ff1-catalog-dryrun-20261109",
+          "original_tip": "8e8dfe8c922ec7483555e13171d5670e5036c406",
+          "witness": "refs/tags/archive/evidence/d6n-617c0ff1-catalog-dryrun-20261109",
+          "witness_tip": "8e8dfe8c922ec7483555e13171d5670e5036c406",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-2287f113-20261109",
+          "original_tip": "a3e8e30e72feb9be1a6c663e544cdbf7e111ed44",
+          "witness": "refs/tags/archive/evidence/d6n-2287f113-20261109",
+          "witness_tip": "a3e8e30e72feb9be1a6c663e544cdbf7e111ed44",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-2287f113-catalog-dryrun-20261109",
+          "original_tip": "1abdb9eb86ddcfb8107a5d84b4cda606ee04f454",
+          "witness": "refs/tags/archive/evidence/d6n-2287f113-catalog-dryrun-20261109",
+          "witness_tip": "1abdb9eb86ddcfb8107a5d84b4cda606ee04f454",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-d3510b82-20261109",
+          "original_tip": "3d23c85f8ec346853d1cefeda7520a1c5c3f09f7",
+          "witness": "refs/tags/archive/evidence/d6n-d3510b82-20261109",
+          "witness_tip": "3d23c85f8ec346853d1cefeda7520a1c5c3f09f7",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-d3510b82-catalog-dryrun-20261109",
+          "original_tip": "5988d83ee8ef366f2f60ce9538b7eee6ef521d9a",
+          "witness": "refs/tags/archive/evidence/d6n-d3510b82-catalog-dryrun-20261109",
+          "witness_tip": "5988d83ee8ef366f2f60ce9538b7eee6ef521d9a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/d6n-e3a48f3e-20261109",
+          "original_tip": "40fb611d1956e3bfc377305f45e2d3439f797c57",
+          "witness": "refs/tags/archive/evidence/d6n-e3a48f3e-20261109",
+          "witness_tip": "40fb611d1956e3bfc377305f45e2d3439f797c57",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/pushc-dryrun-ce278129-devchecked-20261105",
+          "original_tip": "972995560eed516df39fcd532b85836993374f28",
+          "witness": "refs/tags/archive/evidence/pushc-dryrun-ce278129-devchecked-20261105",
+          "witness_tip": "972995560eed516df39fcd532b85836993374f28",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/pushc-installer-42de2893-20261110",
+          "original_tip": "c6cdb94e4e9be8654fed399943b63c2593a2c195",
+          "witness": "refs/tags/archive/evidence/pushc-installer-42de2893-20261110",
+          "witness_tip": "c6cdb94e4e9be8654fed399943b63c2593a2c195",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/pushc-installer-617c0ff1-20261109",
+          "original_tip": "3ecc8e676bebf889779ab2fd4ad2c3489648d83f",
+          "witness": "refs/tags/archive/evidence/pushc-installer-617c0ff1-20261109",
+          "witness_tip": "3ecc8e676bebf889779ab2fd4ad2c3489648d83f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/pushc-installer-d3510b82-20261109",
+          "original_tip": "2a2e81466cce0af635440f9cf62f0e909fb6d2a3",
+          "witness": "refs/tags/archive/evidence/pushc-installer-d3510b82-20261109",
+          "witness_tip": "2a2e81466cce0af635440f9cf62f0e909fb6d2a3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/pushd2-ce278129-title-20261106",
+          "original_tip": "8b74bfad37c4071e02798d3b4d079b35dc64e79a",
+          "witness": "refs/tags/archive/evidence/pushd2-ce278129-title-20261106",
+          "witness_tip": "8b74bfad37c4071e02798d3b4d079b35dc64e79a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "evidence/pushd-ce278129-label-20261106",
+          "original_tip": "866f5d3522e7d21e1e436d02a9e4587da9967491",
+          "witness": "refs/tags/archive/evidence/pushd-ce278129-label-20261106",
+          "witness_tip": "866f5d3522e7d21e1e436d02a9e4587da9967491",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "feature/installer-density-20261025",
+          "original_tip": "63664686825feb883b33aad25d35404be73d376b",
+          "witness": "refs/tags/archive/feature/installer-density-20261025",
+          "witness_tip": "63664686825feb883b33aad25d35404be73d376b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "feature/installer-owner-ux-20261025",
+          "original_tip": "08b7e2a9ff01bfcfe4edb439ad43302af8c8ad8d",
+          "witness": "refs/tags/archive/feature/installer-owner-ux-20261025",
+          "witness_tip": "08b7e2a9ff01bfcfe4edb439ad43302af8c8ad8d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "feature/offline-sequencer-editor-stage2",
+          "original_tip": "7b962858d802588ed1733c07572429e91bb5639f",
+          "witness": "refs/tags/archive/feature/offline-sequencer-editor-stage2",
+          "witness_tip": "7b962858d802588ed1733c07572429e91bb5639f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "feature/song-project-workflows-20261025",
+          "original_tip": "e8ffcf04f7eb39c15cdbaa6d646a53aedf2ff07a",
+          "witness": "refs/tags/archive/feature/song-project-workflows-20261025",
+          "witness_tip": "e8ffcf04f7eb39c15cdbaa6d646a53aedf2ff07a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/adaptive-automation-entrypoint-20261028",
+          "original_tip": "14aad7125f727571825d350acd990cc85d26b646",
+          "witness": "refs/tags/archive/fix/adaptive-automation-entrypoint-20261028",
+          "witness_tip": "14aad7125f727571825d350acd990cc85d26b646",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/assigned-package-versions",
+          "original_tip": "210baba55721c1fd75bb4c326a5d32b6a5d8bd55",
+          "witness": "refs/tags/archive/fix/assigned-package-versions",
+          "witness_tip": "210baba55721c1fd75bb4c326a5d32b6a5d8bd55",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ec013-zero-slot-info",
+          "original_tip": "fbe74f9315b8dbe01f16cf0c566dd8d6136d067d",
+          "witness": "refs/tags/archive/fix/ec013-zero-slot-info",
+          "witness_tip": "fbe74f9315b8dbe01f16cf0c566dd8d6136d067d",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ec028-terminal-contract-20261027",
+          "original_tip": "5e1881d2ac54efc2408cd070029f4eadfb247e80",
+          "witness": "refs/tags/archive/fix/ec028-terminal-contract-20261027",
+          "witness_tip": "5e1881d2ac54efc2408cd070029f4eadfb247e80",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ec029-exact-sample-readback-20261027",
+          "original_tip": "5bbb35de76a4eef354253606b77eefb96e2e7931",
+          "witness": "refs/tags/archive/fix/ec029-exact-sample-readback-20261027",
+          "witness_tip": "5bbb35de76a4eef354253606b77eefb96e2e7931",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/install-visible-errors",
+          "original_tip": "38f4041cc53bf68c1c644c4b091319e3208390d6",
+          "witness": "refs/tags/archive/fix/install-visible-errors",
+          "witness_tip": "38f4041cc53bf68c1c644c4b091319e3208390d6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/installer-pages-regression-20261029",
+          "original_tip": "9df2dfb7afe172f75d1ca8866edffc72657beb12",
+          "witness": "refs/tags/archive/fix/installer-pages-regression-20261029",
+          "witness_tip": "9df2dfb7afe172f75d1ca8866edffc72657beb12",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ios-inpage-confirm",
+          "original_tip": "ac0cf5e5640c12b6f8abbe65deb37945297641d0",
+          "witness": "refs/tags/archive/fix/ios-inpage-confirm",
+          "witness_tip": "ac0cf5e5640c12b6f8abbe65deb37945297641d0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ios-spurious-continuity",
+          "original_tip": "8642c0d124a0d6d07601acc5c3c8ba4a15c1b27e",
+          "witness": "refs/tags/archive/fix/ios-spurious-continuity",
+          "witness_tip": "8642c0d124a0d6d07601acc5c3c8ba4a15c1b27e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/manual-help-links-20261027",
+          "original_tip": "20708bb408dff416ef1967e1cef9258607abf908",
+          "witness": "refs/tags/archive/fix/manual-help-links-20261027",
+          "witness_tip": "20708bb408dff416ef1967e1cef9258607abf908",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ota-discovery-deadline-20261113",
+          "original_tip": "7fff448ad64cac02badd58a9a31d98065c2f9936",
+          "witness": "refs/tags/archive/fix/ota-discovery-deadline-20261113",
+          "witness_tip": "7fff448ad64cac02badd58a9a31d98065c2f9936",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/ota-terminal-retry-20261113",
+          "original_tip": "f40007f6baa6c4427a6ee512e63536fd848d0696",
+          "witness": "refs/tags/archive/fix/ota-terminal-retry-20261113",
+          "witness_tip": "f40007f6baa6c4427a6ee512e63536fd848d0696",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/remove-withdrawn-026-artifacts-20261113",
+          "original_tip": "7653732232252d75f54a66a50442323834b6db50",
+          "witness": "refs/tags/archive/fix/remove-withdrawn-026-artifacts-20261113",
+          "witness_tip": "7653732232252d75f54a66a50442323834b6db50",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/retained-package-map-compatibility-20261029",
+          "original_tip": "af7085d4af2e6ca70bc9b223623cb814c27316a9",
+          "witness": "refs/tags/archive/fix/retained-package-map-compatibility-20261029",
+          "witness_tip": "af7085d4af2e6ca70bc9b223623cb814c27316a9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/smk-identity-live-20261113",
+          "original_tip": "405444b7af3e53d7271922612eece72c5c801c27",
+          "witness": "refs/tags/archive/fix/smk-identity-live-20261113",
+          "witness_tip": "405444b7af3e53d7271922612eece72c5c801c27",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/strict-model-match",
+          "original_tip": "9e2d35fec81694715496f4212d68d5b43858d7b6",
+          "witness": "refs/tags/archive/fix/strict-model-match",
+          "witness_tip": "9e2d35fec81694715496f4212d68d5b43858d7b6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/withdraw-026-installer-20261113",
+          "original_tip": "7376702577c56586d426e338927d54f3da0c05e9",
+          "witness": "refs/tags/archive/fix/withdraw-026-installer-20261113",
+          "witness_tip": "7376702577c56586d426e338927d54f3da0c05e9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "fix/workflow-main-continuation-20261028",
+          "original_tip": "745c6b2d34566971b6e7e2fd17348587d219f7ae",
+          "witness": "refs/tags/archive/fix/workflow-main-continuation-20261028",
+          "witness_tip": "745c6b2d34566971b6e7e2fd17348587d219f7ae",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "gh-pages",
+          "original_tip": "241196130538b5e6da7738f0c2ebbbdc57fce02e",
+          "witness": "refs/heads/gh-pages",
+          "witness_tip": "8fcef4a0a4383b449f6e6c558fb34166c69e3ca7",
+          "proof": "ancestor of live branch"
+        },
+        {
+          "branch": "handoff/dot-20261116/web-wip",
+          "original_tip": "0164a64f1ec7ba7d4806c8fcd3b16414fd25cd9b",
+          "witness": "refs/tags/archive/handoff/dot-20261116/web-wip",
+          "witness_tip": "0164a64f1ec7ba7d4806c8fcd3b16414fd25cd9b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dk-rules-controller-evidence-20261105",
+          "original_tip": "e30bf6e49061c95b73e547fc757107e970c39541",
+          "witness": "refs/tags/archive/lane/dk-rules-controller-evidence-20261105",
+          "witness_tip": "e30bf6e49061c95b73e547fc757107e970c39541",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dk-rules-controller-evidence-v3-20261105",
+          "original_tip": "519a10fa6ba2b09d08bd48000d4112b36b3bcf54",
+          "witness": "refs/tags/archive/lane/dk-rules-controller-evidence-v3-20261105",
+          "witness_tip": "519a10fa6ba2b09d08bd48000d4112b36b3bcf54",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dk-rules-controller-evidence-v7-20261105",
+          "original_tip": "2286878ebe60b59a42adcc367e4f64cf2bbcebb6",
+          "witness": "refs/tags/archive/lane/dk-rules-controller-evidence-v7-20261105",
+          "witness_tip": "2286878ebe60b59a42adcc367e4f64cf2bbcebb6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dk-rules-controller-evidence-v71-20261105",
+          "original_tip": "c1675214da52e16799d5047f26209d9d76d70cce",
+          "witness": "refs/tags/archive/lane/dk-rules-controller-evidence-v71-20261105",
+          "witness_tip": "c1675214da52e16799d5047f26209d9d76d70cce",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/dnbox-pages-clarity-20261113",
+          "original_tip": "2fe7697306aff4101149210897a6d7868405aa2c",
+          "witness": "refs/tags/archive/lane/dnbox-pages-clarity-20261113",
+          "witness_tip": "2fe7697306aff4101149210897a6d7868405aa2c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/docs-lightweight-rules-20261106",
+          "original_tip": "0f01128b356861cdf07295db6708a63a581cfac4",
+          "witness": "refs/tags/archive/lane/docs-lightweight-rules-20261106",
+          "witness_tip": "0f01128b356861cdf07295db6708a63a581cfac4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/ec026-atomic-preservation-contract-20261027",
+          "original_tip": "11a07367174dbcfee414d0bae05c00b4c15d0a9c",
+          "witness": "refs/tags/archive/lane/ec026-atomic-preservation-contract-20261027",
+          "witness_tip": "11a07367174dbcfee414d0bae05c00b4c15d0a9c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/edgecase-ec023-webmidi-output-pair-20261027",
+          "original_tip": "c4bbf0a0b544ed4924ef0ca2b4cc0823085fec7f",
+          "witness": "refs/tags/archive/lane/edgecase-ec023-webmidi-output-pair-20261027",
+          "witness_tip": "c4bbf0a0b544ed4924ef0ca2b4cc0823085fec7f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/edgecase-ec036-premature-finish-20261027",
+          "original_tip": "a422c8b924f99db63514ae96a178ae0279286874",
+          "witness": "refs/tags/archive/lane/edgecase-ec036-premature-finish-20261027",
+          "witness_tip": "a422c8b924f99db63514ae96a178ae0279286874",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/edgecase-midi-stale-timeout-20261026",
+          "original_tip": "929e71d784ea34d4b9d906bd3415937f1bab1b8b",
+          "witness": "refs/tags/archive/lane/edgecase-midi-stale-timeout-20261026",
+          "witness_tip": "929e71d784ea34d4b9d906bd3415937f1bab1b8b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/edgecase-smp-info-false-empty-20261027",
+          "original_tip": "2de5d7a6b4c31538ebeee904716544acf68b9ab8",
+          "witness": "refs/tags/archive/lane/edgecase-smp-info-false-empty-20261027",
+          "witness_tip": "2de5d7a6b4c31538ebeee904716544acf68b9ab8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/edgecase-web-archive-aliased-payload-20261026",
+          "original_tip": "4406f7a2ed3014b2bbb17800329f827487c19ae0",
+          "witness": "refs/tags/archive/lane/edgecase-web-archive-aliased-payload-20261026",
+          "witness_tip": "4406f7a2ed3014b2bbb17800329f827487c19ae0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/edgecase-web-archive-slot-identity-20261026",
+          "original_tip": "27a54e3b1d0f5d4b9450ea170e9589e5f914f160",
+          "witness": "refs/tags/archive/lane/edgecase-web-archive-slot-identity-20261026",
+          "witness_tip": "27a54e3b1d0f5d4b9450ea170e9589e5f914f160",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/nightly-permission-progress-20261023",
+          "original_tip": "850a5fefb347234e26097eb7326333c7fec2b10f",
+          "witness": "refs/tags/archive/lane/nightly-permission-progress-20261023",
+          "witness_tip": "850a5fefb347234e26097eb7326333c7fec2b10f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/pages-r35-history-125-20261025",
+          "original_tip": "1fc6f9a372b2d326934411a12a18af707c3e7cee",
+          "witness": "refs/tags/archive/lane/pages-r35-history-125-20261025",
+          "witness_tip": "1fc6f9a372b2d326934411a12a18af707c3e7cee",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr8-independent-20261024",
+          "original_tip": "76e059e17db12265bf2062144eb7feee1df7e5f8",
+          "witness": "refs/tags/archive/lane/qa-pr8-independent-20261024",
+          "witness_tip": "76e059e17db12265bf2062144eb7feee1df7e5f8",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr8-r2-independent-20261024",
+          "original_tip": "809965b4ddc4e2363e7344227adcf1b93f68005b",
+          "witness": "refs/tags/archive/lane/qa-pr8-r2-independent-20261024",
+          "witness_tip": "809965b4ddc4e2363e7344227adcf1b93f68005b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr8-r3-independent-20261024",
+          "original_tip": "8357bea49e1b80c1d6b315dc749692c92424b0eb",
+          "witness": "refs/tags/archive/lane/qa-pr8-r3-independent-20261024",
+          "witness_tip": "8357bea49e1b80c1d6b315dc749692c92424b0eb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr8-r4-independent-20261024",
+          "original_tip": "7318f2affd81c52827e5aa3c45c234440f4f55d3",
+          "witness": "refs/tags/archive/lane/qa-pr8-r4-independent-20261024",
+          "witness_tip": "7318f2affd81c52827e5aa3c45c234440f4f55d3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr8-r5-independent-20261024",
+          "original_tip": "e203fb56395eb2785261ac864d35f05b03968cf3",
+          "witness": "refs/tags/archive/lane/qa-pr8-r5-independent-20261024",
+          "witness_tip": "e203fb56395eb2785261ac864d35f05b03968cf3",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr10-combined-20261024",
+          "original_tip": "5dc20385aa82df067fdf6fa726dbc356ad897638",
+          "witness": "refs/tags/archive/lane/qa-pr10-combined-20261024",
+          "witness_tip": "5dc20385aa82df067fdf6fa726dbc356ad897638",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/qa-pr11-local-file-bounds-20261024",
+          "original_tip": "bcc6e2742d0e9e88c2bc8f461f9231a00542908e",
+          "witness": "refs/tags/archive/lane/qa-pr11-local-file-bounds-20261024",
+          "witness_tip": "bcc6e2742d0e9e88c2bc8f461f9231a00542908e",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/remote-git-delivery-policy-20261023",
+          "original_tip": "89db69080d794f72f505a82a511ac9bc07dc5d67",
+          "witness": "refs/tags/archive/lane/remote-git-delivery-policy-20261023",
+          "witness_tip": "89db69080d794f72f505a82a511ac9bc07dc5d67",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lane/rp-manual-026-notice-20261113",
+          "original_tip": "a93f26822fd7f3061dab323509086756e68e4d1a",
+          "witness": "refs/tags/archive/lane/rp-manual-026-notice-20261113",
+          "witness_tip": "a93f26822fd7f3061dab323509086756e68e4d1a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "lead/r039-rename-prep-20261116",
+          "original_tip": "a0e97c07ac6eaeb15fce5ff2484087461b36fd21",
+          "witness": "refs/tags/archive/lead/r039-rename-prep-20261116",
+          "witness_tip": "a0e97c07ac6eaeb15fce5ff2484087461b36fd21",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "main",
+          "original_tip": "8af48f83c21e76bc7ebac2ddbdb7c5e3ff0a81ea",
+          "witness": "refs/heads/main",
+          "witness_tip": "30d6d5caa6f60d1fa8847fb840055d41a7eeba20",
+          "proof": "ancestor of live branch"
+        },
+        {
+          "branch": "publish/current-source-site-20261029",
+          "original_tip": "c5dc8830db9de038670532c43991f8596187276f",
+          "witness": "refs/tags/archive/publish/current-source-site-20261029",
+          "witness_tip": "c5dc8830db9de038670532c43991f8596187276f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-2ad1b517-0.0.16",
+          "original_tip": "69c05887e5e892377c191d3c4321b663cc80a1c0",
+          "witness": "refs/tags/archive/publish/nightly-2ad1b517-0.0.16",
+          "witness_tip": "69c05887e5e892377c191d3c4321b663cc80a1c0",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-02cc7d10-0.0.11",
+          "original_tip": "367ead3c4104767d8ff5ab8216dfeced4f04b774",
+          "witness": "refs/tags/archive/publish/nightly-02cc7d10-0.0.11",
+          "witness_tip": "367ead3c4104767d8ff5ab8216dfeced4f04b774",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-5ae6265e-0.0.15",
+          "original_tip": "8901f15cda03a4f94119527d432c39bbafecb1c1",
+          "witness": "refs/tags/archive/publish/nightly-5ae6265e-0.0.15",
+          "witness_tip": "8901f15cda03a4f94119527d432c39bbafecb1c1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-5bff28ca-pro-0.0.10",
+          "original_tip": "cfa0aefce4a792e6f53069f39e61580482bc2a36",
+          "witness": "refs/tags/archive/publish/nightly-5bff28ca-pro-0.0.10",
+          "witness_tip": "cfa0aefce4a792e6f53069f39e61580482bc2a36",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-600b3b45-0.0.26",
+          "original_tip": "8ec81bf7d55258e7e1082658080299e3cfe0dcdc",
+          "witness": "refs/tags/archive/publish/nightly-600b3b45-0.0.26",
+          "witness_tip": "8ec81bf7d55258e7e1082658080299e3cfe0dcdc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-6319ffec-0.0.17",
+          "original_tip": "f9b4d776d113bbea091e68db51370ac288a2a007",
+          "witness": "refs/tags/archive/publish/nightly-6319ffec-0.0.17",
+          "witness_tip": "f9b4d776d113bbea091e68db51370ac288a2a007",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-8424c3bb-0.0.14",
+          "original_tip": "90a7f7c836635c142f99a12df2c219b63ddea09b",
+          "witness": "refs/tags/archive/publish/nightly-8424c3bb-0.0.14",
+          "witness_tip": "90a7f7c836635c142f99a12df2c219b63ddea09b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-2456968b-0.0.22",
+          "original_tip": "06f15ac5aaceafa87ee4d6d8ccc96d9a867329b9",
+          "witness": "refs/tags/archive/publish/nightly-2456968b-0.0.22",
+          "witness_tip": "06f15ac5aaceafa87ee4d6d8ccc96d9a867329b9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-bb33a8fe-0.0.13",
+          "original_tip": "22fe60ef22391372fa995b23efd89628042c3c78",
+          "witness": "refs/tags/archive/publish/nightly-bb33a8fe-0.0.13",
+          "witness_tip": "22fe60ef22391372fa995b23efd89628042c3c78",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-bb190749-0.0.23",
+          "original_tip": "1c3318d690b50b58a3245b899032f22614cfc213",
+          "witness": "refs/tags/archive/publish/nightly-bb190749-0.0.23",
+          "witness_tip": "1c3318d690b50b58a3245b899032f22614cfc213",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-bed393e1-0.0.20",
+          "original_tip": "3aff9b53c35844de14281c7138f8b97d5189f5b4",
+          "witness": "refs/tags/archive/publish/nightly-bed393e1-0.0.20",
+          "witness_tip": "3aff9b53c35844de14281c7138f8b97d5189f5b4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-c8e1599b-0.0.12-bt",
+          "original_tip": "ee5040cfc2ecef28546d90a13bcb6629483ccef1",
+          "witness": "refs/tags/archive/publish/nightly-c8e1599b-0.0.12-bt",
+          "witness_tip": "ee5040cfc2ecef28546d90a13bcb6629483ccef1",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-c8e1599b-0.0.12",
+          "original_tip": "2982fc131435ca3856f14717970d470f99d7c58f",
+          "witness": "refs/tags/archive/publish/nightly-c8e1599b-0.0.12",
+          "witness_tip": "2982fc131435ca3856f14717970d470f99d7c58f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-d8086cc0-0.0.24",
+          "original_tip": "71f4f3eea0ccff72d44b8dfe914224cc1e02534c",
+          "witness": "refs/tags/archive/publish/nightly-d8086cc0-0.0.24",
+          "witness_tip": "71f4f3eea0ccff72d44b8dfe914224cc1e02534c",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-dd442625-0.0.21",
+          "original_tip": "146805a24134e89d33318606403c94d4633df752",
+          "witness": "refs/tags/archive/publish/nightly-dd442625-0.0.21",
+          "witness_tip": "146805a24134e89d33318606403c94d4633df752",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-dffd05f0-0.0.18",
+          "original_tip": "cc224f06b4b90282d75ffc298b017d19fac6f50a",
+          "witness": "refs/tags/archive/publish/nightly-dffd05f0-0.0.18",
+          "witness_tip": "cc224f06b4b90282d75ffc298b017d19fac6f50a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/nightly-ed85f5a6-0.0.19",
+          "original_tip": "13be7e59e3e82bebd106698a3496d291cf1e5642",
+          "witness": "refs/tags/archive/publish/nightly-ed85f5a6-0.0.19",
+          "witness_tip": "13be7e59e3e82bebd106698a3496d291cf1e5642",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "publish/retained-package-map-compatibility-20261029",
+          "original_tip": "ec762b10210a40908866725b47162675d20b03c5",
+          "witness": "refs/tags/archive/publish/retained-package-map-compatibility-20261029",
+          "witness_tip": "ec762b10210a40908866725b47162675d20b03c5",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "qualify/pr38-on-main",
+          "original_tip": "9f90c197b911d685ceec0f47b74052395c9da53a",
+          "witness": "refs/tags/archive/qualify/pr38-on-main",
+          "witness_tip": "9f90c197b911d685ceec0f47b74052395c9da53a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "repair/adaptive-break-project-schema-20261027",
+          "original_tip": "e098d2e5f14aa0858b6865cde9a6ccf57f38ee7b",
+          "witness": "refs/tags/archive/repair/adaptive-break-project-schema-20261027",
+          "witness_tip": "e098d2e5f14aa0858b6865cde9a6ccf57f38ee7b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "smc-mixer-bluetooth-connect-fix",
+          "original_tip": "ac7b73b162ca0f58dd7039883720c00ff24b6b47",
+          "witness": "refs/tags/archive/smc-mixer-bluetooth-connect-fix",
+          "witness_tip": "ac7b73b162ca0f58dd7039883720c00ff24b6b47",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-ec014-slotmap-padding-20261026",
+          "original_tip": "3bc045aa083a026c05cbc79494011f72af10ddcb",
+          "witness": "refs/tags/archive/test/edge-ec014-slotmap-padding-20261026",
+          "witness_tip": "3bc045aa083a026c05cbc79494011f72af10ddcb",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-ec028-firmware-finish-eight-byte-contract-20261027",
+          "original_tip": "ff22dfb1bb1bcce2036d2b33427cb94f18290c0f",
+          "witness": "refs/tags/archive/test/edge-ec028-firmware-finish-eight-byte-contract-20261027",
+          "witness_tip": "ff22dfb1bb1bcce2036d2b33427cb94f18290c0f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-ec029-exact-sample-readback-20261027",
+          "original_tip": "9ede1edc305b5d43ebd9dc55bdea2e44f245056b",
+          "witness": "refs/tags/archive/test/edge-ec029-exact-sample-readback-20261027",
+          "witness_tip": "9ede1edc305b5d43ebd9dc55bdea2e44f245056b",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-ota-identity-frame-ec009-20261026",
+          "original_tip": "fade4bd5147e002685a74adbee785047e89ee86f",
+          "witness": "refs/tags/archive/test/edge-ota-identity-frame-ec009-20261026",
+          "witness_tip": "fade4bd5147e002685a74adbee785047e89ee86f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-ota-read-declared-length-ec010-20261026",
+          "original_tip": "887ef20178d07b99184c37ff450b345561000e68",
+          "witness": "refs/tags/archive/test/edge-ota-read-declared-length-ec010-20261026",
+          "witness_tip": "887ef20178d07b99184c37ff450b345561000e68",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-preflash-sample-drift-ec026-20261027",
+          "original_tip": "d62a479d42fb44a2a60568d6c72ed442c9862988",
+          "witness": "refs/tags/archive/test/edge-preflash-sample-drift-ec026-20261027",
+          "witness_tip": "d62a479d42fb44a2a60568d6c72ed442c9862988",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-project-busy-export-peer-abort-20261027",
+          "original_tip": "a1db2017e3132e6d55c4daefe52a69006431df3f",
+          "witness": "refs/tags/archive/test/edge-project-busy-export-peer-abort-20261027",
+          "witness_tip": "a1db2017e3132e6d55c4daefe52a69006431df3f",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edge-project-sysex-byte-budget-ec027-20261027",
+          "original_tip": "1f4dc397014e66412592da7c8e3162fc29a03bd6",
+          "witness": "refs/tags/archive/test/edge-project-sysex-byte-budget-ec027-20261027",
+          "witness_tip": "1f4dc397014e66412592da7c8e3162fc29a03bd6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec032-ota-zero-nonterminal-20261027",
+          "original_tip": "bbcca916899814d4ece6a0f41bb44d03fe0dd6cc",
+          "witness": "refs/tags/archive/test/edgecase-ec032-ota-zero-nonterminal-20261027",
+          "witness_tip": "bbcca916899814d4ece6a0f41bb44d03fe0dd6cc",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec033-sample-occupied-invalid-header-20261027",
+          "original_tip": "106496789660938625cecfdc715b7b994eef2497",
+          "witness": "refs/tags/archive/test/edgecase-ec033-sample-occupied-invalid-header-20261027",
+          "witness_tip": "106496789660938625cecfdc715b7b994eef2497",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec034-sample-overcapacity-read-20261027",
+          "original_tip": "950903df1c7744c289db6d3987e47abe19c0f359",
+          "witness": "refs/tags/archive/test/edgecase-ec034-sample-overcapacity-read-20261027",
+          "witness_tip": "950903df1c7744c289db6d3987e47abe19c0f359",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec035-sample-workspace-stale-send-20261027",
+          "original_tip": "26fc56098aaac95b86a8e42be0c4e2a41a41cf20",
+          "witness": "refs/tags/archive/test/edgecase-ec035-sample-workspace-stale-send-20261027",
+          "witness_tip": "26fc56098aaac95b86a8e42be0c4e2a41a41cf20",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec037-installer-stale-download-20261028",
+          "original_tip": "b2f28533c723e143e072afd31f208bed7dce3612",
+          "witness": "refs/tags/archive/test/edgecase-ec037-installer-stale-download-20261028",
+          "witness_tip": "b2f28533c723e143e072afd31f208bed7dce3612",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec038-stale-ota-scan-listener-20261028",
+          "original_tip": "21b2a6208e0e84451174b80064d6fbbc7cb79de6",
+          "witness": "refs/tags/archive/test/edgecase-ec038-stale-ota-scan-listener-20261028",
+          "witness_tip": "21b2a6208e0e84451174b80064d6fbbc7cb79de6",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec039-project-rollback-peer-20261028",
+          "original_tip": "b2b5a1a222ad7cf27e68b24153b9a145e9312ccf",
+          "witness": "refs/tags/archive/test/edgecase-ec039-project-rollback-peer-20261028",
+          "witness_tip": "b2b5a1a222ad7cf27e68b24153b9a145e9312ccf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec040-revoked-preflight-20261028",
+          "original_tip": "f5f31e111948ce238a0944a32aa7290717fddc7a",
+          "witness": "refs/tags/archive/test/edgecase-ec040-revoked-preflight-20261028",
+          "witness_tip": "f5f31e111948ce238a0944a32aa7290717fddc7a",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec041-sample-slot-ack-correlation-20261028",
+          "original_tip": "aa2c6c8fe6cef16c0eba1635361f8c8b69132a96",
+          "witness": "refs/tags/archive/test/edgecase-ec041-sample-slot-ack-correlation-20261028",
+          "witness_tip": "aa2c6c8fe6cef16c0eba1635361f8c8b69132a96",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec042-project-midi-pending-read-20261028",
+          "original_tip": "8f625e428fbf7026c262720f79d2c651586b4b81",
+          "witness": "refs/tags/archive/test/edgecase-ec042-project-midi-pending-read-20261028",
+          "witness_tip": "8f625e428fbf7026c262720f79d2c651586b4b81",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec043-installer-empty-chunks-20261028",
+          "original_tip": "42aab66f9b75b110c909908ee2f1a2664a244074",
+          "witness": "refs/tags/archive/test/edgecase-ec043-installer-empty-chunks-20261028",
+          "witness_tip": "42aab66f9b75b110c909908ee2f1a2664a244074",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec044-truncated-smp-info-20261028",
+          "original_tip": "3fe38d62684fabc2e988261dc14a24087d9e00b4",
+          "witness": "refs/tags/archive/test/edgecase-ec044-truncated-smp-info-20261028",
+          "witness_tip": "3fe38d62684fabc2e988261dc14a24087d9e00b4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec045-project-rapid-reconnect-20261028",
+          "original_tip": "dd6d51745f579af42a1c20b9431f94f78ffd23c9",
+          "witness": "refs/tags/archive/test/edgecase-ec045-project-rapid-reconnect-20261028",
+          "witness_tip": "dd6d51745f579af42a1c20b9431f94f78ffd23c9",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "test/edgecase-ec046-low-rate-wav-amplification-20261028",
+          "original_tip": "e0d43f96e38e5d4060664c8cdaa04b3cb4a1b7c4",
+          "witness": "refs/tags/archive/test/edgecase-ec046-low-rate-wav-amplification-20261028",
+          "witness_tip": "e0d43f96e38e5d4060664c8cdaa04b3cb4a1b7c4",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "ux/compact-installer-final",
+          "original_tip": "ee1ba86ecc4fae4ec2bfec27927b1d60b3f6fdcf",
+          "witness": "refs/tags/archive/ux/compact-installer-final",
+          "witness_tip": "ee1ba86ecc4fae4ec2bfec27927b1d60b3f6fdcf",
+          "proof": "same-name archive"
+        },
+        {
+          "branch": "wip/dnbox-complete-web-20261115",
+          "original_tip": "22ac90332b5f6511387caaa791fc386bfc9c381d",
+          "witness": "refs/tags/archive/wip/dnbox-complete-web-20261115",
+          "witness_tip": "22ac90332b5f6511387caaa791fc386bfc9c381d",
+          "proof": "same-name archive"
+        }
+      ],
+      "protected_prs": [
+        {
+          "pr": 132,
+          "head": "3f22e000ad17456318cde997067c7fd45dd7e3b3",
+          "archive": "refs/tags/archive/cursor/remote-parameter-lane-bdb9",
+          "archive_tip": "3f22e000ad17456318cde997067c7fd45dd7e3b3",
+          "state": "closed",
+          "checked": true
+        },
+        {
+          "pr": 131,
+          "head": "22ac90332b5f6511387caaa791fc386bfc9c381d",
+          "archive": "refs/tags/archive/wip/dnbox-complete-web-20261115",
+          "archive_tip": "22ac90332b5f6511387caaa791fc386bfc9c381d",
+          "state": "closed",
+          "checked": true
+        }
+      ]
+    }
+  ]
+}

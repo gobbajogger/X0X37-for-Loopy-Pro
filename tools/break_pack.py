@@ -13,6 +13,7 @@ It does not share or cut a prefix. Reverse plays the same bytes the loop always 
 """
 import argparse
 import base64
+import hashlib
 import json
 import struct
 import zlib
@@ -22,6 +23,9 @@ MAGIC = b"X0XBRKPK"
 VERSION = 1
 RATE = 44100
 MAX_LOOPS = 8
+SMK_XIP_RESERVE = 1024
+STARTING_SHA256 = '8df1316157fc8ce8dcb87cfd267fea83790702ccd1963ae91c0de60ca255b582'
+STARTING_PACK = Path(__file__).resolve().parents[1] / 'assets/starting-breaks/starting-break-pack.bin'
 
 EMPTY_HEADER = """/* Default firmware: no built-in break loops in the app image.
  * The factory loops are assets/factory-breaks/. The installer can put that pack,
@@ -111,17 +115,19 @@ def _valid_at(app, at, code_max):
     return end <= code_max and all(b == 0xFF for b in app[end:code_max])
 
 
-def place_pack(app, pack, code_max=None):
+def place_pack(app, pack, code_max=None, *, reserve=0):
     """Write pack into the free tail of app (a bytearray). code_max defaults to len(app).
 
     The image ends with a 0x00 tail mark. The pack starts on the next 16-byte
-    boundary after that mark and must end at or before code_max. Bytes at
+    boundary after that mark and must leave reserve erased bytes below code_max. Bytes at
     code_max and after (the Bluetooth block on the SMK-37) are not written.
     """
     app = bytearray(app)
     code_max = len(app) if code_max is None else code_max
     if code_max > len(app):
         raise ValueError("code_max past the buffer")
+    if not 0 <= reserve <= code_max:
+        raise ValueError("invalid code reserve")
     pack = bytes(pack)
     if parse_pack(pack) is None:
         raise ValueError("not a break pack")
@@ -139,11 +145,26 @@ def place_pack(app, pack, code_max=None):
         while i > 0 and app[i] == 0xFF:
             i -= 1
         at = (i + 1 + 15) & ~15
-    if at + len(pack) > code_max:
-        raise ValueError(f"loop pack needs {len(pack)} bytes, {code_max - at} free")
+    available = max(0, code_max - reserve - at)
+    if len(pack) > available:
+        raise ValueError(f"loop pack needs {len(pack)} bytes, {available} free")
     app[at:code_max] = b"\xFF" * (code_max - at)
     app[at:at + len(pack)] = pack
     return app
+
+
+def embed_starting_breaks(app, code_max):
+    """Append the complete owner bank to a freshly linked SMK application."""
+    bank = STARTING_PACK.read_bytes()
+    if hashlib.sha256(bank).hexdigest() != STARTING_SHA256:
+        raise ValueError('starting BREAK bank pin mismatch')
+    if len(app) > code_max:
+        raise ValueError('application exceeds the stock code window')
+    start = (len(app) + 15) & ~15
+    available = max(0, code_max - SMK_XIP_RESERVE - start)
+    if len(bank) > available:
+        raise ValueError(f"loop pack needs {len(bank)} bytes, {available} free")
+    return bytes(app).ljust(start, b'\xff') + bank
 
 
 def loops_from_export(directory):

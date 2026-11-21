@@ -1,0 +1,59 @@
+{
+  "utc": "2026-11-21T12:19:54.248673+00:00",
+  "refs": [
+    {
+      "repo": "DnBOX",
+      "pr": 973,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "merged_at": null,
+      "head": "63278e3322aefa89b25f129ca2fccc35ef3b3b3d",
+      "base": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+      "url": "https://github.com/gobbajogger/DnBOX/pull/973"
+    },
+    {
+      "repo": "DnBOX",
+      "pr": 975,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "merged_at": null,
+      "head": "9dd6f2df020340f7a82ab241ef07c6ec16195ebc",
+      "base": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+      "url": "https://github.com/gobbajogger/DnBOX/pull/975"
+    },
+    {
+      "repo": "DnBOX",
+      "pr": 976,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "merged_at": null,
+      "head": "bdef4bcab365d99d65cde22b10d3d607d1ad96ad",
+      "base": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+      "url": "https://github.com/gobbajogger/DnBOX/pull/976"
+    },
+    {
+      "repo": "DnBOX-nightly",
+      "pr": 170,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "merged_at": null,
+      "head": "425812c2707a02157cc31e72d6d33723d7425280",
+      "base": "583f622961fc9975fac746592ce6c483073c4170",
+      "url": "https://github.com/gobbajogger/DnBOX-nightly/pull/170"
+    },
+    {
+      "repo": "DnBOX",
+      "branch": "integration/dnbox-consolidated",
+      "tip": "1c82772bac9a33f030bf954ec6151987aef2cbb8"
+    },
+    {
+      "repo": "DnBOX-nightly",
+      "branch": "integration/dnbox-consolidated",
+      "tip": "583f622961fc9975fac746592ce6c483073c4170"
+    }
+  ]
+}

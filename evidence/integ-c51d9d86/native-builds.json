@@ -1,0 +1,170 @@
+{
+  "source_commit": "c51d9d8647fb72ae0628af6fef7fb8cfbcbd40e9",
+  "tree": "6eaa9633acc10be050b2ce96da402e73ed82268f",
+  "parents": [
+    "be696332ec3f97a0914d485d2dbbd4998b929a25",
+    "5837c73f754a667c526edd420aefbe7cf3a071bf"
+  ],
+  "combined_paths_match_parent_union": true,
+  "matched_paths": 6900,
+  "previous": "c28ae27c2c6a1afb70086c32a0ad321927e3dc25",
+  "build_input_roots_c28_to_c51": {
+    "firmware": [
+      "4f0bb9df6e55cbf38295132ba041b028417f8495",
+      "87f3f53f8c9525878f7bb7f1ce142ac6eee0a5dd"
+    ],
+    "experiments": [
+      "92ce2da841b9c24c24885c086a3f3212b3eadad3",
+      "2f56b35bd673ab084a8171cd363eac2c5d240002"
+    ],
+    "assets": [
+      "160d68356fc165ac934d4891bad60fecb4b5db9d",
+      "57547b7d3b20afa1da540c05282ce58fdf525bc8"
+    ],
+    "tools": [
+      "3bd6b8b9b6930d45ff34bda0570d6e7ed1aa7fa1",
+      "ef0061805a3580dff2a46cbfcc2eb249f9e3f9ea"
+    ],
+    "build.sh": [
+      "7d13fcb6c33cee8f8f58676a2ce5357f265ec7d7",
+      "7d13fcb6c33cee8f8f58676a2ce5357f265ec7d7"
+    ],
+    "host": [
+      "f15571483bc5d821b081433f2b71433e1739bcb6",
+      "221036362f85278bb85fa0d692bced3bdb1b9d89"
+    ],
+    "reference": [
+      "92e242c69f647ea3e174dd8e07d07dfdf6632255",
+      "92e242c69f647ea3e174dd8e07d07dfdf6632255"
+    ],
+    "ble": [
+      "0d4304546a60f22a06271b22b4881f6304ad439c",
+      "0d4304546a60f22a06271b22b4881f6304ad439c"
+    ]
+  },
+  "all_c51_build_roots_identical_to_sound_parent": true,
+  "original_inputs_verified": true,
+  "sdk_tag": "AC79NN_SDK_V1.2.14_2026-10-13",
+  "sdk_sha256": {
+    "uboot.boot": "64ccc63e4df3238046fadb200f1b134311d8fe6ec6e3ccb8c8b81379231b867e",
+    "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+    "cfg/eq_cfg_hw.bin": "179ac9f4501d2cf8c3bdbc06fcda1e46228b7ace7e339342c767bb6568de57d8"
+  },
+  "compiler_version": "clang version 4.0.1 () ()",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "native_build": "fresh build directory, one native compiler job per model, stock default flags",
+  "models": {
+    "elite": {
+      "source": "c51d9d8647fb72ae0628af6fef7fb8cfbcbd40e9",
+      "command": "MODEL=elite ./build.sh",
+      "build_exit": 0,
+      "parser_exit": 0,
+      "product": "SMK-37 Elite_900",
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546468,
+          "sha256": "1bfe6ebdab3250053eb55486663f6af8fa3dd945732d2308201ff1814edfcc65"
+        },
+        "x0x.elf": {
+          "bytes": 634472,
+          "sha256": "9c3f54b53ceac680aef213367487dc4b0475aa65a22c8fdee1c65548d66c0547"
+        },
+        "ota.bin": {
+          "bytes": 7616,
+          "sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03"
+        },
+        "x0x-smk37-elite.fwsc": {
+          "bytes": 651732,
+          "sha256": "765777742a9cf6b0dac086c0ddd248b9037b661a42100c8bfd1c869d69e7b67d"
+        }
+      },
+      "same_as_c28": {
+        "x0x.bin": false,
+        "x0x.elf": false,
+        "ota.bin": true,
+        "x0x-smk37-elite.fwsc": false
+      },
+      "memory": {
+        "xip_free": 6204,
+        "pool_margin": 832,
+        "pool_reserve": 8192,
+        "pool_raw_free": 9024
+      },
+      "xip_delta_vs_c28_bytes": 32,
+      "package_app_bytes_match": true,
+      "package_ota_bytes_match": true,
+      "package_blob": "29150314b53e52a6b3cf357a3df5d781d624a536",
+      "sha256": "765777742a9cf6b0dac086c0ddd248b9037b661a42100c8bfd1c869d69e7b67d",
+      "started": "2026-11-21T13:27:36Z",
+      "finished": "2026-11-21T13:29:25Z",
+      "pool_margin_delta_vs_c28_bytes": 52,
+      "fit_arithmetic": {
+        "app_code_max": 552672,
+        "aligned_payload_start": 546480,
+        "reserved_xip_bytes": 1024,
+        "available_payload": 5168,
+        "canonical_bank_bytes": 109394,
+        "canonical_bank_shortfall": 104226
+      },
+      "github_blob_readback_identical": true,
+      "github_readback_sha256": "765777742a9cf6b0dac086c0ddd248b9037b661a42100c8bfd1c869d69e7b67d",
+      "github_readback_url": "https://api.github.com/repos/gobbajogger/DnBOX/git/blobs/29150314b53e52a6b3cf357a3df5d781d624a536"
+    },
+    "pro": {
+      "source": "c51d9d8647fb72ae0628af6fef7fb8cfbcbd40e9",
+      "command": "MODEL=pro ./build.sh",
+      "build_exit": 0,
+      "parser_exit": 0,
+      "product": "SMK-37 Pro_900",
+      "outputs": {
+        "x0x.bin": {
+          "bytes": 546460,
+          "sha256": "bd44e4757ad29c16d91c6999fe5208470c205a9fb65dca65cd34db7555003ff7"
+        },
+        "x0x.elf": {
+          "bytes": 634468,
+          "sha256": "5e499d61dfa7f75d39765940a1aaf7ef09b3eaeb232d93e1918bfd917af9f734"
+        },
+        "ota.bin": {
+          "bytes": 7614,
+          "sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5"
+        },
+        "x0x-smk37.fwsc": {
+          "bytes": 651730,
+          "sha256": "c67d8c231bd45b9581da67fe508ddf7142a4f1c26ef1eecfb921d25c04475bc6"
+        }
+      },
+      "same_as_c28": {
+        "x0x.bin": false,
+        "x0x.elf": false,
+        "ota.bin": true,
+        "x0x-smk37.fwsc": false
+      },
+      "memory": {
+        "xip_free": 6212,
+        "pool_margin": 832,
+        "pool_reserve": 8192,
+        "pool_raw_free": 9024
+      },
+      "xip_delta_vs_c28_bytes": 32,
+      "package_app_bytes_match": true,
+      "package_ota_bytes_match": true,
+      "package_blob": "6b277c7b24132fe467fa4553d422c58623c3ef5a",
+      "sha256": "c67d8c231bd45b9581da67fe508ddf7142a4f1c26ef1eecfb921d25c04475bc6",
+      "started": "2026-11-21T13:29:25Z",
+      "finished": "2026-11-21T13:32:23Z",
+      "pool_margin_delta_vs_c28_bytes": 52,
+      "fit_arithmetic": {
+        "app_code_max": 552672,
+        "aligned_payload_start": 546464,
+        "reserved_xip_bytes": 1024,
+        "available_payload": 5184,
+        "canonical_bank_bytes": 109394,
+        "canonical_bank_shortfall": 104210
+      },
+      "github_blob_readback_identical": true,
+      "github_readback_sha256": "c67d8c231bd45b9581da67fe508ddf7142a4f1c26ef1eecfb921d25c04475bc6",
+      "github_readback_url": "https://api.github.com/repos/gobbajogger/DnBOX/git/blobs/6b277c7b24132fe467fa4553d422c58623c3ef5a"
+    }
+  }
+}

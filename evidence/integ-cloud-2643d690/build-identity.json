@@ -1,0 +1,67 @@
+{
+  "source_tree": "12266ef6a63c55c1a3d0058714d2f69afe73bf89",
+  "firmware_consolidated": "1c82772bac9a33f030bf954ec6151987aef2cbb8",
+  "consolidated_delta": "8e4c1a10..1c82772b: only AGENTS.md, CHECKLISTS.md, RULES.md",
+  "commands": [
+    "MODEL=elite ./build.sh",
+    "MODEL=pro ./build.sh",
+    "python measure_break_fit.py <firmware> <nightly>",
+    "python tests/smk_pkg_test.py <package> <product>",
+    "python tools/gate_flashmap.py firmware/hal/fm1_flash_map.h firmware/src/storage.c"
+  ],
+  "native_build": {
+    "elite": {
+      "exit": 0,
+      "package_test": "PASS",
+      "xip_free": 6192,
+      "pool_free": 8972,
+      "pool_reserve": 8192,
+      "pool_margin": 780,
+      "binaries": {
+        "application.bin": {
+          "bytes": 546480,
+          "sha256": "14ded89c8a610abf4266017ffb01331458133c7c62f260f3729fe2b6deaea8b4"
+        },
+        "application.elf": {
+          "bytes": 634588,
+          "sha256": "c8c3dff8e67460c31fc1d5efbf7011dc349a1f2a17594f55d88fb94887c555d6"
+        },
+        "update-loader.bin": {
+          "bytes": 7616,
+          "sha256": "0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03"
+        },
+        "DnBOX-elite-candidate.fwsc": {
+          "bytes": 651732,
+          "sha256": "f055710ce8d57d610016356fa0c39d775a04df30b2727076440858cc567ba288"
+        }
+      }
+    },
+    "pro": {
+      "exit": 0,
+      "package_test": "PASS",
+      "xip_free": 6200,
+      "pool_free": 8972,
+      "pool_reserve": 8192,
+      "pool_margin": 780,
+      "binaries": {
+        "application.bin": {
+          "bytes": 546472,
+          "sha256": "6b7d33234f4180bc21d32e89ea93f3133801cb5c7ad3397f19427cdc3bc1a1c8"
+        },
+        "application.elf": {
+          "bytes": 634580,
+          "sha256": "e95073d6f5ae08901882a66d9010240383228c77e97c0cf62ea4c7bd77ad203d"
+        },
+        "update-loader.bin": {
+          "bytes": 7614,
+          "sha256": "d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5"
+        },
+        "DnBOX-pro-candidate.fwsc": {
+          "bytes": 651730,
+          "sha256": "4f63e4bc420130c147fb90109521b1ae98ac4d9ff889565e4936c2e1dcd67499"
+        }
+      }
+    }
+  },
+  "toolchain_compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+}

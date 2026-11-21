@@ -1,0 +1,48 @@
+{
+  "tree": "12266ef6a63c55c1a3d0058714d2f69afe73bf89",
+  "cpu": 8,
+  "cpu_clock": "CLOCK_THREAD_CPUTIME_ID",
+  "deadline_us": 11609,
+  "full": {
+    "cases": 32,
+    "blocks": 32768,
+    "CPU_misses": 11,
+    "wall_misses": 529,
+    "CPU_peak_us": 57152.898,
+    "wall_peak_us": 104154.618
+  },
+  "sweeps": {
+    "1": {
+      "cases": 16,
+      "blocks": 16384,
+      "CPU_misses": 3,
+      "wall_misses": 220,
+      "CPU_peak_us": 49456.605,
+      "wall_peak_us": 98014.168
+    },
+    "2": {
+      "cases": 16,
+      "blocks": 16384,
+      "CPU_misses": 8,
+      "wall_misses": 309,
+      "CPU_peak_us": 57152.898,
+      "wall_peak_us": 104154.618
+    }
+  },
+  "negative_control": {
+    "expected_exit": 3,
+    "got_exit": 3,
+    "audible_mask": 23
+  },
+  "sha256": {
+    "compiled-header.txt": "87a2d206a5096ef67bdeb3a06eaf0c248e5f4883ed92090d2e4a1a9ee8804c25",
+    "bank-stress.c": "5d47fb5c2018ea770a9631682498f2d64f46beeec06ca186e96035368d50efd0",
+    "run": "413b49f65a5e62f52c78746ebf83331af4963f80c986ca58a074d2cd6aca818d",
+    "matrix.jsonl": "2df3d81124dd80e5fdb2f083fe4815aeefe34d9e97be88e18ffa85f0ab6dc7bb",
+    "negative.jsonl": "78813c3e4fb54319654a24ed9061610886509e41a67f58a5a4e51bc82433d69c"
+  },
+  "compared_to_67b9f56c": {
+    "audio.i32": 32,
+    "peak-scope.bin": 32
+  }
+}

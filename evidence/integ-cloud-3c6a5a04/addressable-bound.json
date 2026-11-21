@@ -1,0 +1,26 @@
+{
+  "elite": {
+    "text": 542580,
+    "last_func_end_offset": 401868,
+    "first_named_object_offset": 401936,
+    "post_last_function_bytes": 140712,
+    "recordings": 55275,
+    "max_other_post_function_bytes": 85437,
+    "remaining_shortfall_after_eliding_other_post_function_data": 18821,
+    "recordings_match_previous": true,
+    "smallest_measured_909_codec_bytes": 47639,
+    "remaining_shortfall_even_eliding_others_and_compressing_909": 11185
+  },
+  "pro": {
+    "text": 542572,
+    "last_func_end_offset": 401868,
+    "first_named_object_offset": 401936,
+    "post_last_function_bytes": 140704,
+    "recordings": 55275,
+    "max_other_post_function_bytes": 85429,
+    "remaining_shortfall_after_eliding_other_post_function_data": 18813,
+    "recordings_match_previous": true,
+    "smallest_measured_909_codec_bytes": 47639,
+    "remaining_shortfall_even_eliding_others_and_compressing_909": 11177
+  }
+}

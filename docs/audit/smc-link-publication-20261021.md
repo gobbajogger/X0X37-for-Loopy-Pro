@@ -25,7 +25,7 @@ branches were not changed.
 
 The older source was retrieved through the connected GitHub repository because
 the local history is shallow. The initial
-[SMC source](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/5b32093cb4c0c884f24b6e09ea493c02fd689f5b/firmware/src/app/smc_mixer.c)
+[SMC source](https://github.com/gobbajogger/DnBOX/blob/5b32093cb4c0c884f24b6e09ea493c02fd689f5b/firmware/src/app/smc_mixer.c)
 has blob SHA `638a17c038e574e5ce87174602950abe49c8a160`. The same defect is also
 present at the previously working revision
 `53d5654c9bbaec10b64c55fb60d0e7d857ba8156`. This is a latent race, not evidence

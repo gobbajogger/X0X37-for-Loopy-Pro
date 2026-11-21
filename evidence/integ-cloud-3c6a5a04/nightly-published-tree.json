@@ -1,0 +1,10 @@
+{
+  "repository": "gobbajogger/DnBOX-nightly",
+  "branch": "lane/integ",
+  "pr": 170,
+  "commit": "b6c3ea4d6bc3838469c67bba822b372ac0a07a0c",
+  "single_parent": "425812c2707a02157cc31e72d6d33723d7425280",
+  "index_and_GitHub_tree": "fc1100483107b7870105a575b5c330fa15989f63",
+  "guarded_fast_forward": true,
+  "edited_paths": 51
+}

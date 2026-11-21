@@ -23,9 +23,9 @@ GitHub Actions are off. Run checks locally with `scripts/gate.sh <lane>` (offlin
 
 Use Chrome or Edge on a computer, with the keyboard on USB:
 
-**[Open the installer](https://gobbajogger.github.io/DnBOX/install/)**
+**DnBOX v0.0.26 is the Latest GitHub release.** Select build `94197fc8` for your Elite or Pro in the nightly installer. Its two package checksums match the release. [Install v0.0.26](https://gobbajogger.github.io/DnBOX-nightly/install/) · [Release notes and downloads](https://github.com/gobbajogger/DnBOX/releases/tag/v0.0.26).
 
-You can also download the current Elite and Pro packages from **[GitHub Releases (latest)](https://github.com/gobbajogger/DnBOX/releases/latest)** (v0.0.25.1).
+On 21 November 2026 UTC, the stable installer still listed 0.0.25.1. [Stable installer](https://gobbajogger.github.io/DnBOX/install/).
 
 - Pick the package that matches your model (**Elite** or **Pro**). Starrykey 37 Play uses the SMK-37 Pro package.
 - **Back up your sample slots before you install.** The installer can do this for you.
@@ -35,18 +35,18 @@ See the [manual](https://gobbajogger.github.io/DnBOX/manual/) (written for the F
 
 ### Hardware test status
 
-**v0.0.25.1 has been software-checked. It has not been signed off as a physical device test.** DnBOX is beta software. It is meant for everyday playing, but a very busy pattern can push the hardware to its limit. When that happens, the firmware trades a little sound quality to keep playing rather than drop out. Installing it is at your own risk.
+The owner tested v0.0.26 (`94197fc8`) on a physical SMK-37 Elite and SMK-37 Pro. Both started and restarted successfully. DnBOX is beta software. It is meant for everyday playing, but a very busy pattern can push the hardware to its limit. When that happens, the firmware trades a little sound quality to keep playing rather than drop out. Installing it is at your own risk.
 
 ## Restore and rescue
 
 If an install fails, the keyboard becomes unresponsive, or you want the factory software back:
 
 1. Keep the USB cable plugged in until any write that is already in progress has finished. Do not unplug mid-write.
-2. Use the [web installer](https://gobbajogger.github.io/DnBOX/install/) to restore **M-VAVE stock firmware**, or use [M-VAVE M-UPGRADE](https://www.m-vave.com/download).
+2. For **M-VAVE stock firmware**, use the manufacturer’s package for the exact model and follow [M-VAVE M-UPGRADE](https://www.m-vave.com/download).
 3. On an FM-1 that keeps crashing, the device starts in a safe mode. The [manual's Troubleshooting](https://gobbajogger.github.io/DnBOX/manual/) section covers the rest.
 4. If you still have a sample-slot backup, restore it after the keyboard is running again (the installer or `tools/x0x_slots.py restore`).
 
-An earlier **0.0.26** candidate (`600b3b45`) was withdrawn from the [nightly installer](https://gobbajogger.github.io/DnBOX-nightly/install/) after startup problems. A later 0.0.26 development test build (`94197fc8`) replaced it. The project owner reported testing 0.0.25.1 and 0.0.26 on an SMK-37 Elite. The Pro has not been tested on a device yet. This is not a full hardware qualification of either model. Prefer the published [v0.0.25.1](https://gobbajogger.github.io/DnBOX/install/) package unless you are deliberately testing the nightly candidate.
+The earlier `600b3b45` package was withdrawn after startup problems. The published v0.0.26 package at `94197fc8` contains the boot-guard correction. [Release notes](https://github.com/gobbajogger/DnBOX/releases/tag/v0.0.26).
 
 ## FAQ
 
@@ -54,9 +54,9 @@ An earlier **0.0.26** candidate (`600b3b45`) was withdrawn from the [nightly ins
 
 **Do I have to back up first?** Yes, if you have anything in the sample slots you want to keep. The installer can back them up. An install that would otherwise lose loops saves them first and writes them back after, but a backup of your own is still the safe option.
 
-**Has this been tested on a real keyboard?** The current public package, v0.0.25.1, is software-checked only. It is **not** labelled hardware-tested.
+**Has this been tested on a real keyboard?** Yes. The owner verified startup and restart on a physical Elite and Pro using v0.0.26. [Test details](https://github.com/gobbajogger/DnBOX/releases/tag/v0.0.26).
 
-**How do I go back to stock firmware?** Use the installer restore option, or M-VAVE M-UPGRADE. See [Restore and rescue](#restore-and-rescue).
+**How do I go back to stock firmware?** Use the manufacturer’s M-UPGRADE procedure for your exact model. See [Restore and rescue](#restore-and-rescue).
 
 **Where is the source and the issue tracker?** This repository, [gobbajogger/DnBOX](https://github.com/gobbajogger/DnBOX). The published installer is on [GitHub Pages](https://gobbajogger.github.io/DnBOX/install/). Work in progress is tracked in [issue #967](https://github.com/gobbajogger/DnBOX/issues/967).
 

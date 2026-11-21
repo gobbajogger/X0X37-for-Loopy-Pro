@@ -1,0 +1,47 @@
+fw-scheduler
+....
+----------------------------------------------------------------------
+Ran 4 tests in 1.638s
+
+OK
+
+fw-overlay
+overlay selector: 14 cases passed (scheduler only)
+
+fw-fixed
+runner admission: 13 cases passed
+candidate jobs=1 selected='fastmath': 0.512s, scenario mkdir=0, scratch writes=0, key formats=0
+candidate jobs=1 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 4.812s, scenario mkdir=4, scratch writes=1, key formats=0
+candidate jobs=4 selected='fastmath': 1.756s, scenario mkdir=0, scratch writes=0, key formats=2
+candidate jobs=4 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 4.969s, scenario mkdir=4, scratch writes=1, key formats=14
+candidate jobs=2 selected='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch': 4.847s, scenario mkdir=4, scratch writes=1, key formats=14
+
+admission-negative
+PASS serialized scheduler rejected: install-slots-web never overlapped fastmath; runner returned 1
+
+roadmap-final
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 4.670s
+
+OK
+
+fw-form-final
+7f87de1039538670cf41f39072483ca5ff390f82
+PASS enhancement issue form and eight-field installer report, including distinct startup and restart outcomes
+original inputs: PASS (10 active, manifest 9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc)
+
+fw-freeplay-retry
+PASS actual FREE PLAY visibility/no-loss and missing-cue/wrong-state negatives
+
+combined-retrigger
+...
+----------------------------------------------------------------------
+Ran 3 tests in 3.907s
+
+OK
+BREAK probability: 1536 bit-exact comparisons PASS
+BREAK probability: 1536 bit-exact comparisons PASS
+
+combined-juno
+juno production runtime: six voices, sustain, release, render PASS; backend=3896 juno=888

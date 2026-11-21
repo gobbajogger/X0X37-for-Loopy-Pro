@@ -13,10 +13,15 @@ anchor='&& ui.freeplay[bidx()] && !ui.rec'
 if s.count(anchor)!=1:raise SystemExit('missing/duplicate mode anchor')
 cue='free_mode?"FREE PLAY":VIEW_N[ui.view]'
 if s.count(cue)!=1:raise SystemExit('missing/duplicate cue anchor')
-# Mutate the current compositor, keeping its includes and helper signatures
-# compatible. A historical ui.c can fail to compile before the pixel oracle.
-for name,text,marker in [('missing-cue',s.replace(cue,'VIEW_N[ui.view]'),'FREE_PLAY_MODE_CUE_MISSING'),('always-free',s.replace(anchor,'&& !ui.rec'),'FREE_PLAY_MODE_CUE_UNEXPECTED')]:
+# Before fd29ace4 the sequencer header always used the part/view title and normal
+# header font. Making free_mode false selects those same paths on this checkout.
+controls = [
+    ('missing-cue', s.replace(anchor, '&& 0'), 'FREE_PLAY_MODE_CUE_MISSING'),
+    ('missing-label', s.replace(cue, 'VIEW_N[ui.view]'), 'FREE_PLAY_MODE_CUE_MISSING'),
+    ('always-free', s.replace(anchor, '&& !ui.rec'), 'FREE_PLAY_MODE_CUE_UNEXPECTED'),
+]
+for name, text, marker in controls:
  with tempfile.TemporaryDirectory(prefix='freeplay-mode-negative-') as d:
   f=Path(d)/'ui.c';f.write_text(text);p=run(name,f)
   if not p.returncode or marker not in p.stdout or 'FAIL ' not in p.stdout:raise SystemExit(name+' not rejected as intended '+p.stdout[-3000:])
-print('PASS actual FREE PLAY visibility/no-loss and missing-cue/wrong-state runtime negatives')
+print('PASS actual FREE PLAY visibility/no-loss and missing-cue/wrong-state negatives')
